@@ -5,8 +5,7 @@ Securely store and access credentials for AWS. AWS Vault stores IAM credentials 
 
 Currently OSX and Keychain are supported, with support for Linux and Windows planned.
 
-Usage
------
+## Usage
 
 ```bash
 $ aws-vault store
@@ -22,5 +21,7 @@ $ aws-vault rm
 Delete credentials for profile "default"? Y
 ```
 
+## Reference
 
+ * http://docs.aws.amazon.com/IAM/latest/UserGuide/IAMBestPractices.html#create-iam-users
 

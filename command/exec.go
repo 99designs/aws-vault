@@ -7,9 +7,12 @@ import (
 	"os/exec"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/99designs/aws-vault/keyring"
 	"github.com/99designs/aws-vault/vault"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/mitchellh/cli"
 )
 
@@ -19,7 +22,13 @@ type ExecCommand struct {
 }
 
 func (c *ExecCommand) Run(args []string) int {
+	var (
+		sessionToken    bool
+		sessionDuration time.Duration
+	)
 	config, err := parseFlags(args, func(f *flag.FlagSet) {
+		f.BoolVar(&sessionToken, "session", true, "generate a session token via STS")
+		f.DurationVar(&sessionDuration, "duration", time.Hour*1, "duration for session token")
 		f.Usage = func() { c.Ui.Output(c.Help()) }
 	})
 	cmdArgs := config.Args()
@@ -46,8 +55,23 @@ func (c *ExecCommand) Run(args []string) int {
 	}
 
 	env := os.Environ()
-	for _, val := range creds.Environ() {
-		env = append(env, val)
+
+	if sessionToken {
+		svc := sts.New(creds.AwsConfig())
+		stsEnv, err := getSessionTokenEnviron(svc, sessionDuration)
+		if err != nil {
+			c.Ui.Error(err.Error())
+			return 6
+		}
+
+		for _, val := range stsEnv {
+			env = append(env, val)
+		}
+
+	} else {
+		for _, val := range creds.Environ() {
+			env = append(env, val)
+		}
 	}
 
 	env = append(env, "AWS_DEFAULT_PROFILE="+config.Profile)
@@ -58,6 +82,31 @@ func (c *ExecCommand) Run(args []string) int {
 	}
 
 	return 0
+}
+
+func getSessionToken(svc *sts.STS, duration time.Duration) (*sts.Credentials, error) {
+	params := &sts.GetSessionTokenInput{
+		DurationSeconds: aws.Int64(int64(duration.Seconds())),
+	}
+	resp, err := svc.GetSessionToken(params)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.Credentials, nil
+}
+
+func getSessionTokenEnviron(svc *sts.STS, duration time.Duration) ([]string, error) {
+	creds, err := getSessionToken(svc, duration)
+	if err != nil {
+		return []string{}, err
+	}
+
+	return []string{
+		"AWS_ACCESS_KEY_ID=" + *creds.AccessKeyID,
+		"AWS_SECRET_ACCESS_KEY=" + *creds.SecretAccessKey,
+		"AWS_SESSION_TOKEN=" + *creds.SessionToken,
+	}, nil
 }
 
 func (c *ExecCommand) Help() string {

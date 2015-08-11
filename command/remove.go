@@ -2,6 +2,7 @@ package command
 
 import (
 	"flag"
+	"fmt"
 	"strings"
 
 	"github.com/99designs/aws-vault/keyring"
@@ -15,22 +16,24 @@ type RemoveCommand struct {
 }
 
 func (c *RemoveCommand) Run(args []string) int {
-	cmdFlags := flag.NewFlagSet("rm", flag.ContinueOnError)
-	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
-	if err := cmdFlags.Parse(args); err != nil {
-		return 1
-	}
-	cmdArgs := cmdFlags.Args()
-	if len(cmdArgs) == 0 {
-		c.Ui.Error("Expected the name of the key to remove")
-		return 1
-	}
+	config, err := parseFlags(args, func(f *flag.FlagSet) {
+		f.Usage = func() { c.Ui.Output(c.Help()) }
+	})
 
-	if err := c.Keyring.Remove(vault.ServiceName, cmdArgs[0]); err != nil {
+	r, err := c.Ui.Ask(fmt.Sprintf("Delete credentials for profile %q? (Y|n)", config.Profile))
+	if err != nil {
 		c.Ui.Error(err.Error())
+		return 2
+	} else if r == "N" || r == "n" {
 		return 3
 	}
 
+	if err := c.Keyring.Remove(vault.ServiceName, config.Profile); err != nil {
+		c.Ui.Error(err.Error())
+		return 4
+	}
+
+	c.Ui.Info(fmt.Sprintf("\nRemoved credentials for profile %q from vault", config.Profile))
 	return 0
 }
 

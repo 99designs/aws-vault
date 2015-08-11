@@ -24,8 +24,8 @@ func main() {
 	c := cli.NewCLI("aws-vault", Version)
 	c.Args = os.Args[1:]
 	c.Commands = map[string]cli.CommandFactory{
-		"add": func() (cli.Command, error) {
-			return &command.AddCommand{
+		"store": func() (cli.Command, error) {
+			return &command.StoreCommand{
 				Ui:      ui,
 				Keyring: k,
 			}, nil

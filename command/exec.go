@@ -19,18 +19,15 @@ type ExecCommand struct {
 }
 
 func (c *ExecCommand) Run(args []string) int {
-	cmdFlags := flag.NewFlagSet("exec", flag.ContinueOnError)
-	cmdFlags.Usage = func() { c.Ui.Output(c.Help()) }
-	if err := cmdFlags.Parse(args); err != nil {
-		return 1
-	}
-	cmdArgs := cmdFlags.Args()
-	if len(cmdArgs) < 2 {
-		c.Ui.Error("Expected more arguments")
+	config, err := parseFlags(args, func(f *flag.FlagSet) {
+		f.Usage = func() { c.Ui.Output(c.Help()) }
+	})
+	cmdArgs := config.Args()
+	if len(cmdArgs) < 1 {
 		c.Ui.Output(c.Help())
 		return 1
 	}
-	b, err := c.Keyring.Get(vault.ServiceName, cmdArgs[0])
+	b, err := c.Keyring.Get(vault.ServiceName, config.Profile)
 	if err != nil {
 		c.Ui.Error(err.Error())
 		return 3
@@ -42,7 +39,7 @@ func (c *ExecCommand) Run(args []string) int {
 		return 4
 	}
 
-	bin, lookErr := exec.LookPath(cmdArgs[1])
+	bin, lookErr := exec.LookPath(cmdArgs[0])
 	if lookErr != nil {
 		c.Ui.Error(err.Error())
 		return 5
@@ -53,7 +50,8 @@ func (c *ExecCommand) Run(args []string) int {
 		env = append(env, val)
 	}
 
-	execErr := syscall.Exec(bin, cmdArgs[2:], env)
+	env = append(env, "AWS_DEFAULT_PROFILE="+config.Profile)
+	execErr := syscall.Exec(bin, cmdArgs, env)
 	if execErr != nil {
 		c.Ui.Error(execErr.Error())
 		return 6

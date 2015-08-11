@@ -1,0 +1,18 @@
+{
+	"ImportPath": "github.com/99designs/aws-vault",
+	"GoVersion": "go1.4.2",
+	"Deps": [
+		{
+			"ImportPath": "github.com/keybase/go-osxkeychain",
+			"Rev": "705bd84e1aca99ab98f9494db833c53e6cb0e221"
+		},
+		{
+			"ImportPath": "github.com/mitchellh/cli",
+			"Rev": "6cc8bc522243675a2882b81662b0b0d2e04b99c9"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/ssh/terminal",
+			"Rev": "731db29863ea7213d9556d0170afb38987f401d4"
+		}
+	]
+}

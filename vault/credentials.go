@@ -1,13 +1,14 @@
 package vault
 
 import (
-	"time"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 )
 
-const ServiceName = "aws-vault"
+const (
+	ServiceName        = "aws-vault"
+	SessionServiceName = "aws-vault.sessions"
+)
 
 type Credentials struct {
 	AccessKeyId string
@@ -25,10 +26,4 @@ func (c Credentials) AwsConfig() *aws.Config {
 	return aws.DefaultConfig.WithCredentials(credentials.NewStaticCredentials(
 		c.AccessKeyId, c.SecretKey, "",
 	))
-}
-
-type TemporaryCredentials struct {
-	Credentials
-	Expiration   time.Time
-	SessionToken string
 }

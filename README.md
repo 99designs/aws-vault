@@ -8,20 +8,53 @@ Currently OSX and Keychain are supported, with support for Linux and Windows pla
 ## Usage
 
 ```bash
+
+# make use of the default profile
 $ aws-vault store
 Enter Access Key Id: ABDCDEFDASDASF
 Enter Secret Key: %
 
-$ aws-vault exec bash -c "env | grep AWS"
+$ aws-vault exec env | grep AWS
 AWS_DEFAULT_PROFILE=default
 AWS_ACCESS_KEY_ID=asdasd
 AWS_SECRET_ACCESS_KEY=aasdasdasda
 
-$ aws-vault rm
-Delete credentials for profile "default"? Y
+# add an extra profile
+$ aws-vault store --profile work
+Enter Access Key Id: ABDCDEFDASDASF
+Enter Secret Key: %
+
+$ aws-vault exec --profile work env | grep AWS
+AWS_DEFAULT_PROFILE=work
+AWS_ACCESS_KEY_ID=asdasd
+AWS_SECRET_ACCESS_KEY=aasdasdasda
 ```
 
-## Reference
+## Multi-Factor Authentication
 
+First you'll need to [setup an MFA token in the AWS Console](http://docs.aws.amazon.com/IAM/latest/UserGuide/GenerateMFAConfigAccount.html).
+
+Edit your `~/.aws/config` to add the mfa_serial into either the default or a profile
+
+```
+[default]
+region=us-east-1
+mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
+```
+
+Test it out:
+
+```bash
+aws-vault exec aws iam get-user
+```
+
+## References and Inspiration
+
+ * http://docs.aws.amazon.com/IAM/latest/UserGuide/MFAProtectedAPI.html
  * http://docs.aws.amazon.com/IAM/latest/UserGuide/IAMBestPractices.html#create-iam-users
+ * https://github.com/paperg/awsudo
+ * https://github.com/AdRoll/hologram
+ * https://github.com/realestate-com-au/credulous
+ * https://github.com/dump247/aws-mock-metadata
+ * http://boto.readthedocs.org/en/latest/boto_config_tut.html
 

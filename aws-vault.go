@@ -20,7 +20,6 @@ func main() {
 	}
 
 	k := keyring.DefaultKeyring
-
 	c := cli.NewCLI("aws-vault", Version)
 	c.Args = os.Args[1:]
 	c.Commands = map[string]cli.CommandFactory{

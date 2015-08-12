@@ -14,7 +14,7 @@ type config struct {
 
 func parseFlags(args []string, f func(flagSet *flag.FlagSet)) (*config, error) {
 	cfg := &config{}
-	cfg.FlagSet = flag.NewFlagSet("", flag.ContinueOnError)
+	cfg.FlagSet = flag.NewFlagSet("", flag.ExitOnError)
 	cfg.FlagSet.StringVar(&cfg.Profile, "profile", defaultProfile, "the credential profile to use")
 	f(cfg.FlagSet)
 

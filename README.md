@@ -46,6 +46,17 @@ Test it out:
 
 ```bash
 aws-vault exec aws iam get-user
+Enter token code for "arn:aws:iam::123456789012:mfa/jonsmith": %
+{
+    "User": {
+        "UserName": "jonsmith",
+        "PasswordLastUsed": "2015-01-08T03:01:24Z",
+        "CreateDate": "2011-06-13T23:32:35Z",
+        "UserId": "AIDAAS545ABFI3NS",
+        "Path": "/",
+        "Arn": "arn:aws:iam::123456789012:user/jonsmith"
+    }
+}
 ```
 
 ## References and Inspiration

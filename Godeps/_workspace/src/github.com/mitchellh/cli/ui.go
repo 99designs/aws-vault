@@ -9,7 +9,7 @@ import (
 	"os/signal"
 	"strings"
 
-	"golang.org/x/crypto/ssh/terminal"
+	"github.com/99designs/aws-vault/Godeps/_workspace/src/golang.org/x/crypto/ssh/terminal"
 )
 
 // Ui is an interface for interacting with the terminal, or "interface"

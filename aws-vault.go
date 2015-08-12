@@ -4,9 +4,9 @@ import (
 	"log"
 	"os"
 
+	"github.com/99designs/aws-vault/Godeps/_workspace/src/github.com/mitchellh/cli"
 	"github.com/99designs/aws-vault/command"
 	"github.com/99designs/aws-vault/keyring"
-	"github.com/mitchellh/cli"
 )
 
 var (

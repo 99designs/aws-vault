@@ -25,10 +25,8 @@ func LoadAWSProfile(name string) (AWSProfile, error) {
 	if err != nil {
 		return AWSProfile{}, err
 	}
-	for name, section := range f {
-		sectionName := strings.TrimPrefix(name, "profile ")
-
-		if sectionName == name {
+	for sectionName, section := range f {
+		if strings.TrimPrefix(sectionName, "profile ") == name {
 			return AWSProfile{
 				Region:        section["region"],
 				MFASerial:     section["mfa_serial"],

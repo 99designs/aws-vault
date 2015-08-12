@@ -1,7 +1,6 @@
 package command
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -25,14 +24,13 @@ type ExecCommand struct {
 func (c *ExecCommand) Run(args []string) int {
 	var (
 		session, noSession bool
-		sessionDuration    time.Duration
-		mfa, noMfa         bool
+		duration           time.Duration
+		noMfa              bool
 	)
 	config, err := parseFlags(args, func(f *flag.FlagSet) {
 		f.BoolVar(&session, "session", true, "generate a session token via STS")
 		f.BoolVar(&noSession, "no-session", false, "generate a session token via STS")
-		f.DurationVar(&sessionDuration, "duration", time.Hour*1, "duration for session token")
-		f.BoolVar(&mfa, "mfa", true, "prompt for an mfa token if needed")
+		f.DurationVar(&duration, "duration", time.Hour*1, "duration for session token")
 		f.BoolVar(&noMfa, "no-mfa", false, "don't prompt for an mfa token")
 		f.Usage = func() { c.Ui.Output(c.Help()) }
 	})
@@ -46,32 +44,19 @@ func (c *ExecCommand) Run(args []string) int {
 		c.Ui.Output(c.Help())
 		return 1
 	}
-	b, err := c.Keyring.Get(vault.ServiceName, config.Profile)
+
+	profile, err := vault.LoadAWSProfile(config.Profile)
 	if err != nil {
 		c.Ui.Error(err.Error())
 		return 1
 	}
 
-	profiles, err := vault.LoadAWSProfiles()
-	if err != nil {
-		c.Ui.Error(err.Error())
-		return 1
-	}
-
-	profile, ok := profiles[config.Profile]
-	if !ok {
-		c.Ui.Error("Unknown profile " + config.Profile)
-		return 1
+	if noMfa {
+		profile.MFASerial = ""
 	}
 
 	env := os.Environ()
 	env = append(env, "AWS_DEFAULT_PROFILE="+config.Profile)
-
-	var creds vault.Credentials
-	if err = json.Unmarshal(b, &creds); err != nil {
-		c.Ui.Error(err.Error())
-		return 1
-	}
 
 	bin, lookErr := exec.LookPath(cmdArgs[0])
 	if lookErr != nil {
@@ -80,37 +65,38 @@ func (c *ExecCommand) Run(args []string) int {
 	}
 
 	if session && !noSession {
-		svc := sts.New(creds.AwsConfig())
+		var sessionCreds *sts.Credentials
+		var err error
 
-		params := &sts.GetSessionTokenInput{
-			DurationSeconds: aws.Int64(int64(sessionDuration.Seconds())),
-		}
+		// look for cached session credentials first
+		keyring.Unmarshal(c.Keyring, vault.SessionServiceName, config.Profile, &sessionCreds)
 
-		if mfa && !noMfa && profile.MFASerial != "" {
-			token, err := c.Ui.AskSecret(fmt.Sprintf("Enter token code for %q:", profile.MFASerial))
+		// otherwise get fresh credentials
+		if sessionCreds == nil || time.Now().After(*sessionCreds.Expiration) {
+			sessionCreds, err = c.sessionCredentials(config.Profile, profile.MFASerial, duration)
 			if err != nil {
 				c.Ui.Error(err.Error())
 				return 1
 			}
-			c.Ui.Output("")
-			params.SerialNumber = aws.String(profile.MFASerial)
-			params.TokenCode = aws.String(token)
+
+			// cache the session credentials for next time
+			err = keyring.Marshal(c.Keyring, vault.SessionServiceName, config.Profile, sessionCreds)
+			if err != nil {
+				c.Ui.Error(err.Error())
+				return 1
+			}
 		}
 
-		resp, err := svc.GetSessionToken(params)
+		env = append(env, "AWS_ACCESS_KEY_ID="+*sessionCreds.AccessKeyID)
+		env = append(env, "AWS_SECRET_ACCESS_KEY="+*sessionCreds.SecretAccessKey)
+		env = append(env, "AWS_SESSION_TOKEN="+*sessionCreds.SessionToken)
+	} else {
+		creds, err := c.credentials(config.Profile)
 		if err != nil {
 			c.Ui.Error(err.Error())
 			return 1
 		}
-
-		for _, val := range sessionTokenEnviron(resp.Credentials) {
-			env = append(env, val)
-		}
-
-	} else {
-		for _, val := range creds.Environ() {
-			env = append(env, val)
-		}
+		env = append(env, creds.Environ()...)
 	}
 
 	execErr := syscall.Exec(bin, cmdArgs, env)
@@ -122,12 +108,47 @@ func (c *ExecCommand) Run(args []string) int {
 	return 0
 }
 
-func sessionTokenEnviron(creds *sts.Credentials) []string {
-	return []string{
-		"AWS_ACCESS_KEY_ID=" + *creds.AccessKeyID,
-		"AWS_SECRET_ACCESS_KEY=" + *creds.SecretAccessKey,
-		"AWS_SESSION_TOKEN=" + *creds.SessionToken,
+func (c *ExecCommand) credentials(profile string) (*vault.Credentials, error) {
+	var creds vault.Credentials
+	if err := keyring.Unmarshal(c.Keyring, vault.ServiceName, profile, &creds); err != nil {
+		return nil, err
 	}
+	return &creds, nil
+}
+
+func (c *ExecCommand) sessionCredentials(profile string, serial string, d time.Duration) (*sts.Credentials, error) {
+	creds, err := c.credentials(profile)
+	if err != nil {
+		return nil, err
+	}
+	input := &sts.GetSessionTokenInput{
+		DurationSeconds: aws.Int64(int64(d.Seconds())),
+	}
+	err = c.promptMfa(serial, func(token string) {
+		input.SerialNumber = aws.String(serial)
+		input.TokenCode = aws.String(token)
+	})
+	if err != nil {
+		return nil, err
+	}
+	svc := sts.New(creds.AwsConfig())
+	resp, err := svc.GetSessionToken(input)
+	if err != nil {
+		return nil, err
+	}
+	return resp.Credentials, nil
+}
+
+func (c *ExecCommand) promptMfa(SerialNumber string, f func(token string)) error {
+	if SerialNumber != "" {
+		token, err := c.Ui.AskSecret(fmt.Sprintf("Enter token code for %q:", SerialNumber))
+		if err != nil {
+			return err
+		}
+		c.Ui.Output("")
+		f(token)
+	}
+	return nil
 }
 
 func (c *ExecCommand) Help() string {
@@ -146,3 +167,17 @@ Options:
 func (c *ExecCommand) Synopsis() string {
 	return "Executes a command with the credentials from the given profile"
 }
+
+type stsCache struct {
+	*sts.STS
+	PromptMfaFunc func(SerialNumber string, input *sts.GetSessionTokenInput) error
+	MFASerial     string
+	Keyring       keyring.Keyring
+}
+
+// type cachedSTS struct {
+// 	*sts.STS
+// 	Keyring keyring.Keyring
+// }
+
+// func (c *cachedSTS) GetSessionToken(params)

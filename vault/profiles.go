@@ -1,6 +1,7 @@
 package vault
 
 import (
+	"errors"
 	"os"
 	"os/user"
 	"strings"
@@ -15,30 +16,37 @@ type AWSProfile struct {
 	SourceProfile string
 }
 
-func LoadAWSProfiles() (map[string]AWSProfile, error) {
-	configFile := os.Getenv("AWS_CONFIG_FILE")
-	if configFile == "" {
+var AWSConfigFile string
+
+var ErrProfileNotFound = errors.New("Profile not found")
+
+func LoadAWSProfile(name string) (AWSProfile, error) {
+	f, err := ini.LoadFile(AWSConfigFile)
+	if err != nil {
+		return AWSProfile{}, err
+	}
+	for name, section := range f {
+		sectionName := strings.TrimPrefix(name, "profile ")
+
+		if sectionName == name {
+			return AWSProfile{
+				Region:        section["region"],
+				MFASerial:     section["mfa_serial"],
+				RoleARN:       section["role_arn"],
+				SourceProfile: section["source_profile"],
+			}, nil
+		}
+	}
+	return AWSProfile{}, ErrProfileNotFound
+}
+
+func init() {
+	AWSConfigFile = os.Getenv("AWS_CONFIG_FILE")
+	if AWSConfigFile == "" {
 		usr, err := user.Current()
 		if err != nil {
-			return nil, err
+			panic(err)
 		}
-		configFile = usr.HomeDir + "/.aws/config"
+		AWSConfigFile = usr.HomeDir + "/.aws/config"
 	}
-
-	f, err := ini.LoadFile(configFile)
-	if err != nil {
-		return nil, err
-	}
-
-	profiles := map[string]AWSProfile{}
-	for name, section := range f {
-		profiles[strings.TrimPrefix(name, "profile ")] = AWSProfile{
-			Region:        section["region"],
-			MFASerial:     section["mfa_serial"],
-			RoleARN:       section["role_arn"],
-			SourceProfile: section["source_profile"],
-		}
-	}
-
-	return profiles, nil
 }

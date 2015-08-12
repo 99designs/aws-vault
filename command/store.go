@@ -1,7 +1,6 @@
 package command
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"strings"
@@ -37,15 +36,11 @@ func (c *StoreCommand) Run(args []string) int {
 		return 2
 	}
 
-	bytes, err := json.Marshal(&vault.Credentials{accessKeyId, secretKey})
-	if err != nil {
+	creds := vault.Credentials{accessKeyId, secretKey}
+
+	if err = keyring.Marshal(c.Keyring, vault.ServiceName, config.Profile, &creds); err != nil {
 		c.Ui.Error(err.Error())
 		return 3
-	}
-
-	if err = c.Keyring.Set(vault.ServiceName, config.Profile, bytes); err != nil {
-		c.Ui.Error(err.Error())
-		return 4
 	}
 
 	c.Ui.Info(fmt.Sprintf("\nAdded credentials to profile %q in vault", config.Profile))

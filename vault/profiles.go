@@ -6,7 +6,7 @@ import (
 	"os/user"
 	"strings"
 
-	"github.com/vaughan0/go-ini"
+	"github.com/99designs/aws-vault/Godeps/_workspace/src/github.com/vaughan0/go-ini"
 )
 
 type AWSProfile struct {

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/99designs/aws-vault/Godeps/_workspace/src/github.com/mitchellh/cli"
 	"github.com/99designs/aws-vault/keyring"
 	"github.com/99designs/aws-vault/vault"
-	"github.com/mitchellh/cli"
 )
 
 type StoreCommand struct {

@@ -1,8 +1,8 @@
 package vault
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/99designs/aws-vault/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws"
+	"github.com/99designs/aws-vault/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/credentials"
 )
 
 const (

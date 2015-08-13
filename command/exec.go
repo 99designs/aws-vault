@@ -10,11 +10,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/99designs/aws-vault/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws"
+	"github.com/99designs/aws-vault/Godeps/_workspace/src/github.com/aws/aws-sdk-go/service/sts"
+	"github.com/99designs/aws-vault/Godeps/_workspace/src/github.com/mitchellh/cli"
 	"github.com/99designs/aws-vault/keyring"
 	"github.com/99designs/aws-vault/vault"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/sts"
-	"github.com/mitchellh/cli"
 )
 
 type ExecCommand struct {

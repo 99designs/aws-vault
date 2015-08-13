@@ -15,8 +15,9 @@ var (
 
 func main() {
 	ui := &cli.BasicUi{
-		Writer: os.Stdout,
-		Reader: os.Stdin,
+		Writer:      os.Stdout,
+		Reader:      os.Stdin,
+		ErrorWriter: os.Stderr,
 	}
 
 	k := keyring.DefaultKeyring

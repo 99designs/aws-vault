@@ -11,15 +11,21 @@ import (
 )
 
 type StoreCommand struct {
-	Ui      cli.Ui
-	Keyring keyring.Keyring
+	Ui             cli.Ui
+	Keyring        keyring.Keyring
+	DefaultProfile string
 }
 
 func (c *StoreCommand) Run(args []string) int {
-	config, err := parseFlags(args, func(f *flag.FlagSet) {
-		f.Usage = func() { c.Ui.Output(c.Help()) }
-	})
-	if err != nil {
+	var (
+		profileName string
+	)
+	flagSet := flag.NewFlagSet("rm", flag.ExitOnError)
+	flagSet.StringVar(&profileName, "profile", c.DefaultProfile, "")
+	flagSet.StringVar(&profileName, "p", c.DefaultProfile, "")
+	flagSet.Usage = func() { c.Ui.Output(c.Help()) }
+
+	if err := flagSet.Parse(args); err != nil {
 		c.Ui.Error(err.Error())
 		return 1
 	}
@@ -38,12 +44,12 @@ func (c *StoreCommand) Run(args []string) int {
 
 	creds := vault.Credentials{accessKeyId, secretKey}
 
-	if err = keyring.Marshal(c.Keyring, vault.ServiceName, config.Profile, &creds); err != nil {
+	if err = keyring.Marshal(c.Keyring, vault.ServiceName, profileName, &creds); err != nil {
 		c.Ui.Error(err.Error())
 		return 3
 	}
 
-	c.Ui.Info(fmt.Sprintf("\nAdded credentials to profile %q in vault", config.Profile))
+	c.Ui.Info(fmt.Sprintf("\nAdded credentials to profile %q in vault", profileName))
 	return 0
 }
 

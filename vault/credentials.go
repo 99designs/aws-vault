@@ -3,6 +3,7 @@ package vault
 import (
 	"github.com/99designs/aws-vault/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws"
 	"github.com/99designs/aws-vault/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/99designs/aws-vault/Godeps/_workspace/src/github.com/aws/aws-sdk-go/service/sts"
 )
 
 const (
@@ -26,4 +27,8 @@ func (c Credentials) AwsConfig() *aws.Config {
 	return aws.DefaultConfig.WithCredentials(credentials.NewStaticCredentials(
 		c.AccessKeyId, c.SecretKey, "",
 	))
+}
+
+type SessionCredentials struct {
+	*sts.Credentials
 }

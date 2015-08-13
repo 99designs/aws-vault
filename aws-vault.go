@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"os"
 
@@ -19,26 +20,38 @@ func main() {
 		Reader: os.Stdin,
 	}
 
+	// handle profile at the top level, I always do this.
+	var profile string
+	flag.StringVar(&profile, "profile", command.ProfileFromEnv(), "")
+	flag.StringVar(&profile, "p", command.ProfileFromEnv(), "")
+	flag.Parse()
+
+	// log.Printf("%s %#v",)
+
 	k := keyring.DefaultKeyring
 	c := cli.NewCLI("aws-vault", Version)
-	c.Args = os.Args[1:]
+	c.Args = flag.Args()
 	c.Commands = map[string]cli.CommandFactory{
 		"store": func() (cli.Command, error) {
 			return &command.StoreCommand{
-				Ui:      ui,
-				Keyring: k,
+				Ui:             ui,
+				Keyring:        k,
+				DefaultProfile: profile,
 			}, nil
 		},
 		"rm": func() (cli.Command, error) {
 			return &command.RemoveCommand{
-				Ui:      ui,
-				Keyring: k,
+				Ui:             ui,
+				Keyring:        k,
+				DefaultProfile: profile,
 			}, nil
 		},
 		"exec": func() (cli.Command, error) {
 			return &command.ExecCommand{
-				Ui:      ui,
-				Keyring: k,
+				Ui:             ui,
+				Keyring:        k,
+				Env:            os.Environ(),
+				DefaultProfile: profile,
 			}, nil
 		},
 		"ls": func() (cli.Command, error) {

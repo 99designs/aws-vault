@@ -14,11 +14,11 @@ type AliasCommand struct {
 	Ui cli.Ui
 }
 
-func shellCmds() (profileFile, aliasCmd, evalCmd string, err error) {
+func shellCmds(cmdToWrap string) (profileFile, aliasCmd, evalCmd string, err error) {
 	shell := filepath.Base(os.Getenv("SHELL"))
 
-	aliasCmd = "alias aws='aws-vault exec $(which aws)'"
-	evalCmd = `eval "$(aws-vault alias -s)"`
+	aliasCmd = fmt.Sprintf(`alias %s="aws-vault exec %s"`, cmdToWrap, cmdToWrap)
+	evalCmd = fmt.Sprintf(`eval "$(aws-vault alias -s %s)"`, cmdToWrap)
 
 	switch shell {
 	case "bash":
@@ -34,8 +34,9 @@ func shellCmds() (profileFile, aliasCmd, evalCmd string, err error) {
 
 func (c *AliasCommand) Run(args []string) int {
 	var aliasScript bool
+	var cmdToWrap string
 
-	_, err := parseFlags(args, func(f *flag.FlagSet) {
+	config, err := parseFlags(args, func(f *flag.FlagSet) {
 		f.BoolVar(&aliasScript, "s", false, "outputs shell script suitable for eval")
 		f.Usage = func() { c.Ui.Output(c.Help()) }
 	})
@@ -44,7 +45,17 @@ func (c *AliasCommand) Run(args []string) int {
 		return 1
 	}
 
-	profileFile, aliasCmd, evalCmd, err := shellCmds()
+	cmdArgs := config.Args()
+	if len(cmdArgs) > 1 {
+		c.Ui.Error("alias can only wrap a single command")
+		return 1
+	} else if len(cmdArgs) > 0 {
+		cmdToWrap = config.Arg(0)
+	} else {
+		cmdToWrap = "aws"
+	}
+
+	profileFile, aliasCmd, evalCmd, err := shellCmds(cmdToWrap)
 	if err != nil {
 		c.Ui.Error(err.Error())
 		return 1
@@ -53,8 +64,12 @@ func (c *AliasCommand) Run(args []string) int {
 	if aliasScript {
 		c.Ui.Info(aliasCmd)
 	} else {
-		c.Ui.Info(fmt.Sprintf("# Wrap aws automatically by adding the following to %s:\n", profileFile))
-		c.Ui.Info(evalCmd)
+		c.Ui.Info(fmt.Sprintf(
+			"# Wrap %s automatically by adding the following to %s:\n%s",
+			cmdToWrap,
+			profileFile,
+			evalCmd,
+		))
 	}
 
 	return 0
@@ -62,12 +77,12 @@ func (c *AliasCommand) Run(args []string) int {
 
 func (c *AliasCommand) Help() string {
 	helpText := `
-Usage: aws-vault alias
-  Shows shell instructions for wrapping aws. With -s, outputs shell script suitable for eval.
+Usage: aws-vault alias [-s] [cmd]
+  Shows shell instructions for wrapping a command (by default aws). With -s, outputs shell script suitable for eval.
 `
 	return strings.TrimSpace(helpText)
 }
 
 func (c *AliasCommand) Synopsis() string {
-	return "Shows shell instructions for wrapping aws"
+	return "Shows shell instructions for wrapping a command"
 }

@@ -47,6 +47,11 @@ func main() {
 				Keyring: k,
 			}, nil
 		},
+		"alias": func() (cli.Command, error) {
+			return &command.AliasCommand{
+				Ui: ui,
+			}, nil
+		},
 	}
 
 	exitStatus, err := c.Run()

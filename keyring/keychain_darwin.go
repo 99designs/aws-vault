@@ -38,6 +38,10 @@ func (k *OSXKeychain) Remove(service, key string) error {
 	return keychain.FindAndRemoveGenericPassword(&attributes)
 }
 
+func (k *OSXKeychain) List(service string) ([]string, error) {
+	return keychain.GetAllAccountNames(service)
+}
+
 func init() {
 	DefaultKeyring = &OSXKeychain{}
 }

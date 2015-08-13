@@ -9,16 +9,26 @@ import (
 	"github.com/99designs/aws-vault/Godeps/_workspace/src/github.com/vaughan0/go-ini"
 )
 
+var AWSConfigFile string
+
+func init() {
+	AWSConfigFile = os.Getenv("AWS_CONFIG_FILE")
+	if AWSConfigFile == "" {
+		usr, err := user.Current()
+		if err != nil {
+			panic(err)
+		}
+		AWSConfigFile = usr.HomeDir + "/.aws/config"
+	}
+}
+
 type AWSProfile struct {
+	Name          string
 	Region        string
 	MFASerial     string
 	RoleARN       string
 	SourceProfile string
 }
-
-var AWSConfigFile string
-
-var ErrProfileNotFound = errors.New("Profile not found")
 
 func LoadAWSProfile(name string) (AWSProfile, error) {
 	f, err := ini.LoadFile(AWSConfigFile)
@@ -38,13 +48,4 @@ func LoadAWSProfile(name string) (AWSProfile, error) {
 	return AWSProfile{}, ErrProfileNotFound
 }
 
-func init() {
-	AWSConfigFile = os.Getenv("AWS_CONFIG_FILE")
-	if AWSConfigFile == "" {
-		usr, err := user.Current()
-		if err != nil {
-			panic(err)
-		}
-		AWSConfigFile = usr.HomeDir + "/.aws/config"
-	}
-}
+var ErrProfileNotFound = errors.New("Profile not found")

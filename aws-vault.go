@@ -41,6 +41,12 @@ func main() {
 				Keyring: k,
 			}, nil
 		},
+		"ls": func() (cli.Command, error) {
+			return &command.ListCommand{
+				Ui:      ui,
+				Keyring: k,
+			}, nil
+		},
 	}
 
 	exitStatus, err := c.Run()

@@ -36,15 +36,16 @@ type ExecCommand struct {
 
 func (c *ExecCommand) Run(args []string) int {
 	var (
-		noMfa, noSession, session bool
-		profileName               string
-		sessionDuration           time.Duration
+		refresh, noMfa, noSession, session bool
+		profileName                        string
+		sessionDuration                    time.Duration
 	)
 	flagSet := flag.NewFlagSet("exec", flag.ExitOnError)
 	flagSet.StringVar(&profileName, "profile", c.DefaultProfile, "")
 	flagSet.StringVar(&profileName, "p", c.DefaultProfile, "")
 	flagSet.BoolVar(&session, "session", true, "")
 	flagSet.DurationVar(&sessionDuration, "duration", DefaultSessionDuration, "")
+	flagSet.BoolVar(&refresh, "refresh", false, "")
 	flagSet.BoolVar(&noMfa, "no-mfa", false, "")
 	flagSet.BoolVar(&noSession, "no-session", false, "")
 	flagSet.Usage = func() { c.Ui.Output(c.Help()) }
@@ -89,7 +90,7 @@ func (c *ExecCommand) Run(args []string) int {
 		keyring.Unmarshal(c.Keyring, vault.SessionServiceName, profileName, &sessionCreds)
 
 		// otherwise get fresh credentials
-		if sessionCreds == nil || time.Now().After(*sessionCreds.Expiration) {
+		if sessionCreds == nil || refresh || time.Now().After(*sessionCreds.Expiration) {
 			if profile.RoleARN != "" {
 				sessionCreds, err = c.assumeRole(sourceProfile, profile.RoleARN, sessionDuration)
 				if err != nil {
@@ -222,6 +223,7 @@ Options:
   --profile=default         Which aws profile to use, defaults to $AWS_DEFAULT_PROFILE
   --[no-]session            Whether to generate an STS session [default: session]
   --duration=1h             The duration for the STS session generated
+  --refresh                 Establish a new session, or refresh the existing one
 `
 	return strings.TrimSpace(helpText)
 }

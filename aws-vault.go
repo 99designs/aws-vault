@@ -42,6 +42,11 @@ func main() {
 				Ui: ui,
 			}, nil
 		},
+		"alias": func() (cli.Command, error) {
+			return &command.AliasCommand{
+				Ui: ui,
+			}, nil
+		},
 	}
 
 	exitStatus, err := c.Run()

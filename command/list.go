@@ -14,13 +14,18 @@ type ListCommand struct {
 }
 
 func (c *ListCommand) Run(args []string) int {
+	if c.Keyring == nil {
+		c.Keyring = keyring.DefaultKeyring
+	}
+
 	profileNames, err := c.Keyring.List(vault.ServiceName)
 	if err != nil {
 		c.Ui.Error(err.Error())
 		return 4
 	}
-
-	c.Ui.Output(strings.Join(profileNames, "\n"))
+	for _, p := range profileNames {
+		c.Ui.Output(p)
+	}
 	return 0
 }
 

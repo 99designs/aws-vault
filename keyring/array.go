@@ -13,7 +13,14 @@ func (k *ArrayKeyring) Get(service, key string) ([]byte, error) {
 }
 
 func (k *ArrayKeyring) Set(service, key string, secret []byte) error {
-	k.secrets[service][key] = secret
+	if k.secrets == nil {
+		k.secrets = map[string]map[string][]byte{}
+	}
+	if _, ok := k.secrets[service]; !ok {
+		k.secrets[service] = map[string][]byte{key: secret}
+	} else {
+		k.secrets[service][key] = secret
+	}
 	return nil
 }
 

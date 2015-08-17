@@ -69,12 +69,6 @@ func (c *StoreCommand) Run(args []string) int {
 	return 0
 }
 
-func storeCredentials(k keyring.Keyring, profileName, accessKeyId, secretKey string) error {
-	creds := vault.Credentials{accessKeyId, secretKey}
-
-	return keyring.Marshal(k, vault.ServiceName, profileName, &creds)
-}
-
 func (c *StoreCommand) Help() string {
 	helpText := `
 Usage: aws-vault store [--profile=default]

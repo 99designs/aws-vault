@@ -115,12 +115,22 @@ func (c *ExecCommand) Run(args []string) int {
 		return 1
 	}
 
-	if err = syscall.Exec(bin, cmdArgs, c.env); err != nil {
+	p, err := os.StartProcess(bin, cmdArgs, &os.ProcAttr{
+		Env: c.env, Files: []*os.File{os.Stdin, os.Stdout, os.Stderr},
+	})
+
+	if err != nil {
 		c.Ui.Error(err.Error())
 		return 1
 	}
 
-	return 0
+	ps, err := p.Wait()
+	if err != nil {
+		c.Ui.Error(err.Error())
+		return 1
+	}
+
+	return ps.Sys().(syscall.WaitStatus).ExitStatus()
 }
 
 func (c *ExecCommand) GetToken(serial string) (string, error) {

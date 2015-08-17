@@ -6,6 +6,7 @@ import (
 
 	"github.com/99designs/aws-vault/Godeps/_workspace/src/github.com/mitchellh/cli"
 	"github.com/99designs/aws-vault/keyring"
+	"github.com/99designs/aws-vault/vault"
 )
 
 func TestListCommand_implements(t *testing.T) {
@@ -15,8 +16,9 @@ func TestListCommand_implements(t *testing.T) {
 func TestListCommandRun(t *testing.T) {
 	ui := new(cli.MockUi)
 	kr := &keyring.ArrayKeyring{}
+	p := &vault.Profile{Name: "llamas"}
 
-	if err := storeCredentials(kr, "llamas", "ABCDEFG", "XYZ"); err != nil {
+	if err := p.Keyring(kr).Store(vault.Credentials{"ABCDEFG", "XYZ"}); err != nil {
 		t.Fatal(err)
 	}
 

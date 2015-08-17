@@ -10,10 +10,14 @@ import (
 	"github.com/99designs/aws-vault/vault"
 )
 
+type storeProfileConfig interface {
+	Profile(name string) (*vault.Profile, error)
+}
+
 type StoreCommand struct {
-	Ui             cli.Ui
-	Keyring        keyring.Keyring
-	DefaultProfile string
+	Ui            cli.Ui
+	Keyring       keyring.Keyring
+	profileConfig storeProfileConfig
 }
 
 func (c *StoreCommand) Run(args []string) int {
@@ -21,12 +25,26 @@ func (c *StoreCommand) Run(args []string) int {
 		profileName string
 	)
 	flagSet := flag.NewFlagSet("rm", flag.ExitOnError)
-	flagSet.StringVar(&profileName, "profile", c.DefaultProfile, "")
-	flagSet.StringVar(&profileName, "p", c.DefaultProfile, "")
+	flagSet.StringVar(&profileName, "profile", ProfileFromEnv(), "")
+	flagSet.StringVar(&profileName, "p", ProfileFromEnv(), "")
 	flagSet.Usage = func() { c.Ui.Output(c.Help()) }
 
 	if err := flagSet.Parse(args); err != nil {
 		c.Ui.Error(err.Error())
+		return 1
+	}
+
+	if c.Keyring == nil {
+		c.Keyring = keyring.DefaultKeyring
+	}
+
+	if c.profileConfig == nil {
+		c.profileConfig = vault.DefaultProfileConfig
+	}
+
+	profile, err := c.profileConfig.Profile(profileName)
+	if err != nil {
+		c.Ui.Output(err.Error())
 		return 1
 	}
 
@@ -42,15 +60,19 @@ func (c *StoreCommand) Run(args []string) int {
 		return 2
 	}
 
-	creds := vault.Credentials{accessKeyId, secretKey}
-
-	if err = keyring.Marshal(c.Keyring, vault.ServiceName, profileName, &creds); err != nil {
+	if err = profile.Keyring(c.Keyring).Store(vault.Credentials{accessKeyId, secretKey}); err != nil {
 		c.Ui.Error(err.Error())
 		return 3
 	}
 
 	c.Ui.Info(fmt.Sprintf("\nAdded credentials to profile %q in vault", profileName))
 	return 0
+}
+
+func storeCredentials(k keyring.Keyring, profileName, accessKeyId, secretKey string) error {
+	creds := vault.Credentials{accessKeyId, secretKey}
+
+	return keyring.Marshal(k, vault.ServiceName, profileName, &creds)
 }
 
 func (c *StoreCommand) Help() string {

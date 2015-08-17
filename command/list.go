@@ -14,7 +14,6 @@ type ListCommand struct {
 }
 
 func (c *ListCommand) Run(args []string) int {
-
 	profileNames, err := c.Keyring.List(vault.ServiceName)
 	if err != nil {
 		c.Ui.Error(err.Error())
@@ -22,7 +21,6 @@ func (c *ListCommand) Run(args []string) int {
 	}
 
 	c.Ui.Output(strings.Join(profileNames, "\n"))
-
 	return 0
 }
 

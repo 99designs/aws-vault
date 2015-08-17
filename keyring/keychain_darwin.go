@@ -11,7 +11,11 @@ func (k *OSXKeychain) Get(service, key string) ([]byte, error) {
 		AccountName: key,
 	}
 
-	return keychain.FindGenericPassword(&attributes)
+	if b, err := keychain.FindGenericPassword(&attributes); err == keychain.ErrItemNotFound {
+		return b, ErrKeyNotFound
+	} else {
+		return b, err
+	}
 }
 
 func (k *OSXKeychain) Set(service, key string, secret []byte) error {
@@ -35,7 +39,11 @@ func (k *OSXKeychain) Remove(service, key string) error {
 		AccountName: key,
 	}
 
-	return keychain.FindAndRemoveGenericPassword(&attributes)
+	if err := keychain.FindAndRemoveGenericPassword(&attributes); err == keychain.ErrItemNotFound {
+		return ErrKeyNotFound
+	} else {
+		return err
+	}
 }
 
 func (k *OSXKeychain) List(service string) ([]string, error) {

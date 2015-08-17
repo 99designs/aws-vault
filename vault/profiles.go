@@ -1,7 +1,7 @@
 package vault
 
 import (
-	"errors"
+	"fmt"
 	"os"
 	"os/user"
 	"strings"
@@ -45,7 +45,10 @@ func LoadAWSProfile(name string) (AWSProfile, error) {
 			}, nil
 		}
 	}
-	return AWSProfile{}, ErrProfileNotFound
+	err = fmt.Errorf(
+		"Profile '%s' not found in %s",
+		name,
+		AWSConfigFile,
+	)
+	return AWSProfile{}, err
 }
-
-var ErrProfileNotFound = errors.New("Profile not found")

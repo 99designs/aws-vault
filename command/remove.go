@@ -10,14 +10,10 @@ import (
 	"github.com/99designs/aws-vault/vault"
 )
 
-type removeProfileConfig interface {
-	Profile(name string) (*vault.Profile, error)
-}
-
 type RemoveCommand struct {
 	Ui            cli.Ui
 	Keyring       keyring.Keyring
-	profileConfig removeProfileConfig
+	profileConfig profileConfig
 }
 
 func (c *RemoveCommand) Run(args []string) int {

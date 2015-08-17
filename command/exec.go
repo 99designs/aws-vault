@@ -18,21 +18,13 @@ const (
 	DefaultSessionDuration = time.Hour * 10
 )
 
-type execSessionProvider interface {
-	Session(conf vault.SessionConfig) (vault.SessionCredentials, error)
-}
-
-type execProfileConfig interface {
-	Profile(name string) (*vault.Profile, error)
-}
-
 // Executes a subcommand with credentials passed to it via the environment
 type ExecCommand struct {
 	Ui              cli.Ui
 	Keyring         keyring.Keyring
 	env             []string
-	sessionProvider execSessionProvider
-	profileConfig   execProfileConfig
+	sessionProvider sessionProvider
+	profileConfig   profileConfig
 }
 
 func (c *ExecCommand) Run(args []string) int {

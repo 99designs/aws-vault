@@ -18,6 +18,20 @@ type ProfileConfig struct {
 	profiles map[string]*Profile
 }
 
+func NewProfileConfig(profiles ...*Profile) *ProfileConfig {
+	c := &ProfileConfig{
+		File:     "map",
+		profiles: map[string]*Profile{},
+		parsed:   true,
+	}
+
+	for _, p := range profiles {
+		c.profiles[p.Name] = p
+	}
+
+	return c
+}
+
 type Profile struct {
 	Name          string
 	Region        string

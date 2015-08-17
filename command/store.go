@@ -10,14 +10,10 @@ import (
 	"github.com/99designs/aws-vault/vault"
 )
 
-type storeProfileConfig interface {
-	Profile(name string) (*vault.Profile, error)
-}
-
 type StoreCommand struct {
 	Ui            cli.Ui
 	Keyring       keyring.Keyring
-	profileConfig storeProfileConfig
+	profileConfig profileConfig
 }
 
 func (c *StoreCommand) Run(args []string) int {
@@ -44,7 +40,7 @@ func (c *StoreCommand) Run(args []string) int {
 
 	profile, err := c.profileConfig.Profile(profileName)
 	if err != nil {
-		c.Ui.Output(err.Error())
+		c.Ui.Error(err.Error())
 		return 1
 	}
 

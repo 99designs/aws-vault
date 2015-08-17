@@ -1,6 +1,9 @@
 package keyring
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"errors"
+)
 
 type Keyring interface {
 	Get(service, key string) ([]byte, error)
@@ -29,3 +32,5 @@ func Unmarshal(k Keyring, service, key string, obj interface{}) error {
 }
 
 var DefaultKeyring Keyring
+
+var ErrKeyNotFound = errors.New("The specified item could not be found in the keychain.")

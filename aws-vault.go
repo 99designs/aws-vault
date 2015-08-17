@@ -1,13 +1,11 @@
 package main
 
 import (
-	"flag"
 	"log"
 	"os"
 
 	"github.com/99designs/aws-vault/Godeps/_workspace/src/github.com/mitchellh/cli"
 	"github.com/99designs/aws-vault/command"
-	"github.com/99designs/aws-vault/keyring"
 )
 
 var (
@@ -21,44 +19,27 @@ func main() {
 		ErrorWriter: os.Stderr,
 	}
 
-	// handle profile at the top level, I always do this.
-	var profile string
-	flag.StringVar(&profile, "profile", command.ProfileFromEnv(), "")
-	flag.StringVar(&profile, "p", command.ProfileFromEnv(), "")
-	flag.Parse()
-
-	// log.Printf("%s %#v",)
-
-	k := keyring.DefaultKeyring
 	c := cli.NewCLI("aws-vault", Version)
-	c.Args = flag.Args()
+	c.Args = os.Args[1:]
 	c.Commands = map[string]cli.CommandFactory{
 		"store": func() (cli.Command, error) {
 			return &command.StoreCommand{
-				Ui:             ui,
-				Keyring:        k,
-				DefaultProfile: profile,
+				Ui: ui,
 			}, nil
 		},
 		"rm": func() (cli.Command, error) {
 			return &command.RemoveCommand{
-				Ui:             ui,
-				Keyring:        k,
-				DefaultProfile: profile,
+				Ui: ui,
 			}, nil
 		},
 		"exec": func() (cli.Command, error) {
 			return &command.ExecCommand{
-				Ui:             ui,
-				Keyring:        k,
-				Env:            os.Environ(),
-				DefaultProfile: profile,
+				Ui: ui,
 			}, nil
 		},
 		"ls": func() (cli.Command, error) {
 			return &command.ListCommand{
-				Ui:      ui,
-				Keyring: k,
+				Ui: ui,
 			}, nil
 		},
 	}

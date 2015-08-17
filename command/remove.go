@@ -43,7 +43,18 @@ func (c *RemoveCommand) Run(args []string) int {
 		return 4
 	}
 
-	c.Ui.Info(fmt.Sprintf("\nRemoved credentials for profile %q from vault", profileName))
+	// remove session
+	_, err = c.Keyring.Get(vault.SessionServiceName, profileName)
+	sessionExists := (err == nil)
+	if sessionExists {
+		if err := c.Keyring.Remove(vault.SessionServiceName, profileName); err != nil {
+			c.Ui.Error(err.Error())
+			return 5
+		}
+	}
+
+	c.Ui.Info(fmt.Sprintf("\nRemoved credentials and sessions for profile %q from vault", profileName))
+
 	return 0
 }
 

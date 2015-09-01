@@ -31,6 +31,14 @@ func Unmarshal(k Keyring, service, key string, obj interface{}) error {
 	return nil
 }
 
-var DefaultKeyring Keyring
+func DefaultKeyring() (Keyring, error) {
+	if len(keyrings) == 0 {
+		return nil, ErrNoAvailImpl
+	}
+	return keyrings[0], nil
+}
 
+var keyrings []Keyring
+
+var ErrNoAvailImpl = errors.New("No keyring implementation for your platform available.")
 var ErrKeyNotFound = errors.New("The specified item could not be found in the keychain.")

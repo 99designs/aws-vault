@@ -31,7 +31,12 @@ func (c *StoreCommand) Run(args []string) int {
 	}
 
 	if c.Keyring == nil {
-		c.Keyring = keyring.DefaultKeyring
+		var err error
+		c.Keyring, err = keyring.DefaultKeyring()
+		if err != nil {
+			c.Ui.Error(err.Error())
+			return 1
+		}
 	}
 
 	if c.profileConfig == nil {

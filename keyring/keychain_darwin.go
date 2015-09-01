@@ -1,14 +1,26 @@
 package keyring
 
-import keychain "github.com/99designs/aws-vault/Godeps/_workspace/src/github.com/99designs/go-osxkeychain"
+import (
+	"os"
+	"os/user"
+
+	keychain "github.com/99designs/aws-vault/Godeps/_workspace/src/github.com/99designs/go-osxkeychain"
+)
+
+var keychainFile string
 
 type OSXKeychain struct {
+	path string
 }
 
 func (k *OSXKeychain) Get(service, key string) ([]byte, error) {
 	attributes := keychain.GenericPasswordAttributes{
 		ServiceName: service,
 		AccountName: key,
+	}
+
+	if k.path != "" {
+		attributes.Keychain = []string{k.path}
 	}
 
 	if b, err := keychain.FindGenericPassword(&attributes); err == keychain.ErrItemNotFound {
@@ -25,6 +37,18 @@ func (k *OSXKeychain) Set(service, key string, secret []byte) error {
 		Password:    secret,
 	}
 
+	if k.path != "" {
+		if _, err := os.Stat(k.path); os.IsNotExist(err) {
+			pass := os.Getenv("AWS_KEYCHAIN_PASSWORD")
+			if pass != "" {
+				keychain.CreateKeychain(k.path, pass)
+			} else {
+				keychain.CreateKeychainViaPrompt(k.path)
+			}
+		}
+		attributes.Keychain = []string{k.path}
+	}
+
 	err := keychain.AddGenericPassword(&attributes)
 	if err == keychain.ErrDuplicateItem {
 		return keychain.RemoveAndAddGenericPassword(&attributes)
@@ -39,6 +63,10 @@ func (k *OSXKeychain) Remove(service, key string) error {
 		AccountName: key,
 	}
 
+	if k.path != "" {
+		attributes.Keychain = []string{k.path}
+	}
+
 	if err := keychain.FindAndRemoveGenericPassword(&attributes); err == keychain.ErrItemNotFound {
 		return ErrKeyNotFound
 	} else {
@@ -47,9 +75,24 @@ func (k *OSXKeychain) Remove(service, key string) error {
 }
 
 func (k *OSXKeychain) List(service string) ([]string, error) {
-	return keychain.GetAllAccountNames(service)
+	keychains := []string{}
+
+	if k.path != "" {
+		keychains = []string{k.path}
+	}
+
+	return keychain.GetAllAccountNames(service, keychains...)
 }
 
 func init() {
-	DefaultKeyring = &OSXKeychain{}
+	file := os.Getenv("AWS_KEYCHAIN_FILE")
+	if file == "" {
+		usr, err := user.Current()
+		if err != nil {
+			panic(err)
+		}
+		file = usr.HomeDir + "/Library/Keychains/aws-vault.keychain"
+	}
+
+	keyrings = append(keyrings, &OSXKeychain{file})
 }

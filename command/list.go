@@ -28,9 +28,16 @@ func (c *ListCommand) Run(args []string) int {
 		c.Ui.Error(err.Error())
 		return 4
 	}
+
 	for _, p := range profileNames {
 		c.Ui.Output(p)
 	}
+
+	if len(profileNames) == 0 {
+		c.Ui.Error("No profiles found")
+		return 1
+	}
+
 	return 0
 }
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io/ioutil"
 	"log"
 	"os"
 
@@ -13,6 +14,10 @@ var (
 )
 
 func main() {
+	if os.Getenv("DEBUG") != "1" {
+		log.SetOutput(ioutil.Discard)
+	}
+
 	ui := &cli.BasicUi{
 		Writer:      os.Stdout,
 		Reader:      os.Stdin,

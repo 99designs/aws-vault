@@ -1,6 +1,7 @@
 package vault
 
 import (
+	"log"
 	"time"
 
 	"github.com/99designs/aws-vault/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws"
@@ -55,8 +56,15 @@ func (sp *SessionProvider) Session(conf SessionConfig) (SessionCredentials, erro
 			TokenCode:       aws.String(token),
 		}
 
+		if token != "" {
+			log.Printf("assuming role %s with mfa %s", conf.Profile.RoleARN, serialNumber)
+		} else {
+			log.Printf("assuming role %s", conf.Profile.RoleARN)
+		}
+
 		resp, err := svc.AssumeRole(input)
 		if err != nil {
+			log.Printf("%#v", err)
 			return SessionCredentials{}, err
 		}
 		return SessionCredentials{resp.Credentials}, nil
@@ -67,6 +75,12 @@ func (sp *SessionProvider) Session(conf SessionConfig) (SessionCredentials, erro
 		DurationSeconds: aws.Int64(int64(conf.Duration.Seconds())),
 		SerialNumber:    aws.String(serialNumber),
 		TokenCode:       aws.String(token),
+	}
+
+	if token != "" {
+		log.Printf("getting session token with mfa %s", serialNumber)
+	} else {
+		log.Printf("getting session token")
 	}
 
 	resp, err := svc.GetSessionToken(input)
@@ -92,6 +106,8 @@ func (ksp *KeyringSessionProvider) Session(conf SessionConfig) (SessionCredentia
 	}
 
 	if sessionCreds == nil || time.Now().After(*sessionCreds.Expiration) {
+		log.Println("fetching new session")
+
 		if ksp.CredsFunc != nil {
 			creds, err := ksp.CredsFunc()
 			if err != nil {
@@ -111,6 +127,8 @@ func (ksp *KeyringSessionProvider) Session(conf SessionConfig) (SessionCredentia
 		}
 
 		sessionCreds = &newCreds
+	} else {
+		log.Printf("using cached session (expires in %s)", sessionCreds.Expiration.Sub(time.Now()))
 	}
 
 	return *sessionCreds, nil

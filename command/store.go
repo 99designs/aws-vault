@@ -49,13 +49,13 @@ func (c *StoreCommand) Run(args []string) int {
 		return 1
 	}
 
-	accessKeyId, err := c.Ui.Ask("Enter Access Key ID: ")
+	accessKeyId, err := c.Ui.Ask("Enter Access Key ID:")
 	if err != nil {
 		c.Ui.Error(err.Error())
 		return 2
 	}
 
-	secretKey, err := c.Ui.AskSecret("Enter Secret Access Key: ")
+	secretKey, err := c.Ui.AskSecret("Enter Secret Access Key:")
 	if err != nil {
 		c.Ui.Error(err.Error())
 		return 2

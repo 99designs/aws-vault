@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	DefaultSessionDuration = time.Hour * 10
+	DefaultSessionDuration = time.Second * 900
 )
 
 // Executes a subcommand with credentials passed to it via the environment

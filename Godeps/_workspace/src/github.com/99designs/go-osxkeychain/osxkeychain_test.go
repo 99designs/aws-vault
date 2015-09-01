@@ -2,6 +2,9 @@ package osxkeychain
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -246,6 +249,79 @@ func TestGenericPasswordWithApplicationAccess(t *testing.T) {
 	err := AddGenericPassword(&attributes)
 	if err != nil {
 		t.Error(err)
+	}
+
+	err = FindAndRemoveGenericPassword(&attributes)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestCreatingAndDeletingKeychains(t *testing.T) {
+	d, err := ioutil.TempDir("", "osxkeychain-test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(d)
+	kf := filepath.Join(d, "test.keychain")
+
+	if err = CreateKeychain(kf, "テスト"); err != nil {
+		t.Error(err)
+	}
+
+	if _, err := os.Stat(kf); os.IsNotExist(err) {
+		t.Fatalf("Keychain file %q should exist", kf)
+	}
+
+	if err = DeleteKeychain(kf); err != nil {
+		t.Error(err)
+	}
+
+	if _, err := os.Stat(kf); os.IsExist(err) {
+		t.Fatalf("Keychain file %q shouldn't exist", kf)
+	}
+}
+
+func TestAddingItemsToSpecificKeychain(t *testing.T) {
+	d, err := ioutil.TempDir("", "osxkeychain-test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(d)
+	kf := filepath.Join(d, "test.keychain")
+
+	if err = CreateKeychain(kf, "テスト"); err != nil {
+		t.Error(err)
+	}
+
+	defer DeleteKeychain(kf)
+
+	attributes := GenericPasswordAttributes{
+		ServiceName: "osxkeychain_test",
+		AccountName: "test account",
+		Password:    []byte("test テスト"),
+		Keychain:    []string{kf},
+	}
+
+	err = AddGenericPassword(&attributes)
+	if err != nil {
+		t.Error(err)
+	}
+
+	defaultAccounts, err := GetAllAccountNames("osxkeychain_test")
+	if err != nil {
+		t.Error(err)
+	}
+	if len(defaultAccounts) > 0 {
+		t.Error("Item was added to default keychains, should have been new keychain")
+	}
+
+	newKeychainAccounts, err := GetAllAccountNames("osxkeychain_test", kf)
+	if err != nil {
+		t.Error(err)
+	}
+	if len(newKeychainAccounts) == 0 {
+		t.Error("Item wasn't found in new keychain")
 	}
 
 	err = FindAndRemoveGenericPassword(&attributes)

@@ -6,6 +6,10 @@
 	],
 	"Deps": [
 		{
+			"ImportPath": "github.com/99designs/go-osxkeychain",
+			"Rev": "5f6e4cfe0c6c3d3344c5f0880b86a772a22f5db0"
+		},
+		{
 			"ImportPath": "github.com/aws/aws-sdk-go/aws",
 			"Comment": "v0.7.2-4-g5df83ba",
 			"Rev": "5df83ba895b6ba073c0513dddcec6d7473c95592"
@@ -39,10 +43,6 @@
 			"ImportPath": "github.com/aws/aws-sdk-go/service/sts",
 			"Comment": "v0.7.2-4-g5df83ba",
 			"Rev": "5df83ba895b6ba073c0513dddcec6d7473c95592"
-		},
-		{
-			"ImportPath": "github.com/keybase/go-osxkeychain",
-			"Rev": "705bd84e1aca99ab98f9494db833c53e6cb0e221"
 		},
 		{
 			"ImportPath": "github.com/mitchellh/cli",

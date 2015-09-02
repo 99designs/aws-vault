@@ -10,21 +10,21 @@ Currently OSX and Keychain are supported, with support for Linux and Windows pla
 ```bash
 
 # make use of the default profile
-$ aws-vault store
+$ aws-vault add default
 Enter Access Key Id: ABDCDEFDASDASF
 Enter Secret Key: %
 
-$ aws-vault exec env | grep AWS
+$ aws-vault exec default -- env | grep AWS
 AWS_DEFAULT_PROFILE=default
 AWS_ACCESS_KEY_ID=asdasd
 AWS_SECRET_ACCESS_KEY=aasdasdasda
 
 # add an extra profile
-$ aws-vault store --profile work
+$ aws-vault add work
 Enter Access Key Id: ABDCDEFDASDASF
 Enter Secret Key: %
 
-$ aws-vault exec --profile work env | grep AWS
+$ aws-vault exec work -- env | grep AWS
 AWS_DEFAULT_PROFILE=work
 AWS_ACCESS_KEY_ID=asdasd
 AWS_SECRET_ACCESS_KEY=aasdasdasda
@@ -45,7 +45,7 @@ mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
 Test it out:
 
 ```bash
-aws-vault exec aws iam get-user
+aws-vault exec default -- aws iam get-user
 Enter token code for "arn:aws:iam::123456789012:mfa/jonsmith": %
 {
     "User": {
@@ -61,6 +61,7 @@ Enter token code for "arn:aws:iam::123456789012:mfa/jonsmith": %
 
 ## References and Inspiration
 
+ * https://github.com/pda/aws-keychain
  * http://docs.aws.amazon.com/IAM/latest/UserGuide/MFAProtectedAPI.html
  * http://docs.aws.amazon.com/IAM/latest/UserGuide/IAMBestPractices.html#create-iam-users
  * https://github.com/paperg/awsudo

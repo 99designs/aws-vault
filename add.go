@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/99designs/aws-vault/keyring"
 	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/bgentry/speakeasy"
 )
 
 type AddCommandInput struct {
@@ -17,7 +16,7 @@ func AddCommand(ui Ui, input AddCommandInput) {
 		ui.Error.Fatal(err)
 	}
 
-	secretKey, err := speakeasy.Ask("Enter Secret Access Key: ")
+	secretKey, err := promptPassword("Enter Secret Access Key: ")
 	if err != nil {
 		ui.Error.Fatal(err)
 	}

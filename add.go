@@ -17,7 +17,7 @@ func AddCommand(ui Ui, input AddCommandInput) {
 		ui.Error.Fatal(err)
 	}
 
-	secretKey, err := speakeasy.Ask("Enter Secret Access Key: ")
+	secretKey, err := speakeasy.Ask("Enter Secret Access Key : ")
 	if err != nil {
 		ui.Error.Fatal(err)
 	}
@@ -26,6 +26,13 @@ func AddCommand(ui Ui, input AddCommandInput) {
 	provider := &KeyringProvider{Keyring: input.Keyring, Profile: input.Profile}
 
 	if err := provider.Store(creds); err != nil {
+		ui.Error.Fatal(err)
+	}
+
+	if exists, err := profileExists(input.Profile); !exists {
+		ui.Printf("Profile didn't exist in your aws config, adding it")
+		addProfile(input.Profile)
+	} else if err != nil {
 		ui.Error.Fatal(err)
 	}
 

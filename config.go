@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/user"
@@ -11,14 +12,51 @@ import (
 
 type profiles map[string]map[string]string
 
-func parseProfiles() (profiles, error) {
+func addProfile(profile string) error {
+	file, err := configFile()
+	if err != nil {
+		return err
+	}
+
+	f, err := os.OpenFile(file, os.O_APPEND, 0600)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	if _, err = f.WriteString(fmt.Sprintf("\n[profile %s]\n\n", profile)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func profileExists(profile string) (bool, error) {
+	profiles, err := parseProfiles()
+	if err != nil {
+		return false, err
+	}
+
+	_, exists := profiles[profile]
+	return exists, nil
+}
+
+func configFile() (string, error) {
 	file := os.Getenv("AWS_CONFIG_FILE")
 	if file == "" {
 		usr, err := user.Current()
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 		file = usr.HomeDir + "/.aws/config"
+	}
+	return file, nil
+}
+
+func parseProfiles() (profiles, error) {
+	file, err := configFile()
+	if err != nil {
+		return nil, err
 	}
 
 	log.Printf("Parsing config file %s", file)

@@ -4,7 +4,7 @@ import (
 	"os"
 	"os/user"
 
-	keychain "github.com/99designs/aws-vault/Godeps/_workspace/src/github.com/99designs/go-osxkeychain"
+	keychain "github.com/99designs/go-osxkeychain"
 )
 
 var keychainFile string

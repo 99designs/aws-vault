@@ -5,6 +5,10 @@ Securely store and access credentials for AWS. AWS Vault stores IAM credentials 
 
 Currently OSX and Keychain are supported, with support for Linux and Windows planned.
 
+## Installing
+
+Download the [latest release](https://github.com/99designs/aws-vault/releases). The OSX release is code-signed, and you can verify this with `codesign -dvvv aws-vault`.
+
 ## Usage
 
 ```bash
@@ -55,6 +59,14 @@ role_arn = arn:aws:iam::123456789012:role/admin-access
 
 Then when you use the `admin` profile, `aws-vault` will look in the `read-only` profile's keychain for credentials and then use those credentials to assume the `admin` role. This assumed role is stored as a short duration session in your keychain so you will only have to enter MFA once per session.
 
+## Development
+
+Developed with golang 1.5 with `GO15VENDOREXPERIMENT=1`, to install:
+
+```
+export GO15VENDOREXPERIMENT=1
+go get github.com/99designs/aws-vault
+```
 
 ## References and Inspiration
 

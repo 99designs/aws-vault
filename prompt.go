@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/bgentry/speakeasy"
 )
 
 func prompt(prompt string) (string, error) {
@@ -15,4 +17,8 @@ func prompt(prompt string) (string, error) {
 		return "", err
 	}
 	return strings.TrimSpace(text), nil
+}
+
+func promptPassword(prompt string) (string, error) {
+	return speakeasy.Ask(prompt)
 }

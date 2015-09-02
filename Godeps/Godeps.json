@@ -1,0 +1,69 @@
+{
+	"ImportPath": "github.com/99designs/aws-vault",
+	"GoVersion": "go1.5",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/99designs/go-osxkeychain",
+			"Rev": "5f6e4cfe0c6c3d3344c5f0880b86a772a22f5db0"
+		},
+		{
+			"ImportPath": "github.com/alecthomas/template",
+			"Rev": "b867cc6ab45cece8143cfcc6fc9c77cf3f2c23c0"
+		},
+		{
+			"ImportPath": "github.com/alecthomas/units",
+			"Rev": "6b4e7dc5e3143b85ea77909c72caf89416fc2915"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/aws",
+			"Comment": "v0.9.4rc5-3-g376bade",
+			"Rev": "376badeb12ede342ca2f41fd7b45027aa3f00264"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/internal/endpoints",
+			"Comment": "v0.9.4rc5-3-g376bade",
+			"Rev": "376badeb12ede342ca2f41fd7b45027aa3f00264"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/internal/protocol/query",
+			"Comment": "v0.9.4rc5-3-g376bade",
+			"Rev": "376badeb12ede342ca2f41fd7b45027aa3f00264"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/internal/protocol/rest",
+			"Comment": "v0.9.4rc5-3-g376bade",
+			"Rev": "376badeb12ede342ca2f41fd7b45027aa3f00264"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/internal/protocol/xml/xmlutil",
+			"Comment": "v0.9.4rc5-3-g376bade",
+			"Rev": "376badeb12ede342ca2f41fd7b45027aa3f00264"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/internal/signer/v4",
+			"Comment": "v0.9.4rc5-3-g376bade",
+			"Rev": "376badeb12ede342ca2f41fd7b45027aa3f00264"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/service/sts",
+			"Comment": "v0.9.4rc5-3-g376bade",
+			"Rev": "376badeb12ede342ca2f41fd7b45027aa3f00264"
+		},
+		{
+			"ImportPath": "github.com/bgentry/speakeasy",
+			"Rev": "200c3052657e041d0b8abab4ad65e0ba64a9f8c4"
+		},
+		{
+			"ImportPath": "github.com/vaughan0/go-ini",
+			"Rev": "a98ad7ee00ec53921f08832bc06ecf7fd600e6a1"
+		},
+		{
+			"ImportPath": "gopkg.in/alecthomas/kingpin.v2",
+			"Comment": "v2.0.12",
+			"Rev": "639879d6110b1b0409410c7b737ef0bb18325038"
+		}
+	]
+}

@@ -25,6 +25,6 @@ ifeq "$(OS)" "Darwin"
 	codesign -s $(CERT) $(GOBIN)/aws-vault
 endif
 
-# release: sign
-# 	cp $(BIN) $(BIN)-$(OS)-$(ARCH)
-# 	@echo Upload $(BIN)-$(OS)-$(ARCH) as $(VERSION)
+release: build
+	cp aws-vault aws-vault-$(OS)-$(ARCH)
+	@echo Upload aws-vault-$(OS)-$(ARCH) as $(VERSION)

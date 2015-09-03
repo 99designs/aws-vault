@@ -51,6 +51,8 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 	var session sts.Credentials
 
 	if err := keyring.Unmarshal(p.Keyring, sessionServiceName, p.Profile, &session); err != nil {
+		log.Println("Session lookup failed", err)
+
 		session, err = p.getSessionToken(p.SessionDuration)
 		if err != nil {
 			return credentials.Value{}, err
@@ -64,6 +66,8 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 		}
 
 		keyring.Marshal(p.Keyring, sessionServiceName, p.Profile, session)
+	} else {
+		log.Printf("Found a cached session token for %s", p.Profile)
 	}
 
 	log.Printf("Session token expires in %s", session.Expiration.Sub(time.Now()))
@@ -157,7 +161,9 @@ func (p *KeyringProvider) IsExpired() bool {
 
 func (p *KeyringProvider) Retrieve() (val credentials.Value, err error) {
 	log.Printf("Looking up keyring for %s", p.Profile)
-	err = keyring.Unmarshal(p.Keyring, serviceName, p.Profile, &val)
+	if err = keyring.Unmarshal(p.Keyring, serviceName, p.Profile, &val); err != nil {
+		log.Println("Error looking up keyring", err)
+	}
 	return
 }
 

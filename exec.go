@@ -43,6 +43,7 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 
 	cmd := exec.Command(input.Command, input.Args...)
 	cmd.Env = env
+	cmd.Stdin = os.Stdin
 	cmd.Stdout = &logWriter{ui.Logger}
 	cmd.Stderr = &logWriter{ui.Error}
 

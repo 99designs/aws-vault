@@ -168,6 +168,7 @@ func (p *KeyringProvider) Retrieve() (val credentials.Value, err error) {
 }
 
 func (p *KeyringProvider) Store(val credentials.Value) error {
+	p.Keyring.Remove(sessionServiceName, p.Profile)
 	return keyring.Marshal(p.Keyring, serviceName, p.Profile, val)
 }
 

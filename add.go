@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/99designs/aws-vault/keyring"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 )
@@ -8,17 +10,27 @@ import (
 type AddCommandInput struct {
 	Profile string
 	Keyring keyring.Keyring
+	FromEnv bool
 }
 
 func AddCommand(ui Ui, input AddCommandInput) {
-	accessKeyId, err := prompt("Enter Access Key ID: ")
-	if err != nil {
-		ui.Error.Fatal(err)
-	}
+	var accessKeyId, secretKey string
 
-	secretKey, err := promptPassword("Enter Secret Access Key: ")
-	if err != nil {
-		ui.Error.Fatal(err)
+	if input.FromEnv {
+		if accessKeyId = os.Getenv("AWS_ACCESS_KEY_ID"); accessKeyId == "" {
+			ui.Error.Fatal("Missing value for AWS_ACCESS_KEY_ID")
+		}
+		if secretKey = os.Getenv("AWS_SECRET_ACCESS_KEY"); secretKey == "" {
+			ui.Error.Fatal("Missing value for AWS_SECRET_ACCESS_KEY")
+		}
+	} else {
+		var err error
+		if accessKeyId, err = prompt("Enter Access Key ID: "); err != nil {
+			ui.Error.Fatal(err)
+		}
+		if secretKey, err = promptPassword("Enter Secret Access Key: "); err != nil {
+			ui.Error.Fatal(err)
+		}
 	}
 
 	creds := credentials.Value{AccessKeyID: accessKeyId, SecretAccessKey: secretKey}

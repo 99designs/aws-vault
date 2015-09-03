@@ -30,8 +30,9 @@ func (w logWriter) Write(b []byte) (int, error) {
 func main() {
 	var (
 		debug       = kingpin.Flag("debug", "Show debugging output").Bool()
-		add         = kingpin.Command("add", "Adds credentials")
+		add         = kingpin.Command("add", "Adds credentials, prompts if none provided")
 		addProfile  = add.Arg("profile", "Name of the profile").Required().String()
+		addFromEnv  = add.Flag("env", "Read the credentials from the environment").Bool()
 		ls          = kingpin.Command("ls", "List profiles")
 		exec        = kingpin.Command("exec", "Executes a command with AWS credentials in the environment")
 		execProfile = exec.Arg("profile", "Name of the profile").Required().String()
@@ -83,6 +84,7 @@ func main() {
 		AddCommand(ui, AddCommandInput{
 			Profile: *addProfile,
 			Keyring: keyring,
+			FromEnv: *addFromEnv,
 		})
 
 	case exec.FullCommand():

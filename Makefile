@@ -1,27 +1,30 @@
-VERSION := $(shell git describe --tags --candidates=1 --dirty)
-GOBUILD_ARGS := -ldflags "-s -X main.Version=$(VERSION)"
-OS := $(shell uname -s)
-ARCH := $(shell uname -m)
-BIN := aws-vault
-SIGN_IDENTITY := "3rd Party Mac Developer Application: 99designs Inc (NRM9HVJ62Z)"
+OS=$(shell uname -s)
+ARCH=$(shell uname -m)
+PREFIX=github.com/99designs/aws-vault
+GOVERSION=$(shell go version)
+GOBIN=$(shell go env GOBIN)
+VERSION=$(shell git describe --tags --candidates=1 --dirty)
+FLAGS=-v -X main.Version=$(VERSION)
+CERT="3rd Party Mac Developer Application: 99designs Inc (NRM9HVJ62Z)"
 
-.PHONY: build install sign clean
+# Prevent broken code-signing
+# https://github.com/golang/go/issues/11887#issuecomment-126117692.
+ifneq (,$(findstring 1.5, $(GOVERSION)))
+FLAGS+=-s
+endif
 
-$(BIN):
-	godep go build $(GOBUILD_ARGS) -o $(BIN) .
+build:
+	go build -o aws-vault -ldflags="$(FLAGS)" $(PREFIX)
+ifeq "$(OS)" "Darwin"
+	codesign -s $(CERT) ./aws-vault
+endif
 
-clean:
-	-rm $(BIN)
-	-rm $(BIN)-$(OS)-$(ARCH)
+install:
+	go install -ldflags="$(FLAGS)" $(PREFIX)
+ifeq "$(OS)" "Darwin"
+	codesign -s $(CERT) $(GOBIN)/aws-vault
+endif
 
-build: $(BIN)
-
-install: $(BIN)
-	cp $(BIN) $(GOBIN)/$(BIN)
-
-sign: build
-	codesign -s $(SIGN_IDENTITY) -v $(BIN)
-
-release: sign
-	cp $(BIN) $(BIN)-$(OS)-$(ARCH)
-	@echo Upload $(BIN)-$(OS)-$(ARCH) as $(VERSION)
+# release: sign
+# 	cp $(BIN) $(BIN)-$(OS)-$(ARCH)
+# 	@echo Upload $(BIN)-$(OS)-$(ARCH) as $(VERSION)

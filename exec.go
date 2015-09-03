@@ -5,6 +5,7 @@ import (
 	"os/exec"
 
 	"github.com/99designs/aws-vault/keyring"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 )
 
@@ -24,7 +25,11 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 	creds := credentials.NewCredentials(provider)
 	val, err := creds.Get()
 	if err != nil {
-		ui.Error.Fatal(err)
+		if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "NoCredentialProviders" {
+			ui.Error.Fatalf("No credentials found for profile %q", input.Profile)
+		} else {
+			ui.Error.Fatal(err)
+		}
 	}
 
 	env := append(os.Environ(),

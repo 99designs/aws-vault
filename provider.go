@@ -12,11 +12,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts"
 )
 
-const (
-	serviceName        = "aws-vault"
-	sessionServiceName = "aws-vault.sessions"
-)
-
 type stsClient interface {
 	AssumeRole(input *sts.AssumeRoleInput) (*sts.AssumeRoleOutput, error)
 	GetSessionToken(input *sts.GetSessionTokenInput) (*sts.GetSessionTokenOutput, error)
@@ -64,7 +59,8 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 			}
 		}
 
-		keyring.Marshal(p.Keyring, sessionServiceName, p.Profile, session)
+		// store a session in the keyring
+		keyring.Marshal(p.Keyring, sessionKey(p.Profile), session)
 	}
 
 	log.Printf("Session token expires in %s", session.Expiration.Sub(time.Now()))
@@ -79,8 +75,12 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 	return value, nil
 }
 
+func sessionKey(profile string) string {
+	return profile + " session"
+}
+
 func (p *VaultProvider) getCachedSession() (session sts.Credentials, err error) {
-	if err = keyring.Unmarshal(p.Keyring, sessionServiceName, p.Profile, &session); err != nil {
+	if err = keyring.Unmarshal(p.Keyring, sessionKey(p.Profile), &session); err != nil {
 		return session, err
 	}
 
@@ -170,18 +170,18 @@ func (p *KeyringProvider) IsExpired() bool {
 
 func (p *KeyringProvider) Retrieve() (val credentials.Value, err error) {
 	log.Printf("Looking up keyring for %s", p.Profile)
-	if err = keyring.Unmarshal(p.Keyring, serviceName, p.Profile, &val); err != nil {
+	if err = keyring.Unmarshal(p.Keyring, p.Profile, &val); err != nil {
 		log.Println("Error looking up keyring", err)
 	}
 	return
 }
 
 func (p *KeyringProvider) Store(val credentials.Value) error {
-	p.Keyring.Remove(sessionServiceName, p.Profile)
-	return keyring.Marshal(p.Keyring, serviceName, p.Profile, val)
+	p.Keyring.Remove(sessionKey(p.Profile))
+	return keyring.Marshal(p.Keyring, p.Profile, val)
 }
 
 func (p *KeyringProvider) Delete() error {
-	p.Keyring.Remove(sessionServiceName, p.Profile)
-	return p.Keyring.Remove(serviceName, p.Profile)
+	p.Keyring.Remove(sessionKey(p.Profile))
+	return p.Keyring.Remove(p.Profile)
 }

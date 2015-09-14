@@ -7,7 +7,7 @@ type LsCommandInput struct {
 }
 
 func LsCommand(ui Ui, input LsCommandInput) {
-	accounts, err := input.Keyring.List(serviceName)
+	accounts, err := input.Keyring.Keys()
 	if err != nil {
 		ui.Error.Fatal(err)
 	}

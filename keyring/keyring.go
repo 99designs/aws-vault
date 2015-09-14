@@ -5,23 +5,30 @@ import (
 	"errors"
 )
 
-type Keyring interface {
-	Get(service, key string) ([]byte, error)
-	Set(service, key string, secret []byte) error
-	Remove(service, key string) error
-	List(service string) ([]string, error)
+func ForPlatform() (Keyring, error) {
+	if keyring == nil {
+		return nil, ErrNoAvailImpl
+	}
+	return keyring, nil
 }
 
-func Marshal(k Keyring, service, key string, obj interface{}) error {
+type Keyring interface {
+	Get(key string) ([]byte, error)
+	Set(key string, secret []byte) error
+	Remove(key string) error
+	Keys() ([]string, error)
+}
+
+func Marshal(k Keyring, key string, obj interface{}) error {
 	bytes, err := json.Marshal(obj)
 	if err != nil {
 		return err
 	}
-	return k.Set(service, key, bytes)
+	return k.Set(key, bytes)
 }
 
-func Unmarshal(k Keyring, service, key string, obj interface{}) error {
-	data, err := k.Get(service, key)
+func Unmarshal(k Keyring, key string, obj interface{}) error {
+	data, err := k.Get(key)
 	if err != nil {
 		return err
 	}
@@ -31,14 +38,7 @@ func Unmarshal(k Keyring, service, key string, obj interface{}) error {
 	return nil
 }
 
-func DefaultKeyring() (Keyring, error) {
-	if len(keyrings) == 0 {
-		return nil, ErrNoAvailImpl
-	}
-	return keyrings[0], nil
-}
-
-var keyrings []Keyring
+var keyring Keyring
 
 var ErrNoAvailImpl = errors.New("No keyring implementation for your platform available.")
 var ErrKeyNotFound = errors.New("The specified item could not be found in the keychain.")

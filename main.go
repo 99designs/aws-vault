@@ -53,7 +53,7 @@ func main() {
 		Exit:   os.Exit,
 	}
 
-	keyring, err := keyring.DefaultKeyring()
+	keyring, err := keyring.ForPlatform()
 	if err != nil {
 		ui.Error.Fatal(err)
 	}

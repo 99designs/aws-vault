@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/99designs/aws-vault/keyring"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -10,14 +11,15 @@ import (
 )
 
 type ExecCommandInput struct {
-	Profile string
-	Command string
-	Args    []string
-	Keyring keyring.Keyring
+	Profile  string
+	Command  string
+	Args     []string
+	Keyring  keyring.Keyring
+	Duration time.Duration
 }
 
 func ExecCommand(ui Ui, input ExecCommandInput) {
-	provider, err := NewVaultProvider(input.Keyring, input.Profile)
+	provider, err := NewVaultProvider(input.Keyring, input.Profile, input.Duration)
 	if err != nil {
 		ui.Error.Fatal(err)
 	}

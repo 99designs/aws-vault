@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"time"
 
 	"github.com/99designs/aws-vault/keyring"
 
@@ -29,17 +30,18 @@ func (w logWriter) Write(b []byte) (int, error) {
 
 func main() {
 	var (
-		debug       = kingpin.Flag("debug", "Show debugging output").Bool()
-		add         = kingpin.Command("add", "Adds credentials, prompts if none provided")
-		addProfile  = add.Arg("profile", "Name of the profile").Required().String()
-		addFromEnv  = add.Flag("env", "Read the credentials from the environment").Bool()
-		ls          = kingpin.Command("ls", "List profiles")
-		exec        = kingpin.Command("exec", "Executes a command with AWS credentials in the environment")
-		execProfile = exec.Arg("profile", "Name of the profile").Required().String()
-		execCmd     = exec.Arg("cmd", "Command to execute").Required().String()
-		execCmdArgs = exec.Arg("args", "Command arguments").Strings()
-		rm          = kingpin.Command("rm", "Removes credentials")
-		rmProfile   = rm.Arg("profile", "Name of the profile").Required().String()
+		debug            = kingpin.Flag("debug", "Show debugging output").Bool()
+		add              = kingpin.Command("add", "Adds credentials, prompts if none provided")
+		addProfile       = add.Arg("profile", "Name of the profile").Required().String()
+		addFromEnv       = add.Flag("env", "Read the credentials from the environment").Bool()
+		ls               = kingpin.Command("ls", "List profiles")
+		exec             = kingpin.Command("exec", "Executes a command with AWS credentials in the environment")
+		execProfile      = exec.Arg("profile", "Name of the profile").Required().String()
+		execSessDuration = exec.Flag("duration", "Length of session duration").Duration()
+		execCmd          = exec.Arg("cmd", "Command to execute").Required().String()
+		execCmdArgs      = exec.Arg("args", "Command arguments").Strings()
+		rm               = kingpin.Command("rm", "Removes credentials")
+		rmProfile        = rm.Arg("profile", "Name of the profile").Required().String()
 	)
 
 	kingpin.Version(Version)
@@ -88,11 +90,17 @@ func main() {
 		})
 
 	case exec.FullCommand():
+		duration := time.Hour * 1
+		if execSessDuration != nil {
+			duration = *execSessDuration
+		}
+
 		ExecCommand(ui, ExecCommandInput{
-			Profile: *execProfile,
-			Command: *execCmd,
-			Args:    *execCmdArgs,
-			Keyring: keyring,
+			Profile:  *execProfile,
+			Command:  *execCmd,
+			Args:     *execCmdArgs,
+			Keyring:  keyring,
+			Duration: duration,
 		})
 	}
 }

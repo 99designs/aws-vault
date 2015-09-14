@@ -4,7 +4,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"time"
 
 	"github.com/99designs/aws-vault/keyring"
 
@@ -37,7 +36,7 @@ func main() {
 		ls               = kingpin.Command("ls", "List profiles")
 		exec             = kingpin.Command("exec", "Executes a command with AWS credentials in the environment")
 		execProfile      = exec.Arg("profile", "Name of the profile").Required().String()
-		execSessDuration = exec.Flag("duration", "Length of session duration").Duration()
+		execSessDuration = exec.Flag("session-ttl", "Expiration time for aws session").Default("8h").OverrideDefaultFromEnvar("AWS_SESSION_TTL").Short('t').Duration()
 		execCmd          = exec.Arg("cmd", "Command to execute").Required().String()
 		execCmdArgs      = exec.Arg("args", "Command arguments").Strings()
 		rm               = kingpin.Command("rm", "Removes credentials")
@@ -90,17 +89,12 @@ func main() {
 		})
 
 	case exec.FullCommand():
-		duration := time.Hour * 1
-		if execSessDuration != nil {
-			duration = *execSessDuration
-		}
-
 		ExecCommand(ui, ExecCommandInput{
 			Profile:  *execProfile,
 			Command:  *execCmd,
 			Args:     *execCmdArgs,
 			Keyring:  keyring,
-			Duration: duration,
+			Duration: *execSessDuration,
 		})
 	}
 }

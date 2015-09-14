@@ -28,7 +28,7 @@ type VaultProvider struct {
 	client          stsClient
 }
 
-func NewVaultProvider(k keyring.Keyring, profile string) (*VaultProvider, error) {
+func NewVaultProvider(k keyring.Keyring, profile string, d time.Duration) (*VaultProvider, error) {
 	conf, err := parseProfiles()
 	if err != nil {
 		return nil, err
@@ -36,7 +36,7 @@ func NewVaultProvider(k keyring.Keyring, profile string) (*VaultProvider, error)
 	return &VaultProvider{
 		Keyring:         k,
 		Profile:         profile,
-		SessionDuration: time.Second * 900, // the shortest AWS will allow
+		SessionDuration: d,
 		ExpiryWindow:    time.Second * 90,
 		profilesConf:    conf,
 	}, nil
@@ -139,7 +139,7 @@ func (p *VaultProvider) assumeRole(session sts.Credentials, roleArn string) (sts
 	input := &sts.AssumeRoleInput{
 		RoleArn:         aws.String(roleArn),
 		RoleSessionName: aws.String(roleSessionName),
-		DurationSeconds: aws.Int64(int64(15 * 60)),
+		DurationSeconds: aws.Int64(int64(p.SessionDuration.Seconds())),
 	}
 
 	log.Printf("Assuming role %s", roleArn)

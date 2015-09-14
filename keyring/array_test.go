@@ -5,11 +5,11 @@ import "testing"
 func TestArrayKeyringSetWhenEmpty(t *testing.T) {
 	k := &ArrayKeyring{}
 
-	if err := k.Set("test", "llamas", []byte("llamas are great")); err != nil {
+	if err := k.Set("llamas", []byte("llamas are great")); err != nil {
 		t.Fatal(err)
 	}
 
-	v, err := k.Get("test", "llamas")
+	v, err := k.Get("llamas")
 	if err != nil {
 		t.Fatal(err)
 	}

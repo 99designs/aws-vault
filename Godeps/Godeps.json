@@ -10,6 +10,11 @@
 			"Rev": "5f6e4cfe0c6c3d3344c5f0880b86a772a22f5db0"
 		},
 		{
+			"ImportPath": "github.com/alecthomas/kingpin",
+			"Comment": "v2.0.12-3-g585f627",
+			"Rev": "585f6276750a378f3914d0cdf1891ca241e1efdb"
+		},
+		{
 			"ImportPath": "github.com/alecthomas/template",
 			"Rev": "b867cc6ab45cece8143cfcc6fc9c77cf3f2c23c0"
 		},
@@ -28,12 +33,27 @@
 			"Rev": "376badeb12ede342ca2f41fd7b45027aa3f00264"
 		},
 		{
+			"ImportPath": "github.com/aws/aws-sdk-go/internal/protocol/json/jsonutil",
+			"Comment": "v0.9.4rc5-3-g376bade",
+			"Rev": "376badeb12ede342ca2f41fd7b45027aa3f00264"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/internal/protocol/jsonrpc",
+			"Comment": "v0.9.4rc5-3-g376bade",
+			"Rev": "376badeb12ede342ca2f41fd7b45027aa3f00264"
+		},
+		{
 			"ImportPath": "github.com/aws/aws-sdk-go/internal/protocol/query",
 			"Comment": "v0.9.4rc5-3-g376bade",
 			"Rev": "376badeb12ede342ca2f41fd7b45027aa3f00264"
 		},
 		{
 			"ImportPath": "github.com/aws/aws-sdk-go/internal/protocol/rest",
+			"Comment": "v0.9.4rc5-3-g376bade",
+			"Rev": "376badeb12ede342ca2f41fd7b45027aa3f00264"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/internal/protocol/restxml",
 			"Comment": "v0.9.4rc5-3-g376bade",
 			"Rev": "376badeb12ede342ca2f41fd7b45027aa3f00264"
 		},
@@ -48,6 +68,26 @@
 			"Rev": "376badeb12ede342ca2f41fd7b45027aa3f00264"
 		},
 		{
+			"ImportPath": "github.com/aws/aws-sdk-go/internal/test/unit",
+			"Comment": "v0.9.4rc5-3-g376bade",
+			"Rev": "376badeb12ede342ca2f41fd7b45027aa3f00264"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/internal/util",
+			"Comment": "v0.9.4rc5-3-g376bade",
+			"Rev": "376badeb12ede342ca2f41fd7b45027aa3f00264"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/service/dynamodb",
+			"Comment": "v0.9.4rc5-3-g376bade",
+			"Rev": "376badeb12ede342ca2f41fd7b45027aa3f00264"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/service/s3",
+			"Comment": "v0.9.4rc5-3-g376bade",
+			"Rev": "376badeb12ede342ca2f41fd7b45027aa3f00264"
+		},
+		{
 			"ImportPath": "github.com/aws/aws-sdk-go/service/sts",
 			"Comment": "v0.9.4rc5-3-g376bade",
 			"Rev": "376badeb12ede342ca2f41fd7b45027aa3f00264"
@@ -55,6 +95,11 @@
 		{
 			"ImportPath": "github.com/bgentry/speakeasy",
 			"Rev": "200c3052657e041d0b8abab4ad65e0ba64a9f8c4"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/assert",
+			"Comment": "v1.0-40-g7c2b1e5",
+			"Rev": "7c2b1e5640dcf2631213ca962d892bffa1e08860"
 		},
 		{
 			"ImportPath": "github.com/vaughan0/go-ini",

@@ -37,7 +37,7 @@ func main() {
 		exec             = kingpin.Command("exec", "Executes a command with AWS credentials in the environment")
 		execProfile      = exec.Arg("profile", "Name of the profile").Required().String()
 		execSessDuration = exec.Flag("session-ttl", "Expiration time for aws session").Default("8h").OverrideDefaultFromEnvar("AWS_SESSION_TTL").Short('t').Duration()
-		execCmd          = exec.Arg("cmd", "Command to execute").Required().String()
+		execCmd          = exec.Arg("cmd", "Command to execute").Default(os.Getenv("SHELL")).String()
 		execCmdArgs      = exec.Arg("args", "Command arguments").Strings()
 		rm               = kingpin.Command("rm", "Removes credentials")
 		rmProfile        = rm.Arg("profile", "Name of the profile").Required().String()

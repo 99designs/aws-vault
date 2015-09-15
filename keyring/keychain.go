@@ -97,27 +97,35 @@ func (k *OSXKeychain) Set(key string, secret []byte) error {
 	}
 	defer C.CFRelease(C.CFTypeRef(serviceRef))
 
-	var commentRef C.CFStringRef
-	if commentRef, err = _UTF8StringToCFString("aws-vault credentials"); err != nil {
-		return err
-	}
-	defer C.CFRelease(C.CFTypeRef(commentRef))
-
 	var accountRef C.CFStringRef
 	if accountRef, err = _UTF8StringToCFString(key); err != nil {
 		return err
 	}
 	defer C.CFRelease(C.CFTypeRef(accountRef))
 
+	var descr C.CFStringRef
+	if descr, err = _UTF8StringToCFString("aws-vault credentials"); err != nil {
+		return err
+	}
+	defer C.CFRelease(C.CFTypeRef(descr))
+
+	var label C.CFStringRef
+	if label, err = _UTF8StringToCFString(fmt.Sprintf("%s (%s)", k.service, key)); err != nil {
+		return err
+	}
+	defer C.CFRelease(C.CFTypeRef(label))
+
 	dataBytes := bytesToCFData(secret)
 	defer C.CFRelease(C.CFTypeRef(dataBytes))
 
 	query := map[C.CFTypeRef]C.CFTypeRef{
-		C.kSecClass:       C.kSecClassGenericPassword,
-		C.kSecAttrService: C.CFTypeRef(serviceRef),
-		C.kSecAttrAccount: C.CFTypeRef(accountRef),
-		C.kSecValueData:   C.CFTypeRef(dataBytes),
-		C.kSecUseKeychain: C.CFTypeRef(kref),
+		C.kSecClass:           C.kSecClassGenericPassword,
+		C.kSecAttrService:     C.CFTypeRef(serviceRef),
+		C.kSecAttrAccount:     C.CFTypeRef(accountRef),
+		C.kSecValueData:       C.CFTypeRef(dataBytes),
+		C.kSecAttrDescription: C.CFTypeRef(descr),
+		C.kSecAttrLabel:       C.CFTypeRef(label),
+		C.kSecUseKeychain:     C.CFTypeRef(kref),
 	}
 
 	queryDict := mapToCFDictionary(query)
@@ -130,6 +138,8 @@ func (k *OSXKeychain) Set(key string, secret []byte) error {
 		if err = k.Remove(key); err != nil {
 			return err
 		}
+
+		log.Printf("adding service=%q, account=%q to osx keychain %s", k.service, key, k.path)
 		err = newKeychainError(C.SecItemAdd(queryDict, nil))
 	}
 

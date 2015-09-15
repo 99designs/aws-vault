@@ -72,11 +72,11 @@ func (k *OSXKeychain) Set(key string, secret []byte) error {
 	var err error
 
 	if _, err := os.Stat(k.path); os.IsNotExist(err) {
-		var prompt bool
+		var prompt = true
 		if k.password != "" {
 			prompt = false
 		}
-		log.Printf("creating keychain %s", k.path)
+		log.Printf("creating keychain %s (prompt %#v)", k.path, prompt)
 		kref, err = createKeychain(k.path, prompt, k.password)
 		if err != nil {
 			return err
@@ -210,14 +210,20 @@ func init() {
 
 // The returned SecKeychainRef, if non-nil, must be released via CFRelease.
 func createKeychain(path string, promptUser bool, password string) (C.SecKeychainRef, error) {
-	passwordRef := C.CString(password)
-	defer C.free(unsafe.Pointer(passwordRef))
-
 	pathName := C.CString(path)
 	defer C.free(unsafe.Pointer(pathName))
 
 	var kref C.SecKeychainRef
-	errCode := C.SecKeychainCreate(pathName, C.UInt32(len(password)), unsafe.Pointer(passwordRef), C.Boolean(0), nil, &kref)
+	var errCode C.OSStatus
+
+	if promptUser {
+		errCode = C.SecKeychainCreate(pathName, C.UInt32(0), nil, C.Boolean(1), nil, &kref)
+	} else {
+		passwordRef := C.CString(password)
+		defer C.free(unsafe.Pointer(passwordRef))
+		errCode = C.SecKeychainCreate(pathName, C.UInt32(len(password)), unsafe.Pointer(passwordRef), C.Boolean(0), nil, &kref)
+	}
+
 	if err := newKeychainError(errCode); err != nil {
 		return nil, err
 	}

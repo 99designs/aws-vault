@@ -118,6 +118,12 @@ func (k *OSXKeychain) Set(key string, secret []byte) error {
 	dataBytes := bytesToCFData(secret)
 	defer C.CFRelease(C.CFTypeRef(dataBytes))
 
+	access, err := createEmptyAccess(fmt.Sprintf("%s (%s)", k.service, key))
+	if err != nil {
+		return err
+	}
+	defer C.CFRelease(C.CFTypeRef(access))
+
 	query := map[C.CFTypeRef]C.CFTypeRef{
 		C.kSecClass:           C.kSecClassGenericPassword,
 		C.kSecAttrService:     C.CFTypeRef(serviceRef),
@@ -126,6 +132,7 @@ func (k *OSXKeychain) Set(key string, secret []byte) error {
 		C.kSecAttrDescription: C.CFTypeRef(descr),
 		C.kSecAttrLabel:       C.CFTypeRef(label),
 		C.kSecUseKeychain:     C.CFTypeRef(kref),
+		C.kSecAttrAccess:      C.CFTypeRef(access),
 	}
 
 	queryDict := mapToCFDictionary(query)
@@ -217,6 +224,26 @@ func init() {
 // -------------------------------------------------
 // OSX Keychain API funcs
 // https://developer.apple.com/library/mac/documentation/Security/Reference/keychainservices/index.html
+
+// The returned SecAccessRef, if non-nil, must be released via CFRelease.
+func createEmptyAccess(label string) (C.SecAccessRef, error) {
+	var err error
+	var labelRef C.CFStringRef
+	if labelRef, err = _UTF8StringToCFString(label); err != nil {
+		return nil, err
+	}
+	defer C.CFRelease(C.CFTypeRef(labelRef))
+
+	var access C.SecAccessRef
+	trustedApplicationsArray := arrayToCFArray([]C.CFTypeRef{})
+	defer C.CFRelease(C.CFTypeRef(trustedApplicationsArray))
+
+	if err = newKeychainError(C.SecAccessCreate(labelRef, trustedApplicationsArray, &access)); err != nil {
+		return nil, err
+	}
+
+	return access, nil
+}
 
 // The returned SecKeychainRef, if non-nil, must be released via CFRelease.
 func createKeychain(path string, promptUser bool, password string) (C.SecKeychainRef, error) {

@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"os/exec"
+	"syscall"
 	"time"
 
 	"github.com/99designs/aws-vault/keyring"
@@ -44,13 +45,14 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 		env = append(env, "AWS_SESSION_TOKEN="+val.SessionToken)
 	}
 
-	cmd := exec.Command(input.Command, input.Args...)
-	cmd.Env = env
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = &logWriter{ui.Logger}
-	cmd.Stderr = &logWriter{ui.Error}
+	path, err := exec.LookPath(input.Command)
+	if err != nil {
+		ui.Error.Fatal(err)
+	}
 
-	if err := cmd.Run(); err != nil {
+	argv := append([]string{input.Command}, input.Args...)
+
+	if err := syscall.Exec(path, argv, env); err != nil {
 		ui.Error.Fatal(err)
 	}
 }

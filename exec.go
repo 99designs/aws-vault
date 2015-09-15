@@ -37,6 +37,7 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 	env := append(os.Environ(),
 		"AWS_ACCESS_KEY_ID="+val.AccessKeyID,
 		"AWS_SECRET_ACCESS_KEY="+val.SecretAccessKey,
+		"AWS_DEFAULT_PROFILE="+input.Profile,
 	)
 
 	if val.SessionToken != "" {

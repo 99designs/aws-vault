@@ -41,6 +41,8 @@ func main() {
 		execCmdArgs      = exec.Arg("args", "Command arguments").Strings()
 		rm               = kingpin.Command("rm", "Removes credentials")
 		rmProfile        = rm.Arg("profile", "Name of the profile").Required().String()
+		login            = kingpin.Command("login", "Generate a login link for the AWS Console")
+		loginProfile     = login.Arg("profile", "Name of the profile").Required().String()
 	)
 
 	kingpin.Version(Version)
@@ -96,5 +98,12 @@ func main() {
 			Keyring:  keyring,
 			Duration: *execSessDuration,
 		})
+
+	case login.FullCommand():
+		LoginCommand(ui, LoginCommandInput{
+			Profile: *loginProfile,
+			Keyring: keyring,
+		})
 	}
+
 }

@@ -75,9 +75,11 @@ func LoginCommand(ui Ui, input LoginCommandInput) {
 		ui.Error.Fatal("Expected a response with SigninToken")
 	}
 
-	fmt.Printf(
+	loginUrl := fmt.Sprintf(
 		"https://signin.aws.amazon.com/federation?Action=login&Issuer=aws-vault&Destination=%s&SigninToken=%s",
 		url.QueryEscape("https://console.aws.amazon.com/"),
 		url.QueryEscape(signinToken),
 	)
+
+	fmt.Println(loginUrl)
 }

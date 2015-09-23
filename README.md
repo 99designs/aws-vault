@@ -39,6 +39,17 @@ AWS_SESSION_TOKEN=aslksdjlskdhlskdjflkj%lskdjfsl
 Notice in the above how a session token gets written out. This is because `aws-vault` uses Amazon's STS service
 to generate [temporary credentials](http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp.html). These expire in a short period of time, so the risk of leaking credentials is reduced.
 
+## MFA Tokens
+
+If you have an MFA device attached to your account, the STS service will generate session tokens that are *invalid* unless you provide an MFA code. To enable MFA for a profile, specify the MFA serial in `~/.aws/config`:
+
+```
+[profile default]
+mfa_serial=arn:aws:iam::123456789012:mfa/jonsmith
+```
+
+You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username].
+
 ## Assuming Roles
 
 Best-practice is to have a read-only account that you use on a day-to-day basis, and then use [IAM roles to assume temporary admin privileges](http://docs.aws.amazon.com/cli/latest/userguide/cli-roles.html) along with an MFA.

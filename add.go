@@ -8,9 +8,10 @@ import (
 )
 
 type AddCommandInput struct {
-	Profile string
-	Keyring keyring.Keyring
-	FromEnv bool
+	Profile      string
+	Keyring      keyring.Keyring
+	SessionStore *sessionStore
+	FromEnv      bool
 }
 
 func AddCommand(ui Ui, input AddCommandInput) {
@@ -34,7 +35,11 @@ func AddCommand(ui Ui, input AddCommandInput) {
 	}
 
 	creds := credentials.Value{AccessKeyID: accessKeyId, SecretAccessKey: secretKey}
-	provider := &KeyringProvider{Keyring: input.Keyring, Profile: input.Profile}
+	provider := &KeyringProvider{
+		Keyring:      input.Keyring,
+		SessionStore: input.SessionStore,
+		Profile:      input.Profile,
+	}
 
 	if err := provider.Store(creds); err != nil {
 		ui.Error.Fatal(err)

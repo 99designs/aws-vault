@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -23,6 +22,7 @@ type VaultProvider struct {
 	Profile         string
 	SessionDuration time.Duration
 	ExpiryWindow    time.Duration
+	sessionStore    *sessionStore
 	profilesConf    profiles
 	session         *sts.Credentials
 	client          stsClient
@@ -39,15 +39,39 @@ func NewVaultProvider(k keyring.Keyring, profile string, d time.Duration) (*Vaul
 		SessionDuration: d,
 		ExpiryWindow:    time.Second * 90,
 		profilesConf:    conf,
+		sessionStore:    defaultSessionStore,
 	}, nil
 }
 
-func (p *VaultProvider) Retrieve() (credentials.Value, error) {
-	session, err := p.getCachedSession()
-	if err != nil {
-		log.Println(err)
+func (p *VaultProvider) credentials() (credentials.Value, error) {
+	profile := p.profilesConf.sourceProfile(p.Profile)
+	creds := credentials.NewChainCredentials([]credentials.Provider{
+		&credentials.EnvProvider{},
+		&credentials.SharedCredentialsProvider{Filename: "", Profile: profile},
+		&KeyringProvider{Keyring: p.Keyring, Profile: profile},
+	})
 
-		session, err = p.getSessionToken(p.SessionDuration)
+	return creds.Get()
+}
+
+func (p *VaultProvider) sessionKey() (sessionKey, error) {
+	creds, err := p.credentials()
+	if err != nil {
+		return sessionKey{}, err
+	}
+
+	return sessionKey{creds, p.Profile, p.profilesConf[p.Profile]["mfa_serial"]}, nil
+}
+
+func (p *VaultProvider) Retrieve() (credentials.Value, error) {
+	key, err := p.sessionKey()
+	if err != nil {
+		return credentials.Value{}, err
+	}
+
+	session, err := p.sessionStore.Get(key)
+	if err == errSessionNotFound {
+		session, err = p.getSessionToken(key.Value)
 		if err != nil {
 			return credentials.Value{}, err
 		}
@@ -59,8 +83,9 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 			}
 		}
 
-		// store a session in the keyring
-		keyring.Marshal(p.Keyring, sessionKey(p.Profile), session)
+		p.sessionStore.Set(key, session)
+	} else if err != nil {
+		return credentials.Value{}, err
 	}
 
 	log.Printf("Session token expires in %s", session.Expiration.Sub(time.Now()))
@@ -75,27 +100,9 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 	return value, nil
 }
 
-func sessionKey(profile string) string {
-	return profile + " session"
-}
-
-func (p *VaultProvider) getCachedSession() (session sts.Credentials, err error) {
-	if err = keyring.Unmarshal(p.Keyring, sessionKey(p.Profile), &session); err != nil {
-		return session, err
-	}
-
-	if session.Expiration.Before(time.Now()) {
-		return session, errors.New("Session is expired")
-	}
-
-	return
-}
-
-func (p *VaultProvider) getSessionToken(length time.Duration) (sts.Credentials, error) {
-	source := p.profilesConf.sourceProfile(p.Profile)
-
+func (p *VaultProvider) getSessionToken(creds credentials.Value) (sts.Credentials, error) {
 	params := &sts.GetSessionTokenInput{
-		DurationSeconds: aws.Int64(int64(length.Seconds())),
+		DurationSeconds: aws.Int64(int64(p.SessionDuration.Seconds())),
 	}
 
 	if mfa, ok := p.profilesConf[p.Profile]["mfa_serial"]; ok {
@@ -109,8 +116,10 @@ func (p *VaultProvider) getSessionToken(length time.Duration) (sts.Credentials, 
 
 	client := p.client
 	if client == nil {
-		client = sts.New(&aws.Config{Credentials: credentials.NewChainCredentials(
-			p.defaultProviders(source),
+		client = sts.New(&aws.Config{Credentials: credentials.NewStaticCredentials(
+			creds.AccessKeyID,
+			creds.SecretAccessKey,
+			"",
 		)})
 	}
 
@@ -151,17 +160,10 @@ func (p *VaultProvider) assumeRole(session sts.Credentials, roleArn string) (sts
 	return *resp.Credentials, nil
 }
 
-func (p *VaultProvider) defaultProviders(profile string) []credentials.Provider {
-	return []credentials.Provider{
-		&credentials.EnvProvider{},
-		&credentials.SharedCredentialsProvider{Filename: "", Profile: profile},
-		&KeyringProvider{Keyring: p.Keyring, Profile: profile},
-	}
-}
-
 type KeyringProvider struct {
-	Keyring keyring.Keyring
-	Profile string
+	Keyring      keyring.Keyring
+	SessionStore *sessionStore
+	Profile      string
 }
 
 func (p *KeyringProvider) IsExpired() bool {
@@ -177,11 +179,9 @@ func (p *KeyringProvider) Retrieve() (val credentials.Value, err error) {
 }
 
 func (p *KeyringProvider) Store(val credentials.Value) error {
-	p.Keyring.Remove(sessionKey(p.Profile))
 	return keyring.Marshal(p.Keyring, p.Profile, val)
 }
 
 func (p *KeyringProvider) Delete() error {
-	p.Keyring.Remove(sessionKey(p.Profile))
 	return p.Keyring.Remove(p.Profile)
 }

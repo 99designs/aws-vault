@@ -186,6 +186,16 @@ func (k *OSXKeychain) Keys() ([]string, error) {
 		C.kSecMatchLimit:       C.kSecMatchLimitAll,
 		C.kSecReturnAttributes: C.CFTypeRef(C.kCFBooleanTrue),
 	}
+
+	kref, err := openKeychain(k.path)
+	if err != nil {
+		return nil, err
+	}
+
+	searchArray := arrayToCFArray([]C.CFTypeRef{C.CFTypeRef(kref)})
+	defer C.CFRelease(C.CFTypeRef(searchArray))
+	query[C.kSecMatchSearchList] = C.CFTypeRef(searchArray)
+
 	queryDict := mapToCFDictionary(query)
 	defer C.CFRelease(C.CFTypeRef(queryDict))
 
@@ -270,6 +280,7 @@ func createKeychain(path string, promptUser bool, password string) (C.SecKeychai
 
 // The returned SecKeychainRef, if non-nil, must be released via CFRelease.
 func openKeychain(path string) (C.SecKeychainRef, error) {
+	log.Printf("opening keychain %s", path)
 	pathName := C.CString(path)
 	defer C.free(unsafe.Pointer(pathName))
 

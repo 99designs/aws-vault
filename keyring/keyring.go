@@ -36,7 +36,6 @@ type Item struct {
 	Label       string
 	Description string
 	TrustSelf   bool
-	Metadata    map[string]string
 }
 
 type Keyring interface {

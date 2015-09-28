@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -45,7 +46,11 @@ func NewVaultProvider(k keyring.Keyring, profile string, d time.Duration) (*Vaul
 func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 	session, err := p.getCachedSession()
 	if err != nil {
-		log.Println(err)
+		if err == keyring.ErrKeyNotFound {
+			log.Println("Session not found in keyring")
+		} else {
+			log.Println(err)
+		}
 
 		session, err = p.getSessionToken(p.SessionDuration)
 		if err != nil {
@@ -59,8 +64,16 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 			}
 		}
 
+		bytes, err := json.Marshal(session)
+		if err != nil {
+			return credentials.Value{}, err
+		}
+
 		// store a session in the keyring
-		keyring.Marshal(p.Keyring, sessionKey(p.Profile), session)
+		p.Keyring.Set(keyring.Item{
+			Key:  sessionKey(p.Profile),
+			Data: bytes,
+		})
 	}
 
 	log.Printf("Session token expires in %s", session.Expiration.Sub(time.Now()))
@@ -80,7 +93,12 @@ func sessionKey(profile string) string {
 }
 
 func (p *VaultProvider) getCachedSession() (session sts.Credentials, err error) {
-	if err = keyring.Unmarshal(p.Keyring, sessionKey(p.Profile), &session); err != nil {
+	item, err := p.Keyring.Get(sessionKey(p.Profile))
+	if err != nil {
+		return session, err
+	}
+
+	if err = json.Unmarshal(item.Data, &session); err != nil {
 		return session, err
 	}
 
@@ -170,15 +188,27 @@ func (p *KeyringProvider) IsExpired() bool {
 
 func (p *KeyringProvider) Retrieve() (val credentials.Value, err error) {
 	log.Printf("Looking up keyring for %s", p.Profile)
-	if err = keyring.Unmarshal(p.Keyring, p.Profile, &val); err != nil {
-		log.Println("Error looking up keyring", err)
+	item, err := p.Keyring.Get(p.Profile)
+	if err != nil {
+		return val, err
 	}
+
+	err = json.Unmarshal(item.Data, &val)
 	return
 }
 
 func (p *KeyringProvider) Store(val credentials.Value) error {
 	p.Keyring.Remove(sessionKey(p.Profile))
-	return keyring.Marshal(p.Keyring, p.Profile, val)
+
+	bytes, err := json.Marshal(val)
+	if err != nil {
+		return err
+	}
+
+	return p.Keyring.Set(keyring.Item{
+		Key:  sessionKey(p.Profile),
+		Data: bytes,
+	})
 }
 
 func (p *KeyringProvider) Delete() error {

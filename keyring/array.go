@@ -1,35 +1,33 @@
 package keyring
 
-type ArrayKeyring struct {
-	secrets map[string][]byte
+type arrayKeyring struct {
+	items map[string]Item
 }
 
-var _ Keyring = &ArrayKeyring{}
-
-func (k *ArrayKeyring) Get(key string) ([]byte, error) {
-	if b, ok := k.secrets[key]; ok {
-		return b, nil
+func (k *arrayKeyring) Get(key string) (Item, error) {
+	if i, ok := k.items[key]; ok {
+		return i, nil
 	} else {
-		return nil, ErrKeyNotFound
+		return Item{}, ErrKeyNotFound
 	}
 }
 
-func (k *ArrayKeyring) Set(key string, secret []byte) error {
-	if k.secrets == nil {
-		k.secrets = map[string][]byte{}
+func (k *arrayKeyring) Set(i Item) error {
+	if k.items == nil {
+		k.items = map[string]Item{}
 	}
-	k.secrets[key] = secret
+	k.items[i.Key] = i
 	return nil
 }
 
-func (k *ArrayKeyring) Remove(key string) error {
-	delete(k.secrets, key)
+func (k *arrayKeyring) Remove(key string) error {
+	delete(k.items, key)
 	return nil
 }
 
-func (k *ArrayKeyring) Keys() ([]string, error) {
+func (k *arrayKeyring) Keys() ([]string, error) {
 	var keys = []string{}
-	for key := range k.secrets {
+	for key := range k.items {
 		keys = append(keys, key)
 	}
 	return keys, nil

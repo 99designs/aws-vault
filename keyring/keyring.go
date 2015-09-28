@@ -1,44 +1,50 @@
 package keyring
 
-import (
-	"encoding/json"
-	"errors"
+import "errors"
+
+type backend string
+
+const (
+	KeychainBackend backend = "osxkeychain"
 )
 
-func ForPlatform() (Keyring, error) {
-	if keyring == nil {
-		return nil, ErrNoAvailImpl
+var supportedBackends = map[backend]opener{}
+
+func Open(name string, prefer ...backend) (Keyring, error) {
+	if len(prefer) == 0 {
+		for b := range supportedBackends {
+			prefer = append(prefer, b)
+		}
 	}
-	return keyring, nil
+
+	for _, b := range prefer {
+		for supported, f := range supportedBackends {
+			if b == supported {
+				return f(name)
+			}
+		}
+	}
+
+	return nil, ErrNoAvailImpl
+}
+
+type opener func(name string) (Keyring, error)
+
+type Item struct {
+	Key         string
+	Data        []byte
+	Label       string
+	Description string
+	TrustSelf   bool
+	Metadata    map[string]string
 }
 
 type Keyring interface {
-	Get(key string) ([]byte, error)
-	Set(key string, secret []byte) error
+	Get(key string) (Item, error)
+	Set(item Item) error
 	Remove(key string) error
 	Keys() ([]string, error)
 }
 
-func Marshal(k Keyring, key string, obj interface{}) error {
-	bytes, err := json.Marshal(obj)
-	if err != nil {
-		return err
-	}
-	return k.Set(key, bytes)
-}
-
-func Unmarshal(k Keyring, key string, obj interface{}) error {
-	data, err := k.Get(key)
-	if err != nil {
-		return err
-	}
-	if err = json.Unmarshal(data, obj); err != nil {
-		return err
-	}
-	return nil
-}
-
-var keyring Keyring
-
 var ErrNoAvailImpl = errors.New("No keyring implementation for your platform available.")
-var ErrKeyNotFound = errors.New("The specified item could not be found in the keychain.")
+var ErrKeyNotFound = errors.New("The specified item could not be found in the keyring.")

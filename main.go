@@ -56,7 +56,7 @@ func main() {
 		Exit:   os.Exit,
 	}
 
-	keyring, err := keyring.ForPlatform()
+	keyring, err := keyring.Open("aws-vault")
 	if err != nil {
 		ui.Error.Fatal(err)
 	}

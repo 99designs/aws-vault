@@ -1,6 +1,8 @@
 // +build darwin
 package keyring
 
+// https://developer.apple.com/library/mac/documentation/Security/Reference/keychainservices/index.html
+
 /*
 #cgo CFLAGS: -mmacosx-version-min=10.6 -D__MAC_OS_X_VERSION_MAX_ALLOWED=1060
 #cgo LDFLAGS: -framework CoreFoundation -framework Security
@@ -21,70 +23,114 @@ import (
 	"unsafe"
 )
 
-type OSXKeychain struct {
-	path     string
-	password string
-	service  string
+type keychain struct {
+	Path       string
+	Service    string
+	Passphrase string
 }
 
-func (k *OSXKeychain) Get(key string) ([]byte, error) {
-	if _, err := os.Stat(k.path); os.IsNotExist(err) {
-		return []byte{}, ErrKeyNotFound
+func init() {
+	supportedBackends[KeychainBackend] = opener(func(name string) (Keyring, error) {
+		if name == "" {
+			name = "login"
+		}
+
+		usr, err := user.Current()
+		if err != nil {
+			return nil, err
+		}
+
+		return &keychain{Path: usr.HomeDir + "/Library/Keychains/" + name + ".keychain", Service: name}, nil
+	})
+}
+
+func (k *keychain) Get(key string) (Item, error) {
+	if _, err := os.Stat(k.Path); os.IsNotExist(err) {
+		return Item{}, ErrKeyNotFound
 	}
 
-	kref, err := openKeychain(k.path)
+	serviceRef, err := _UTF8StringToCFString(k.Service)
 	if err != nil {
-		return nil, err
+		return Item{}, err
 	}
-	defer C.CFRelease(C.CFTypeRef(kref))
+	defer C.CFRelease(C.CFTypeRef(serviceRef))
 
-	serviceRef := C.CString(k.service)
-	defer C.free(unsafe.Pointer(serviceRef))
+	accountRef, err := _UTF8StringToCFString(key)
+	if err != nil {
+		return Item{}, err
+	}
+	defer C.CFRelease(C.CFTypeRef(serviceRef))
 
-	accountRef := C.CString(key)
-	defer C.free(unsafe.Pointer(accountRef))
-
-	var passwordLength C.UInt32
-	var password unsafe.Pointer
-
-	errCode := C.SecKeychainFindGenericPassword(
-		C.CFTypeRef(kref),
-		C.UInt32(len(k.service)),
-		serviceRef,
-		C.UInt32(len(key)),
-		accountRef,
-		&passwordLength,
-		&password,
-		nil,
-	)
-
-	if err := newKeychainError(errCode); err != nil {
-		return nil, err
+	query := map[C.CFTypeRef]C.CFTypeRef{
+		C.kSecClass:            C.kSecClassGenericPassword,
+		C.kSecAttrService:      C.CFTypeRef(serviceRef),
+		C.kSecAttrAccount:      C.CFTypeRef(accountRef),
+		C.kSecMatchLimit:       C.kSecMatchLimitOne,
+		C.kSecReturnAttributes: C.CFTypeRef(C.kCFBooleanTrue),
+		C.kSecReturnData:       C.CFTypeRef(C.kCFBooleanTrue),
 	}
 
-	defer C.SecKeychainItemFreeContent(nil, password)
+	kref, err := openKeychain(k.Path)
+	if err != nil {
+		return Item{}, err
+	}
 
-	return C.GoBytes(password, C.int(passwordLength)), nil
+	searchArray := arrayToCFArray([]C.CFTypeRef{C.CFTypeRef(kref)})
+	defer C.CFRelease(C.CFTypeRef(searchArray))
+	query[C.kSecMatchSearchList] = C.CFTypeRef(searchArray)
+
+	queryDict := mapToCFDictionary(query)
+	defer C.CFRelease(C.CFTypeRef(queryDict))
+
+	var resultsRef C.CFTypeRef
+
+	if err = newKeychainError(C.SecItemCopyMatching(queryDict, &resultsRef)); err == errItemNotFound {
+		return Item{}, ErrKeyNotFound
+	} else if err != nil {
+		return Item{}, err
+	}
+
+	defer C.CFRelease(resultsRef)
+
+	m := _CFDictionaryToMap(C.CFDictionaryRef(resultsRef))
+
+	data := C.CFDataRef(m[C.kSecValueData])
+	dataLen := C.int(C.CFDataGetLength(data))
+	cdata := C.CFDataGetBytePtr(data)
+
+	item := Item{
+		Key:  key,
+		Data: C.GoBytes(unsafe.Pointer(cdata), dataLen),
+	}
+
+	if label, exists := m[C.kSecAttrLabel]; exists {
+		item.Label = _CFStringToUTF8String(C.CFStringRef(label))
+	}
+
+	if descr, exists := m[C.kSecAttrDescription]; exists {
+		item.Description = _CFStringToUTF8String(C.CFStringRef(descr))
+	}
+
+	return item, nil
 }
 
-func (k *OSXKeychain) Set(key string, secret []byte) error {
+func (k *keychain) Set(item Item) error {
 	var kref C.SecKeychainRef
 	var err error
 
-	if _, err := os.Stat(k.path); os.IsNotExist(err) {
+	if _, err := os.Stat(k.Path); os.IsNotExist(err) {
 		var prompt = true
-		if k.password != "" {
+		if k.Passphrase != "" {
 			prompt = false
 		}
-		log.Printf("creating keychain %s (prompt %#v)", k.path, prompt)
-		kref, err = createKeychain(k.path, prompt, k.password)
+		log.Printf("Creating keychain %s (prompt %#v)", k.Path, prompt)
+		kref, err = createKeychain(k.Path, prompt, k.Passphrase)
 		if err != nil {
 			return err
 		}
 		defer C.CFRelease(C.CFTypeRef(kref))
 	} else {
-		log.Printf("opening keychain %s", k.path)
-		kref, err = openKeychain(k.path)
+		kref, err = openKeychain(k.Path)
 		if err != nil {
 			return err
 		}
@@ -92,37 +138,37 @@ func (k *OSXKeychain) Set(key string, secret []byte) error {
 	}
 
 	var serviceRef C.CFStringRef
-	if serviceRef, err = _UTF8StringToCFString(k.service); err != nil {
+	if serviceRef, err = _UTF8StringToCFString(k.Service); err != nil {
 		return err
 	}
 	defer C.CFRelease(C.CFTypeRef(serviceRef))
 
 	var accountRef C.CFStringRef
-	if accountRef, err = _UTF8StringToCFString(key); err != nil {
+	if accountRef, err = _UTF8StringToCFString(item.Key); err != nil {
 		return err
 	}
 	defer C.CFRelease(C.CFTypeRef(accountRef))
 
 	var descr C.CFStringRef
-	if descr, err = _UTF8StringToCFString("aws-vault credentials"); err != nil {
+	if descr, err = _UTF8StringToCFString(item.Description); err != nil {
 		return err
 	}
 	defer C.CFRelease(C.CFTypeRef(descr))
 
+	if item.Label == "" {
+		item.Label = fmt.Sprintf("%s (%s)", k.Service, item.Key)
+	}
+
 	var label C.CFStringRef
-	if label, err = _UTF8StringToCFString(fmt.Sprintf("%s (%s)", k.service, key)); err != nil {
+	if label, err = _UTF8StringToCFString(item.Label); err != nil {
 		return err
 	}
 	defer C.CFRelease(C.CFTypeRef(label))
 
-	dataBytes := bytesToCFData(secret)
-	defer C.CFRelease(C.CFTypeRef(dataBytes))
+	log.Printf("storing %q", item.Data)
 
-	access, err := createEmptyAccess(fmt.Sprintf("%s (%s)", k.service, key))
-	if err != nil {
-		return err
-	}
-	defer C.CFRelease(C.CFTypeRef(access))
+	dataBytes := bytesToCFData(item.Data)
+	defer C.CFRelease(C.CFTypeRef(dataBytes))
 
 	query := map[C.CFTypeRef]C.CFTypeRef{
 		C.kSecClass:           C.kSecClassGenericPassword,
@@ -132,49 +178,78 @@ func (k *OSXKeychain) Set(key string, secret []byte) error {
 		C.kSecAttrDescription: C.CFTypeRef(descr),
 		C.kSecAttrLabel:       C.CFTypeRef(label),
 		C.kSecUseKeychain:     C.CFTypeRef(kref),
-		C.kSecAttrAccess:      C.CFTypeRef(access),
+	}
+
+	if !item.TrustSelf {
+		access, err := createEmptyAccess(fmt.Sprintf("%s (%s)", k.Service, item.Key))
+		if err != nil {
+			return err
+		}
+		defer C.CFRelease(C.CFTypeRef(access))
+		query[C.kSecAttrAccess] = C.CFTypeRef(access)
 	}
 
 	queryDict := mapToCFDictionary(query)
 	defer C.CFRelease(C.CFTypeRef(queryDict))
 
-	log.Printf("adding service=%q, account=%q to osx keychain %s", k.service, key, k.path)
+	log.Printf("Adding service=%q, account=%q to osx keychain %s", k.Service, item.Key, k.Path)
 	err = newKeychainError(C.SecItemAdd(queryDict, nil))
 
 	if err == errDuplicateItem {
-		if err = k.Remove(key); err != nil {
+		if err = k.Remove(item.Key); err != nil {
 			return err
 		}
-
-		log.Printf("adding service=%q, account=%q to osx keychain %s", k.service, key, k.path)
 		err = newKeychainError(C.SecItemAdd(queryDict, nil))
 	}
+
+	rt, _ := k.Get(item.Key)
+	log.Printf("%#v", rt)
 
 	return err
 }
 
-func (k *OSXKeychain) Remove(key string) error {
-	if _, err := os.Stat(k.path); os.IsNotExist(err) {
+func (k *keychain) Remove(key string) error {
+	if _, err := os.Stat(k.Path); os.IsNotExist(err) {
 		return ErrKeyNotFound
 	}
 
-	kref, err := openKeychain(k.path)
+	serviceRef, err := _UTF8StringToCFString(k.Service)
+	if err != nil {
+		return err
+	}
+	defer C.CFRelease(C.CFTypeRef(serviceRef))
+
+	accountRef, err := _UTF8StringToCFString(key)
+	if err != nil {
+		return err
+	}
+	defer C.CFRelease(C.CFTypeRef(serviceRef))
+
+	query := map[C.CFTypeRef]C.CFTypeRef{
+		C.kSecClass:       C.kSecClassGenericPassword,
+		C.kSecAttrService: C.CFTypeRef(serviceRef),
+		C.kSecAttrAccount: C.CFTypeRef(accountRef),
+		C.kSecMatchLimit:  C.kSecMatchLimitOne,
+	}
+
+	kref, err := openKeychain(k.Path)
 	if err != nil {
 		return err
 	}
 
-	item, err := findGenericPasswordItem(kref, k.service, key)
-	if err != nil {
-		return err
-	}
-	defer C.CFRelease(C.CFTypeRef(item))
+	searchArray := arrayToCFArray([]C.CFTypeRef{C.CFTypeRef(kref)})
+	defer C.CFRelease(C.CFTypeRef(searchArray))
+	query[C.kSecMatchSearchList] = C.CFTypeRef(searchArray)
 
-	log.Printf("removing keychain item service=%q, account=%q from osx keychain %q", k.service, key, k.path)
-	return newKeychainError(C.SecKeychainItemDelete(item))
+	queryDict := mapToCFDictionary(query)
+	defer C.CFRelease(C.CFTypeRef(queryDict))
+
+	log.Printf("Removing keychain item service=%q, account=%q from osx keychain %q", k.Service, key, k.Path)
+	return newKeychainError(C.SecItemDelete(queryDict))
 }
 
-func (k *OSXKeychain) Keys() ([]string, error) {
-	serviceRef, err := _UTF8StringToCFString(k.service)
+func (k *keychain) Keys() ([]string, error) {
+	serviceRef, err := _UTF8StringToCFString(k.Service)
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +262,7 @@ func (k *OSXKeychain) Keys() ([]string, error) {
 		C.kSecReturnAttributes: C.CFTypeRef(C.kCFBooleanTrue),
 	}
 
-	kref, err := openKeychain(k.path)
+	kref, err := openKeychain(k.Path)
 	if err != nil {
 		return nil, err
 	}
@@ -218,22 +293,8 @@ func (k *OSXKeychain) Keys() ([]string, error) {
 	return accountNames, nil
 }
 
-func init() {
-	keychainFile := os.Getenv("AWS_KEYCHAIN_FILE")
-	if keychainFile == "" {
-		usr, err := user.Current()
-		if err != nil {
-			panic(err)
-		}
-		keychainFile = usr.HomeDir + "/Library/Keychains/aws-vault.keychain"
-	}
-
-	keyring = &OSXKeychain{path: keychainFile, service: "aws-vault"}
-}
-
 // -------------------------------------------------
 // OSX Keychain API funcs
-// https://developer.apple.com/library/mac/documentation/Security/Reference/keychainservices/index.html
 
 // The returned SecAccessRef, if non-nil, must be released via CFRelease.
 func createEmptyAccess(label string) (C.SecAccessRef, error) {
@@ -280,7 +341,7 @@ func createKeychain(path string, promptUser bool, password string) (C.SecKeychai
 
 // The returned SecKeychainRef, if non-nil, must be released via CFRelease.
 func openKeychain(path string) (C.SecKeychainRef, error) {
-	log.Printf("opening keychain %s", path)
+	log.Printf("Opening keychain %s", path)
 	pathName := C.CString(path)
 	defer C.free(unsafe.Pointer(pathName))
 
@@ -290,29 +351,6 @@ func openKeychain(path string) (C.SecKeychainRef, error) {
 	}
 
 	return kref, nil
-}
-
-// The returned SecKeychainItemRef, if non-nil, must be released via CFRelease.
-func findGenericPasswordItem(kref C.SecKeychainRef, service, account string) (itemRef C.SecKeychainItemRef, err error) {
-	serviceRef := C.CString(service)
-	defer C.free(unsafe.Pointer(serviceRef))
-
-	accountRef := C.CString(account)
-	defer C.free(unsafe.Pointer(accountRef))
-
-	errCode := C.SecKeychainFindGenericPassword(
-		C.CFTypeRef(kref),
-		C.UInt32(len(service)),
-		serviceRef,
-		C.UInt32(len(account)),
-		accountRef,
-		nil,
-		nil,
-		&itemRef,
-	)
-
-	err = newKeychainError(errCode)
-	return
 }
 
 // -------------------------------------------------

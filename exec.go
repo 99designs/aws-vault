@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 	"syscall"
 	"time"
 
@@ -17,6 +19,21 @@ type ExecCommandInput struct {
 	Args     []string
 	Keyring  keyring.Keyring
 	Duration time.Duration
+}
+
+type envVars []string
+
+func (e *envVars) remove(key string) {
+	for i, v := range *e {
+		if strings.HasPrefix(v, key+"=") {
+			*e = append((*e)[:i], (*e)[i+1:]...)
+		}
+	}
+}
+
+func (e *envVars) add(key, val string) {
+	e.remove(key)
+	*e = append(*e, fmt.Sprintf("%s=%s", key, val))
 }
 
 func ExecCommand(ui Ui, input ExecCommandInput) {
@@ -35,14 +52,13 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 		}
 	}
 
-	env := append(os.Environ(),
-		"AWS_ACCESS_KEY_ID="+val.AccessKeyID,
-		"AWS_SECRET_ACCESS_KEY="+val.SecretAccessKey,
-		"AWS_DEFAULT_PROFILE="+input.Profile,
-	)
+	env := envVars(os.Environ())
+	env.add("AWS_ACCESS_KEY_ID", val.AccessKeyID)
+	env.add("AWS_SECRET_ACCESS_KEY", val.SecretAccessKey)
+	env.add("AWS_DEFAULT_PROFILE", input.Profile)
 
 	if val.SessionToken != "" {
-		env = append(env, "AWS_SESSION_TOKEN="+val.SessionToken)
+		env.add("AWS_SESSION_TOKEN", val.SessionToken)
 	}
 
 	path, err := exec.LookPath(input.Command)

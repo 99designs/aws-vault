@@ -206,7 +206,7 @@ func (p *KeyringProvider) Store(val credentials.Value) error {
 	}
 
 	return p.Keyring.Set(keyring.Item{
-		Key:  sessionKey(p.Profile),
+		Key:  p.Profile,
 		Data: bytes,
 	})
 }

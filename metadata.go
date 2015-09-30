@@ -3,37 +3,14 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httputil"
-	"os/exec"
 	"time"
 )
 
 const (
 	awsTimeFormat = "2006-01-02T15:04:05Z"
 )
-
-// type ServerCommandInput struct {
-// 	Listen string
-// }
-
-// func ServerCommand(ui Ui, input ServerCommandInput) {
-// 	installLoAlias(ec2MetadataHost)
-
-// 	listenAddr := input.Listen
-// 	if listenAddr == "" {
-// 		listenAddr = ec2MetadataHost + ":80"
-// 	}
-
-// 	l, err := net.Listen("tcp", listenAddr)
-// 	if err != nil {
-// 		ui.Error.Fatal(err)
-// 	}
-
-// 	log.Printf("Metadata server listening on %s", l.Addr().String())
-// 	ui.Error.Fatal(http.Serve(l, newMetadataHandler()))
-// }
 
 type metadataHandler struct {
 	http.Handler
@@ -92,23 +69,3 @@ func (s *metadataHandler) credentialsHandler(w http.ResponseWriter, r *http.Requ
 		Expiration:      s.credentials.Expires().Format(awsTimeFormat),
 	})
 }
-
-func installLoAlias(ip string) error {
-	cmd := exec.Command("ifconfig", "lo0", "alias", ip)
-	out, err := cmd.CombinedOutput()
-	if err != nil {
-		log.Println(out)
-		return err
-	}
-	return nil
-}
-
-// sudo  lo0 alias ${METADATA_HOST_IP}
-
-// cat <<EOF > ${BASE_DIR}/pf.conf
-// rdr-anchor "forwarding"
-// load anchor "forwarding" from "${BASE_DIR}/pf.anchor"
-// EOF
-
-// sudo pfctl -evf "${BASE_DIR}/pf.conf"
-// }

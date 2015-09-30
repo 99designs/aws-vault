@@ -48,9 +48,7 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 	}()
 
 	env := os.Environ()
-
 	env = overwriteEnv(env, "HTTP_PROXY", l.Addr().String())
-	// env = overwriteEnv(env, "AWS_DEFAULT_PROFILE", input.Profile)
 
 	if input.WriteEnv {
 		env = overwriteEnv(env, "AWS_ACCESS_KEY_ID", val.AccessKeyID)

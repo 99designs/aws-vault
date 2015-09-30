@@ -31,6 +31,11 @@ type VaultProvider struct {
 }
 
 func NewVaultProvider(k keyring.Keyring, profile string, d time.Duration) (*VaultProvider, error) {
+	if d < time.Minute*15 {
+		return nil, errors.New("Minimum session duration is 15 minutes")
+	} else if d > time.Hour*36 {
+		return nil, errors.New("Maximum session duration is 36 hours")
+	}
 	conf, err := parseProfiles()
 	if err != nil {
 		return nil, err
@@ -39,7 +44,7 @@ func NewVaultProvider(k keyring.Keyring, profile string, d time.Duration) (*Vaul
 		Keyring:         k,
 		Profile:         profile,
 		SessionDuration: d,
-		ExpiryWindow:    time.Second * 90,
+		ExpiryWindow:    d - (d / 3),
 		profilesConf:    conf,
 	}, nil
 }
@@ -159,7 +164,7 @@ func (p *VaultProvider) assumeRole(session sts.Credentials, roleArn string) (sts
 	input := &sts.AssumeRoleInput{
 		RoleArn:         aws.String(roleArn),
 		RoleSessionName: aws.String(roleSessionName),
-		DurationSeconds: aws.Int64(int64(p.SessionDuration.Seconds())),
+		DurationSeconds: aws.Int64(int64((time.Minute * 15) / time.Second)), // shortest session possible
 	}
 
 	log.Printf("Assuming role %s", roleArn)

@@ -77,8 +77,9 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 
 		// store a session in the keyring
 		p.Keyring.Set(keyring.Item{
-			Key:  sessionKey(p.Profile),
-			Data: bytes,
+			Key:       sessionKey(p.Profile),
+			Data:      bytes,
+			TrustSelf: true,
 		})
 	}
 

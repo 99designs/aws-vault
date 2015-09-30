@@ -20,6 +20,7 @@ type stsClient interface {
 
 type VaultProvider struct {
 	credentials.Expiry
+	expires         time.Time
 	Keyring         keyring.Keyring
 	Profile         string
 	SessionDuration time.Duration
@@ -78,6 +79,7 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 
 	log.Printf("Session token expires in %s", session.Expiration.Sub(time.Now()))
 	p.SetExpiration(*session.Expiration, p.ExpiryWindow)
+	p.expires = *session.Expiration
 
 	value := credentials.Value{
 		AccessKeyID:     *session.AccessKeyId,
@@ -214,4 +216,22 @@ func (p *KeyringProvider) Store(val credentials.Value) error {
 func (p *KeyringProvider) Delete() error {
 	p.Keyring.Remove(sessionKey(p.Profile))
 	return p.Keyring.Remove(p.Profile)
+}
+
+type VaultCredentials struct {
+	*credentials.Credentials
+	provider *VaultProvider
+}
+
+func NewVaultCredentials(k keyring.Keyring, profile string, d time.Duration) (*VaultCredentials, error) {
+	provider, err := NewVaultProvider(k, profile, d)
+	if err != nil {
+		return nil, err
+	}
+
+	return &VaultCredentials{credentials.NewCredentials(provider), provider}, nil
+}
+
+func (v *VaultCredentials) Expires() time.Time {
+	return v.provider.expires
 }

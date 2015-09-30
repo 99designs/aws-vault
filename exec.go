@@ -47,8 +47,22 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 		ui.Error.Fatal(http.Serve(l, NewMetadataHandler(creds)))
 	}()
 
+	// remove roles arns and source profile to prevent sdk's trying to assume roles
+	cfg, err := rewriteConfig(func(line string) (string, bool) {
+		if strings.HasPrefix(line, "role_arn") || strings.HasPrefix(line, "source_profile") {
+			return "", false
+		}
+		return line, true
+	})
+	if err != nil && !os.IsNotExist(err) {
+		ui.Error.Fatal(err)
+	}
+	defer os.Remove(cfg.Name())
+
 	env := os.Environ()
 	env = overwriteEnv(env, "HTTP_PROXY", l.Addr().String())
+	env = overwriteEnv(env, "AWS_CONFIG_FILE", cfg.Name())
+	env = overwriteEnv(env, "AWS_DEFAULT_PROFILE", input.Profile)
 
 	if input.WriteEnv {
 		env = overwriteEnv(env, "AWS_ACCESS_KEY_ID", val.AccessKeyID)

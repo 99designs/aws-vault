@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -47,17 +48,10 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 		ui.Error.Fatal(http.Serve(l, NewMetadataHandler(creds)))
 	}()
 
-	// remove roles arns and source profile to prevent sdk's trying to assume roles
-	cfg, err := rewriteConfig(func(line string) (string, bool) {
-		if strings.HasPrefix(line, "role_arn") || strings.HasPrefix(line, "source_profile") {
-			return "", false
-		}
-		return line, true
-	})
-	if err != nil && !os.IsNotExist(err) {
-		ui.Error.Fatal(err)
+	cfg, err := profileConfig(input.Profile)
+	if err != nil {
+		ui.Error.Fatal(cfg)
 	}
-	defer os.Remove(cfg.Name())
 
 	env := os.Environ()
 	env = overwriteEnv(env, "HTTP_PROXY", l.Addr().String())
@@ -79,6 +73,29 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Run()
+}
+
+// write out a config excluding role switching keys
+func profileConfig(profile string) (*os.File, error) {
+	conf, err := parseProfiles()
+	if err != nil {
+		return nil, err
+	}
+
+	tmpConfig, err := ioutil.TempFile(os.TempDir(), "aws-vault")
+	if err != nil {
+		return nil, err
+	}
+
+	p := conf[profile]
+	for k, _ := range p {
+		switch k {
+		case "source_profile", "role_arn":
+			delete(p, k)
+		}
+	}
+
+	return tmpConfig, writeProfiles(tmpConfig, profiles{profile: p})
 }
 
 func overwriteEnv(env []string, key, val string) []string {

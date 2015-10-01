@@ -61,10 +61,10 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 	if input.WriteEnv {
 		env = overwriteEnv(env, "AWS_ACCESS_KEY_ID", val.AccessKeyID)
 		env = overwriteEnv(env, "AWS_SECRET_ACCESS_KEY", val.SecretAccessKey)
-	}
 
-	if val.SessionToken != "" {
-		env = overwriteEnv(env, "AWS_SESSION_TOKEN", val.SessionToken)
+		if val.SessionToken != "" {
+			env = overwriteEnv(env, "AWS_SESSION_TOKEN", val.SessionToken)
+		}
 	}
 
 	cmd := exec.Command(input.Command, input.Args...)
@@ -94,6 +94,10 @@ func profileConfig(profile string) (*os.File, error) {
 			delete(p, k)
 		}
 	}
+
+	// allow some time for keychain prompt
+	p["metadata_service_timeout"] = "15"
+	p["metadata_service_num_attempts"] = "2"
 
 	return tmpConfig, writeProfiles(tmpConfig, profiles{profile: p})
 }

@@ -58,7 +58,7 @@ func writeProfiles(dest *os.File, profiles profiles) error {
 	for profile, vals := range profiles {
 		fmt.Fprintf(dest, "[profile %s]\n", profile)
 		for k, v := range vals {
-			fmt.Fprintf(dest, "%s = %q\n", k, v)
+			fmt.Fprintf(dest, "%s = %s\n", k, v)
 		}
 		fmt.Fprintln(dest, "")
 	}

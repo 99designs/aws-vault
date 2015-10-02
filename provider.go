@@ -63,27 +63,28 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 			return credentials.Value{}, err
 		}
 
-		if role, ok := p.profilesConf[p.Profile]["role_arn"]; ok {
-			session, err = p.assumeRole(session, role)
-			if err != nil {
-				return credentials.Value{}, err
-			}
-		}
-
 		bytes, err := json.Marshal(session)
 		if err != nil {
 			return credentials.Value{}, err
 		}
 
-		// store a session in the keyring
 		p.Keyring.Set(keyring.Item{
 			Key:       sessionKey(p.Profile),
+			Label:     "aws-vault session for " + p.Profile,
 			Data:      bytes,
 			TrustSelf: true,
 		})
+
+		if role, ok := p.profilesConf[p.Profile]["role_arn"]; ok {
+			session, err = p.assumeRole(session, role)
+			if err != nil {
+				return credentials.Value{}, err
+			}
+
+			log.Printf("Role token expires in %s", session.Expiration.Sub(time.Now()))
+		}
 	}
 
-	log.Printf("Session token expires in %s", session.Expiration.Sub(time.Now()))
 	p.SetExpiration(*session.Expiration, p.ExpiryWindow)
 	p.expires = *session.Expiration
 

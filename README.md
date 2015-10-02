@@ -13,31 +13,30 @@ Download the [latest release](https://github.com/99designs/aws-vault/releases). 
 
 ```bash
 
-# make use of the default profile
-$ aws-vault add default
+$ aws-vault add home
 Enter Access Key Id: ABDCDEFDASDASF
 Enter Secret Key: %
 
-$ aws-vault exec default -- env | grep AWS
-AWS_ACCESS_KEY_ID=asdasd
-AWS_SECRET_ACCESS_KEY=aasdasdasda
-AWS_SESSION_TOKEN=aslksdjlskdhlskdjflkj%lskdjfsl
+$ aws-vault exec default -- aws s3 ls
+bucket_1
+bucket_2
 
-# add an extra profile
 $ aws-vault add work
 Enter Access Key Id: ABDCDEFDASDASF
 Enter Secret Key: %
 
-$ aws-vault exec work -- env | grep AWS
-AWS_ACCESS_KEY_ID=asdasd
-AWS_SECRET_ACCESS_KEY=aasdasdasda
-AWS_SESSION_TOKEN=aslksdjlskdhlskdjflkj%lskdjfsl
+$ aws-vault exec work -- aws s3 ls
+another_bucket
 ```
 
 ## Security
 
 Notice in the above how a session token gets written out. This is because `aws-vault` uses Amazon's STS service
-to generate [temporary credentials](http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp.html). These expire in a short period of time, so the risk of leaking credentials is reduced.
+to generate [temporary credentials](http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp.html) them via the GetSessionToken or AssumeRole API calls. These expire in a short period of time, so the risk of leaking credentials is reduced.
+
+The credentials are exposed to the subprocess in one of two ways, the default is to create a [metadata server](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) idential to what AWS EC2 instances retrieve IAM roles from, and exposing it to the subprocess via `HTTP_PROXY`. This approach has the advantage that anything that uses Amazon's SDKs will automatically refresh credentials as needed, so session times can be as short as possible.
+
+For things that don't support this approach, there is the `--write-env` flag to `exec` which will write out the environment variables, as was the default in earlier versions of `aws-vault`.
 
 ## MFA Tokens
 
@@ -49,6 +48,8 @@ mfa_serial=arn:aws:iam::123456789012:mfa/jonsmith
 ```
 
 You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username].
+
+Note that if you have an account with an MFA associated, but you don't provide the IAM, you are unable to call IAM services, even if you have the correct permissions to do so.
 
 ## Assuming Roles
 

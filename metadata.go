@@ -3,8 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
-	"net/http/httputil"
 	"time"
 )
 
@@ -22,15 +22,6 @@ func NewMetadataHandler(vc *VaultCredentials) http.Handler {
 	router := http.NewServeMux()
 	router.HandleFunc("/latest/meta-data/iam/security-credentials/", h.indexHandler)
 	router.HandleFunc("/latest/meta-data/iam/security-credentials/local-credentials", h.credentialsHandler)
-	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		director := func(req *http.Request) {
-			req.URL.Scheme = "http"
-			req.URL.Host = r.Host
-		}
-		proxy := &httputil.ReverseProxy{Director: director}
-		proxy.ServeHTTP(w, r)
-	})
-
 	h.Handler = router
 	return h
 }
@@ -50,6 +41,8 @@ type credentialsResponse struct {
 }
 
 func (s *metadataHandler) credentialsHandler(w http.ResponseWriter, r *http.Request) {
+	log.Printf("%s %s", r.Method, r.RequestURI)
+
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
 

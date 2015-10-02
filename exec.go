@@ -1,10 +1,12 @@
 package main
 
 import (
+	"io"
 	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
+	"net/http/httputil"
 	"os"
 	"os/exec"
 	"strings"
@@ -45,7 +47,7 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 
 	go func() {
 		log.Printf("Metadata server listening on %s", l.Addr().String())
-		ui.Error.Fatal(http.Serve(l, NewMetadataHandler(creds)))
+		ui.Error.Fatal(http.Serve(l, proxyHandler(NewMetadataHandler(creds))))
 	}()
 
 	cfg, err := profileConfig(input.Profile)
@@ -67,6 +69,7 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 		}
 	}
 
+	// TODO: send kill signal to child process if received
 	cmd := exec.Command(input.Command, input.Args...)
 	cmd.Env = env
 	cmd.Stdin = os.Stdin
@@ -119,4 +122,49 @@ func overwriteEnv(env []string, key, val string) []string {
 	}
 
 	return env
+}
+
+func connectProxy(w http.ResponseWriter, r *http.Request) error {
+	d, err := net.Dial("tcp", r.RequestURI)
+	if err != nil {
+		return err
+	}
+	hj, ok := w.(http.Hijacker)
+	if !ok {
+		return err
+	}
+	conn, bufrw, err := hj.Hijack()
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	defer d.Close()
+
+	bufrw.WriteString("HTTP/1.0 200 Connection established\r\n\r\n")
+	bufrw.Flush()
+
+	go io.Copy(d, conn)
+	io.Copy(conn, d)
+
+	return nil
+}
+
+func proxyHandler(upstream http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("%s %s", r.Method, r.RequestURI)
+		if r.Method == "GET" && strings.HasPrefix(r.URL.Path, "/latest/meta-data") {
+			upstream.ServeHTTP(w, r)
+		} else if r.Method == "CONNECT" {
+			if err := connectProxy(w, r); err != nil {
+				http.Error(w, "Error connecting to proxy: "+err.Error(), http.StatusGatewayTimeout)
+			}
+		} else {
+			proxy := &httputil.ReverseProxy{Director: func(req *http.Request) {
+				req.Method = "GET"
+				req.URL.Scheme = "http"
+				req.URL.Host = r.Host
+			}}
+			proxy.ServeHTTP(w, r)
+		}
+	})
 }

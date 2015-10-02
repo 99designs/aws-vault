@@ -20,6 +20,7 @@ type stsClient interface {
 
 type VaultProvider struct {
 	credentials.Expiry
+	expires         time.Time
 	Keyring         keyring.Keyring
 	Profile         string
 	SessionDuration time.Duration
@@ -30,6 +31,11 @@ type VaultProvider struct {
 }
 
 func NewVaultProvider(k keyring.Keyring, profile string, d time.Duration) (*VaultProvider, error) {
+	if d < time.Minute*15 {
+		return nil, errors.New("Minimum session duration is 15 minutes")
+	} else if d > time.Hour*36 {
+		return nil, errors.New("Maximum session duration is 36 hours")
+	}
 	conf, err := parseProfiles()
 	if err != nil {
 		return nil, err
@@ -38,7 +44,7 @@ func NewVaultProvider(k keyring.Keyring, profile string, d time.Duration) (*Vaul
 		Keyring:         k,
 		Profile:         profile,
 		SessionDuration: d,
-		ExpiryWindow:    time.Second * 90,
+		ExpiryWindow:    d - (d / 3),
 		profilesConf:    conf,
 	}, nil
 }
@@ -57,27 +63,30 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 			return credentials.Value{}, err
 		}
 
-		if role, ok := p.profilesConf[p.Profile]["role_arn"]; ok {
-			session, err = p.assumeRole(session, role)
-			if err != nil {
-				return credentials.Value{}, err
-			}
-		}
-
 		bytes, err := json.Marshal(session)
 		if err != nil {
 			return credentials.Value{}, err
 		}
 
-		// store a session in the keyring
 		p.Keyring.Set(keyring.Item{
-			Key:  sessionKey(p.Profile),
-			Data: bytes,
+			Key:       sessionKey(p.Profile),
+			Label:     "aws-vault session for " + p.Profile,
+			Data:      bytes,
+			TrustSelf: true,
 		})
+
+		if role, ok := p.profilesConf[p.Profile]["role_arn"]; ok {
+			session, err = p.assumeRole(session, role)
+			if err != nil {
+				return credentials.Value{}, err
+			}
+
+			log.Printf("Role token expires in %s", session.Expiration.Sub(time.Now()))
+		}
 	}
 
-	log.Printf("Session token expires in %s", session.Expiration.Sub(time.Now()))
 	p.SetExpiration(*session.Expiration, p.ExpiryWindow)
+	p.expires = *session.Expiration
 
 	value := credentials.Value{
 		AccessKeyID:     *session.AccessKeyId,
@@ -157,7 +166,7 @@ func (p *VaultProvider) assumeRole(session sts.Credentials, roleArn string) (sts
 	input := &sts.AssumeRoleInput{
 		RoleArn:         aws.String(roleArn),
 		RoleSessionName: aws.String(roleSessionName),
-		DurationSeconds: aws.Int64(int64(p.SessionDuration.Seconds())),
+		DurationSeconds: aws.Int64(int64((time.Minute * 15) / time.Second)), // shortest session possible
 	}
 
 	log.Printf("Assuming role %s", roleArn)
@@ -214,4 +223,22 @@ func (p *KeyringProvider) Store(val credentials.Value) error {
 func (p *KeyringProvider) Delete() error {
 	p.Keyring.Remove(sessionKey(p.Profile))
 	return p.Keyring.Remove(p.Profile)
+}
+
+type VaultCredentials struct {
+	*credentials.Credentials
+	provider *VaultProvider
+}
+
+func NewVaultCredentials(k keyring.Keyring, profile string, d time.Duration) (*VaultCredentials, error) {
+	provider, err := NewVaultProvider(k, profile, d)
+	if err != nil {
+		return nil, err
+	}
+
+	return &VaultCredentials{credentials.NewCredentials(provider), provider}, nil
+}
+
+func (v *VaultCredentials) Expires() time.Time {
+	return v.provider.expires
 }

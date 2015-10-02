@@ -165,8 +165,6 @@ func (k *keychain) Set(item Item) error {
 	}
 	defer C.CFRelease(C.CFTypeRef(label))
 
-	log.Printf("storing %q", item.Data)
-
 	dataBytes := bytesToCFData(item.Data)
 	defer C.CFRelease(C.CFTypeRef(dataBytes))
 
@@ -201,9 +199,6 @@ func (k *keychain) Set(item Item) error {
 		}
 		err = newKeychainError(C.SecItemAdd(queryDict, nil))
 	}
-
-	rt, _ := k.Get(item.Key)
-	log.Printf("%#v", rt)
 
 	return err
 }

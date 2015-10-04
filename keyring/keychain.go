@@ -1,4 +1,5 @@
 // +build darwin
+
 package keyring
 
 // https://developer.apple.com/library/mac/documentation/Security/Reference/keychainservices/index.html
@@ -62,12 +63,12 @@ func (k *keychain) Get(key string) (Item, error) {
 	defer C.CFRelease(C.CFTypeRef(serviceRef))
 
 	query := map[C.CFTypeRef]C.CFTypeRef{
-		C.kSecClass:            C.kSecClassGenericPassword,
-		C.kSecAttrService:      C.CFTypeRef(serviceRef),
-		C.kSecAttrAccount:      C.CFTypeRef(accountRef),
-		C.kSecMatchLimit:       C.kSecMatchLimitOne,
-		C.kSecReturnAttributes: C.CFTypeRef(C.kCFBooleanTrue),
-		C.kSecReturnData:       C.CFTypeRef(C.kCFBooleanTrue),
+		C.CFTypeRef(C.kSecClass):            C.CFTypeRef(C.kSecClassGenericPassword),
+		C.CFTypeRef(C.kSecAttrService):      C.CFTypeRef(serviceRef),
+		C.CFTypeRef(C.kSecAttrAccount):      C.CFTypeRef(accountRef),
+		C.CFTypeRef(C.kSecMatchLimit):       C.CFTypeRef(C.kSecMatchLimitOne),
+		C.CFTypeRef(C.kSecReturnAttributes): C.CFTypeRef(C.kCFBooleanTrue),
+		C.CFTypeRef(C.kSecReturnData):       C.CFTypeRef(C.kCFBooleanTrue),
 	}
 
 	kref, err := openKeychain(k.Path)
@@ -77,7 +78,7 @@ func (k *keychain) Get(key string) (Item, error) {
 
 	searchArray := arrayToCFArray([]C.CFTypeRef{C.CFTypeRef(kref)})
 	defer C.CFRelease(C.CFTypeRef(searchArray))
-	query[C.kSecMatchSearchList] = C.CFTypeRef(searchArray)
+	query[C.CFTypeRef(C.kSecMatchSearchList)] = C.CFTypeRef(searchArray)
 
 	queryDict := mapToCFDictionary(query)
 	defer C.CFRelease(C.CFTypeRef(queryDict))
@@ -94,7 +95,7 @@ func (k *keychain) Get(key string) (Item, error) {
 
 	m := _CFDictionaryToMap(C.CFDictionaryRef(resultsRef))
 
-	data := C.CFDataRef(m[C.kSecValueData])
+	data := C.CFDataRef(m[C.CFTypeRef(C.kSecValueData)])
 	dataLen := C.int(C.CFDataGetLength(data))
 	cdata := C.CFDataGetBytePtr(data)
 
@@ -103,11 +104,11 @@ func (k *keychain) Get(key string) (Item, error) {
 		Data: C.GoBytes(unsafe.Pointer(cdata), dataLen),
 	}
 
-	if label, exists := m[C.kSecAttrLabel]; exists {
+	if label, exists := m[C.CFTypeRef(C.kSecAttrLabel)]; exists {
 		item.Label = _CFStringToUTF8String(C.CFStringRef(label))
 	}
 
-	if descr, exists := m[C.kSecAttrDescription]; exists {
+	if descr, exists := m[C.CFTypeRef(C.kSecAttrDescription)]; exists {
 		item.Description = _CFStringToUTF8String(C.CFStringRef(descr))
 	}
 
@@ -169,13 +170,13 @@ func (k *keychain) Set(item Item) error {
 	defer C.CFRelease(C.CFTypeRef(dataBytes))
 
 	query := map[C.CFTypeRef]C.CFTypeRef{
-		C.kSecClass:           C.kSecClassGenericPassword,
-		C.kSecAttrService:     C.CFTypeRef(serviceRef),
-		C.kSecAttrAccount:     C.CFTypeRef(accountRef),
-		C.kSecValueData:       C.CFTypeRef(dataBytes),
-		C.kSecAttrDescription: C.CFTypeRef(descr),
-		C.kSecAttrLabel:       C.CFTypeRef(label),
-		C.kSecUseKeychain:     C.CFTypeRef(kref),
+		C.CFTypeRef(C.kSecClass):           C.CFTypeRef(C.kSecClassGenericPassword),
+		C.CFTypeRef(C.kSecAttrService):     C.CFTypeRef(serviceRef),
+		C.CFTypeRef(C.kSecAttrAccount):     C.CFTypeRef(accountRef),
+		C.CFTypeRef(C.kSecValueData):       C.CFTypeRef(dataBytes),
+		C.CFTypeRef(C.kSecAttrDescription): C.CFTypeRef(descr),
+		C.CFTypeRef(C.kSecAttrLabel):       C.CFTypeRef(label),
+		C.CFTypeRef(C.kSecUseKeychain):     C.CFTypeRef(kref),
 	}
 
 	if !item.TrustSelf {
@@ -184,7 +185,7 @@ func (k *keychain) Set(item Item) error {
 			return err
 		}
 		defer C.CFRelease(C.CFTypeRef(access))
-		query[C.kSecAttrAccess] = C.CFTypeRef(access)
+		query[C.CFTypeRef(C.kSecAttrAccess)] = C.CFTypeRef(access)
 	}
 
 	queryDict := mapToCFDictionary(query)
@@ -221,10 +222,10 @@ func (k *keychain) Remove(key string) error {
 	defer C.CFRelease(C.CFTypeRef(serviceRef))
 
 	query := map[C.CFTypeRef]C.CFTypeRef{
-		C.kSecClass:       C.kSecClassGenericPassword,
-		C.kSecAttrService: C.CFTypeRef(serviceRef),
-		C.kSecAttrAccount: C.CFTypeRef(accountRef),
-		C.kSecMatchLimit:  C.kSecMatchLimitOne,
+		C.CFTypeRef(C.kSecClass):       C.CFTypeRef(C.kSecClassGenericPassword),
+		C.CFTypeRef(C.kSecAttrService): C.CFTypeRef(serviceRef),
+		C.CFTypeRef(C.kSecAttrAccount): C.CFTypeRef(accountRef),
+		C.CFTypeRef(C.kSecMatchLimit):  C.CFTypeRef(C.kSecMatchLimitOne),
 	}
 
 	kref, err := openKeychain(k.Path)
@@ -234,7 +235,7 @@ func (k *keychain) Remove(key string) error {
 
 	searchArray := arrayToCFArray([]C.CFTypeRef{C.CFTypeRef(kref)})
 	defer C.CFRelease(C.CFTypeRef(searchArray))
-	query[C.kSecMatchSearchList] = C.CFTypeRef(searchArray)
+	query[C.CFTypeRef(C.kSecMatchSearchList)] = C.CFTypeRef(searchArray)
 
 	queryDict := mapToCFDictionary(query)
 	defer C.CFRelease(C.CFTypeRef(queryDict))
@@ -251,10 +252,10 @@ func (k *keychain) Keys() ([]string, error) {
 	defer C.CFRelease(C.CFTypeRef(serviceRef))
 
 	query := map[C.CFTypeRef]C.CFTypeRef{
-		C.kSecClass:            C.kSecClassGenericPassword,
-		C.kSecAttrService:      C.CFTypeRef(serviceRef),
-		C.kSecMatchLimit:       C.kSecMatchLimitAll,
-		C.kSecReturnAttributes: C.CFTypeRef(C.kCFBooleanTrue),
+		C.CFTypeRef(C.kSecClass):            C.CFTypeRef(C.kSecClassGenericPassword),
+		C.CFTypeRef(C.kSecAttrService):      C.CFTypeRef(serviceRef),
+		C.CFTypeRef(C.kSecMatchLimit):       C.CFTypeRef(C.kSecMatchLimitAll),
+		C.CFTypeRef(C.kSecReturnAttributes): C.CFTypeRef(C.kCFBooleanTrue),
 	}
 
 	kref, err := openKeychain(k.Path)
@@ -264,7 +265,7 @@ func (k *keychain) Keys() ([]string, error) {
 
 	searchArray := arrayToCFArray([]C.CFTypeRef{C.CFTypeRef(kref)})
 	defer C.CFRelease(C.CFTypeRef(searchArray))
-	query[C.kSecMatchSearchList] = C.CFTypeRef(searchArray)
+	query[C.CFTypeRef(C.kSecMatchSearchList)] = C.CFTypeRef(searchArray)
 
 	queryDict := mapToCFDictionary(query)
 	defer C.CFRelease(C.CFTypeRef(queryDict))
@@ -281,7 +282,7 @@ func (k *keychain) Keys() ([]string, error) {
 
 	for _, result := range _CFArrayToArray(C.CFArrayRef(resultsRef)) {
 		m := _CFDictionaryToMap(C.CFDictionaryRef(result))
-		accountName := _CFStringToUTF8String(C.CFStringRef(m[C.kSecAttrAccount]))
+		accountName := _CFStringToUTF8String(C.CFStringRef(m[C.CFTypeRef(C.kSecAttrAccount)]))
 		accountNames = append(accountNames, accountName)
 	}
 

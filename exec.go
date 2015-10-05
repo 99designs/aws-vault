@@ -75,7 +75,9 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	cmd.Run()
+	if err = cmd.Run(); err != nil {
+		ui.Error.Fatal(err)
+	}
 }
 
 // write out a config excluding role switching keys

@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/99designs/aws-vault/keyring"
@@ -23,6 +24,7 @@ type ExecCommandInput struct {
 	Keyring  keyring.Keyring
 	Duration time.Duration
 	WriteEnv bool
+	Signals  chan os.Signal
 }
 
 func ExecCommand(ui Ui, input ExecCommandInput) {
@@ -55,12 +57,16 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 		ui.Error.Fatal(cfg)
 	}
 
+	ui.Printf("Spawning %s as a sub-process", input.Command)
+
 	env := os.Environ()
 	env = overwriteEnv(env, "http_proxy", l.Addr().String())
 	env = overwriteEnv(env, "AWS_CONFIG_FILE", cfg.Name())
 	env = overwriteEnv(env, "AWS_DEFAULT_PROFILE", input.Profile)
 
 	if input.WriteEnv {
+		log.Printf("Exporting credentials in environment")
+
 		env = overwriteEnv(env, "AWS_ACCESS_KEY_ID", val.AccessKeyID)
 		env = overwriteEnv(env, "AWS_SECRET_ACCESS_KEY", val.SecretAccessKey)
 
@@ -69,13 +75,29 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 		}
 	}
 
-	// TODO: send kill signal to child process if received
 	cmd := exec.Command(input.Command, input.Args...)
 	cmd.Env = env
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	cmd.Run()
+
+	go func() {
+		sig := <-input.Signals
+		if cmd.Process != nil {
+			cmd.Process.Signal(sig)
+		}
+	}()
+
+	var waitStatus syscall.WaitStatus
+	if err := cmd.Run(); err != nil {
+		if err != nil {
+			ui.Error.Println(err)
+		}
+		if exitError, ok := err.(*exec.ExitError); ok {
+			waitStatus = exitError.Sys().(syscall.WaitStatus)
+			os.Exit(waitStatus.ExitStatus())
+		}
+	}
 }
 
 // write out a config excluding role switching keys

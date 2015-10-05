@@ -11,6 +11,10 @@
 			"Rev": "6b4e7dc5e3143b85ea77909c72caf89416fc2915"
 		},
 		{
+			"ImportPath": "github.com/aulanov/go.dbus",
+			"Rev": "25c3068a42a0b50b877953fb249dbcffc6bd1bca"
+		},
+		{
 			"ImportPath": "github.com/aws/aws-sdk-go/aws",
 			"Comment": "v0.9.4rc5-3-g376bade",
 			"Rev": "376badeb12ede342ca2f41fd7b45027aa3f00264"

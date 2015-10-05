@@ -74,19 +74,19 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 			Data:      bytes,
 			TrustSelf: true,
 		})
-
-		if role, ok := p.profilesConf[p.Profile]["role_arn"]; ok {
-			session, err = p.assumeRole(session, role)
-			if err != nil {
-				return credentials.Value{}, err
-			}
-
-			log.Printf("Role token expires in %s", session.Expiration.Sub(time.Now()))
-		}
 	}
 
 	p.SetExpiration(*session.Expiration, p.ExpiryWindow)
 	p.expires = *session.Expiration
+
+	if role, ok := p.profilesConf[p.Profile]["role_arn"]; ok {
+		session, err = p.assumeRole(session, role)
+		if err != nil {
+			return credentials.Value{}, err
+		}
+
+		log.Printf("Role token expires in %s", session.Expiration.Sub(time.Now()))
+	}
 
 	value := credentials.Value{
 		AccessKeyID:     *session.AccessKeyId,
@@ -166,7 +166,7 @@ func (p *VaultProvider) assumeRole(session sts.Credentials, roleArn string) (sts
 	input := &sts.AssumeRoleInput{
 		RoleArn:         aws.String(roleArn),
 		RoleSessionName: aws.String(roleSessionName),
-		DurationSeconds: aws.Int64(int64((time.Minute * 15) / time.Second)), // shortest session possible
+		DurationSeconds: aws.Int64(int64(time.Hour.Seconds())),
 	}
 
 	log.Printf("Assuming role %s", roleArn)

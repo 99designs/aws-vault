@@ -92,19 +92,19 @@ func profileConfig(profile string) (*os.File, error) {
 		return nil, err
 	}
 
-	p := conf[profile]
-	for k, _ := range p {
-		switch k {
-		case "source_profile", "role_arn":
-			delete(p, k)
+	// allow some time for keychain prompt
+	newConfig := map[string]string{
+		"metadata_service_timeout":      "15",
+		"metadata_service_num_attempts": "2",
+	}
+
+	for k, v := range conf[profile] {
+		if k != "source_profile" && k != "role_arn" {
+			newConfig[k] = v
 		}
 	}
 
-	// allow some time for keychain prompt
-	p["metadata_service_timeout"] = "15"
-	p["metadata_service_num_attempts"] = "2"
-
-	return tmpConfig, writeProfiles(tmpConfig, profiles{profile: p})
+	return tmpConfig, writeProfiles(tmpConfig, profiles{profile: newConfig})
 }
 
 func overwriteEnv(env []string, key, val string) []string {

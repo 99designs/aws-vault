@@ -7,7 +7,7 @@ import (
 	"os/user"
 	"strings"
 
-	"github.com/vaughan0/go-ini"
+	ini "github.com/vaughan0/go-ini"
 )
 
 type profiles map[string]map[string]string

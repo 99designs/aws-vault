@@ -126,7 +126,7 @@ func (p *VaultProvider) getSessionToken(length time.Duration) (sts.Credentials, 
 	}
 
 	if mfa, ok := p.profilesConf[p.Profile]["mfa_serial"]; ok {
-		token, err := promptPassword(fmt.Sprintf("Enter token for %s: ", mfa))
+		token, err := prompt(fmt.Sprintf("Enter token for %s: ", mfa))
 		if err != nil {
 			return sts.Credentials{}, err
 		}

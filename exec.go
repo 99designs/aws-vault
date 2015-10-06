@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/99designs/aws-vault/keyring"
@@ -23,6 +24,7 @@ type ExecCommandInput struct {
 	Keyring  keyring.Keyring
 	Duration time.Duration
 	WriteEnv bool
+	Signals  chan os.Signal
 }
 
 func ExecCommand(ui Ui, input ExecCommandInput) {
@@ -69,15 +71,30 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 		}
 	}
 
-	// TODO: send kill signal to child process if received
 	cmd := exec.Command(input.Command, input.Args...)
 	cmd.Env = env
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	if err = cmd.Run(); err != nil {
-		ui.Error.Fatal(err)
+
+	go func() {
+		sig := <-input.Signals
+		if cmd.Process != nil {
+			cmd.Process.Signal(sig)
+		}
+	}()
+
+	var waitStatus syscall.WaitStatus
+	if err := cmd.Run(); err != nil {
+		if err != nil {
+			ui.Error.Println(err)
+		}
+		if exitError, ok := err.(*exec.ExitError); ok {
+			waitStatus = exitError.Sys().(syscall.WaitStatus)
+			os.Exit(waitStatus.ExitStatus())
+		}
 	}
+
 }
 
 // write out a config excluding role switching keys

@@ -62,6 +62,7 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 
 	env := os.Environ()
 	env = overwriteEnv(env, "http_proxy", l.Addr().String())
+	env = overwriteEnv(env, "no_proxy", "amazonaws.com")
 	env = overwriteEnv(env, "AWS_CONFIG_FILE", cfg.Name())
 	env = overwriteEnv(env, "AWS_DEFAULT_PROFILE", input.Profile)
 
@@ -71,6 +72,7 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 
 		if val.SessionToken != "" {
 			env = overwriteEnv(env, "AWS_SESSION_TOKEN", val.SessionToken)
+			env = overwriteEnv(env, "AWS_SECURITY_TOKEN", val.SessionToken)
 		}
 	}
 

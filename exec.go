@@ -18,18 +18,23 @@ import (
 )
 
 type ExecCommandInput struct {
-	Profile  string
-	Command  string
-	Args     []string
-	Keyring  keyring.Keyring
-	Duration time.Duration
-	WriteEnv bool
-	Signals  chan os.Signal
+	Profile        string
+	Command        string
+	Args           []string
+	Keyring        keyring.Keyring
+	Duration       time.Duration
+	WriteEnv       bool
+	UseMasterCreds bool
+	Signals        chan os.Signal
 }
 
 func ExecCommand(ui Ui, input ExecCommandInput) {
+	if input.UseMasterCreds {
+		ui.Error.Println("CAUTION: Using master credentials is a security risk!")
+	}
 	creds, err := NewVaultCredentials(input.Keyring, input.Profile, VaultOptions{
 		SessionDuration: input.Duration,
+		UseMasterCreds:  input.UseMasterCreds,
 		WriteEnv:        input.WriteEnv,
 	})
 	if err != nil {

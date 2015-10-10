@@ -33,6 +33,7 @@ type VaultOptions struct {
 	AssumeRoleDuration time.Duration
 	ExpiryWindow       time.Duration
 	WriteEnv           bool
+	UseMasterCreds     bool
 }
 
 func (o VaultOptions) Validate() error {
@@ -86,6 +87,14 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 	creds, err := p.getMasterCreds()
 	if err != nil {
 		return credentials.Value{}, err
+	}
+
+	if p.UseMasterCreds {
+		if _, hasRole := p.profiles[p.profile]["role_arn"]; hasRole {
+			return credentials.Value{},
+				errors.New("Can't use master creds for profiles with a role")
+		}
+		return creds, nil
 	}
 
 	session, err := p.getCachedSession()

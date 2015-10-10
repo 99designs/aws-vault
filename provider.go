@@ -66,6 +66,7 @@ type VaultProvider struct {
 }
 
 func NewVaultProvider(k keyring.Keyring, profile string, opts VaultOptions) (*VaultProvider, error) {
+	opts = opts.ApplyDefaults()
 	if err := opts.Validate(); err != nil {
 		return nil, err
 	}
@@ -74,7 +75,7 @@ func NewVaultProvider(k keyring.Keyring, profile string, opts VaultOptions) (*Va
 		return nil, err
 	}
 	return &VaultProvider{
-		VaultOptions: opts.ApplyDefaults(),
+		VaultOptions: opts,
 		keyring:      k,
 		profile:      profile,
 		profiles:     profiles,

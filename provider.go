@@ -13,43 +13,80 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts"
 )
 
+const (
+	MaxSessionDuration    = time.Hour * 36
+	MinSessionDuration    = time.Minute * 15
+	MinAssumeRoleDuration = time.Minute * 15
+	MaxAssumeRoleDuration = time.Hour
+
+	DefaultSessionDuration    = time.Hour * 4
+	DefaultAssumeRoleDuration = time.Minute * 15
+)
+
 type stsClient interface {
 	AssumeRole(input *sts.AssumeRoleInput) (*sts.AssumeRoleOutput, error)
 	GetSessionToken(input *sts.GetSessionTokenInput) (*sts.GetSessionTokenOutput, error)
 }
 
-type VaultProvider struct {
-	credentials.Expiry
-	expires         time.Time
-	Keyring         keyring.Keyring
-	Profile         string
-	SessionDuration time.Duration
-	ExpiryWindow    time.Duration
-	profilesConf    profiles
-	session         *sts.Credentials
-	client          stsClient
+type VaultOptions struct {
+	SessionDuration    time.Duration
+	AssumeRoleDuration time.Duration
+	ExpiryWindow       time.Duration
+	WriteEnv           bool
 }
 
-func NewVaultProvider(k keyring.Keyring, profile string, d time.Duration) (*VaultProvider, error) {
-	if d < time.Minute*15 {
-		return nil, errors.New("Minimum session duration is 15 minutes")
-	} else if d > time.Hour*36 {
-		return nil, errors.New("Maximum session duration is 36 hours")
+func (o VaultOptions) Validate() error {
+	if o.SessionDuration < time.Minute*15 {
+		return errors.New("Minimum session duration is 15 minutes")
+	} else if o.SessionDuration > time.Hour*36 {
+		return errors.New("Maximum session duration is 36 hours")
 	}
-	conf, err := parseProfiles()
+	return nil
+}
+
+func (o VaultOptions) ApplyDefaults() VaultOptions {
+	if o.AssumeRoleDuration == 0 {
+		o.AssumeRoleDuration = DefaultAssumeRoleDuration
+	}
+	if o.SessionDuration == 0 {
+		o.SessionDuration = DefaultSessionDuration
+	}
+	return o
+}
+
+type VaultProvider struct {
+	credentials.Expiry
+	VaultOptions
+	profile  string
+	expires  time.Time
+	keyring  keyring.Keyring
+	profiles profiles
+	session  *sts.Credentials
+	client   stsClient
+}
+
+func NewVaultProvider(k keyring.Keyring, profile string, opts VaultOptions) (*VaultProvider, error) {
+	if err := opts.Validate(); err != nil {
+		return nil, err
+	}
+	profiles, err := parseProfiles()
 	if err != nil {
 		return nil, err
 	}
 	return &VaultProvider{
-		Keyring:         k,
-		Profile:         profile,
-		SessionDuration: d,
-		ExpiryWindow:    d - (d / 3),
-		profilesConf:    conf,
+		VaultOptions: opts.ApplyDefaults(),
+		keyring:      k,
+		profile:      profile,
+		profiles:     profiles,
 	}, nil
 }
 
 func (p *VaultProvider) Retrieve() (credentials.Value, error) {
+	creds, err := p.getMasterCreds()
+	if err != nil {
+		return credentials.Value{}, err
+	}
+
 	session, err := p.getCachedSession()
 	if err != nil {
 		if err == keyring.ErrKeyNotFound {
@@ -58,7 +95,7 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 			log.Println(err)
 		}
 
-		session, err = p.getSessionToken(p.SessionDuration)
+		session, err = p.getSessionToken(&creds)
 		if err != nil {
 			return credentials.Value{}, err
 		}
@@ -68,18 +105,26 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 			return credentials.Value{}, err
 		}
 
-		p.Keyring.Set(keyring.Item{
-			Key:       sessionKey(p.Profile),
-			Label:     "aws-vault session for " + p.Profile,
+		log.Printf("Writing session for %s to keyring", p.profile)
+		p.keyring.Set(keyring.Item{
+			Key:       sessionKey(p.profile),
+			Label:     "aws-vault session for " + p.profile,
 			Data:      bytes,
 			TrustSelf: true,
 		})
 	}
 
-	p.SetExpiration(*session.Expiration, p.ExpiryWindow)
+	log.Printf("Using session, expires in %s", session.Expiration.Sub(time.Now()).String())
+
+	window := p.ExpiryWindow
+	if window == 0 {
+		window = p.SessionDuration - (p.SessionDuration / 3)
+	}
+
+	p.SetExpiration(*session.Expiration, window)
 	p.expires = *session.Expiration
 
-	if role, ok := p.profilesConf[p.Profile]["role_arn"]; ok {
+	if role, ok := p.profiles[p.profile]["role_arn"]; ok {
 		session, err = p.assumeRole(session, role)
 		if err != nil {
 			return credentials.Value{}, err
@@ -102,7 +147,7 @@ func sessionKey(profile string) string {
 }
 
 func (p *VaultProvider) getCachedSession() (session sts.Credentials, err error) {
-	item, err := p.Keyring.Get(sessionKey(p.Profile))
+	item, err := p.keyring.Get(sessionKey(p.profile))
 	if err != nil {
 		return session, err
 	}
@@ -118,14 +163,24 @@ func (p *VaultProvider) getCachedSession() (session sts.Credentials, err error) 
 	return
 }
 
-func (p *VaultProvider) getSessionToken(length time.Duration) (sts.Credentials, error) {
-	source := p.profilesConf.sourceProfile(p.Profile)
+func (p *VaultProvider) getMasterCreds() (credentials.Value, error) {
+	source := p.profiles.sourceProfile(p.profile)
 
+	provider := credentials.NewChainCredentials([]credentials.Provider{
+		&credentials.EnvProvider{},
+		&credentials.SharedCredentialsProvider{Filename: "", Profile: p.profile},
+		&KeyringProvider{Keyring: p.keyring, Profile: source},
+	})
+
+	return provider.Get()
+}
+
+func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentials, error) {
 	params := &sts.GetSessionTokenInput{
-		DurationSeconds: aws.Int64(int64(length.Seconds())),
+		DurationSeconds: aws.Int64(int64(p.SessionDuration.Seconds())),
 	}
 
-	if mfa, ok := p.profilesConf[p.Profile]["mfa_serial"]; ok {
+	if mfa, ok := p.profiles[p.profile]["mfa_serial"]; ok {
 		token, err := prompt(fmt.Sprintf("Enter token for %s: ", mfa))
 		if err != nil {
 			return sts.Credentials{}, err
@@ -136,12 +191,14 @@ func (p *VaultProvider) getSessionToken(length time.Duration) (sts.Credentials, 
 
 	client := p.client
 	if client == nil {
-		client = sts.New(&aws.Config{Credentials: credentials.NewChainCredentials(
-			p.defaultProviders(source),
-		)})
+		client = sts.New(&aws.Config{
+			Credentials: credentials.NewCredentials(&credentials.StaticProvider{
+				Value: *creds,
+			}),
+		})
 	}
 
-	log.Printf("Getting new session token for profile %s", p.Profile)
+	log.Printf("Getting new session token for profile %s", p.profile)
 	resp, err := client.GetSessionToken(params)
 	if err != nil {
 		return sts.Credentials{}, err
@@ -166,24 +223,16 @@ func (p *VaultProvider) assumeRole(session sts.Credentials, roleArn string) (sts
 	input := &sts.AssumeRoleInput{
 		RoleArn:         aws.String(roleArn),
 		RoleSessionName: aws.String(roleSessionName),
-		DurationSeconds: aws.Int64(int64(time.Hour.Seconds())),
+		DurationSeconds: aws.Int64(int64(p.AssumeRoleDuration.Seconds())),
 	}
 
-	log.Printf("Assuming role %s", roleArn)
+	log.Printf("Assuming role %s, expires in %s", roleArn, p.AssumeRoleDuration.String())
 	resp, err := client.AssumeRole(input)
 	if err != nil {
 		return sts.Credentials{}, err
 	}
 
 	return *resp.Credentials, nil
-}
-
-func (p *VaultProvider) defaultProviders(profile string) []credentials.Provider {
-	return []credentials.Provider{
-		&credentials.EnvProvider{},
-		&credentials.SharedCredentialsProvider{Filename: "", Profile: profile},
-		&KeyringProvider{Keyring: p.Keyring, Profile: profile},
-	}
 }
 
 type KeyringProvider struct {
@@ -230,8 +279,8 @@ type VaultCredentials struct {
 	provider *VaultProvider
 }
 
-func NewVaultCredentials(k keyring.Keyring, profile string, d time.Duration) (*VaultCredentials, error) {
-	provider, err := NewVaultProvider(k, profile, d)
+func NewVaultCredentials(k keyring.Keyring, profile string, opts VaultOptions) (*VaultCredentials, error) {
+	provider, err := NewVaultProvider(k, profile, opts)
 	if err != nil {
 		return nil, err
 	}

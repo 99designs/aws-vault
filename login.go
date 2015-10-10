@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/99designs/aws-vault/keyring"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -19,7 +18,9 @@ type LoginCommandInput struct {
 }
 
 func LoginCommand(ui Ui, input LoginCommandInput) {
-	provider, err := NewVaultProvider(input.Keyring, input.Profile, time.Hour)
+	provider, err := NewVaultProvider(input.Keyring, input.Profile, VaultOptions{
+		AssumeRoleDuration: MaxAssumeRoleDuration,
+	})
 	if err != nil {
 		ui.Error.Fatal(err)
 	}

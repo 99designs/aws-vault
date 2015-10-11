@@ -61,7 +61,7 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 	}
 
 	env := os.Environ()
-	env = overwriteEnv(env, "http_proxy", l.Addr().String())
+	env = overwriteEnv(env, "http_proxy", "http://"+l.Addr().String())
 	env = overwriteEnv(env, "no_proxy", "amazonaws.com")
 	env = overwriteEnv(env, "AWS_CONFIG_FILE", cfg.Name())
 	env = overwriteEnv(env, "AWS_DEFAULT_PROFILE", input.Profile)

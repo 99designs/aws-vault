@@ -33,6 +33,7 @@ type VaultOptions struct {
 	AssumeRoleDuration time.Duration
 	ExpiryWindow       time.Duration
 	WriteEnv           bool
+	MfaToken           string
 }
 
 func (o VaultOptions) Validate() error {
@@ -182,12 +183,16 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 	}
 
 	if mfa, ok := p.profiles[p.profile]["mfa_serial"]; ok {
-		token, err := prompt(fmt.Sprintf("Enter token for %s: ", mfa))
-		if err != nil {
-			return sts.Credentials{}, err
-		}
 		params.SerialNumber = aws.String(mfa)
-		params.TokenCode = aws.String(token)
+		if p.MfaToken == "" {
+			token, err := prompt(fmt.Sprintf("Enter token for %s: ", mfa))
+			if err != nil {
+				return sts.Credentials{}, err
+			}
+			params.TokenCode = aws.String(token)
+		} else {
+			params.TokenCode = p.MfaToken
+		}
 	}
 
 	client := p.client

@@ -38,6 +38,7 @@ func main() {
 		execProfile      = exec.Arg("profile", "Name of the profile").Required().String()
 		execSessDuration = exec.Flag("session-ttl", "Expiration time for aws session").Default("4h").OverrideDefaultFromEnvar("AWS_SESSION_TTL").Short('t').Duration()
 		execWriteEnv     = exec.Flag("write-env", "Write AWS env vars").Short('e').Bool()
+		execMfaToken     = exec.Flag("mfa-token", "The mfa token to use").Short('t').String()
 		execCmd          = exec.Arg("cmd", "Command to execute").Default(os.Getenv("SHELL")).String()
 		execCmdArgs      = exec.Arg("args", "Command arguments").Strings()
 		rm               = kingpin.Command("rm", "Removes credentials")
@@ -103,6 +104,7 @@ func main() {
 			Duration: *execSessDuration,
 			WriteEnv: *execWriteEnv,
 			Signals:  signals,
+			MfaToken: *execMfaToken,
 		})
 
 	case login.FullCommand():

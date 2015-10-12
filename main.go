@@ -45,6 +45,7 @@ func main() {
 		rmProfile        = rm.Arg("profile", "Name of the profile").Required().String()
 		login            = kingpin.Command("login", "Generate a login link for the AWS Console")
 		loginProfile     = login.Arg("profile", "Name of the profile").Required().String()
+		loginMfaToken    = login.Flag("mfa-token", "The mfa token to use").Short('t').String()
 	)
 
 	kingpin.Version(Version)
@@ -111,6 +112,7 @@ func main() {
 		LoginCommand(ui, LoginCommandInput{
 			Profile: *loginProfile,
 			Keyring: keyring,
+			MfaToken: *loginMfaToken,
 		})
 	}
 }

@@ -72,6 +72,7 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 	env = overwriteEnv(env, "no_proxy", "amazonaws.com")
 	env = overwriteEnv(env, "AWS_CONFIG_FILE", cfg.Name())
 	env = overwriteEnv(env, "AWS_PROFILE", input.Profile)
+	env = unsetEnv(env, "AWS_CREDENTIAL_FILE")
 
 	if region, ok := profs[input.Profile]["region"]; ok {
 		env = overwriteEnv(env, "AWS_REGION", region)
@@ -133,6 +134,18 @@ func writeTempConfig(profile string, conf profiles) (*os.File, error) {
 	}
 
 	return tmpConfig, writeProfiles(tmpConfig, profiles{profile: newConfig})
+}
+
+func unsetEnv(env []string, key string) []string {
+	envCopy := []string{}
+
+	for _, e := range env {
+		if !strings.HasPrefix(key+"=", e) {
+			envCopy = append(envCopy, e)
+		}
+	}
+
+	return envCopy
 }
 
 func overwriteEnv(env []string, key, val string) []string {

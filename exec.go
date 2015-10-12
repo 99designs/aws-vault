@@ -57,16 +57,25 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 		ui.Error.Fatal(http.Serve(l, proxyHandler(NewMetadataHandler(creds))))
 	}()
 
-	cfg, err := profileConfig(input.Profile)
+	profs, err := parseProfiles()
 	if err != nil {
-		ui.Error.Fatal(cfg)
+		ui.Error.Fatal(err)
+	}
+
+	cfg, err := writeTempConfig(input.Profile, profs)
+	if err != nil {
+		ui.Error.Fatal(err)
 	}
 
 	env := os.Environ()
 	env = overwriteEnv(env, "http_proxy", "http://"+l.Addr().String())
 	env = overwriteEnv(env, "no_proxy", "amazonaws.com")
 	env = overwriteEnv(env, "AWS_CONFIG_FILE", cfg.Name())
-	env = overwriteEnv(env, "AWS_DEFAULT_PROFILE", input.Profile)
+	env = overwriteEnv(env, "AWS_PROFILE", input.Profile)
+
+	if region, ok := profs[input.Profile]["region"]; ok {
+		env = overwriteEnv(env, "AWS_REGION", region)
+	}
 
 	if input.WriteEnv {
 		env = overwriteEnv(env, "AWS_ACCESS_KEY_ID", val.AccessKeyID)
@@ -105,12 +114,7 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 }
 
 // write out a config excluding role switching keys
-func profileConfig(profile string) (*os.File, error) {
-	conf, err := parseProfiles()
-	if err != nil {
-		return nil, err
-	}
-
+func writeTempConfig(profile string, conf profiles) (*os.File, error) {
 	tmpConfig, err := ioutil.TempFile(os.TempDir(), "aws-vault")
 	if err != nil {
 		return nil, err

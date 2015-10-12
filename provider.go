@@ -191,7 +191,7 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 			}
 			params.TokenCode = aws.String(token)
 		} else {
-			params.TokenCode = p.MfaToken
+			params.TokenCode = aws.String(p.MfaToken)
 		}
 	}
 

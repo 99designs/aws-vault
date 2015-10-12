@@ -13,13 +13,15 @@ import (
 )
 
 type LoginCommandInput struct {
-	Profile string
-	Keyring keyring.Keyring
+	Profile  string
+	Keyring  keyring.Keyring
+	MfaToken string
 }
 
 func LoginCommand(ui Ui, input LoginCommandInput) {
 	provider, err := NewVaultProvider(input.Keyring, input.Profile, VaultOptions{
 		AssumeRoleDuration: MaxAssumeRoleDuration,
+		MfaToken:           input.MfaToken,
 	})
 	if err != nil {
 		ui.Error.Fatal(err)

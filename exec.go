@@ -24,6 +24,7 @@ type ExecCommandInput struct {
 	Keyring  keyring.Keyring
 	Duration time.Duration
 	WriteEnv bool
+	MfaToken string
 	Signals  chan os.Signal
 }
 
@@ -31,6 +32,7 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 	creds, err := NewVaultCredentials(input.Keyring, input.Profile, VaultOptions{
 		SessionDuration: input.Duration,
 		WriteEnv:        input.WriteEnv,
+		MfaToken:        input.MfaToken,
 	})
 	if err != nil {
 		ui.Error.Fatal(err)

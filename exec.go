@@ -1,12 +1,11 @@
 package main
 
 import (
-	"io"
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
-	"net/http/httputil"
 	"os"
 	"os/exec"
 	"strings"
@@ -23,15 +22,14 @@ type ExecCommandInput struct {
 	Args     []string
 	Keyring  keyring.Keyring
 	Duration time.Duration
-	WriteEnv bool
 	MfaToken string
+	WriteEnv bool
 	Signals  chan os.Signal
 }
 
 func ExecCommand(ui Ui, input ExecCommandInput) {
 	creds, err := NewVaultCredentials(input.Keyring, input.Profile, VaultOptions{
 		SessionDuration: input.Duration,
-		WriteEnv:        input.WriteEnv,
 		MfaToken:        input.MfaToken,
 	})
 	if err != nil {
@@ -47,16 +45,6 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 		}
 	}
 
-	l, err := net.Listen("tcp", "127.0.0.1:0")
-	if err != nil {
-		ui.Error.Fatal(err)
-	}
-
-	go func() {
-		log.Printf("Metadata server listening on %s", l.Addr().String())
-		ui.Error.Fatal(http.Serve(l, proxyHandler(NewMetadataHandler(creds))))
-	}()
-
 	profs, err := parseProfiles()
 	if err != nil {
 		ui.Error.Fatal(err)
@@ -68,8 +56,6 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 	}
 
 	env := os.Environ()
-	env = overwriteEnv(env, "http_proxy", "http://"+l.Addr().String())
-	env = overwriteEnv(env, "no_proxy", "amazonaws.com")
 	env = overwriteEnv(env, "AWS_CONFIG_FILE", cfg.Name())
 	env = overwriteEnv(env, "AWS_DEFAULT_PROFILE", input.Profile)
 	env = overwriteEnv(env, "AWS_PROFILE", input.Profile)
@@ -83,7 +69,16 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 		env = overwriteEnv(env, "AWS_REGION", region)
 	}
 
+	if err := startCredentialsServer(creds); err != nil {
+		ui.Debug.Println("Failed to start local credentials server", err)
+		input.WriteEnv = true
+	} else {
+		ui.Debug.Println("Listening on local credentials server")
+	}
+
 	if input.WriteEnv {
+		ui.Debug.Println("Writing temporary credentials to ENV")
+
 		env = overwriteEnv(env, "AWS_ACCESS_KEY_ID", val.AccessKeyID)
 		env = overwriteEnv(env, "AWS_SECRET_ACCESS_KEY", val.SecretAccessKey)
 
@@ -117,6 +112,41 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 		}
 	}
 
+}
+
+func startCredentialsServer(creds *VaultCredentials) error {
+	conn, err := net.DialTimeout("tcp", metadataBind, time.Millisecond*10)
+	if err != nil {
+		log.Printf("Unable to connect to %s, have you started the server?", metadataBind)
+		return err
+	}
+	conn.Close()
+
+	l, err := net.Listen("tcp", "127.0.0.1:9099")
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Local instance role server running on %s", l.Addr())
+	go http.Serve(l, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		val, err := creds.Get()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusGatewayTimeout)
+			return
+		}
+
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"Code":            "Success",
+			"LastUpdated":     time.Now().Format(awsTimeFormat),
+			"Type":            "AWS-HMAC",
+			"AccessKeyId":     val.AccessKeyID,
+			"SecretAccessKey": val.SecretAccessKey,
+			"Token":           val.SessionToken,
+			"Expiration":      creds.Expires().Format(awsTimeFormat),
+		})
+	}))
+
+	return nil
 }
 
 // write out a config excluding role switching keys
@@ -166,49 +196,4 @@ func overwriteEnv(env []string, key, val string) []string {
 	}
 
 	return env
-}
-
-func connectProxy(w http.ResponseWriter, r *http.Request) error {
-	d, err := net.Dial("tcp", r.RequestURI)
-	if err != nil {
-		return err
-	}
-	hj, ok := w.(http.Hijacker)
-	if !ok {
-		return err
-	}
-	conn, bufrw, err := hj.Hijack()
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
-	defer d.Close()
-
-	bufrw.WriteString("HTTP/1.0 200 Connection established\r\n\r\n")
-	bufrw.Flush()
-
-	go io.Copy(d, conn)
-	io.Copy(conn, d)
-
-	return nil
-}
-
-func proxyHandler(upstream http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("%s %s", r.Method, r.RequestURI)
-		if r.Method == "GET" && strings.HasPrefix(r.URL.Path, "/latest/meta-data") {
-			upstream.ServeHTTP(w, r)
-		} else if r.Method == "CONNECT" {
-			if err := connectProxy(w, r); err != nil {
-				http.Error(w, "Error connecting to proxy: "+err.Error(), http.StatusGatewayTimeout)
-			}
-		} else {
-			proxy := &httputil.ReverseProxy{Director: func(req *http.Request) {
-				req.Method = "GET"
-				req.URL.Scheme = "http"
-				req.URL.Host = r.Host
-			}}
-			proxy.ServeHTTP(w, r)
-		}
-	})
 }

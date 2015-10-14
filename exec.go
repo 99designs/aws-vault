@@ -126,11 +126,7 @@ func writeTempConfig(profile string, conf profiles) (*os.File, error) {
 		return nil, err
 	}
 
-	// allow some time for keychain prompt
-	newConfig := map[string]string{
-		"metadata_service_timeout":      "15",
-		"metadata_service_num_attempts": "2",
-	}
+	newConfig := map[string]string{}
 
 	for k, v := range conf[profile] {
 		if k != "source_profile" && k != "role_arn" {

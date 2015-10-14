@@ -46,6 +46,8 @@ func main() {
 		login            = kingpin.Command("login", "Generate a login link for the AWS Console")
 		loginProfile     = login.Arg("profile", "Name of the profile").Required().String()
 		loginMfaToken    = login.Flag("mfa-token", "The mfa token to use").Short('t').String()
+		logout           = kingpin.Command("logout", "Remove session credential")
+		logoutProfile    = logout.Arg("profile", "Name of the profile").Required().String()
 	)
 
 	kingpin.Version(Version)
@@ -113,6 +115,12 @@ func main() {
 			Profile: *loginProfile,
 			Keyring: keyring,
 			MfaToken: *loginMfaToken,
+		})
+
+	case logout.FullCommand():
+		LogoutCommand(ui, LogoutCommandInput{
+			Profile: *logoutProfile,
+			Keyring: keyring,
 		})
 	}
 }

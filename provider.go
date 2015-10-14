@@ -276,8 +276,12 @@ func (p *KeyringProvider) Store(val credentials.Value) error {
 }
 
 func (p *KeyringProvider) Delete() error {
-	p.Keyring.Remove(sessionKey(p.Profile))
+	p.DeleteSession()
 	return p.Keyring.Remove(p.Profile)
+}
+
+func (p *KeyringProvider) DeleteSession() error {
+	return p.Keyring.Remove(sessionKey(p.Profile))
 }
 
 type VaultCredentials struct {

@@ -71,6 +71,7 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 	env = overwriteEnv(env, "http_proxy", "http://"+l.Addr().String())
 	env = overwriteEnv(env, "no_proxy", "amazonaws.com")
 	env = overwriteEnv(env, "AWS_CONFIG_FILE", cfg.Name())
+	env = overwriteEnv(env, "AWS_DEFAULT_PROFILE", input.Profile)
 	env = overwriteEnv(env, "AWS_PROFILE", input.Profile)
 
 	env = unsetEnv(env, "AWS_ACCESS_KEY_ID")
@@ -78,6 +79,7 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 	env = unsetEnv(env, "AWS_CREDENTIAL_FILE")
 
 	if region, ok := profs[input.Profile]["region"]; ok {
+		env = overwriteEnv(env, "AWS_DEFAULT_REGION", region)
 		env = overwriteEnv(env, "AWS_REGION", region)
 	}
 

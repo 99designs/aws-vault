@@ -4,7 +4,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"os/signal"
 
 	"github.com/99designs/aws-vault/keyring"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -95,16 +94,12 @@ func main() {
 		})
 
 	case exec.FullCommand():
-		signals := make(chan os.Signal)
-		signal.Notify(signals, os.Interrupt, os.Kill)
-
 		ExecCommand(ui, ExecCommandInput{
 			Profile:     *execProfile,
 			Command:     *execCmd,
 			Args:        *execCmdArgs,
 			Keyring:     keyring,
 			Duration:    *execSessDuration,
-			Signals:     signals,
 			MfaToken:    *execMfaToken,
 			StartServer: *execServer,
 		})

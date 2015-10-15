@@ -19,7 +19,6 @@ type ExecCommandInput struct {
 	Duration    time.Duration
 	MfaToken    string
 	StartServer bool
-	Signals     chan os.Signal
 }
 
 func ExecCommand(ui Ui, input ExecCommandInput) {

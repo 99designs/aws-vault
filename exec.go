@@ -1,7 +1,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
@@ -46,19 +45,15 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 		ui.Error.Fatal(err)
 	}
 
-	cfg, err := writeTempConfig(input.Profile, profs)
-	if err != nil {
-		ui.Error.Fatal(err)
-	}
-
 	env := environ(os.Environ())
-	env.Set("AWS_CONFIG_FILE", cfg.Name())
-	env.Set("AWS_DEFAULT_PROFILE", input.Profile)
-	env.Set("AWS_PROFILE", input.Profile)
+	env.Set("AWS_CONFIG_FILE", "/dev/null")
+	env.Set("AWS_VAULT", input.Profile)
 
 	env.Unset("AWS_ACCESS_KEY_ID")
 	env.Unset("AWS_SECRET_ACCESS_KEY")
 	env.Unset("AWS_CREDENTIAL_FILE")
+	env.Unset("AWS_DEFAULT_PROFILE")
+	env.Unset("AWS_PROFILE")
 
 	if region, ok := profs[input.Profile]["region"]; ok {
 		env.Set("AWS_DEFAULT_REGION", region)
@@ -110,24 +105,6 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 			os.Exit(waitStatus.ExitStatus())
 		}
 	}
-}
-
-// write out a config excluding role switching keys
-func writeTempConfig(profile string, conf profiles) (*os.File, error) {
-	tmpConfig, err := ioutil.TempFile(os.TempDir(), "aws-vault")
-	if err != nil {
-		return nil, err
-	}
-
-	newConfig := map[string]string{}
-
-	for k, v := range conf[profile] {
-		if k != "source_profile" && k != "role_arn" {
-			newConfig[k] = v
-		}
-	}
-
-	return tmpConfig, writeProfiles(tmpConfig, profiles{profile: newConfig})
 }
 
 // environ is a slice of strings representing the environment, in the form "key=value".

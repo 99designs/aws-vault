@@ -23,6 +23,10 @@ type ExecCommandInput struct {
 }
 
 func ExecCommand(ui Ui, input ExecCommandInput) {
+	if os.Getenv("AWS_VAULT") != "" {
+		ui.Fatal("aws-vault sessions should be nested with care, unset $AWS_VAULT to force")
+	}
+
 	creds, err := NewVaultCredentials(input.Keyring, input.Profile, VaultOptions{
 		SessionDuration: input.Duration,
 		MfaToken:        input.MfaToken,

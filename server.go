@@ -10,9 +10,10 @@ import (
 )
 
 const (
-	metadataBind   = "169.254.169.254:80"
-	awsTimeFormat  = "2006-01-02T15:04:05Z"
-	localServerUrl = "http://127.0.0.1:9099"
+	metadataBind    = "169.254.169.254:80"
+	awsTimeFormat   = "2006-01-02T15:04:05Z"
+	localServerUrl  = "http://127.0.0.1:9099"
+	localServerBind = "127.0.0.1:9099"
 )
 
 type ServerCommandInput struct {

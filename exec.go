@@ -69,7 +69,7 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 		env = overwriteEnv(env, "AWS_REGION", region)
 	}
 
-	if err := startCredentialsServer(creds); err != nil {
+	if err := startCredentialsServer(ui, creds); err != nil {
 		ui.Debug.Println("Failed to start local credentials server", err)
 		input.WriteEnv = true
 	} else {
@@ -111,18 +111,26 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 			os.Exit(waitStatus.ExitStatus())
 		}
 	}
-
 }
 
-func startCredentialsServer(creds *VaultCredentials) error {
-	conn, err := net.DialTimeout("tcp", metadataBind, time.Millisecond*10)
-	if err != nil {
-		log.Printf("Unable to connect to %s, have you started the server?", metadataBind)
-		return err
-	}
-	conn.Close()
+func checkServerRunning(bind string) bool {
+	_, err := net.DialTimeout("tcp", bind, time.Millisecond*10)
+	return err == nil
+}
 
-	l, err := net.Listen("tcp", "127.0.0.1:9099")
+func startCredentialsServer(ui Ui, creds *VaultCredentials) error {
+	if !checkServerRunning(metadataBind) {
+		ui.Error.Println("Starting `aws-vault server` as root in the background")
+		cmd := exec.Command("sudo", "-b", os.Args[0], "server")
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		if err := cmd.Run(); err != nil {
+			return err
+		}
+	}
+
+	l, err := net.Listen("tcp", localServerBind)
 	if err != nil {
 		return err
 	}

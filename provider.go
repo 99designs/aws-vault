@@ -32,7 +32,6 @@ type VaultOptions struct {
 	SessionDuration    time.Duration
 	AssumeRoleDuration time.Duration
 	ExpiryWindow       time.Duration
-	WriteEnv           bool
 	MfaToken           string
 }
 

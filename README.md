@@ -34,9 +34,13 @@ another_bucket
 Notice in the above how a session token gets written out. This is because `aws-vault` uses Amazon's STS service
 to generate [temporary credentials](http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp.html) them via the GetSessionToken or AssumeRole API calls. These expire in a short period of time, so the risk of leaking credentials is reduced.
 
-The credentials are exposed to the subprocess in one of two ways, the default is to create a [metadata server](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) idential to what AWS EC2 instances retrieve IAM roles from, and exposing it to the subprocess via `HTTP_PROXY`. This approach has the advantage that anything that uses Amazon's SDKs will automatically refresh credentials as needed, so session times can be as short as possible.
+The credentials are exposed to the subprocess in one of two ways:
 
-For things that don't support this approach, there is the `--write-env` flag to `exec` which will write out the environment variables, as was the default in earlier versions of `aws-vault`.
+ * Environment variables are written to the sub-process.
+
+ * Local [EC2 Instance Metadata server](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) is started. This approach has the advantage that anything that uses Amazon's SDKs will automatically refresh credentials as needed, so session times can be as short as possible. The downside is that only one can run per host and because it binds to `169.254.169.254:80`, your sudo password is required.
+
+The default is to use environment variables, but you can opt-in to the local ec2
 
 ## MFA Tokens
 

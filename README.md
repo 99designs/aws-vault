@@ -36,11 +36,11 @@ to generate [temporary credentials](http://docs.aws.amazon.com/IAM/latest/UserGu
 
 The credentials are exposed to the subprocess in one of two ways:
 
- * Local [EC2 Instance Metadata server](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) is started. This approach has the advantage that anything that uses Amazon's SDKs will automatically refresh credentials as needed, so session times can be as short as possible.
-
  * Environment variables are written to the sub-process.
 
-These strategies will be tried in order, but if you want to force environment vars to be written, use `--write-env`.
+ * Local [EC2 Instance Metadata server](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) is started. This approach has the advantage that anything that uses Amazon's SDKs will automatically refresh credentials as needed, so session times can be as short as possible. The downside is that only one can run per host and because it binds to `169.254.169.254:80`, your sudo password is required.
+
+The default is to use environment variables, but you can opt-in to the local ec2
 
 ## MFA Tokens
 

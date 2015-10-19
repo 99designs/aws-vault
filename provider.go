@@ -108,10 +108,12 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 			return credentials.Value{}, err
 		}
 
-		log.Printf("Writing session for %s to keyring", p.profile)
+		source := p.profiles.sourceProfile(p.profile)
+
+		log.Printf("Writing session for %s to keyring", source)
 		p.keyring.Set(keyring.Item{
-			Key:       sessionKey(p.profile),
-			Label:     "aws-vault session for " + p.profile,
+			Key:       sessionKey(source),
+			Label:     "aws-vault session for " + source,
 			Data:      bytes,
 			TrustSelf: true,
 		})
@@ -154,14 +156,10 @@ func sessionKey(profile string) string {
 }
 
 func (p *VaultProvider) getCachedSession() (session sts.Credentials, err error) {
-	source := p.profiles.sourceProfile(p.profile)
-
-	item, err := p.keyring.Get(sessionKey(source))
+	item, err := p.keyring.Get(sessionKey(p.profiles.sourceProfile(p.profile)))
 	if err != nil {
 		return session, err
 	}
-
-	log.Printf("Found cached session for profile %s", source)
 
 	if err = json.Unmarshal(item.Data, &session); err != nil {
 		return session, err
@@ -223,7 +221,7 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 		})
 	}
 
-	log.Printf("Getting new session token for profile %s", p.profile)
+	log.Printf("Getting new session token for profile %s", p.profiles.sourceProfile(p.profile))
 	resp, err := client.GetSessionToken(params)
 	if err != nil {
 		return sts.Credentials{}, err
@@ -273,6 +271,7 @@ func (p *KeyringProvider) Retrieve() (val credentials.Value, err error) {
 	log.Printf("Looking up keyring for %s", p.Profile)
 	item, err := p.Keyring.Get(p.Profile)
 	if err != nil {
+		log.Println("Error from keyring", err)
 		return val, err
 	}
 

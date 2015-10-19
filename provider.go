@@ -63,6 +63,7 @@ type VaultProvider struct {
 	profiles profiles
 	session  *sts.Credentials
 	client   stsClient
+	creds    map[string]credentials.Value
 }
 
 func NewVaultProvider(k keyring.Keyring, profile string, opts VaultOptions) (*VaultProvider, error) {
@@ -79,6 +80,7 @@ func NewVaultProvider(k keyring.Keyring, profile string, opts VaultOptions) (*Va
 		keyring:      k,
 		profile:      profile,
 		profiles:     profiles,
+		creds:        map[string]credentials.Value{},
 	}, nil
 }
 
@@ -115,15 +117,14 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 		})
 	}
 
-	log.Printf("Using session, expires in %s", session.Expiration.Sub(time.Now()).String())
+	log.Printf("Using session ****************%s, expires in %s",
+		(*session.AccessKeyId)[len(*session.AccessKeyId)-4:],
+		session.Expiration.Sub(time.Now()).String())
 
 	window := p.ExpiryWindow
 	if window == 0 {
-		window = p.SessionDuration - (p.SessionDuration / 3)
+		window = time.Minute * 5
 	}
-
-	p.SetExpiration(*session.Expiration, window)
-	p.expires = *session.Expiration
 
 	if role, ok := p.profiles[p.profile]["role_arn"]; ok {
 		session, err = p.assumeRole(session, role)
@@ -131,8 +132,13 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 			return credentials.Value{}, err
 		}
 
-		log.Printf("Role token expires in %s", session.Expiration.Sub(time.Now()))
+		log.Printf("Using role ****************%s, expires in %s",
+			(*session.AccessKeyId)[len(*session.AccessKeyId)-4:],
+			session.Expiration.Sub(time.Now()).String())
 	}
+
+	p.SetExpiration(*session.Expiration, window)
+	p.expires = *session.Expiration
 
 	value := credentials.Value{
 		AccessKeyID:     *session.AccessKeyId,
@@ -148,10 +154,14 @@ func sessionKey(profile string) string {
 }
 
 func (p *VaultProvider) getCachedSession() (session sts.Credentials, err error) {
-	item, err := p.keyring.Get(sessionKey(p.profile))
+	source := p.profiles.sourceProfile(p.profile)
+
+	item, err := p.keyring.Get(sessionKey(source))
 	if err != nil {
 		return session, err
 	}
+
+	log.Printf("Found cached session for profile %s", source)
 
 	if err = json.Unmarshal(item.Data, &session); err != nil {
 		return session, err
@@ -167,13 +177,23 @@ func (p *VaultProvider) getCachedSession() (session sts.Credentials, err error) 
 func (p *VaultProvider) getMasterCreds() (credentials.Value, error) {
 	source := p.profiles.sourceProfile(p.profile)
 
-	provider := credentials.NewChainCredentials([]credentials.Provider{
-		&credentials.EnvProvider{},
-		&credentials.SharedCredentialsProvider{Filename: "", Profile: p.profile},
-		&KeyringProvider{Keyring: p.keyring, Profile: source},
-	})
+	creds, ok := p.creds[source]
+	if !ok {
+		provider := credentials.NewChainCredentials([]credentials.Provider{
+			&credentials.EnvProvider{},
+			&credentials.SharedCredentialsProvider{Filename: "", Profile: p.profile},
+			&KeyringProvider{Keyring: p.keyring, Profile: source},
+		})
 
-	return provider.Get()
+		var err error
+		if creds, err = provider.Get(); err != nil {
+			return creds, err
+		}
+
+		p.creds[source] = creds
+	}
+
+	return creds, nil
 }
 
 func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentials, error) {
@@ -231,7 +251,7 @@ func (p *VaultProvider) assumeRole(session sts.Credentials, roleArn string) (sts
 		DurationSeconds: aws.Int64(int64(p.AssumeRoleDuration.Seconds())),
 	}
 
-	log.Printf("Assuming role %s, expires in %s", roleArn, p.AssumeRoleDuration.String())
+	log.Printf("Assuming role %s", roleArn)
 	resp, err := client.AssumeRole(input)
 	if err != nil {
 		return sts.Credentials{}, err

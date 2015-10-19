@@ -46,14 +46,10 @@ type metadataHandler struct {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("%s %s", r.Method, r.RequestURI)
-
 	fmt.Fprintf(w, "local-credentials")
 }
 
 func credentialsHandler(w http.ResponseWriter, r *http.Request) {
-	log.Printf("%s %s", r.Method, r.RequestURI)
-
 	resp, err := http.Get(localServerUrl)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusGatewayTimeout)
@@ -97,11 +93,18 @@ func startCredentialsServer(ui Ui, creds *VaultCredentials) error {
 
 	log.Printf("Local instance role server running on %s", l.Addr())
 	go http.Serve(l, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Printf("Credentials.IsExpired() = %#v", creds.IsExpired())
+
 		val, err := creds.Get()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusGatewayTimeout)
 			return
 		}
+
+		log.Printf("Serving credentials via http ****************%s, expiration of %s (%s)",
+			val.AccessKeyID[len(val.AccessKeyID)-4:],
+			creds.Expires().Format(awsTimeFormat),
+			creds.Expires().Sub(time.Now()).String())
 
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"Code":            "Success",

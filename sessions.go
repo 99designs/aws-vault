@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -30,7 +32,16 @@ func NewKeyringSessions(k keyring.Keyring) (*KeyringSessions, error) {
 }
 
 func (s *KeyringSessions) key(profile string, duration time.Duration) string {
-	return s.Profiles.sourceProfile(profile) + " session"
+	source := s.Profiles.sourceProfile(profile)
+	hasher := md5.New()
+	hasher.Write([]byte(duration.String()))
+
+	if p, ok := s.Profiles[profile]; ok {
+		enc := json.NewEncoder(hasher)
+		enc.Encode(p)
+	}
+
+	return fmt.Sprintf("%s session (%x)", source, hex.EncodeToString(hasher.Sum(nil))[0:10])
 }
 
 func (s *KeyringSessions) Retrieve(profile string, duration time.Duration) (session sts.Credentials, err error) {

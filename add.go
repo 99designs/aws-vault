@@ -41,4 +41,13 @@ func AddCommand(ui Ui, input AddCommandInput) {
 	}
 
 	ui.Printf("Added credentials to profile %q in vault", input.Profile)
+
+	sessions, err := NewKeyringSessions(input.Keyring)
+	if err != nil {
+		ui.Error.Fatal(err)
+	}
+
+	if n, _ := sessions.Delete(input.Profile); n > 0 {
+		ui.Printf("Deleted %d existing sessions.", n)
+	}
 }

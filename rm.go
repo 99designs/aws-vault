@@ -12,6 +12,7 @@ type RemoveCommandInput struct {
 }
 
 func RemoveCommand(ui Ui, input RemoveCommandInput) {
+	provider := &KeyringProvider{Keyring: input.Keyring, Profile: input.Profile}
 	r, err := prompt(fmt.Sprintf("Delete credentials for profile %q? (Y|n)", input.Profile))
 	if err != nil {
 		ui.Error.Fatal(err)
@@ -19,11 +20,19 @@ func RemoveCommand(ui Ui, input RemoveCommandInput) {
 		return
 	}
 
-	provider := &KeyringProvider{Keyring: input.Keyring, Profile: input.Profile}
-
 	if err := provider.Delete(); err != nil {
 		ui.Error.Fatal(err)
 	}
-
 	ui.Printf("Deleted credentials.")
+
+	sessions, err := NewKeyringSessions(input.Keyring)
+	if err != nil {
+		ui.Error.Fatal(err)
+	}
+
+	n, err := sessions.Delete(input.Profile)
+	if err != nil {
+		ui.Error.Fatal(err)
+	}
+	ui.Printf("Deleted %d sessions.", n)
 }

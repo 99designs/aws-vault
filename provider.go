@@ -36,10 +36,10 @@ type VaultOptions struct {
 }
 
 func (o VaultOptions) Validate() error {
-	if o.SessionDuration < time.Minute*15 {
-		return errors.New("Minimum session duration is 15 minutes")
-	} else if o.SessionDuration > time.Hour*36 {
-		return errors.New("Maximum session duration is 36 hours")
+	if o.SessionDuration < MinSessionDuration {
+		return errors.New("Minimum session duration is " + MinSessionDuration.String())
+	} else if o.SessionDuration > MaxSessionDuration {
+		return errors.New("Maximum session duration is " + MaxSessionDuration.String())
 	}
 	return nil
 }
@@ -60,8 +60,8 @@ type VaultProvider struct {
 	profile  string
 	expires  time.Time
 	keyring  keyring.Keyring
+	sessions *KeyringSessions
 	profiles profiles
-	session  *sts.Credentials
 	client   stsClient
 	creds    map[string]credentials.Value
 }
@@ -78,6 +78,7 @@ func NewVaultProvider(k keyring.Keyring, profile string, opts VaultOptions) (*Va
 	return &VaultProvider{
 		VaultOptions: opts,
 		keyring:      k,
+		sessions:     &KeyringSessions{k, profiles},
 		profile:      profile,
 		profiles:     profiles,
 		creds:        map[string]credentials.Value{},
@@ -90,7 +91,7 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 		return credentials.Value{}, err
 	}
 
-	session, err := p.getCachedSession()
+	session, err := p.sessions.Retrieve(p.profile, p.SessionDuration)
 	if err != nil {
 		if err == keyring.ErrKeyNotFound {
 			log.Println("Session not found in keyring")
@@ -103,20 +104,9 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 			return credentials.Value{}, err
 		}
 
-		bytes, err := json.Marshal(session)
-		if err != nil {
+		if err = p.sessions.Store(p.profile, session, p.SessionDuration); err != nil {
 			return credentials.Value{}, err
 		}
-
-		source := p.profiles.sourceProfile(p.profile)
-
-		log.Printf("Writing session for %s to keyring", source)
-		p.keyring.Set(keyring.Item{
-			Key:       sessionKey(source),
-			Label:     "aws-vault session for " + source,
-			Data:      bytes,
-			TrustSelf: true,
-		})
 	}
 
 	log.Printf("Using session ****************%s, expires in %s",
@@ -149,27 +139,6 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 	}
 
 	return value, nil
-}
-
-func sessionKey(profile string) string {
-	return profile + " session"
-}
-
-func (p *VaultProvider) getCachedSession() (session sts.Credentials, err error) {
-	item, err := p.keyring.Get(sessionKey(p.profiles.sourceProfile(p.profile)))
-	if err != nil {
-		return session, err
-	}
-
-	if err = json.Unmarshal(item.Data, &session); err != nil {
-		return session, err
-	}
-
-	if session.Expiration.Before(time.Now()) {
-		return session, errors.New("Session is expired")
-	}
-
-	return
 }
 
 func (p *VaultProvider) getMasterCreds() (credentials.Value, error) {
@@ -280,8 +249,6 @@ func (p *KeyringProvider) Retrieve() (val credentials.Value, err error) {
 }
 
 func (p *KeyringProvider) Store(val credentials.Value) error {
-	p.Keyring.Remove(sessionKey(p.Profile))
-
 	bytes, err := json.Marshal(val)
 	if err != nil {
 		return err
@@ -294,7 +261,6 @@ func (p *KeyringProvider) Store(val credentials.Value) error {
 }
 
 func (p *KeyringProvider) Delete() error {
-	p.Keyring.Remove(sessionKey(p.Profile))
 	return p.Keyring.Remove(p.Profile)
 }
 

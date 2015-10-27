@@ -41,8 +41,9 @@ func main() {
 		execServer       = exec.Flag("server", "Run the server in the background for credentials").Short('s').Bool()
 		execCmd          = exec.Arg("cmd", "Command to execute").Default(os.Getenv("SHELL")).String()
 		execCmdArgs      = exec.Arg("args", "Command arguments").Strings()
-		rm               = kingpin.Command("rm", "Removes credentials")
+		rm               = kingpin.Command("rm", "Removes credentials, including sessions")
 		rmProfile        = rm.Arg("profile", "Name of the profile").Required().String()
+		rmSessionsOnly   = rm.Flag("sessions-only", "Only remove sessions, leave credentials intact").Short('s').Bool()
 		login            = kingpin.Command("login", "Generate a login link for the AWS Console")
 		loginProfile     = login.Arg("profile", "Name of the profile").Required().String()
 		loginMfaToken    = login.Flag("mfa-token", "The mfa token to use").Short('t').String()
@@ -83,8 +84,9 @@ func main() {
 
 	case rm.FullCommand():
 		RemoveCommand(ui, RemoveCommandInput{
-			Profile: *rmProfile,
-			Keyring: keyring,
+			Profile:      *rmProfile,
+			Keyring:      keyring,
+			SessionsOnly: *rmSessionsOnly,
 		})
 
 	case add.FullCommand():

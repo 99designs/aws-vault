@@ -7,23 +7,26 @@ import (
 )
 
 type RemoveCommandInput struct {
-	Profile string
-	Keyring keyring.Keyring
+	Profile      string
+	Keyring      keyring.Keyring
+	SessionsOnly bool
 }
 
 func RemoveCommand(ui Ui, input RemoveCommandInput) {
-	provider := &KeyringProvider{Keyring: input.Keyring, Profile: input.Profile}
-	r, err := prompt(fmt.Sprintf("Delete credentials for profile %q? (Y|n)", input.Profile))
-	if err != nil {
-		ui.Error.Fatal(err)
-	} else if r == "N" || r == "n" {
-		return
-	}
+	if !input.SessionsOnly {
+		provider := &KeyringProvider{Keyring: input.Keyring, Profile: input.Profile}
+		r, err := prompt(fmt.Sprintf("Delete credentials for profile %q? (Y|n)", input.Profile))
+		if err != nil {
+			ui.Error.Fatal(err)
+		} else if r == "N" || r == "n" {
+			return
+		}
 
-	if err := provider.Delete(); err != nil {
-		ui.Error.Fatal(err)
+		if err := provider.Delete(); err != nil {
+			ui.Error.Fatal(err)
+		}
+		ui.Printf("Deleted credentials.")
 	}
-	ui.Printf("Deleted credentials.")
 
 	sessions, err := NewKeyringSessions(input.Keyring)
 	if err != nil {

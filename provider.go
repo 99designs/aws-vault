@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/99designs/aws-vault/keyring"
+	"github.com/99designs/aws-vault/prompt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/sts"
@@ -33,6 +34,7 @@ type VaultOptions struct {
 	AssumeRoleDuration time.Duration
 	ExpiryWindow       time.Duration
 	MfaToken           string
+	MfaPrompt          prompt.PromptFunc
 }
 
 func (o VaultOptions) Validate() error {
@@ -168,10 +170,12 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 		DurationSeconds: aws.Int64(int64(p.SessionDuration.Seconds())),
 	}
 
+	log.Printf("%#v", p)
+
 	if mfa, ok := p.profiles[p.profile]["mfa_serial"]; ok {
 		params.SerialNumber = aws.String(mfa)
 		if p.MfaToken == "" {
-			token, err := prompt(fmt.Sprintf("Enter token for %s: ", mfa))
+			token, err := p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", mfa))
 			if err != nil {
 				return sts.Credentials{}, err
 			}

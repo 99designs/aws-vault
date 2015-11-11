@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/99designs/aws-vault/keyring"
+	"github.com/99designs/aws-vault/prompt"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 )
 
@@ -18,6 +19,7 @@ type ExecCommandInput struct {
 	Keyring     keyring.Keyring
 	Duration    time.Duration
 	MfaToken    string
+	MfaPrompt   prompt.PromptFunc
 	StartServer bool
 	Signals     chan os.Signal
 }
@@ -30,6 +32,7 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 	creds, err := NewVaultCredentials(input.Keyring, input.Profile, VaultOptions{
 		SessionDuration: input.Duration,
 		MfaToken:        input.MfaToken,
+		MfaPrompt:       input.MfaPrompt,
 	})
 	if err != nil {
 		ui.Error.Fatal(err)

@@ -35,13 +35,17 @@ char* Prompt(char *prompt) {
 import "C"
 import "unsafe"
 
-func CocoaPrompt(prompt string) (string, bool) {
+func CocoaPrompt(prompt string) (string, error) {
 	promptRef := C.CString(prompt)
 	defer C.free(unsafe.Pointer(promptRef))
 	val := C.Prompt(promptRef)
 	if val == nil {
-		return "", false
+		return "", errPromptAborted
 	}
 
-	return C.GoString(val), true
+	return C.GoString(val), nil
+}
+
+func init() {
+	Methods["cocoa"] = CocoaPrompt
 }

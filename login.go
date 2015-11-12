@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 
 	"github.com/99designs/aws-vault/keyring"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/skratchdot/open-golang/open"
 )
 
 type LoginCommandInput struct {
@@ -84,5 +86,8 @@ func LoginCommand(ui Ui, input LoginCommandInput) {
 		url.QueryEscape(signinToken),
 	)
 
-	fmt.Println(loginUrl)
+	if err = open.Run(loginUrl); err != nil {
+		log.Println(err)
+		fmt.Println(loginUrl)
+	}
 }

@@ -9,21 +9,24 @@ import (
 	"net/url"
 
 	"github.com/99designs/aws-vault/keyring"
+	"github.com/99designs/aws-vault/prompt"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/skratchdot/open-golang/open"
 )
 
 type LoginCommandInput struct {
-	Profile  string
-	Keyring  keyring.Keyring
-	MfaToken string
+	Profile   string
+	Keyring   keyring.Keyring
+	MfaToken  string
+	MfaPrompt prompt.PromptFunc
 }
 
 func LoginCommand(ui Ui, input LoginCommandInput) {
 	provider, err := NewVaultProvider(input.Keyring, input.Profile, VaultOptions{
 		AssumeRoleDuration: MaxAssumeRoleDuration,
 		MfaToken:           input.MfaToken,
+		MfaPrompt:          input.MfaPrompt,
 	})
 	if err != nil {
 		ui.Error.Fatal(err)

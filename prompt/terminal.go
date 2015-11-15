@@ -1,15 +1,13 @@
-package main
+package prompt
 
 import (
 	"bufio"
 	"fmt"
 	"os"
 	"strings"
-
-	"github.com/bgentry/speakeasy"
 )
 
-func prompt(prompt string) (string, error) {
+func TerminalPrompt(prompt string) (string, error) {
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print(prompt)
 	text, err := reader.ReadString('\n')
@@ -17,8 +15,4 @@ func prompt(prompt string) (string, error) {
 		return "", err
 	}
 	return strings.TrimSpace(text), nil
-}
-
-func promptPassword(prompt string) (string, error) {
-	return speakeasy.Ask(prompt)
 }

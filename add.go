@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/99designs/aws-vault/keyring"
+	"github.com/99designs/aws-vault/prompt"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 )
 
@@ -25,10 +26,10 @@ func AddCommand(ui Ui, input AddCommandInput) {
 		}
 	} else {
 		var err error
-		if accessKeyId, err = prompt("Enter Access Key ID: "); err != nil {
+		if accessKeyId, err = prompt.TerminalPrompt("Enter Access Key ID: "); err != nil {
 			ui.Error.Fatal(err)
 		}
-		if secretKey, err = promptPassword("Enter Secret Access Key: "); err != nil {
+		if secretKey, err = prompt.TerminalPrompt("Enter Secret Access Key: "); err != nil {
 			ui.Error.Fatal(err)
 		}
 	}

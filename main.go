@@ -69,8 +69,6 @@ func main() {
 
 	cmd := kingpin.Parse()
 
-	log.Printf("%#v", *execNoSession)
-
 	if *debug {
 		ui.Debug = log.New(os.Stderr, "DEBUG ", log.LstdFlags)
 		log.SetFlags(0)
@@ -112,7 +110,7 @@ func main() {
 			Signals:     signals,
 			MfaToken:    *execMfaToken,
 			StartServer: *execServer,
-			NoSession:   true,
+			NoSession:   *execNoSession,
 		})
 
 	case login.FullCommand():

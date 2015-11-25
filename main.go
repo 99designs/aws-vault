@@ -35,10 +35,11 @@ func main() {
 		addFromEnv       = add.Flag("env", "Read the credentials from the environment").Bool()
 		ls               = kingpin.Command("ls", "List profiles")
 		exec             = kingpin.Command("exec", "Executes a command with AWS credentials in the environment")
-		execProfile      = exec.Arg("profile", "Name of the profile").Required().String()
+		execNoSession    = exec.Flag("no-session", "Use root credentials, no session created").Short('n').Bool()
 		execSessDuration = exec.Flag("session-ttl", "Expiration time for aws session").Default("4h").OverrideDefaultFromEnvar("AWS_SESSION_TTL").Short('t').Duration()
 		execMfaToken     = exec.Flag("mfa-token", "The mfa token to use").Short('m').String()
 		execServer       = exec.Flag("server", "Run the server in the background for credentials").Short('s').Bool()
+		execProfile      = exec.Arg("profile", "Name of the profile").Required().String()
 		execCmd          = exec.Arg("cmd", "Command to execute").Default(os.Getenv("SHELL")).String()
 		execCmdArgs      = exec.Arg("args", "Command arguments").Strings()
 		rm               = kingpin.Command("rm", "Removes credentials, including sessions")
@@ -67,6 +68,8 @@ func main() {
 	}
 
 	cmd := kingpin.Parse()
+
+	log.Printf("%#v", *execNoSession)
 
 	if *debug {
 		ui.Debug = log.New(os.Stderr, "DEBUG ", log.LstdFlags)
@@ -109,6 +112,7 @@ func main() {
 			Signals:     signals,
 			MfaToken:    *execMfaToken,
 			StartServer: *execServer,
+			NoSession:   true,
 		})
 
 	case login.FullCommand():

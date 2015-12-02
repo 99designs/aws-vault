@@ -1,12 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
 
 	"github.com/99designs/aws-vault/keyring"
+	"github.com/99designs/aws-vault/prompt"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -28,7 +30,9 @@ func (w logWriter) Write(b []byte) (int, error) {
 }
 
 func main() {
+
 	var (
+		prompts          = prompt.Available()
 		debug            = kingpin.Flag("debug", "Show debugging output").Bool()
 		add              = kingpin.Command("add", "Adds credentials, prompts if none provided")
 		addProfile       = add.Arg("profile", "Name of the profile").Required().String()
@@ -38,6 +42,7 @@ func main() {
 		execNoSession    = exec.Flag("no-session", "Use root credentials, no session created").Short('n').Bool()
 		execSessDuration = exec.Flag("session-ttl", "Expiration time for aws session").Default("4h").OverrideDefaultFromEnvar("AWS_SESSION_TTL").Short('t').Duration()
 		execMfaToken     = exec.Flag("mfa-token", "The mfa token to use").Short('m').String()
+		execMfaPrompt    = exec.Flag("mfa-prompt", fmt.Sprintf("Prompt to use for mfa, from %v", prompts)).Default("terminal").OverrideDefaultFromEnvar("AWS_VAULT_PROMPT").Enum(prompts...)
 		execServer       = exec.Flag("server", "Run the server in the background for credentials").Short('s').Bool()
 		execProfile      = exec.Arg("profile", "Name of the profile").Required().String()
 		execCmd          = exec.Arg("cmd", "Command to execute").Default(os.Getenv("SHELL")).String()
@@ -48,6 +53,7 @@ func main() {
 		login            = kingpin.Command("login", "Generate a login link for the AWS Console")
 		loginProfile     = login.Arg("profile", "Name of the profile").Required().String()
 		loginMfaToken    = login.Flag("mfa-token", "The mfa token to use").Short('t').String()
+		loginMfaPrompt   = login.Flag("mfa-prompt", fmt.Sprintf("Prompt to use for mfa, from %v", prompts)).Default("terminal").OverrideDefaultFromEnvar("AWS_VAULT_PROMPT").Enum(prompts...)
 		server           = kingpin.Command("server", "Run an ec2 instance role server locally")
 	)
 
@@ -109,15 +115,17 @@ func main() {
 			Duration:    *execSessDuration,
 			Signals:     signals,
 			MfaToken:    *execMfaToken,
+			MfaPrompt:   prompt.Method(*execMfaPrompt),
 			StartServer: *execServer,
 			NoSession:   *execNoSession,
 		})
 
 	case login.FullCommand():
 		LoginCommand(ui, LoginCommandInput{
-			Profile:  *loginProfile,
-			Keyring:  keyring,
-			MfaToken: *loginMfaToken,
+			Profile:   *loginProfile,
+			Keyring:   keyring,
+			MfaToken:  *loginMfaToken,
+			MfaPrompt: prompt.Method(*loginMfaPrompt),
 		})
 
 	case server.FullCommand():

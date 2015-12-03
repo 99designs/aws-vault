@@ -1,12 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
 
 	"github.com/99designs/aws-vault/keyring"
+	"github.com/99designs/aws-vault/prompt"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -29,7 +31,9 @@ func (w logWriter) Write(b []byte) (int, error) {
 
 func main() {
 	var (
+		prompts          = prompt.Available()
 		debug            = kingpin.Flag("debug", "Show debugging output").Bool()
+		promptDriver     = kingpin.Flag("prompt", fmt.Sprintf("Prompt driver to use  %v", prompts)).Default("terminal").OverrideDefaultFromEnvar("AWS_VAULT_PROMPT").Enum(prompts...)
 		add              = kingpin.Command("add", "Adds credentials, prompts if none provided")
 		addProfile       = add.Arg("profile", "Name of the profile").Required().String()
 		addFromEnv       = add.Flag("env", "Read the credentials from the environment").Bool()
@@ -109,15 +113,17 @@ func main() {
 			Duration:    *execSessDuration,
 			Signals:     signals,
 			MfaToken:    *execMfaToken,
+			MfaPrompt:   prompt.Method(*promptDriver),
 			StartServer: *execServer,
 			NoSession:   *execNoSession,
 		})
 
 	case login.FullCommand():
 		LoginCommand(ui, LoginCommandInput{
-			Profile:  *loginProfile,
-			Keyring:  keyring,
-			MfaToken: *loginMfaToken,
+			Profile:   *loginProfile,
+			Keyring:   keyring,
+			MfaToken:  *loginMfaToken,
+			MfaPrompt: prompt.Method(*promptDriver),
 		})
 
 	case server.FullCommand():

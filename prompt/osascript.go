@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func CocoaPrompt(prompt string) (string, error) {
+func OSAScriptPrompt(prompt string) (string, error) {
 	cmd := exec.Command("/usr/bin/osascript", "-e", fmt.Sprintf(`
 		display dialog "%s" default answer "" buttons {"OK", "Cancel"} default button 1
         text returned of the result
@@ -24,5 +24,5 @@ func CocoaPrompt(prompt string) (string, error) {
 }
 
 func init() {
-	Methods["cocoa"] = CocoaPrompt
+	Methods["osascript"] = OSAScriptPrompt
 }

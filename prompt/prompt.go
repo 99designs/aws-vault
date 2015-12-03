@@ -1,17 +1,12 @@
 package prompt
 
-import (
-	"errors"
-	"fmt"
-)
+import "fmt"
 
 type PromptFunc func(string) (string, error)
 
 var Methods = map[string]PromptFunc{
 	"terminal": TerminalPrompt,
 }
-
-var errPromptAborted = errors.New("User cancelled prompt with no value")
 
 func Available() []string {
 	methods := []string{}

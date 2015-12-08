@@ -3,7 +3,7 @@ package keyring
 import "testing"
 
 func TestArrayKeyringSetWhenEmpty(t *testing.T) {
-	k := &arrayKeyring{}
+	k := &ArrayKeyring{}
 	item := Item{Key: "llamas", Data: []byte("llamas are great")}
 
 	if err := k.Set(item); err != nil {

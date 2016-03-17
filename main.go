@@ -46,6 +46,8 @@ func main() {
 		execProfile      = exec.Arg("profile", "Name of the profile").Required().String()
 		execCmd          = exec.Arg("cmd", "Command to execute").Default(os.Getenv("SHELL")).String()
 		execCmdArgs      = exec.Arg("args", "Command arguments").Strings()
+		rotate           = kingpin.Command("rotate", "Rotates credentials")
+		rotateProfile    = rotate.Arg("profile", "Name of the profile").Required().String()
 		rm               = kingpin.Command("rm", "Removes credentials, including sessions")
 		rmProfile        = rm.Arg("profile", "Name of the profile").Required().String()
 		rmSessionsOnly   = rm.Flag("sessions-only", "Only remove sessions, leave credentials intact").Short('s').Bool()
@@ -128,5 +130,13 @@ func main() {
 
 	case server.FullCommand():
 		ServerCommand(ui, ServerCommandInput{})
+
+	case rotate.FullCommand():
+		RotateCommand(ui, RotateCommandInput{
+			Profile:   *rotateProfile,
+			Keyring:   keyring,
+			MfaToken:  *loginMfaToken,
+			MfaPrompt: prompt.Method(*promptDriver),
+		})
 	}
 }

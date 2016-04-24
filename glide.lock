@@ -1,0 +1,44 @@
+hash: f2a10b0d49616eeea455f5e31df7bf26544beacb460b62352962ef69a6989c53
+updated: 2016-04-23T21:46:39.827232759-07:00
+imports:
+- name: github.com/alecthomas/template
+  version: ""
+  subpackages:
+  - parse
+- name: github.com/alecthomas/units
+  version: ""
+- name: github.com/aulanov/go.dbus
+  version: ""
+- name: github.com/aws/aws-sdk-go
+  version: ""
+  subpackages:
+  - aws
+  - internal/endpoints
+  - internal/protocol/query
+  - internal/protocol/rest
+  - internal/protocol/xml/xmlutil
+  - internal/signer/v4
+  - service/sts
+  - aws/awserr
+  - aws/credentials
+  - service/iam
+  - aws/awsutil
+  - aws/defaults
+  - aws/request
+  - aws/service
+  - aws/service/serviceinfo
+  - aws/credentials/ec2rolecreds
+  - aws/corehandlers
+  - internal/protocol/query/queryutil
+  - aws/ec2metadata
+- name: github.com/bgentry/speakeasy
+  version: ""
+- name: github.com/skratchdot/open-golang
+  version: ""
+  subpackages:
+  - open
+- name: github.com/vaughan0/go-ini
+  version: ""
+- name: gopkg.in/alecthomas/kingpin.v2
+  version: ""
+devImports: []

@@ -20,10 +20,6 @@ func TestOSXKeychainKeyringSet(t *testing.T) {
 		Description: "A freetext description",
 		Data:        []byte("llamas are great"),
 		TrustSelf:   true,
-		Metadata: map[string]string{
-			"llamas":  "rock",
-			"alpacas": "rock",
-		},
 	}
 
 	if err := k.Set(item); err != nil {

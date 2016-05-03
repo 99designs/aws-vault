@@ -2,34 +2,34 @@ package keyring
 
 import "errors"
 
-type backend string
-
 const (
-	KeychainBackend backend = "osxkeychain"
-	KWalletBackend backend = "kwallet"
+	KeychainBackend string = "keychain"
+	KWalletBackend  string = "kwallet"
+	FileBackend     string = "file"
 )
 
-var supportedBackends = map[backend]opener{}
+var DefaultBackend = FileBackend
 
-func Open(name string, prefer ...backend) (Keyring, error) {
-	if len(prefer) == 0 {
-		for b := range supportedBackends {
-			prefer = append(prefer, b)
-		}
+var supportedBackends = map[string]opener{}
+
+func SupportedBackends() []string {
+	b := []string{}
+	for k := range supportedBackends {
+		b = append(b, k)
 	}
-
-	for _, b := range prefer {
-		for supported, f := range supportedBackends {
-			if b == supported {
-				return f(name)
-			}
-		}
-	}
-
-	return nil, ErrNoAvailImpl
+	return b
 }
 
 type opener func(name string) (Keyring, error)
+
+func Open(name string, backend string) (Keyring, error) {
+	op, ok := supportedBackends[backend]
+	if !ok {
+		return nil, ErrNoAvailImpl
+	}
+
+	return op(name)
+}
 
 type Item struct {
 	Key         string
@@ -46,5 +46,5 @@ type Keyring interface {
 	Keys() ([]string, error)
 }
 
-var ErrNoAvailImpl = errors.New("No keyring implementation for your platform available.")
+var ErrNoAvailImpl = errors.New("Specified keyring backend not available")
 var ErrKeyNotFound = errors.New("The specified item could not be found in the keyring.")

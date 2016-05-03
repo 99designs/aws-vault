@@ -7,9 +7,8 @@ type arrayKeyring struct {
 func (k *arrayKeyring) Get(key string) (Item, error) {
 	if i, ok := k.items[key]; ok {
 		return i, nil
-	} else {
-		return Item{}, ErrKeyNotFound
 	}
+	return Item{}, ErrKeyNotFound
 }
 
 func (k *arrayKeyring) Set(i Item) error {

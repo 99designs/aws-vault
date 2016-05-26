@@ -43,6 +43,12 @@ func (o VaultOptions) Validate() error {
 	} else if o.SessionDuration > MaxSessionDuration {
 		return errors.New("Maximum session duration is " + MaxSessionDuration.String())
 	}
+	if o.AssumeRoleDuration < MinAssumeRoleDuration {
+		return errors.New("Minimum duration for assumed roles is " + MinAssumeRoleDuration.String())
+	} else if o.AssumeRoleDuration > MaxAssumeRoleDuration {
+		return errors.New("Maximum duration for assumed roles is " + MaxAssumeRoleDuration.String())
+	}
+
 	return nil
 }
 

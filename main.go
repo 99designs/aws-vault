@@ -41,6 +41,7 @@ func main() {
 		exec             = kingpin.Command("exec", "Executes a command with AWS credentials in the environment")
 		execNoSession    = exec.Flag("no-session", "Use root credentials, no session created").Short('n').Bool()
 		execSessDuration = exec.Flag("session-ttl", "Expiration time for aws session").Default("4h").OverrideDefaultFromEnvar("AWS_SESSION_TTL").Short('t').Duration()
+		execRoleDuration = exec.Flag("assume-role-ttl", "Expiration time for aws assumed role").Default("15m").Duration()
 		execMfaToken     = exec.Flag("mfa-token", "The mfa token to use").Short('m').String()
 		execServer       = exec.Flag("server", "Run the server in the background for credentials").Short('s').Bool()
 		execProfile      = exec.Arg("profile", "Name of the profile").Required().String()
@@ -108,16 +109,17 @@ func main() {
 		signal.Notify(signals, os.Interrupt, os.Kill)
 
 		ExecCommand(ui, ExecCommandInput{
-			Profile:     *execProfile,
-			Command:     *execCmd,
-			Args:        *execCmdArgs,
-			Keyring:     keyring,
-			Duration:    *execSessDuration,
-			Signals:     signals,
-			MfaToken:    *execMfaToken,
-			MfaPrompt:   prompt.Method(*promptDriver),
-			StartServer: *execServer,
-			NoSession:   *execNoSession,
+			Profile:      *execProfile,
+			Command:      *execCmd,
+			Args:         *execCmdArgs,
+			Keyring:      keyring,
+			Duration:     *execSessDuration,
+			RoleDuration: *execRoleDuration,
+			Signals:      signals,
+			MfaToken:     *execMfaToken,
+			MfaPrompt:    prompt.Method(*promptDriver),
+			StartServer:  *execServer,
+			NoSession:    *execNoSession,
 		})
 
 	case login.FullCommand():

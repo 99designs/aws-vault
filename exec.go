@@ -15,16 +15,17 @@ import (
 )
 
 type ExecCommandInput struct {
-	Profile     string
-	Command     string
-	Args        []string
-	Keyring     keyring.Keyring
-	Duration    time.Duration
-	MfaToken    string
-	MfaPrompt   prompt.PromptFunc
-	StartServer bool
-	Signals     chan os.Signal
-	NoSession   bool
+	Profile      string
+	Command      string
+	Args         []string
+	Keyring      keyring.Keyring
+	Duration     time.Duration
+	RoleDuration time.Duration
+	MfaToken     string
+	MfaPrompt    prompt.PromptFunc
+	StartServer  bool
+	Signals      chan os.Signal
+	NoSession    bool
 }
 
 func ExecCommand(ui Ui, input ExecCommandInput) {
@@ -51,9 +52,10 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 		}
 	} else {
 		creds, err := NewVaultCredentials(input.Keyring, input.Profile, VaultOptions{
-			SessionDuration: input.Duration,
-			MfaToken:        input.MfaToken,
-			MfaPrompt:       input.MfaPrompt,
+			SessionDuration:    input.Duration,
+			AssumeRoleDuration: input.RoleDuration,
+			MfaToken:           input.MfaToken,
+			MfaPrompt:          input.MfaPrompt,
 		})
 		if err != nil {
 			ui.Error.Fatal(err)

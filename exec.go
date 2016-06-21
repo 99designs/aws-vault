@@ -86,7 +86,6 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 	}
 
 	env := environ(os.Environ())
-	env.Set("AWS_CONFIG_FILE", "/dev/null")
 	env.Set("AWS_VAULT", input.Profile)
 
 	env.Unset("AWS_ACCESS_KEY_ID")

@@ -8,8 +8,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/awsutil"
 	"github.com/aws/aws-sdk-go/aws/request"
-	"github.com/aws/aws-sdk-go/private/protocol"
-	"github.com/aws/aws-sdk-go/private/protocol/restjson"
 )
 
 const opAbortMultipartUpload = "AbortMultipartUpload"
@@ -27,8 +25,6 @@ func (c *Glacier) AbortMultipartUploadRequest(input *AbortMultipartUploadInput) 
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &AbortMultipartUploadOutput{}
 	req.Data = output
 	return
@@ -75,8 +71,6 @@ func (c *Glacier) AbortVaultLockRequest(input *AbortVaultLockInput) (req *reques
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &AbortVaultLockOutput{}
 	req.Data = output
 	return
@@ -119,8 +113,6 @@ func (c *Glacier) AddTagsToVaultRequest(input *AddTagsToVaultInput) (req *reques
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &AddTagsToVaultOutput{}
 	req.Data = output
 	return
@@ -223,8 +215,6 @@ func (c *Glacier) CompleteVaultLockRequest(input *CompleteVaultLockInput) (req *
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &CompleteVaultLockOutput{}
 	req.Data = output
 	return
@@ -316,8 +306,6 @@ func (c *Glacier) DeleteArchiveRequest(input *DeleteArchiveInput) (req *request.
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteArchiveOutput{}
 	req.Data = output
 	return
@@ -365,8 +353,6 @@ func (c *Glacier) DeleteVaultRequest(input *DeleteVaultInput) (req *request.Requ
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteVaultOutput{}
 	req.Data = output
 	return
@@ -416,8 +402,6 @@ func (c *Glacier) DeleteVaultAccessPolicyRequest(input *DeleteVaultAccessPolicyI
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteVaultAccessPolicyOutput{}
 	req.Data = output
 	return
@@ -454,8 +438,6 @@ func (c *Glacier) DeleteVaultNotificationsRequest(input *DeleteVaultNotification
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteVaultNotificationsOutput{}
 	req.Data = output
 	return
@@ -1127,7 +1109,6 @@ func (c *Glacier) ListJobs(input *ListJobsInput) (*ListJobsOutput, error) {
 
 func (c *Glacier) ListJobsPages(input *ListJobsInput, fn func(p *ListJobsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListJobsRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListJobsOutput), lastPage)
 	})
@@ -1197,7 +1178,6 @@ func (c *Glacier) ListMultipartUploads(input *ListMultipartUploadsInput) (*ListM
 
 func (c *Glacier) ListMultipartUploadsPages(input *ListMultipartUploadsInput, fn func(p *ListMultipartUploadsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListMultipartUploadsRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListMultipartUploadsOutput), lastPage)
 	})
@@ -1261,7 +1241,6 @@ func (c *Glacier) ListParts(input *ListPartsInput) (*ListPartsOutput, error) {
 
 func (c *Glacier) ListPartsPages(input *ListPartsInput, fn func(p *ListPartsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListPartsRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListPartsOutput), lastPage)
 	})
@@ -1352,7 +1331,6 @@ func (c *Glacier) ListVaults(input *ListVaultsInput) (*ListVaultsOutput, error) 
 
 func (c *Glacier) ListVaultsPages(input *ListVaultsInput, fn func(p *ListVaultsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListVaultsRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListVaultsOutput), lastPage)
 	})
@@ -1373,8 +1351,6 @@ func (c *Glacier) RemoveTagsFromVaultRequest(input *RemoveTagsFromVaultInput) (r
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &RemoveTagsFromVaultOutput{}
 	req.Data = output
 	return
@@ -1406,8 +1382,6 @@ func (c *Glacier) SetDataRetrievalPolicyRequest(input *SetDataRetrievalPolicyInp
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &SetDataRetrievalPolicyOutput{}
 	req.Data = output
 	return
@@ -1441,8 +1415,6 @@ func (c *Glacier) SetVaultAccessPolicyRequest(input *SetVaultAccessPolicyInput) 
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &SetVaultAccessPolicyOutput{}
 	req.Data = output
 	return
@@ -1476,8 +1448,6 @@ func (c *Glacier) SetVaultNotificationsRequest(input *SetVaultNotificationsInput
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &SetVaultNotificationsOutput{}
 	req.Data = output
 	return
@@ -1656,8 +1626,6 @@ func (c *Glacier) UploadMultipartPart(input *UploadMultipartPartInput) (*UploadM
 // For conceptual information, go to Working with Archives in Amazon Glacier
 // (http://docs.aws.amazon.com/amazonglacier/latest/dev/working-with-archives.html).
 type AbortMultipartUploadInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -1670,6 +1638,12 @@ type AbortMultipartUploadInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataAbortMultipartUploadInput `json:"-" xml:"-"`
+}
+
+type metadataAbortMultipartUploadInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1682,27 +1656,12 @@ func (s AbortMultipartUploadInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *AbortMultipartUploadInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "AbortMultipartUploadInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.UploadId == nil {
-		invalidParams.Add(request.NewErrParamRequired("UploadId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type AbortMultipartUploadOutput struct {
+	metadataAbortMultipartUploadOutput `json:"-" xml:"-"`
 }
 
-type AbortMultipartUploadOutput struct {
-	_ struct{} `type:"structure"`
+type metadataAbortMultipartUploadOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1717,8 +1676,6 @@ func (s AbortMultipartUploadOutput) GoString() string {
 
 // The input values for AbortVaultLock.
 type AbortVaultLockInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID. This value must match the AWS
 	// account ID associated with the credentials used to sign the request. You
 	// can either specify an AWS account ID or optionally a single apos-apos (hyphen),
@@ -1729,6 +1686,12 @@ type AbortVaultLockInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataAbortVaultLockInput `json:"-" xml:"-"`
+}
+
+type metadataAbortVaultLockInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1741,24 +1704,12 @@ func (s AbortVaultLockInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *AbortVaultLockInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "AbortVaultLockInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type AbortVaultLockOutput struct {
+	metadataAbortVaultLockOutput `json:"-" xml:"-"`
 }
 
-type AbortVaultLockOutput struct {
-	_ struct{} `type:"structure"`
+type metadataAbortVaultLockOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1773,8 +1724,6 @@ func (s AbortVaultLockOutput) GoString() string {
 
 // The input values for AddTagsToVault.
 type AddTagsToVaultInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -1788,6 +1737,12 @@ type AddTagsToVaultInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataAddTagsToVaultInput `json:"-" xml:"-"`
+}
+
+type metadataAddTagsToVaultInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1800,24 +1755,12 @@ func (s AddTagsToVaultInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *AddTagsToVaultInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "AddTagsToVaultInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type AddTagsToVaultOutput struct {
+	metadataAddTagsToVaultOutput `json:"-" xml:"-"`
 }
 
-type AddTagsToVaultOutput struct {
-	_ struct{} `type:"structure"`
+type metadataAddTagsToVaultOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1836,8 +1779,6 @@ func (s AddTagsToVaultOutput) GoString() string {
 // For conceptual information, go to Working with Archives in Amazon Glacier
 // (http://docs.aws.amazon.com/amazonglacier/latest/dev/working-with-archives.html).
 type ArchiveCreationOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the archive. This value is also included as part of the location.
 	ArchiveId *string `location:"header" locationName:"x-amz-archive-id" type:"string"`
 
@@ -1846,6 +1787,12 @@ type ArchiveCreationOutput struct {
 
 	// The relative URI path of the newly added archive resource.
 	Location *string `location:"header" locationName:"Location" type:"string"`
+
+	metadataArchiveCreationOutput `json:"-" xml:"-"`
+}
+
+type metadataArchiveCreationOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1864,8 +1811,6 @@ func (s ArchiveCreationOutput) GoString() string {
 // saving the archive to the vault, Amazon Glacier returns the URI path of the
 // newly created archive resource.
 type CompleteMultipartUploadInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -1888,6 +1833,12 @@ type CompleteMultipartUploadInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataCompleteMultipartUploadInput `json:"-" xml:"-"`
+}
+
+type metadataCompleteMultipartUploadInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1900,29 +1851,8 @@ func (s CompleteMultipartUploadInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CompleteMultipartUploadInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CompleteMultipartUploadInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.UploadId == nil {
-		invalidParams.Add(request.NewErrParamRequired("UploadId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The input values for CompleteVaultLock.
 type CompleteVaultLockInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID. This value must match the AWS
 	// account ID associated with the credentials used to sign the request. You
 	// can either specify an AWS account ID or optionally a single apos-apos (hyphen),
@@ -1936,6 +1866,12 @@ type CompleteVaultLockInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataCompleteVaultLockInput `json:"-" xml:"-"`
+}
+
+type metadataCompleteVaultLockInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1948,27 +1884,12 @@ func (s CompleteVaultLockInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CompleteVaultLockInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CompleteVaultLockInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.LockId == nil {
-		invalidParams.Add(request.NewErrParamRequired("LockId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type CompleteVaultLockOutput struct {
+	metadataCompleteVaultLockOutput `json:"-" xml:"-"`
 }
 
-type CompleteVaultLockOutput struct {
-	_ struct{} `type:"structure"`
+type metadataCompleteVaultLockOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1983,8 +1904,6 @@ func (s CompleteVaultLockOutput) GoString() string {
 
 // Provides options to create a vault.
 type CreateVaultInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID. This value must match the AWS
 	// account ID associated with the credentials used to sign the request. You
 	// can either specify an AWS account ID or optionally a single apos-apos (hyphen),
@@ -1995,6 +1914,12 @@ type CreateVaultInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataCreateVaultInput `json:"-" xml:"-"`
+}
+
+type metadataCreateVaultInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2007,28 +1932,16 @@ func (s CreateVaultInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateVaultInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateVaultInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the Amazon Glacier response to your request.
 type CreateVaultOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The URI of the vault that was created.
 	Location *string `location:"header" locationName:"Location" type:"string"`
+
+	metadataCreateVaultOutput `json:"-" xml:"-"`
+}
+
+type metadataCreateVaultOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2043,11 +1956,15 @@ func (s CreateVaultOutput) GoString() string {
 
 // Data retrieval policy.
 type DataRetrievalPolicy struct {
-	_ struct{} `type:"structure"`
-
 	// The policy rule. Although this is a list type, currently there must be only
 	// one rule, which contains a Strategy field and optionally a BytesPerHour field.
 	Rules []*DataRetrievalRule `type:"list"`
+
+	metadataDataRetrievalPolicy `json:"-" xml:"-"`
+}
+
+type metadataDataRetrievalPolicy struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2062,8 +1979,6 @@ func (s DataRetrievalPolicy) GoString() string {
 
 // Data retrieval policy rule.
 type DataRetrievalRule struct {
-	_ struct{} `type:"structure"`
-
 	// The maximum number of bytes that can be retrieved in an hour.
 	//
 	// This field is required only if the value of the Strategy field is BytesPerHour.
@@ -2075,6 +1990,12 @@ type DataRetrievalRule struct {
 	//
 	// Valid values: BytesPerHour|FreeTier|None
 	Strategy *string `type:"string"`
+
+	metadataDataRetrievalRule `json:"-" xml:"-"`
+}
+
+type metadataDataRetrievalRule struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2089,8 +2010,6 @@ func (s DataRetrievalRule) GoString() string {
 
 // Provides options for deleting an archive from an Amazon Glacier vault.
 type DeleteArchiveInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -2103,6 +2022,12 @@ type DeleteArchiveInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataDeleteArchiveInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteArchiveInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2115,27 +2040,12 @@ func (s DeleteArchiveInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteArchiveInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteArchiveInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.ArchiveId == nil {
-		invalidParams.Add(request.NewErrParamRequired("ArchiveId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type DeleteArchiveOutput struct {
+	metadataDeleteArchiveOutput `json:"-" xml:"-"`
 }
 
-type DeleteArchiveOutput struct {
-	_ struct{} `type:"structure"`
+type metadataDeleteArchiveOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2150,8 +2060,6 @@ func (s DeleteArchiveOutput) GoString() string {
 
 // DeleteVaultAccessPolicy input.
 type DeleteVaultAccessPolicyInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -2161,6 +2069,12 @@ type DeleteVaultAccessPolicyInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataDeleteVaultAccessPolicyInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteVaultAccessPolicyInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2173,24 +2087,12 @@ func (s DeleteVaultAccessPolicyInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteVaultAccessPolicyInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteVaultAccessPolicyInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type DeleteVaultAccessPolicyOutput struct {
+	metadataDeleteVaultAccessPolicyOutput `json:"-" xml:"-"`
 }
 
-type DeleteVaultAccessPolicyOutput struct {
-	_ struct{} `type:"structure"`
+type metadataDeleteVaultAccessPolicyOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2205,8 +2107,6 @@ func (s DeleteVaultAccessPolicyOutput) GoString() string {
 
 // Provides options for deleting a vault from Amazon Glacier.
 type DeleteVaultInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -2216,6 +2116,12 @@ type DeleteVaultInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataDeleteVaultInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteVaultInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2228,27 +2134,9 @@ func (s DeleteVaultInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteVaultInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteVaultInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Provides options for deleting a vault notification configuration from an
 // Amazon Glacier vault.
 type DeleteVaultNotificationsInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -2258,6 +2146,12 @@ type DeleteVaultNotificationsInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataDeleteVaultNotificationsInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteVaultNotificationsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2270,24 +2164,12 @@ func (s DeleteVaultNotificationsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteVaultNotificationsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteVaultNotificationsInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type DeleteVaultNotificationsOutput struct {
+	metadataDeleteVaultNotificationsOutput `json:"-" xml:"-"`
 }
 
-type DeleteVaultNotificationsOutput struct {
-	_ struct{} `type:"structure"`
+type metadataDeleteVaultNotificationsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2301,7 +2183,11 @@ func (s DeleteVaultNotificationsOutput) GoString() string {
 }
 
 type DeleteVaultOutput struct {
-	_ struct{} `type:"structure"`
+	metadataDeleteVaultOutput `json:"-" xml:"-"`
+}
+
+type metadataDeleteVaultOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2316,8 +2202,6 @@ func (s DeleteVaultOutput) GoString() string {
 
 // Provides options for retrieving a job description.
 type DescribeJobInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -2330,6 +2214,12 @@ type DescribeJobInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataDescribeJobInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeJobInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2342,29 +2232,8 @@ func (s DescribeJobInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeJobInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeJobInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.JobId == nil {
-		invalidParams.Add(request.NewErrParamRequired("JobId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Provides options for retrieving metadata for a specific vault in Amazon Glacier.
 type DescribeVaultInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -2374,6 +2243,12 @@ type DescribeVaultInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataDescribeVaultInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeVaultInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2386,26 +2261,8 @@ func (s DescribeVaultInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeVaultInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeVaultInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the Amazon Glacier response to your request.
 type DescribeVaultOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The UTC date when the vault was created. A string representation of ISO 8601
 	// date format, for example, "2012-03-20T17:03:43.221Z".
 	CreationDate *string `type:"string"`
@@ -2429,6 +2286,12 @@ type DescribeVaultOutput struct {
 
 	// The name of the vault.
 	VaultName *string `type:"string"`
+
+	metadataDescribeVaultOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeVaultOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2443,8 +2306,6 @@ func (s DescribeVaultOutput) GoString() string {
 
 // Input for GetDataRetrievalPolicy.
 type GetDataRetrievalPolicyInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID. This value must match the AWS
 	// account ID associated with the credentials used to sign the request. You
 	// can either specify an AWS account ID or optionally a single apos-apos (hyphen),
@@ -2452,6 +2313,12 @@ type GetDataRetrievalPolicyInput struct {
 	// credentials used to sign the request. If you specify your account ID, do
 	// not include any hyphens (apos-apos) in the ID.
 	AccountId *string `location:"uri" locationName:"accountId" type:"string" required:"true"`
+
+	metadataGetDataRetrievalPolicyInput `json:"-" xml:"-"`
+}
+
+type metadataGetDataRetrievalPolicyInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2464,25 +2331,16 @@ func (s GetDataRetrievalPolicyInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *GetDataRetrievalPolicyInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "GetDataRetrievalPolicyInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the Amazon Glacier response to the GetDataRetrievalPolicy request.
 type GetDataRetrievalPolicyOutput struct {
-	_ struct{} `type:"structure"`
-
 	// Contains the returned data retrieval policy in JSON format.
 	Policy *DataRetrievalPolicy `type:"structure"`
+
+	metadataGetDataRetrievalPolicyOutput `json:"-" xml:"-"`
+}
+
+type metadataGetDataRetrievalPolicyOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2497,8 +2355,6 @@ func (s GetDataRetrievalPolicyOutput) GoString() string {
 
 // Provides options for downloading output of an Amazon Glacier job.
 type GetJobOutputInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -2516,6 +2372,12 @@ type GetJobOutputInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataGetJobOutputInput `json:"-" xml:"-"`
+}
+
+type metadataGetJobOutputInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2528,29 +2390,8 @@ func (s GetJobOutputInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *GetJobOutputInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "GetJobOutputInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.JobId == nil {
-		invalidParams.Add(request.NewErrParamRequired("JobId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the Amazon Glacier response to your request.
 type GetJobOutputOutput struct {
-	_ struct{} `type:"structure" payload:"Body"`
-
 	// Indicates the range units accepted. For more information, go to RFC2616 (http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html).
 	AcceptRanges *string `location:"header" locationName:"Accept-Ranges" type:"string"`
 
@@ -2588,6 +2429,12 @@ type GetJobOutputOutput struct {
 	// The HTTP response code for a job output request. The value depends on whether
 	// a range was specified in the request.
 	Status *int64 `location:"statusCode" locationName:"status" type:"integer"`
+
+	metadataGetJobOutputOutput `json:"-" xml:"-"`
+}
+
+type metadataGetJobOutputOutput struct {
+	SDKShapeTraits bool `type:"structure" payload:"Body"`
 }
 
 // String returns the string representation
@@ -2602,8 +2449,6 @@ func (s GetJobOutputOutput) GoString() string {
 
 // Input for GetVaultAccessPolicy.
 type GetVaultAccessPolicyInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -2613,6 +2458,12 @@ type GetVaultAccessPolicyInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataGetVaultAccessPolicyInput `json:"-" xml:"-"`
+}
+
+type metadataGetVaultAccessPolicyInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2625,28 +2476,16 @@ func (s GetVaultAccessPolicyInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *GetVaultAccessPolicyInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "GetVaultAccessPolicyInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Output for GetVaultAccessPolicy.
 type GetVaultAccessPolicyOutput struct {
-	_ struct{} `type:"structure" payload:"Policy"`
-
 	// Contains the returned vault access policy as a JSON string.
 	Policy *VaultAccessPolicy `locationName:"policy" type:"structure"`
+
+	metadataGetVaultAccessPolicyOutput `json:"-" xml:"-"`
+}
+
+type metadataGetVaultAccessPolicyOutput struct {
+	SDKShapeTraits bool `type:"structure" payload:"Policy"`
 }
 
 // String returns the string representation
@@ -2661,8 +2500,6 @@ func (s GetVaultAccessPolicyOutput) GoString() string {
 
 // The input values for GetVaultLock.
 type GetVaultLockInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -2672,6 +2509,12 @@ type GetVaultLockInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataGetVaultLockInput `json:"-" xml:"-"`
+}
+
+type metadataGetVaultLockInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2684,26 +2527,8 @@ func (s GetVaultLockInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *GetVaultLockInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "GetVaultLockInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the Amazon Glacier response to your request.
 type GetVaultLockOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The UTC date and time at which the vault lock was put into the InProgress
 	// state.
 	CreationDate *string `type:"string"`
@@ -2717,6 +2542,12 @@ type GetVaultLockOutput struct {
 
 	// The state of the vault lock. InProgress or Locked.
 	State *string `type:"string"`
+
+	metadataGetVaultLockOutput `json:"-" xml:"-"`
+}
+
+type metadataGetVaultLockOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2732,8 +2563,6 @@ func (s GetVaultLockOutput) GoString() string {
 // Provides options for retrieving the notification configuration set on an
 // Amazon Glacier vault.
 type GetVaultNotificationsInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -2743,6 +2572,12 @@ type GetVaultNotificationsInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataGetVaultNotificationsInput `json:"-" xml:"-"`
+}
+
+type metadataGetVaultNotificationsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2755,28 +2590,16 @@ func (s GetVaultNotificationsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *GetVaultNotificationsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "GetVaultNotificationsInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the Amazon Glacier response to your request.
 type GetVaultNotificationsOutput struct {
-	_ struct{} `type:"structure" payload:"VaultNotificationConfig"`
-
 	// Returns the notification configuration set on the vault.
 	VaultNotificationConfig *VaultNotificationConfig `locationName:"vaultNotificationConfig" type:"structure"`
+
+	metadataGetVaultNotificationsOutput `json:"-" xml:"-"`
+}
+
+type metadataGetVaultNotificationsOutput struct {
+	SDKShapeTraits bool `type:"structure" payload:"VaultNotificationConfig"`
 }
 
 // String returns the string representation
@@ -2791,8 +2614,6 @@ func (s GetVaultNotificationsOutput) GoString() string {
 
 // Provides options for initiating an Amazon Glacier job.
 type InitiateJobInput struct {
-	_ struct{} `type:"structure" payload:"JobParameters"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -2805,6 +2626,12 @@ type InitiateJobInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataInitiateJobInput `json:"-" xml:"-"`
+}
+
+type metadataInitiateJobInput struct {
+	SDKShapeTraits bool `type:"structure" payload:"JobParameters"`
 }
 
 // String returns the string representation
@@ -2817,31 +2644,19 @@ func (s InitiateJobInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *InitiateJobInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "InitiateJobInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the Amazon Glacier response to your request.
 type InitiateJobOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the job.
 	JobId *string `location:"header" locationName:"x-amz-job-id" type:"string"`
 
 	// The relative URI path of the job.
 	Location *string `location:"header" locationName:"Location" type:"string"`
+
+	metadataInitiateJobOutput `json:"-" xml:"-"`
+}
+
+type metadataInitiateJobOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2856,8 +2671,6 @@ func (s InitiateJobOutput) GoString() string {
 
 // Provides options for initiating a multipart upload to an Amazon Glacier vault.
 type InitiateMultipartUploadInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -2879,6 +2692,12 @@ type InitiateMultipartUploadInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataInitiateMultipartUploadInput `json:"-" xml:"-"`
+}
+
+type metadataInitiateMultipartUploadInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2891,32 +2710,20 @@ func (s InitiateMultipartUploadInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *InitiateMultipartUploadInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "InitiateMultipartUploadInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The Amazon Glacier response to your request.
 type InitiateMultipartUploadOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The relative URI path of the multipart upload ID Amazon Glacier created.
 	Location *string `location:"header" locationName:"Location" type:"string"`
 
 	// The ID of the multipart upload. This value is also included as part of the
 	// location.
 	UploadId *string `location:"header" locationName:"x-amz-multipart-upload-id" type:"string"`
+
+	metadataInitiateMultipartUploadOutput `json:"-" xml:"-"`
+}
+
+type metadataInitiateMultipartUploadOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2931,8 +2738,6 @@ func (s InitiateMultipartUploadOutput) GoString() string {
 
 // The input values for InitiateVaultLock.
 type InitiateVaultLockInput struct {
-	_ struct{} `type:"structure" payload:"Policy"`
-
 	// The AccountId value is the AWS account ID. This value must match the AWS
 	// account ID associated with the credentials used to sign the request. You
 	// can either specify an AWS account ID or optionally a single apos-apos (hyphen),
@@ -2946,6 +2751,12 @@ type InitiateVaultLockInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataInitiateVaultLockInput `json:"-" xml:"-"`
+}
+
+type metadataInitiateVaultLockInput struct {
+	SDKShapeTraits bool `type:"structure" payload:"Policy"`
 }
 
 // String returns the string representation
@@ -2958,28 +2769,16 @@ func (s InitiateVaultLockInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *InitiateVaultLockInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "InitiateVaultLockInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the Amazon Glacier response to your request.
 type InitiateVaultLockOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The lock ID, which is used to complete the vault locking process.
 	LockId *string `location:"header" locationName:"x-amz-lock-id" type:"string"`
+
+	metadataInitiateVaultLockOutput `json:"-" xml:"-"`
+}
+
+type metadataInitiateVaultLockOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2994,8 +2793,6 @@ func (s InitiateVaultLockOutput) GoString() string {
 
 // Describes the options for a range inventory retrieval job.
 type InventoryRetrievalJobDescription struct {
-	_ struct{} `type:"structure"`
-
 	// The end of the date range in UTC for vault inventory retrieval that includes
 	// archives created before this date. A string representation of ISO 8601 date
 	// format, for example, 2013-03-20T17:03:43Z.
@@ -3022,6 +2819,12 @@ type InventoryRetrievalJobDescription struct {
 	// archives created on or after this date. A string representation of ISO 8601
 	// date format, for example, 2013-03-20T17:03:43Z.
 	StartDate *string `type:"string"`
+
+	metadataInventoryRetrievalJobDescription `json:"-" xml:"-"`
+}
+
+type metadataInventoryRetrievalJobDescription struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3036,8 +2839,6 @@ func (s InventoryRetrievalJobDescription) GoString() string {
 
 // Provides options for specifying a range inventory retrieval job.
 type InventoryRetrievalJobInput struct {
-	_ struct{} `type:"structure"`
-
 	// The end of the date range in UTC for vault inventory retrieval that includes
 	// archives created before this date. A string representation of ISO 8601 date
 	// format, for example, 2013-03-20T17:03:43Z.
@@ -3057,6 +2858,12 @@ type InventoryRetrievalJobInput struct {
 	// archives created on or after this date. A string representation of ISO 8601
 	// date format, for example, 2013-03-20T17:03:43Z.
 	StartDate *string `type:"string"`
+
+	metadataInventoryRetrievalJobInput `json:"-" xml:"-"`
+}
+
+type metadataInventoryRetrievalJobInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3071,8 +2878,6 @@ func (s InventoryRetrievalJobInput) GoString() string {
 
 // Describes an Amazon Glacier job.
 type JobDescription struct {
-	_ struct{} `type:"structure"`
-
 	// The job type. It is either ArchiveRetrieval or InventoryRetrieval.
 	Action *string `type:"string" enum:"ActionCode"`
 
@@ -3150,6 +2955,12 @@ type JobDescription struct {
 	// The Amazon Resource Name (ARN) of the vault from which the archive retrieval
 	// was requested.
 	VaultARN *string `type:"string"`
+
+	metadataJobDescription `json:"-" xml:"-"`
+}
+
+type metadataJobDescription struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3164,8 +2975,6 @@ func (s JobDescription) GoString() string {
 
 // Provides options for defining a job.
 type JobParameters struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the archive that you want to retrieve. This field is required only
 	// if Type is set to archive-retrieval. An error occurs if you specify this
 	// request parameter for an inventory retrieval job request.
@@ -3205,6 +3014,12 @@ type JobParameters struct {
 	// The job type. You can initiate a job to retrieve an archive or get an inventory
 	// of a vault. Valid values are "archive-retrieval" and "inventory-retrieval".
 	Type *string `type:"string"`
+
+	metadataJobParameters `json:"-" xml:"-"`
+}
+
+type metadataJobParameters struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3219,8 +3034,6 @@ func (s JobParameters) GoString() string {
 
 // Provides options for retrieving a job list for an Amazon Glacier vault.
 type ListJobsInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -3247,6 +3060,12 @@ type ListJobsInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataListJobsInput `json:"-" xml:"-"`
+}
+
+type metadataListJobsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3259,26 +3078,8 @@ func (s ListJobsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ListJobsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ListJobsInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the Amazon Glacier response to your request.
 type ListJobsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// A list of job objects. Each job object contains metadata describing the job.
 	JobList []*JobDescription `type:"list"`
 
@@ -3286,6 +3087,12 @@ type ListJobsOutput struct {
 	// You use this value in a new List Jobs request to obtain more jobs in the
 	// list. If there are no more jobs, this value is null.
 	Marker *string `type:"string"`
+
+	metadataListJobsOutput `json:"-" xml:"-"`
+}
+
+type metadataListJobsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3301,8 +3108,6 @@ func (s ListJobsOutput) GoString() string {
 // Provides options for retrieving list of in-progress multipart uploads for
 // an Amazon Glacier vault.
 type ListMultipartUploadsInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -3323,6 +3128,12 @@ type ListMultipartUploadsInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataListMultipartUploadsInput `json:"-" xml:"-"`
+}
+
+type metadataListMultipartUploadsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3335,26 +3146,8 @@ func (s ListMultipartUploadsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ListMultipartUploadsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ListMultipartUploadsInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the Amazon Glacier response to your request.
 type ListMultipartUploadsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// An opaque string that represents where to continue pagination of the results.
 	// You use the marker in a new List Multipart Uploads request to obtain more
 	// uploads in the list. If there are no more uploads, this value is null.
@@ -3362,6 +3155,12 @@ type ListMultipartUploadsOutput struct {
 
 	// A list of in-progress multipart uploads.
 	UploadsList []*UploadListElement `type:"list"`
+
+	metadataListMultipartUploadsOutput `json:"-" xml:"-"`
+}
+
+type metadataListMultipartUploadsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3377,8 +3176,6 @@ func (s ListMultipartUploadsOutput) GoString() string {
 // Provides options for retrieving a list of parts of an archive that have been
 // uploaded in a specific multipart upload.
 type ListPartsInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -3402,6 +3199,12 @@ type ListPartsInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataListPartsInput `json:"-" xml:"-"`
+}
+
+type metadataListPartsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3414,29 +3217,8 @@ func (s ListPartsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ListPartsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ListPartsInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.UploadId == nil {
-		invalidParams.Add(request.NewErrParamRequired("UploadId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the Amazon Glacier response to your request.
 type ListPartsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The description of the archive that was specified in the Initiate Multipart
 	// Upload request.
 	ArchiveDescription *string `type:"string"`
@@ -3461,6 +3243,12 @@ type ListPartsOutput struct {
 	// The Amazon Resource Name (ARN) of the vault to which the multipart upload
 	// was initiated.
 	VaultARN *string `type:"string"`
+
+	metadataListPartsOutput `json:"-" xml:"-"`
+}
+
+type metadataListPartsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3475,8 +3263,6 @@ func (s ListPartsOutput) GoString() string {
 
 // The input value for ListTagsForVaultInput.
 type ListTagsForVaultInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -3486,6 +3272,12 @@ type ListTagsForVaultInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataListTagsForVaultInput `json:"-" xml:"-"`
+}
+
+type metadataListTagsForVaultInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3498,28 +3290,16 @@ func (s ListTagsForVaultInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ListTagsForVaultInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ListTagsForVaultInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the Amazon Glacier response to your request.
 type ListTagsForVaultOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The tags attached to the vault. Each tag is composed of a key and a value.
 	Tags map[string]*string `type:"map"`
+
+	metadataListTagsForVaultOutput `json:"-" xml:"-"`
+}
+
+type metadataListTagsForVaultOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3535,8 +3315,6 @@ func (s ListTagsForVaultOutput) GoString() string {
 // Provides options to retrieve the vault list owned by the calling user's account.
 // The list provides metadata information for each vault.
 type ListVaultsInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID. This value must match the AWS
 	// account ID associated with the credentials used to sign the request. You
 	// can either specify an AWS account ID or optionally a single apos-apos (hyphen),
@@ -3552,6 +3330,12 @@ type ListVaultsInput struct {
 	// A string used for pagination. The marker specifies the vault ARN after which
 	// the listing of vaults should begin.
 	Marker *string `location:"querystring" locationName:"marker" type:"string"`
+
+	metadataListVaultsInput `json:"-" xml:"-"`
+}
+
+type metadataListVaultsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3564,29 +3348,20 @@ func (s ListVaultsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ListVaultsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ListVaultsInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the Amazon Glacier response to your request.
 type ListVaultsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The vault ARN at which to continue pagination of the results. You use the
 	// marker in another List Vaults request to obtain more vaults in the list.
 	Marker *string `type:"string"`
 
 	// List of vaults.
 	VaultList []*DescribeVaultOutput `type:"list"`
+
+	metadataListVaultsOutput `json:"-" xml:"-"`
+}
+
+type metadataListVaultsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3601,14 +3376,18 @@ func (s ListVaultsOutput) GoString() string {
 
 // A list of the part sizes of the multipart upload.
 type PartListElement struct {
-	_ struct{} `type:"structure"`
-
 	// The byte range of a part, inclusive of the upper value of the range.
 	RangeInBytes *string `type:"string"`
 
 	// The SHA256 tree hash value that Amazon Glacier calculated for the part. This
 	// field is never null.
 	SHA256TreeHash *string `type:"string"`
+
+	metadataPartListElement `json:"-" xml:"-"`
+}
+
+type metadataPartListElement struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3623,8 +3402,6 @@ func (s PartListElement) GoString() string {
 
 // The input value for RemoveTagsFromVaultInput.
 type RemoveTagsFromVaultInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -3637,6 +3414,12 @@ type RemoveTagsFromVaultInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataRemoveTagsFromVaultInput `json:"-" xml:"-"`
+}
+
+type metadataRemoveTagsFromVaultInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3649,24 +3432,12 @@ func (s RemoveTagsFromVaultInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *RemoveTagsFromVaultInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "RemoveTagsFromVaultInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type RemoveTagsFromVaultOutput struct {
+	metadataRemoveTagsFromVaultOutput `json:"-" xml:"-"`
 }
 
-type RemoveTagsFromVaultOutput struct {
-	_ struct{} `type:"structure"`
+type metadataRemoveTagsFromVaultOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3681,8 +3452,6 @@ func (s RemoveTagsFromVaultOutput) GoString() string {
 
 // SetDataRetrievalPolicy input.
 type SetDataRetrievalPolicyInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AccountId value is the AWS account ID. This value must match the AWS
 	// account ID associated with the credentials used to sign the request. You
 	// can either specify an AWS account ID or optionally a single apos-apos (hyphen),
@@ -3693,6 +3462,12 @@ type SetDataRetrievalPolicyInput struct {
 
 	// The data retrieval policy in JSON format.
 	Policy *DataRetrievalPolicy `type:"structure"`
+
+	metadataSetDataRetrievalPolicyInput `json:"-" xml:"-"`
+}
+
+type metadataSetDataRetrievalPolicyInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3705,21 +3480,12 @@ func (s SetDataRetrievalPolicyInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *SetDataRetrievalPolicyInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "SetDataRetrievalPolicyInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type SetDataRetrievalPolicyOutput struct {
+	metadataSetDataRetrievalPolicyOutput `json:"-" xml:"-"`
 }
 
-type SetDataRetrievalPolicyOutput struct {
-	_ struct{} `type:"structure"`
+type metadataSetDataRetrievalPolicyOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3734,8 +3500,6 @@ func (s SetDataRetrievalPolicyOutput) GoString() string {
 
 // SetVaultAccessPolicy input.
 type SetVaultAccessPolicyInput struct {
-	_ struct{} `type:"structure" payload:"Policy"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -3748,6 +3512,12 @@ type SetVaultAccessPolicyInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataSetVaultAccessPolicyInput `json:"-" xml:"-"`
+}
+
+type metadataSetVaultAccessPolicyInput struct {
+	SDKShapeTraits bool `type:"structure" payload:"Policy"`
 }
 
 // String returns the string representation
@@ -3760,24 +3530,12 @@ func (s SetVaultAccessPolicyInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *SetVaultAccessPolicyInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "SetVaultAccessPolicyInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type SetVaultAccessPolicyOutput struct {
+	metadataSetVaultAccessPolicyOutput `json:"-" xml:"-"`
 }
 
-type SetVaultAccessPolicyOutput struct {
-	_ struct{} `type:"structure"`
+type metadataSetVaultAccessPolicyOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3793,8 +3551,6 @@ func (s SetVaultAccessPolicyOutput) GoString() string {
 // Provides options to configure notifications that will be sent when specific
 // events happen to a vault.
 type SetVaultNotificationsInput struct {
-	_ struct{} `type:"structure" payload:"VaultNotificationConfig"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -3807,6 +3563,12 @@ type SetVaultNotificationsInput struct {
 
 	// Provides options for specifying notification configuration.
 	VaultNotificationConfig *VaultNotificationConfig `locationName:"vaultNotificationConfig" type:"structure"`
+
+	metadataSetVaultNotificationsInput `json:"-" xml:"-"`
+}
+
+type metadataSetVaultNotificationsInput struct {
+	SDKShapeTraits bool `type:"structure" payload:"VaultNotificationConfig"`
 }
 
 // String returns the string representation
@@ -3819,24 +3581,12 @@ func (s SetVaultNotificationsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *SetVaultNotificationsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "SetVaultNotificationsInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type SetVaultNotificationsOutput struct {
+	metadataSetVaultNotificationsOutput `json:"-" xml:"-"`
 }
 
-type SetVaultNotificationsOutput struct {
-	_ struct{} `type:"structure"`
+type metadataSetVaultNotificationsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3851,8 +3601,6 @@ func (s SetVaultNotificationsOutput) GoString() string {
 
 // Provides options to add an archive to a vault.
 type UploadArchiveInput struct {
-	_ struct{} `type:"structure" payload:"Body"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -3871,6 +3619,12 @@ type UploadArchiveInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataUploadArchiveInput `json:"-" xml:"-"`
+}
+
+type metadataUploadArchiveInput struct {
+	SDKShapeTraits bool `type:"structure" payload:"Body"`
 }
 
 // String returns the string representation
@@ -3883,26 +3637,8 @@ func (s UploadArchiveInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *UploadArchiveInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "UploadArchiveInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // A list of in-progress multipart uploads for a vault.
 type UploadListElement struct {
-	_ struct{} `type:"structure"`
-
 	// The description of the archive that was specified in the Initiate Multipart
 	// Upload request.
 	ArchiveDescription *string `type:"string"`
@@ -3920,6 +3656,12 @@ type UploadListElement struct {
 
 	// The Amazon Resource Name (ARN) of the vault that contains the archive.
 	VaultARN *string `type:"string"`
+
+	metadataUploadListElement `json:"-" xml:"-"`
+}
+
+type metadataUploadListElement struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3934,8 +3676,6 @@ func (s UploadListElement) GoString() string {
 
 // Provides options to upload a part of an archive in a multipart upload operation.
 type UploadMultipartPartInput struct {
-	_ struct{} `type:"structure" payload:"Body"`
-
 	// The AccountId value is the AWS account ID of the account that owns the vault.
 	// You can either specify an AWS account ID or optionally a single apos-apos
 	// (hyphen), in which case Amazon Glacier uses the AWS account ID associated
@@ -3960,6 +3700,12 @@ type UploadMultipartPartInput struct {
 
 	// The name of the vault.
 	VaultName *string `location:"uri" locationName:"vaultName" type:"string" required:"true"`
+
+	metadataUploadMultipartPartInput `json:"-" xml:"-"`
+}
+
+type metadataUploadMultipartPartInput struct {
+	SDKShapeTraits bool `type:"structure" payload:"Body"`
 }
 
 // String returns the string representation
@@ -3972,31 +3718,16 @@ func (s UploadMultipartPartInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *UploadMultipartPartInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "UploadMultipartPartInput"}
-	if s.AccountId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AccountId"))
-	}
-	if s.UploadId == nil {
-		invalidParams.Add(request.NewErrParamRequired("UploadId"))
-	}
-	if s.VaultName == nil {
-		invalidParams.Add(request.NewErrParamRequired("VaultName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the Amazon Glacier response to your request.
 type UploadMultipartPartOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The SHA256 tree hash that Amazon Glacier computed for the uploaded part.
 	Checksum *string `location:"header" locationName:"x-amz-sha256-tree-hash" type:"string"`
+
+	metadataUploadMultipartPartOutput `json:"-" xml:"-"`
+}
+
+type metadataUploadMultipartPartOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4011,10 +3742,14 @@ func (s UploadMultipartPartOutput) GoString() string {
 
 // Contains the vault access policy.
 type VaultAccessPolicy struct {
-	_ struct{} `type:"structure"`
-
 	// The vault access policy.
 	Policy *string `type:"string"`
+
+	metadataVaultAccessPolicy `json:"-" xml:"-"`
+}
+
+type metadataVaultAccessPolicy struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4029,10 +3764,14 @@ func (s VaultAccessPolicy) GoString() string {
 
 // Contains the vault lock policy.
 type VaultLockPolicy struct {
-	_ struct{} `type:"structure"`
-
 	// The vault lock policy.
 	Policy *string `type:"string"`
+
+	metadataVaultLockPolicy `json:"-" xml:"-"`
+}
+
+type metadataVaultLockPolicy struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4047,8 +3786,6 @@ func (s VaultLockPolicy) GoString() string {
 
 // Represents a vault's notification configuration.
 type VaultNotificationConfig struct {
-	_ struct{} `type:"structure"`
-
 	// A list of one or more events for which Amazon Glacier will send a notification
 	// to the specified Amazon SNS topic.
 	Events []*string `type:"list"`
@@ -4056,6 +3793,12 @@ type VaultNotificationConfig struct {
 	// The Amazon Simple Notification Service (Amazon SNS) topic Amazon Resource
 	// Name (ARN).
 	SNSTopic *string `type:"string"`
+
+	metadataVaultNotificationConfig `json:"-" xml:"-"`
+}
+
+type metadataVaultNotificationConfig struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation

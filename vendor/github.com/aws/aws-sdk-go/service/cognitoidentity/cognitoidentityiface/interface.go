@@ -82,5 +82,3 @@ type CognitoIdentityAPI interface {
 
 	UpdateIdentityPool(*cognitoidentity.IdentityPool) (*cognitoidentity.IdentityPool, error)
 }
-
-var _ CognitoIdentityAPI = (*cognitoidentity.CognitoIdentity)(nil)

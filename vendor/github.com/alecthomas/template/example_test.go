@@ -7,7 +7,6 @@ package template_test
 import (
 	"log"
 	"os"
-
 	"github.com/alecthomas/template"
 )
 

@@ -118,5 +118,3 @@ type MachineLearningAPI interface {
 
 	UpdateMLModel(*machinelearning.UpdateMLModelInput) (*machinelearning.UpdateMLModelOutput, error)
 }
-
-var _ MachineLearningAPI = (*machinelearning.MachineLearning)(nil)

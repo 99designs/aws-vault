@@ -106,5 +106,3 @@ type CloudSearchAPI interface {
 
 	UpdateServiceAccessPolicies(*cloudsearch.UpdateServiceAccessPoliciesInput) (*cloudsearch.UpdateServiceAccessPoliciesOutput, error)
 }
-
-var _ CloudSearchAPI = (*cloudsearch.CloudSearch)(nil)

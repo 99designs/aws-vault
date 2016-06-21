@@ -7,7 +7,6 @@ package template
 import (
 	"fmt"
 	"reflect"
-
 	"github.com/alecthomas/template/parse"
 )
 

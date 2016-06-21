@@ -4,11 +4,12 @@ package elasticache
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/client"
-	"github.com/aws/aws-sdk-go/aws/client/metadata"
+	"github.com/aws/aws-sdk-go/aws/defaults"
 	"github.com/aws/aws-sdk-go/aws/request"
-	"github.com/aws/aws-sdk-go/private/protocol/query"
-	"github.com/aws/aws-sdk-go/private/signer/v4"
+	"github.com/aws/aws-sdk-go/aws/service"
+	"github.com/aws/aws-sdk-go/aws/service/serviceinfo"
+	"github.com/aws/aws-sdk-go/internal/protocol/query"
+	"github.com/aws/aws-sdk-go/internal/signer/v4"
 )
 
 // Amazon ElastiCache is a web service that makes it easier to set up, operate,
@@ -22,64 +23,40 @@ import (
 // In addition, through integration with Amazon CloudWatch, customers get enhanced
 // visibility into the key performance statistics associated with their cache
 // and can receive alarms if a part of their cache runs hot.
-//The service client's operations are safe to be used concurrently.
-// It is not safe to mutate any of the client's properties though.
 type ElastiCache struct {
-	*client.Client
+	*service.Service
 }
 
-// Used for custom client initialization logic
-var initClient func(*client.Client)
+// Used for custom service initialization logic
+var initService func(*service.Service)
 
 // Used for custom request initialization logic
 var initRequest func(*request.Request)
 
-// A ServiceName is the name of the service the client will make API calls to.
-const ServiceName = "elasticache"
-
-// New creates a new instance of the ElastiCache client with a session.
-// If additional configuration is needed for the client instance use the optional
-// aws.Config parameter to add your extra config.
-//
-// Example:
-//     // Create a ElastiCache client from just a session.
-//     svc := elasticache.New(mySession)
-//
-//     // Create a ElastiCache client with additional configuration
-//     svc := elasticache.New(mySession, aws.NewConfig().WithRegion("us-west-2"))
-func New(p client.ConfigProvider, cfgs ...*aws.Config) *ElastiCache {
-	c := p.ClientConfig(ServiceName, cfgs...)
-	return newClient(*c.Config, c.Handlers, c.Endpoint, c.SigningRegion)
-}
-
-// newClient creates, initializes and returns a new service client instance.
-func newClient(cfg aws.Config, handlers request.Handlers, endpoint, signingRegion string) *ElastiCache {
-	svc := &ElastiCache{
-		Client: client.New(
-			cfg,
-			metadata.ClientInfo{
-				ServiceName:   ServiceName,
-				SigningRegion: signingRegion,
-				Endpoint:      endpoint,
-				APIVersion:    "2015-02-02",
-			},
-			handlers,
-		),
+// New returns a new ElastiCache client.
+func New(config *aws.Config) *ElastiCache {
+	service := &service.Service{
+		ServiceInfo: serviceinfo.ServiceInfo{
+			Config:      defaults.DefaultConfig.Merge(config),
+			ServiceName: "elasticache",
+			APIVersion:  "2015-02-02",
+		},
 	}
+	service.Initialize()
 
 	// Handlers
-	svc.Handlers.Sign.PushBack(v4.Sign)
-	svc.Handlers.Build.PushBackNamed(query.BuildHandler)
-	svc.Handlers.Unmarshal.PushBackNamed(query.UnmarshalHandler)
-	svc.Handlers.UnmarshalMeta.PushBackNamed(query.UnmarshalMetaHandler)
-	svc.Handlers.UnmarshalError.PushBackNamed(query.UnmarshalErrorHandler)
+	service.Handlers.Sign.PushBack(v4.Sign)
+	service.Handlers.Build.PushBack(query.Build)
+	service.Handlers.Unmarshal.PushBack(query.Unmarshal)
+	service.Handlers.UnmarshalMeta.PushBack(query.UnmarshalMeta)
+	service.Handlers.UnmarshalError.PushBack(query.UnmarshalError)
 
-	// Run custom client initialization if present
-	if initClient != nil {
-		initClient(svc.Client)
+	// Run custom service initialization if present
+	if initService != nil {
+		initService(service)
 	}
 
-	return svc
+	return &ElastiCache{service}
 }
 
 // newRequest creates a new request for a ElastiCache operation and runs any

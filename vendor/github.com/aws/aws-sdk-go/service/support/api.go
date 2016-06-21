@@ -212,7 +212,6 @@ func (c *Support) DescribeCases(input *DescribeCasesInput) (*DescribeCasesOutput
 
 func (c *Support) DescribeCasesPages(input *DescribeCasesInput, fn func(p *DescribeCasesOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeCasesRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeCasesOutput), lastPage)
 	})
@@ -262,7 +261,6 @@ func (c *Support) DescribeCommunications(input *DescribeCommunicationsInput) (*D
 
 func (c *Support) DescribeCommunicationsPages(input *DescribeCommunicationsInput, fn func(p *DescribeCommunicationsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeCommunicationsRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeCommunicationsOutput), lastPage)
 	})
@@ -525,8 +523,6 @@ func (c *Support) ResolveCase(input *ResolveCaseInput) (*ResolveCaseOutput, erro
 }
 
 type AddAttachmentsToSetInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the attachment set. If an AttachmentSetId is not specified, a new
 	// attachment set is created, and the ID of the set is returned in the response.
 	// If an AttachmentSetId is specified, the attachments are added to the specified
@@ -536,6 +532,12 @@ type AddAttachmentsToSetInput struct {
 	// One or more attachments to add to the set. The limit is 3 attachments per
 	// set, and the size limit is 5 MB per attachment.
 	Attachments []*Attachment `locationName:"attachments" type:"list" required:"true"`
+
+	metadataAddAttachmentsToSetInput `json:"-" xml:"-"`
+}
+
+type metadataAddAttachmentsToSetInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -548,24 +550,9 @@ func (s AddAttachmentsToSetInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *AddAttachmentsToSetInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "AddAttachmentsToSetInput"}
-	if s.Attachments == nil {
-		invalidParams.Add(request.NewErrParamRequired("Attachments"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The ID and expiry time of the attachment set returned by the AddAttachmentsToSet
 // operation.
 type AddAttachmentsToSetOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the attachment set. If an AttachmentSetId was not specified, a
 	// new attachment set is created, and the ID of the set is returned in the response.
 	// If an AttachmentSetId was specified, the attachments are added to the specified
@@ -574,6 +561,12 @@ type AddAttachmentsToSetOutput struct {
 
 	// The time and date when the attachment set expires.
 	ExpiryTime *string `locationName:"expiryTime" type:"string"`
+
+	metadataAddAttachmentsToSetOutput `json:"-" xml:"-"`
+}
+
+type metadataAddAttachmentsToSetOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -588,8 +581,6 @@ func (s AddAttachmentsToSetOutput) GoString() string {
 
 // To be written.
 type AddCommunicationToCaseInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of a set of one or more attachments for the communication to add to
 	// the case. Create the set by calling AddAttachmentsToSet
 	AttachmentSetId *string `locationName:"attachmentSetId" type:"string"`
@@ -604,6 +595,12 @@ type AddCommunicationToCaseInput struct {
 
 	// The body of an email communication to add to the support case.
 	CommunicationBody *string `locationName:"communicationBody" type:"string" required:"true"`
+
+	metadataAddCommunicationToCaseInput `json:"-" xml:"-"`
+}
+
+type metadataAddCommunicationToCaseInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -616,25 +613,16 @@ func (s AddCommunicationToCaseInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *AddCommunicationToCaseInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "AddCommunicationToCaseInput"}
-	if s.CommunicationBody == nil {
-		invalidParams.Add(request.NewErrParamRequired("CommunicationBody"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The result of the AddCommunicationToCase operation.
 type AddCommunicationToCaseOutput struct {
-	_ struct{} `type:"structure"`
-
 	// True if AddCommunicationToCase succeeds. Otherwise, returns an error.
 	Result *bool `locationName:"result" type:"boolean"`
+
+	metadataAddCommunicationToCaseOutput `json:"-" xml:"-"`
+}
+
+type metadataAddCommunicationToCaseOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -650,15 +638,17 @@ func (s AddCommunicationToCaseOutput) GoString() string {
 // An attachment to a case communication. The attachment consists of the file
 // name and the content of the file.
 type Attachment struct {
-	_ struct{} `type:"structure"`
-
 	// The content of the attachment file.
-	//
-	// Data is automatically base64 encoded/decoded by the SDK.
 	Data []byte `locationName:"data" type:"blob"`
 
 	// The name of the attachment file.
 	FileName *string `locationName:"fileName" type:"string"`
+
+	metadataAttachment `json:"-" xml:"-"`
+}
+
+type metadataAttachment struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -674,13 +664,17 @@ func (s Attachment) GoString() string {
 // The file name and ID of an attachment to a case communication. You can use
 // the ID to retrieve the attachment with the DescribeAttachment operation.
 type AttachmentDetails struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the attachment.
 	AttachmentId *string `locationName:"attachmentId" type:"string"`
 
 	// The file name of the attachment.
 	FileName *string `locationName:"fileName" type:"string"`
+
+	metadataAttachmentDetails `json:"-" xml:"-"`
+}
+
+type metadataAttachmentDetails struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -715,8 +709,6 @@ func (s AttachmentDetails) GoString() string {
 // The email address of the account that submitted the case.  TimeCreated. The
 // time the case was created, in ISO-8601 format.
 type CaseDetails struct {
-	_ struct{} `type:"structure"`
-
 	// The AWS Support case ID requested or returned in the call. The case ID is
 	// an alphanumeric string formatted as shown in this example: case-12345678910-2013-c4c1d2bf33c5cf47
 	CaseId *string `locationName:"caseId" type:"string"`
@@ -758,6 +750,12 @@ type CaseDetails struct {
 
 	// The time that the case was case created in the AWS Support Center.
 	TimeCreated *string `locationName:"timeCreated" type:"string"`
+
+	metadataCaseDetails `json:"-" xml:"-"`
+}
+
+type metadataCaseDetails struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -774,13 +772,17 @@ func (s CaseDetails) GoString() string {
 // code of the problem, selected from the DescribeServices response for each
 // AWS service.
 type Category struct {
-	_ struct{} `type:"structure"`
-
 	// The category code for the support case.
 	Code *string `locationName:"code" type:"string"`
 
 	// The category name for the support case.
 	Name *string `locationName:"name" type:"string"`
+
+	metadataCategory `json:"-" xml:"-"`
+}
+
+type metadataCategory struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -797,8 +799,6 @@ func (s Category) GoString() string {
 // of the case ID, the message body, attachment information, the account email
 // address, and the date and time of the communication.
 type Communication struct {
-	_ struct{} `type:"structure"`
-
 	// Information about the attachments to the case communication.
 	AttachmentSet []*AttachmentDetails `locationName:"attachmentSet" type:"list"`
 
@@ -814,6 +814,12 @@ type Communication struct {
 
 	// The time the communication was created.
 	TimeCreated *string `locationName:"timeCreated" type:"string"`
+
+	metadataCommunication `json:"-" xml:"-"`
+}
+
+type metadataCommunication struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -827,8 +833,6 @@ func (s Communication) GoString() string {
 }
 
 type CreateCaseInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of a set of one or more attachments for the case. Create the set by
 	// using AddAttachmentsToSet.
 	AttachmentSetId *string `locationName:"attachmentSetId" type:"string"`
@@ -864,6 +868,12 @@ type CreateCaseInput struct {
 
 	// The title of the AWS Support case.
 	Subject *string `locationName:"subject" type:"string" required:"true"`
+
+	metadataCreateCaseInput `json:"-" xml:"-"`
+}
+
+type metadataCreateCaseInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -876,30 +886,18 @@ func (s CreateCaseInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateCaseInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateCaseInput"}
-	if s.CommunicationBody == nil {
-		invalidParams.Add(request.NewErrParamRequired("CommunicationBody"))
-	}
-	if s.Subject == nil {
-		invalidParams.Add(request.NewErrParamRequired("Subject"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The AWS Support case ID returned by a successful completion of the CreateCase
 // operation.
 type CreateCaseOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The AWS Support case ID requested or returned in the call. The case ID is
 	// an alphanumeric string formatted as shown in this example: case-12345678910-2013-c4c1d2bf33c5cf47
 	CaseId *string `locationName:"caseId" type:"string"`
+
+	metadataCreateCaseOutput `json:"-" xml:"-"`
+}
+
+type metadataCreateCaseOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -913,11 +911,15 @@ func (s CreateCaseOutput) GoString() string {
 }
 
 type DescribeAttachmentInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the attachment to return. Attachment IDs are returned by the DescribeCommunications
 	// operation.
 	AttachmentId *string `locationName:"attachmentId" type:"string" required:"true"`
+
+	metadataDescribeAttachmentInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeAttachmentInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -930,26 +932,17 @@ func (s DescribeAttachmentInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeAttachmentInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeAttachmentInput"}
-	if s.AttachmentId == nil {
-		invalidParams.Add(request.NewErrParamRequired("AttachmentId"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The content and file name of the attachment returned by the DescribeAttachment
 // operation.
 type DescribeAttachmentOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The attachment content and file name.
 	Attachment *Attachment `locationName:"attachment" type:"structure"`
+
+	metadataDescribeAttachmentOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeAttachmentOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -963,8 +956,6 @@ func (s DescribeAttachmentOutput) GoString() string {
 }
 
 type DescribeCasesInput struct {
-	_ struct{} `type:"structure"`
-
 	// The start date for a filtered date search on support case communications.
 	// Case communications are available for 12 months after creation.
 	AfterTime *string `locationName:"afterTime" type:"string"`
@@ -994,10 +985,16 @@ type DescribeCasesInput struct {
 	Language *string `locationName:"language" type:"string"`
 
 	// The maximum number of results to return before paginating.
-	MaxResults *int64 `locationName:"maxResults" min:"10" type:"integer"`
+	MaxResults *int64 `locationName:"maxResults" type:"integer"`
 
 	// A resumption point for pagination.
 	NextToken *string `locationName:"nextToken" type:"string"`
+
+	metadataDescribeCasesInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeCasesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1010,29 +1007,20 @@ func (s DescribeCasesInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeCasesInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeCasesInput"}
-	if s.MaxResults != nil && *s.MaxResults < 10 {
-		invalidParams.Add(request.NewErrParamMinValue("MaxResults", 10))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Returns an array of CaseDetails objects and a NextToken that defines a point
 // for pagination in the result set.
 type DescribeCasesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The details for the cases that match the request.
 	Cases []*CaseDetails `locationName:"cases" type:"list"`
 
 	// A resumption point for pagination.
 	NextToken *string `locationName:"nextToken" type:"string"`
+
+	metadataDescribeCasesOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeCasesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1046,8 +1034,6 @@ func (s DescribeCasesOutput) GoString() string {
 }
 
 type DescribeCommunicationsInput struct {
-	_ struct{} `type:"structure"`
-
 	// The start date for a filtered date search on support case communications.
 	// Case communications are available for 12 months after creation.
 	AfterTime *string `locationName:"afterTime" type:"string"`
@@ -1061,10 +1047,16 @@ type DescribeCommunicationsInput struct {
 	CaseId *string `locationName:"caseId" type:"string" required:"true"`
 
 	// The maximum number of results to return before paginating.
-	MaxResults *int64 `locationName:"maxResults" min:"10" type:"integer"`
+	MaxResults *int64 `locationName:"maxResults" type:"integer"`
 
 	// A resumption point for pagination.
 	NextToken *string `locationName:"nextToken" type:"string"`
+
+	metadataDescribeCommunicationsInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeCommunicationsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1077,31 +1069,19 @@ func (s DescribeCommunicationsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeCommunicationsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeCommunicationsInput"}
-	if s.CaseId == nil {
-		invalidParams.Add(request.NewErrParamRequired("CaseId"))
-	}
-	if s.MaxResults != nil && *s.MaxResults < 10 {
-		invalidParams.Add(request.NewErrParamMinValue("MaxResults", 10))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The communications returned by the DescribeCommunications operation.
 type DescribeCommunicationsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The communications for the case.
 	Communications []*Communication `locationName:"communications" type:"list"`
 
 	// A resumption point for pagination.
 	NextToken *string `locationName:"nextToken" type:"string"`
+
+	metadataDescribeCommunicationsOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeCommunicationsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1115,8 +1095,6 @@ func (s DescribeCommunicationsOutput) GoString() string {
 }
 
 type DescribeServicesInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ISO 639-1 code for the language in which AWS provides support. AWS Support
 	// currently supports English ("en") and Japanese ("ja"). Language parameters
 	// must be passed explicitly for operations that take them.
@@ -1124,6 +1102,12 @@ type DescribeServicesInput struct {
 
 	// A JSON-formatted list of service codes available for AWS services.
 	ServiceCodeList []*string `locationName:"serviceCodeList" type:"list"`
+
+	metadataDescribeServicesInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeServicesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1138,10 +1122,14 @@ func (s DescribeServicesInput) GoString() string {
 
 // The list of AWS services returned by the DescribeServices operation.
 type DescribeServicesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// A JSON-formatted list of AWS services.
 	Services []*Service `locationName:"services" type:"list"`
+
+	metadataDescribeServicesOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeServicesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1155,12 +1143,16 @@ func (s DescribeServicesOutput) GoString() string {
 }
 
 type DescribeSeverityLevelsInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ISO 639-1 code for the language in which AWS provides support. AWS Support
 	// currently supports English ("en") and Japanese ("ja"). Language parameters
 	// must be passed explicitly for operations that take them.
 	Language *string `locationName:"language" type:"string"`
+
+	metadataDescribeSeverityLevelsInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeSeverityLevelsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1175,11 +1167,15 @@ func (s DescribeSeverityLevelsInput) GoString() string {
 
 // The list of severity levels returned by the DescribeSeverityLevels operation.
 type DescribeSeverityLevelsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The available severity levels for the support case. Available severity levels
 	// are defined by your service level agreement with AWS.
 	SeverityLevels []*SeverityLevel `locationName:"severityLevels" type:"list"`
+
+	metadataDescribeSeverityLevelsOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeSeverityLevelsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1193,10 +1189,14 @@ func (s DescribeSeverityLevelsOutput) GoString() string {
 }
 
 type DescribeTrustedAdvisorCheckRefreshStatusesInput struct {
-	_ struct{} `type:"structure"`
-
 	// The IDs of the Trusted Advisor checks.
 	CheckIds []*string `locationName:"checkIds" type:"list" required:"true"`
+
+	metadataDescribeTrustedAdvisorCheckRefreshStatusesInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeTrustedAdvisorCheckRefreshStatusesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1209,26 +1209,17 @@ func (s DescribeTrustedAdvisorCheckRefreshStatusesInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeTrustedAdvisorCheckRefreshStatusesInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeTrustedAdvisorCheckRefreshStatusesInput"}
-	if s.CheckIds == nil {
-		invalidParams.Add(request.NewErrParamRequired("CheckIds"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The statuses of the Trusted Advisor checks returned by the DescribeTrustedAdvisorCheckRefreshStatuses
 // operation.
 type DescribeTrustedAdvisorCheckRefreshStatusesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The refresh status of the specified Trusted Advisor checks.
 	Statuses []*TrustedAdvisorCheckRefreshStatus `locationName:"statuses" type:"list" required:"true"`
+
+	metadataDescribeTrustedAdvisorCheckRefreshStatusesOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeTrustedAdvisorCheckRefreshStatusesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1242,8 +1233,6 @@ func (s DescribeTrustedAdvisorCheckRefreshStatusesOutput) GoString() string {
 }
 
 type DescribeTrustedAdvisorCheckResultInput struct {
-	_ struct{} `type:"structure"`
-
 	// The unique identifier for the Trusted Advisor check.
 	CheckId *string `locationName:"checkId" type:"string" required:"true"`
 
@@ -1251,6 +1240,12 @@ type DescribeTrustedAdvisorCheckResultInput struct {
 	// currently supports English ("en") and Japanese ("ja"). Language parameters
 	// must be passed explicitly for operations that take them.
 	Language *string `locationName:"language" type:"string"`
+
+	metadataDescribeTrustedAdvisorCheckResultInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeTrustedAdvisorCheckResultInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1263,26 +1258,17 @@ func (s DescribeTrustedAdvisorCheckResultInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeTrustedAdvisorCheckResultInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeTrustedAdvisorCheckResultInput"}
-	if s.CheckId == nil {
-		invalidParams.Add(request.NewErrParamRequired("CheckId"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The result of the Trusted Advisor check returned by the DescribeTrustedAdvisorCheckResult
 // operation.
 type DescribeTrustedAdvisorCheckResultOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The detailed results of the Trusted Advisor check.
 	Result *TrustedAdvisorCheckResult `locationName:"result" type:"structure"`
+
+	metadataDescribeTrustedAdvisorCheckResultOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeTrustedAdvisorCheckResultOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1296,10 +1282,14 @@ func (s DescribeTrustedAdvisorCheckResultOutput) GoString() string {
 }
 
 type DescribeTrustedAdvisorCheckSummariesInput struct {
-	_ struct{} `type:"structure"`
-
 	// The IDs of the Trusted Advisor checks.
 	CheckIds []*string `locationName:"checkIds" type:"list" required:"true"`
+
+	metadataDescribeTrustedAdvisorCheckSummariesInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeTrustedAdvisorCheckSummariesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1312,26 +1302,17 @@ func (s DescribeTrustedAdvisorCheckSummariesInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeTrustedAdvisorCheckSummariesInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeTrustedAdvisorCheckSummariesInput"}
-	if s.CheckIds == nil {
-		invalidParams.Add(request.NewErrParamRequired("CheckIds"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The summaries of the Trusted Advisor checks returned by the DescribeTrustedAdvisorCheckSummaries
 // operation.
 type DescribeTrustedAdvisorCheckSummariesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The summary information for the requested Trusted Advisor checks.
 	Summaries []*TrustedAdvisorCheckSummary `locationName:"summaries" type:"list" required:"true"`
+
+	metadataDescribeTrustedAdvisorCheckSummariesOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeTrustedAdvisorCheckSummariesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1345,12 +1326,16 @@ func (s DescribeTrustedAdvisorCheckSummariesOutput) GoString() string {
 }
 
 type DescribeTrustedAdvisorChecksInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ISO 639-1 code for the language in which AWS provides support. AWS Support
 	// currently supports English ("en") and Japanese ("ja"). Language parameters
 	// must be passed explicitly for operations that take them.
 	Language *string `locationName:"language" type:"string" required:"true"`
+
+	metadataDescribeTrustedAdvisorChecksInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeTrustedAdvisorChecksInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1363,26 +1348,17 @@ func (s DescribeTrustedAdvisorChecksInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeTrustedAdvisorChecksInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeTrustedAdvisorChecksInput"}
-	if s.Language == nil {
-		invalidParams.Add(request.NewErrParamRequired("Language"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Information about the Trusted Advisor checks returned by the DescribeTrustedAdvisorChecks
 // operation.
 type DescribeTrustedAdvisorChecksOutput struct {
-	_ struct{} `type:"structure"`
-
 	// Information about all available Trusted Advisor checks.
 	Checks []*TrustedAdvisorCheckDescription `locationName:"checks" type:"list" required:"true"`
+
+	metadataDescribeTrustedAdvisorChecksOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeTrustedAdvisorChecksOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1397,13 +1373,17 @@ func (s DescribeTrustedAdvisorChecksOutput) GoString() string {
 
 // The five most recent communications associated with the case.
 type RecentCaseCommunications struct {
-	_ struct{} `type:"structure"`
-
 	// The five most recent communications associated with the case.
 	Communications []*Communication `locationName:"communications" type:"list"`
 
 	// A resumption point for pagination.
 	NextToken *string `locationName:"nextToken" type:"string"`
+
+	metadataRecentCaseCommunications `json:"-" xml:"-"`
+}
+
+type metadataRecentCaseCommunications struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1417,10 +1397,14 @@ func (s RecentCaseCommunications) GoString() string {
 }
 
 type RefreshTrustedAdvisorCheckInput struct {
-	_ struct{} `type:"structure"`
-
 	// The unique identifier for the Trusted Advisor check.
 	CheckId *string `locationName:"checkId" type:"string" required:"true"`
+
+	metadataRefreshTrustedAdvisorCheckInput `json:"-" xml:"-"`
+}
+
+type metadataRefreshTrustedAdvisorCheckInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1433,26 +1417,17 @@ func (s RefreshTrustedAdvisorCheckInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *RefreshTrustedAdvisorCheckInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "RefreshTrustedAdvisorCheckInput"}
-	if s.CheckId == nil {
-		invalidParams.Add(request.NewErrParamRequired("CheckId"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The current refresh status of a Trusted Advisor check.
 type RefreshTrustedAdvisorCheckOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The current refresh status for a check, including the amount of time until
 	// the check is eligible for refresh.
 	Status *TrustedAdvisorCheckRefreshStatus `locationName:"status" type:"structure" required:"true"`
+
+	metadataRefreshTrustedAdvisorCheckOutput `json:"-" xml:"-"`
+}
+
+type metadataRefreshTrustedAdvisorCheckOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1466,11 +1441,15 @@ func (s RefreshTrustedAdvisorCheckOutput) GoString() string {
 }
 
 type ResolveCaseInput struct {
-	_ struct{} `type:"structure"`
-
 	// The AWS Support case ID requested or returned in the call. The case ID is
 	// an alphanumeric string formatted as shown in this example: case-12345678910-2013-c4c1d2bf33c5cf47
 	CaseId *string `locationName:"caseId" type:"string"`
+
+	metadataResolveCaseInput `json:"-" xml:"-"`
+}
+
+type metadataResolveCaseInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1485,13 +1464,17 @@ func (s ResolveCaseInput) GoString() string {
 
 // The status of the case returned by the ResolveCase operation.
 type ResolveCaseOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The status of the case after the ResolveCase request was processed.
 	FinalCaseStatus *string `locationName:"finalCaseStatus" type:"string"`
 
 	// The status of the case when the ResolveCase request was sent.
 	InitialCaseStatus *string `locationName:"initialCaseStatus" type:"string"`
+
+	metadataResolveCaseOutput `json:"-" xml:"-"`
+}
+
+type metadataResolveCaseOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1506,8 +1489,6 @@ func (s ResolveCaseOutput) GoString() string {
 
 // Information about an AWS service returned by the DescribeServices operation.
 type Service struct {
-	_ struct{} `type:"structure"`
-
 	// A list of categories that describe the type of support issue a case describes.
 	// Categories consist of a category name and a category code. Category names
 	// and codes are passed to AWS Support when you call CreateCase.
@@ -1520,6 +1501,12 @@ type Service struct {
 	// The friendly name for an AWS service. The Code element contains the corresponding
 	// code.
 	Name *string `locationName:"name" type:"string"`
+
+	metadataService `json:"-" xml:"-"`
+}
+
+type metadataService struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1535,14 +1522,18 @@ func (s Service) GoString() string {
 // A code and name pair that represent a severity level that can be applied
 // to a support case.
 type SeverityLevel struct {
-	_ struct{} `type:"structure"`
-
 	// One of four values: "low," "medium," "high," and "urgent". These values correspond
 	// to response times returned to the caller in SeverityLevel.name.
 	Code *string `locationName:"code" type:"string"`
 
 	// The name of the severity level that corresponds to the severity level code.
 	Name *string `locationName:"name" type:"string"`
+
+	metadataSeverityLevel `json:"-" xml:"-"`
+}
+
+type metadataSeverityLevel struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1558,11 +1549,15 @@ func (s SeverityLevel) GoString() string {
 // The container for summary information that relates to the category of the
 // Trusted Advisor check.
 type TrustedAdvisorCategorySpecificSummary struct {
-	_ struct{} `type:"structure"`
-
 	// The summary information about cost savings for a Trusted Advisor check that
 	// is in the Cost Optimizing category.
 	CostOptimizing *TrustedAdvisorCostOptimizingSummary `locationName:"costOptimizing" type:"structure"`
+
+	metadataTrustedAdvisorCategorySpecificSummary `json:"-" xml:"-"`
+}
+
+type metadataTrustedAdvisorCategorySpecificSummary struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1577,8 +1572,6 @@ func (s TrustedAdvisorCategorySpecificSummary) GoString() string {
 
 // The description and metadata for a Trusted Advisor check.
 type TrustedAdvisorCheckDescription struct {
-	_ struct{} `type:"structure"`
-
 	// The category of the Trusted Advisor check.
 	Category *string `locationName:"category" type:"string" required:"true"`
 
@@ -1598,6 +1591,12 @@ type TrustedAdvisorCheckDescription struct {
 
 	// The display name for the Trusted Advisor check.
 	Name *string `locationName:"name" type:"string" required:"true"`
+
+	metadataTrustedAdvisorCheckDescription `json:"-" xml:"-"`
+}
+
+type metadataTrustedAdvisorCheckDescription struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1612,8 +1611,6 @@ func (s TrustedAdvisorCheckDescription) GoString() string {
 
 // The refresh status of a Trusted Advisor check.
 type TrustedAdvisorCheckRefreshStatus struct {
-	_ struct{} `type:"structure"`
-
 	// The unique identifier for the Trusted Advisor check.
 	CheckId *string `locationName:"checkId" type:"string" required:"true"`
 
@@ -1624,6 +1621,12 @@ type TrustedAdvisorCheckRefreshStatus struct {
 	// The status of the Trusted Advisor check for which a refresh has been requested:
 	// "none", "enqueued", "processing", "success", or "abandoned".
 	Status *string `locationName:"status" type:"string" required:"true"`
+
+	metadataTrustedAdvisorCheckRefreshStatus `json:"-" xml:"-"`
+}
+
+type metadataTrustedAdvisorCheckRefreshStatus struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1638,8 +1641,6 @@ func (s TrustedAdvisorCheckRefreshStatus) GoString() string {
 
 // The results of a Trusted Advisor check returned by DescribeTrustedAdvisorCheckResult.
 type TrustedAdvisorCheckResult struct {
-	_ struct{} `type:"structure"`
-
 	// Summary information that relates to the category of the check. Cost Optimizing
 	// is the only category that is currently supported.
 	CategorySpecificSummary *TrustedAdvisorCategorySpecificSummary `locationName:"categorySpecificSummary" type:"structure" required:"true"`
@@ -1660,6 +1661,12 @@ type TrustedAdvisorCheckResult struct {
 
 	// The time of the last refresh of the check.
 	Timestamp *string `locationName:"timestamp" type:"string" required:"true"`
+
+	metadataTrustedAdvisorCheckResult `json:"-" xml:"-"`
+}
+
+type metadataTrustedAdvisorCheckResult struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1675,8 +1682,6 @@ func (s TrustedAdvisorCheckResult) GoString() string {
 // A summary of a Trusted Advisor check result, including the alert status,
 // last refresh, and number of resources examined.
 type TrustedAdvisorCheckSummary struct {
-	_ struct{} `type:"structure"`
-
 	// Summary information that relates to the category of the check. Cost Optimizing
 	// is the only category that is currently supported.
 	CategorySpecificSummary *TrustedAdvisorCategorySpecificSummary `locationName:"categorySpecificSummary" type:"structure" required:"true"`
@@ -1697,6 +1702,12 @@ type TrustedAdvisorCheckSummary struct {
 
 	// The time of the last refresh of the check.
 	Timestamp *string `locationName:"timestamp" type:"string" required:"true"`
+
+	metadataTrustedAdvisorCheckSummary `json:"-" xml:"-"`
+}
+
+type metadataTrustedAdvisorCheckSummary struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1712,8 +1723,6 @@ func (s TrustedAdvisorCheckSummary) GoString() string {
 // The estimated cost savings that might be realized if the recommended actions
 // are taken.
 type TrustedAdvisorCostOptimizingSummary struct {
-	_ struct{} `type:"structure"`
-
 	// The estimated monthly savings that might be realized if the recommended actions
 	// are taken.
 	EstimatedMonthlySavings *float64 `locationName:"estimatedMonthlySavings" type:"double" required:"true"`
@@ -1721,6 +1730,12 @@ type TrustedAdvisorCostOptimizingSummary struct {
 	// The estimated percentage of savings that might be realized if the recommended
 	// actions are taken.
 	EstimatedPercentMonthlySavings *float64 `locationName:"estimatedPercentMonthlySavings" type:"double" required:"true"`
+
+	metadataTrustedAdvisorCostOptimizingSummary `json:"-" xml:"-"`
+}
+
+type metadataTrustedAdvisorCostOptimizingSummary struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1735,8 +1750,6 @@ func (s TrustedAdvisorCostOptimizingSummary) GoString() string {
 
 // Contains information about a resource identified by a Trusted Advisor check.
 type TrustedAdvisorResourceDetail struct {
-	_ struct{} `type:"structure"`
-
 	// Specifies whether the AWS resource was ignored by Trusted Advisor because
 	// it was marked as suppressed by the user.
 	IsSuppressed *bool `locationName:"isSuppressed" type:"boolean"`
@@ -1756,6 +1769,12 @@ type TrustedAdvisorResourceDetail struct {
 
 	// The status code for the resource identified in the Trusted Advisor check.
 	Status *string `locationName:"status" type:"string" required:"true"`
+
+	metadataTrustedAdvisorResourceDetail `json:"-" xml:"-"`
+}
+
+type metadataTrustedAdvisorResourceDetail struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1771,8 +1790,6 @@ func (s TrustedAdvisorResourceDetail) GoString() string {
 // Details about AWS resources that were analyzed in a call to Trusted Advisor
 // DescribeTrustedAdvisorCheckSummaries.
 type TrustedAdvisorResourcesSummary struct {
-	_ struct{} `type:"structure"`
-
 	// The number of AWS resources that were flagged (listed) by the Trusted Advisor
 	// check.
 	ResourcesFlagged *int64 `locationName:"resourcesFlagged" type:"long" required:"true"`
@@ -1787,6 +1804,12 @@ type TrustedAdvisorResourcesSummary struct {
 	// The number of AWS resources ignored by Trusted Advisor because they were
 	// marked as suppressed by the user.
 	ResourcesSuppressed *int64 `locationName:"resourcesSuppressed" type:"long" required:"true"`
+
+	metadataTrustedAdvisorResourcesSummary `json:"-" xml:"-"`
+}
+
+type metadataTrustedAdvisorResourcesSummary struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation

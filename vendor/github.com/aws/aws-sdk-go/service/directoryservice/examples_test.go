@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/directoryservice"
 )
 
@@ -16,7 +15,7 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleDirectoryService_ConnectDirectory() {
-	svc := directoryservice.New(session.New())
+	svc := directoryservice.New(nil)
 
 	params := &directoryservice.ConnectDirectoryInput{
 		ConnectSettings: &directoryservice.DirectoryConnectSettings{ // Required
@@ -51,7 +50,7 @@ func ExampleDirectoryService_ConnectDirectory() {
 }
 
 func ExampleDirectoryService_CreateAlias() {
-	svc := directoryservice.New(session.New())
+	svc := directoryservice.New(nil)
 
 	params := &directoryservice.CreateAliasInput{
 		Alias:       aws.String("AliasName"),   // Required
@@ -71,7 +70,7 @@ func ExampleDirectoryService_CreateAlias() {
 }
 
 func ExampleDirectoryService_CreateComputer() {
-	svc := directoryservice.New(session.New())
+	svc := directoryservice.New(nil)
 
 	params := &directoryservice.CreateComputerInput{
 		ComputerName: aws.String("ComputerName"),     // Required
@@ -99,32 +98,8 @@ func ExampleDirectoryService_CreateComputer() {
 	fmt.Println(resp)
 }
 
-func ExampleDirectoryService_CreateConditionalForwarder() {
-	svc := directoryservice.New(session.New())
-
-	params := &directoryservice.CreateConditionalForwarderInput{
-		DirectoryId: aws.String("DirectoryId"), // Required
-		DnsIpAddrs: []*string{ // Required
-			aws.String("IpAddr"), // Required
-			// More values...
-		},
-		RemoteDomainName: aws.String("RemoteDomainName"), // Required
-	}
-	resp, err := svc.CreateConditionalForwarder(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
 func ExampleDirectoryService_CreateDirectory() {
-	svc := directoryservice.New(session.New())
+	svc := directoryservice.New(nil)
 
 	params := &directoryservice.CreateDirectoryInput{
 		Name:        aws.String("DirectoryName"), // Required
@@ -153,37 +128,8 @@ func ExampleDirectoryService_CreateDirectory() {
 	fmt.Println(resp)
 }
 
-func ExampleDirectoryService_CreateMicrosoftAD() {
-	svc := directoryservice.New(session.New())
-
-	params := &directoryservice.CreateMicrosoftADInput{
-		Name:     aws.String("DirectoryName"), // Required
-		Password: aws.String("Password"),      // Required
-		VpcSettings: &directoryservice.DirectoryVpcSettings{ // Required
-			SubnetIds: []*string{ // Required
-				aws.String("SubnetId"), // Required
-				// More values...
-			},
-			VpcId: aws.String("VpcId"), // Required
-		},
-		Description: aws.String("Description"),
-		ShortName:   aws.String("DirectoryShortName"),
-	}
-	resp, err := svc.CreateMicrosoftAD(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
 func ExampleDirectoryService_CreateSnapshot() {
-	svc := directoryservice.New(session.New())
+	svc := directoryservice.New(nil)
 
 	params := &directoryservice.CreateSnapshotInput{
 		DirectoryId: aws.String("DirectoryId"), // Required
@@ -202,55 +148,8 @@ func ExampleDirectoryService_CreateSnapshot() {
 	fmt.Println(resp)
 }
 
-func ExampleDirectoryService_CreateTrust() {
-	svc := directoryservice.New(session.New())
-
-	params := &directoryservice.CreateTrustInput{
-		DirectoryId:      aws.String("DirectoryId"),      // Required
-		RemoteDomainName: aws.String("RemoteDomainName"), // Required
-		TrustDirection:   aws.String("TrustDirection"),   // Required
-		TrustPassword:    aws.String("TrustPassword"),    // Required
-		ConditionalForwarderIpAddrs: []*string{
-			aws.String("IpAddr"), // Required
-			// More values...
-		},
-		TrustType: aws.String("TrustType"),
-	}
-	resp, err := svc.CreateTrust(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
-func ExampleDirectoryService_DeleteConditionalForwarder() {
-	svc := directoryservice.New(session.New())
-
-	params := &directoryservice.DeleteConditionalForwarderInput{
-		DirectoryId:      aws.String("DirectoryId"),      // Required
-		RemoteDomainName: aws.String("RemoteDomainName"), // Required
-	}
-	resp, err := svc.DeleteConditionalForwarder(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
 func ExampleDirectoryService_DeleteDirectory() {
-	svc := directoryservice.New(session.New())
+	svc := directoryservice.New(nil)
 
 	params := &directoryservice.DeleteDirectoryInput{
 		DirectoryId: aws.String("DirectoryId"), // Required
@@ -269,7 +168,7 @@ func ExampleDirectoryService_DeleteDirectory() {
 }
 
 func ExampleDirectoryService_DeleteSnapshot() {
-	svc := directoryservice.New(session.New())
+	svc := directoryservice.New(nil)
 
 	params := &directoryservice.DeleteSnapshotInput{
 		SnapshotId: aws.String("SnapshotId"), // Required
@@ -287,71 +186,8 @@ func ExampleDirectoryService_DeleteSnapshot() {
 	fmt.Println(resp)
 }
 
-func ExampleDirectoryService_DeleteTrust() {
-	svc := directoryservice.New(session.New())
-
-	params := &directoryservice.DeleteTrustInput{
-		TrustId: aws.String("TrustId"), // Required
-		DeleteAssociatedConditionalForwarder: aws.Bool(true),
-	}
-	resp, err := svc.DeleteTrust(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
-func ExampleDirectoryService_DeregisterEventTopic() {
-	svc := directoryservice.New(session.New())
-
-	params := &directoryservice.DeregisterEventTopicInput{
-		DirectoryId: aws.String("DirectoryId"), // Required
-		TopicName:   aws.String("TopicName"),   // Required
-	}
-	resp, err := svc.DeregisterEventTopic(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
-func ExampleDirectoryService_DescribeConditionalForwarders() {
-	svc := directoryservice.New(session.New())
-
-	params := &directoryservice.DescribeConditionalForwardersInput{
-		DirectoryId: aws.String("DirectoryId"), // Required
-		RemoteDomainNames: []*string{
-			aws.String("RemoteDomainName"), // Required
-			// More values...
-		},
-	}
-	resp, err := svc.DescribeConditionalForwarders(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
 func ExampleDirectoryService_DescribeDirectories() {
-	svc := directoryservice.New(session.New())
+	svc := directoryservice.New(nil)
 
 	params := &directoryservice.DescribeDirectoriesInput{
 		DirectoryIds: []*string{
@@ -374,31 +210,8 @@ func ExampleDirectoryService_DescribeDirectories() {
 	fmt.Println(resp)
 }
 
-func ExampleDirectoryService_DescribeEventTopics() {
-	svc := directoryservice.New(session.New())
-
-	params := &directoryservice.DescribeEventTopicsInput{
-		DirectoryId: aws.String("DirectoryId"),
-		TopicNames: []*string{
-			aws.String("TopicName"), // Required
-			// More values...
-		},
-	}
-	resp, err := svc.DescribeEventTopics(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
 func ExampleDirectoryService_DescribeSnapshots() {
-	svc := directoryservice.New(session.New())
+	svc := directoryservice.New(nil)
 
 	params := &directoryservice.DescribeSnapshotsInput{
 		DirectoryId: aws.String("DirectoryId"),
@@ -422,33 +235,8 @@ func ExampleDirectoryService_DescribeSnapshots() {
 	fmt.Println(resp)
 }
 
-func ExampleDirectoryService_DescribeTrusts() {
-	svc := directoryservice.New(session.New())
-
-	params := &directoryservice.DescribeTrustsInput{
-		DirectoryId: aws.String("DirectoryId"),
-		Limit:       aws.Int64(1),
-		NextToken:   aws.String("NextToken"),
-		TrustIds: []*string{
-			aws.String("TrustId"), // Required
-			// More values...
-		},
-	}
-	resp, err := svc.DescribeTrusts(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
 func ExampleDirectoryService_DisableRadius() {
-	svc := directoryservice.New(session.New())
+	svc := directoryservice.New(nil)
 
 	params := &directoryservice.DisableRadiusInput{
 		DirectoryId: aws.String("DirectoryId"), // Required
@@ -467,7 +255,7 @@ func ExampleDirectoryService_DisableRadius() {
 }
 
 func ExampleDirectoryService_DisableSso() {
-	svc := directoryservice.New(session.New())
+	svc := directoryservice.New(nil)
 
 	params := &directoryservice.DisableSsoInput{
 		DirectoryId: aws.String("DirectoryId"), // Required
@@ -488,7 +276,7 @@ func ExampleDirectoryService_DisableSso() {
 }
 
 func ExampleDirectoryService_EnableRadius() {
-	svc := directoryservice.New(session.New())
+	svc := directoryservice.New(nil)
 
 	params := &directoryservice.EnableRadiusInput{
 		DirectoryId: aws.String("DirectoryId"), // Required
@@ -520,7 +308,7 @@ func ExampleDirectoryService_EnableRadius() {
 }
 
 func ExampleDirectoryService_EnableSso() {
-	svc := directoryservice.New(session.New())
+	svc := directoryservice.New(nil)
 
 	params := &directoryservice.EnableSsoInput{
 		DirectoryId: aws.String("DirectoryId"), // Required
@@ -541,7 +329,7 @@ func ExampleDirectoryService_EnableSso() {
 }
 
 func ExampleDirectoryService_GetDirectoryLimits() {
-	svc := directoryservice.New(session.New())
+	svc := directoryservice.New(nil)
 
 	var params *directoryservice.GetDirectoryLimitsInput
 	resp, err := svc.GetDirectoryLimits(params)
@@ -558,7 +346,7 @@ func ExampleDirectoryService_GetDirectoryLimits() {
 }
 
 func ExampleDirectoryService_GetSnapshotLimits() {
-	svc := directoryservice.New(session.New())
+	svc := directoryservice.New(nil)
 
 	params := &directoryservice.GetSnapshotLimitsInput{
 		DirectoryId: aws.String("DirectoryId"), // Required
@@ -576,28 +364,8 @@ func ExampleDirectoryService_GetSnapshotLimits() {
 	fmt.Println(resp)
 }
 
-func ExampleDirectoryService_RegisterEventTopic() {
-	svc := directoryservice.New(session.New())
-
-	params := &directoryservice.RegisterEventTopicInput{
-		DirectoryId: aws.String("DirectoryId"), // Required
-		TopicName:   aws.String("TopicName"),   // Required
-	}
-	resp, err := svc.RegisterEventTopic(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
 func ExampleDirectoryService_RestoreFromSnapshot() {
-	svc := directoryservice.New(session.New())
+	svc := directoryservice.New(nil)
 
 	params := &directoryservice.RestoreFromSnapshotInput{
 		SnapshotId: aws.String("SnapshotId"), // Required
@@ -615,32 +383,8 @@ func ExampleDirectoryService_RestoreFromSnapshot() {
 	fmt.Println(resp)
 }
 
-func ExampleDirectoryService_UpdateConditionalForwarder() {
-	svc := directoryservice.New(session.New())
-
-	params := &directoryservice.UpdateConditionalForwarderInput{
-		DirectoryId: aws.String("DirectoryId"), // Required
-		DnsIpAddrs: []*string{ // Required
-			aws.String("IpAddr"), // Required
-			// More values...
-		},
-		RemoteDomainName: aws.String("RemoteDomainName"), // Required
-	}
-	resp, err := svc.UpdateConditionalForwarder(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
 func ExampleDirectoryService_UpdateRadius() {
-	svc := directoryservice.New(session.New())
+	svc := directoryservice.New(nil)
 
 	params := &directoryservice.UpdateRadiusInput{
 		DirectoryId: aws.String("DirectoryId"), // Required
@@ -659,25 +403,6 @@ func ExampleDirectoryService_UpdateRadius() {
 		},
 	}
 	resp, err := svc.UpdateRadius(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
-func ExampleDirectoryService_VerifyTrust() {
-	svc := directoryservice.New(session.New())
-
-	params := &directoryservice.VerifyTrustInput{
-		TrustId: aws.String("TrustId"), // Required
-	}
-	resp, err := svc.VerifyTrust(params)
 
 	if err != nil {
 		// Print the error, cast err to awserr.Error to get the Code and

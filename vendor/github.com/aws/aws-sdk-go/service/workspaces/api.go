@@ -4,38 +4,9 @@
 package workspaces
 
 import (
-	"fmt"
-
 	"github.com/aws/aws-sdk-go/aws/awsutil"
 	"github.com/aws/aws-sdk-go/aws/request"
 )
-
-const opCreateTags = "CreateTags"
-
-// CreateTagsRequest generates a request for the CreateTags operation.
-func (c *WorkSpaces) CreateTagsRequest(input *CreateTagsInput) (req *request.Request, output *CreateTagsOutput) {
-	op := &request.Operation{
-		Name:       opCreateTags,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &CreateTagsInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &CreateTagsOutput{}
-	req.Data = output
-	return
-}
-
-// Creates tags for a WorkSpace.
-func (c *WorkSpaces) CreateTags(input *CreateTagsInput) (*CreateTagsOutput, error) {
-	req, out := c.CreateTagsRequest(input)
-	err := req.Send()
-	return out, err
-}
 
 const opCreateWorkspaces = "CreateWorkspaces"
 
@@ -62,60 +33,6 @@ func (c *WorkSpaces) CreateWorkspacesRequest(input *CreateWorkspacesInput) (req 
 //  This operation is asynchronous and returns before the WorkSpaces are created.
 func (c *WorkSpaces) CreateWorkspaces(input *CreateWorkspacesInput) (*CreateWorkspacesOutput, error) {
 	req, out := c.CreateWorkspacesRequest(input)
-	err := req.Send()
-	return out, err
-}
-
-const opDeleteTags = "DeleteTags"
-
-// DeleteTagsRequest generates a request for the DeleteTags operation.
-func (c *WorkSpaces) DeleteTagsRequest(input *DeleteTagsInput) (req *request.Request, output *DeleteTagsOutput) {
-	op := &request.Operation{
-		Name:       opDeleteTags,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &DeleteTagsInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &DeleteTagsOutput{}
-	req.Data = output
-	return
-}
-
-// Deletes tags from a WorkSpace.
-func (c *WorkSpaces) DeleteTags(input *DeleteTagsInput) (*DeleteTagsOutput, error) {
-	req, out := c.DeleteTagsRequest(input)
-	err := req.Send()
-	return out, err
-}
-
-const opDescribeTags = "DescribeTags"
-
-// DescribeTagsRequest generates a request for the DescribeTags operation.
-func (c *WorkSpaces) DescribeTagsRequest(input *DescribeTagsInput) (req *request.Request, output *DescribeTagsOutput) {
-	op := &request.Operation{
-		Name:       opDescribeTags,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &DescribeTagsInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &DescribeTagsOutput{}
-	req.Data = output
-	return
-}
-
-// Describes tags for a WorkSpace.
-func (c *WorkSpaces) DescribeTags(input *DescribeTagsInput) (*DescribeTagsOutput, error) {
-	req, out := c.DescribeTagsRequest(input)
 	err := req.Send()
 	return out, err
 }
@@ -164,7 +81,6 @@ func (c *WorkSpaces) DescribeWorkspaceBundles(input *DescribeWorkspaceBundlesInp
 
 func (c *WorkSpaces) DescribeWorkspaceBundlesPages(input *DescribeWorkspaceBundlesInput, fn func(p *DescribeWorkspaceBundlesOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeWorkspaceBundlesRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeWorkspaceBundlesOutput), lastPage)
 	})
@@ -212,7 +128,6 @@ func (c *WorkSpaces) DescribeWorkspaceDirectories(input *DescribeWorkspaceDirect
 
 func (c *WorkSpaces) DescribeWorkspaceDirectoriesPages(input *DescribeWorkspaceDirectoriesInput, fn func(p *DescribeWorkspaceDirectoriesOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeWorkspaceDirectoriesRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeWorkspaceDirectoriesOutput), lastPage)
 	})
@@ -261,7 +176,6 @@ func (c *WorkSpaces) DescribeWorkspaces(input *DescribeWorkspacesInput) (*Descri
 
 func (c *WorkSpaces) DescribeWorkspacesPages(input *DescribeWorkspacesInput, fn func(p *DescribeWorkspacesOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeWorkspacesRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeWorkspacesOutput), lastPage)
 	})
@@ -380,10 +294,14 @@ func (c *WorkSpaces) TerminateWorkspaces(input *TerminateWorkspacesInput) (*Term
 
 // Contains information about the compute type of a WorkSpace bundle.
 type ComputeType struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the compute type for the bundle.
 	Name *string `type:"string" enum:"Compute"`
+
+	metadataComputeType `json:"-" xml:"-"`
+}
+
+type metadataComputeType struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -396,77 +314,16 @@ func (s ComputeType) GoString() string {
 	return s.String()
 }
 
-// The request of the create tags action.
-type CreateTagsInput struct {
-	_ struct{} `type:"structure"`
-
-	// The resource ID of the request.
-	ResourceId *string `min:"1" type:"string" required:"true"`
-
-	// The tags of the request.
-	Tags []*Tag `type:"list" required:"true"`
-}
-
-// String returns the string representation
-func (s CreateTagsInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s CreateTagsInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateTagsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateTagsInput"}
-	if s.ResourceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("ResourceId"))
-	}
-	if s.ResourceId != nil && len(*s.ResourceId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ResourceId", 1))
-	}
-	if s.Tags == nil {
-		invalidParams.Add(request.NewErrParamRequired("Tags"))
-	}
-	if s.Tags != nil {
-		for i, v := range s.Tags {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Tags", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// The result of the create tags action.
-type CreateTagsOutput struct {
-	_ struct{} `type:"structure"`
-}
-
-// String returns the string representation
-func (s CreateTagsOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s CreateTagsOutput) GoString() string {
-	return s.String()
-}
-
 // Contains the inputs for the CreateWorkspaces operation.
 type CreateWorkspacesInput struct {
-	_ struct{} `type:"structure"`
-
 	// An array of structures that specify the WorkSpaces to create.
-	Workspaces []*WorkspaceRequest `min:"1" type:"list" required:"true"`
+	Workspaces []*WorkspaceRequest `type:"list" required:"true"`
+
+	metadataCreateWorkspacesInput `json:"-" xml:"-"`
+}
+
+type metadataCreateWorkspacesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -479,36 +336,8 @@ func (s CreateWorkspacesInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateWorkspacesInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateWorkspacesInput"}
-	if s.Workspaces == nil {
-		invalidParams.Add(request.NewErrParamRequired("Workspaces"))
-	}
-	if s.Workspaces != nil && len(s.Workspaces) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("Workspaces", 1))
-	}
-	if s.Workspaces != nil {
-		for i, v := range s.Workspaces {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Workspaces", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the result of the CreateWorkspaces operation.
 type CreateWorkspacesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// An array of structures that represent the WorkSpaces that could not be created.
 	FailedRequests []*FailedCreateWorkspaceRequest `type:"list"`
 
@@ -518,6 +347,12 @@ type CreateWorkspacesOutput struct {
 	// not immediately available. If you immediately call DescribeWorkspaces with
 	// this identifier, no information will be returned.
 	PendingRequests []*Workspace `type:"list"`
+
+	metadataCreateWorkspacesOutput `json:"-" xml:"-"`
+}
+
+type metadataCreateWorkspacesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -532,8 +367,6 @@ func (s CreateWorkspacesOutput) GoString() string {
 
 // Contains default WorkSpace creation information.
 type DefaultWorkspaceCreationProperties struct {
-	_ struct{} `type:"structure"`
-
 	// The identifier of any custom security groups that are applied to the WorkSpaces
 	// when they are created.
 	CustomSecurityGroupId *string `type:"string"`
@@ -551,6 +384,12 @@ type DefaultWorkspaceCreationProperties struct {
 
 	// The WorkSpace user is an administrator on the WorkSpace.
 	UserEnabledAsLocalAdministrator *bool `type:"boolean"`
+
+	metadataDefaultWorkspaceCreationProperties `json:"-" xml:"-"`
+}
+
+type metadataDefaultWorkspaceCreationProperties struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -563,124 +402,15 @@ func (s DefaultWorkspaceCreationProperties) GoString() string {
 	return s.String()
 }
 
-// The request of the delete tags action.
-type DeleteTagsInput struct {
-	_ struct{} `type:"structure"`
-
-	// The resource ID of the request.
-	ResourceId *string `min:"1" type:"string" required:"true"`
-
-	// The tag keys of the request.
-	TagKeys []*string `type:"list" required:"true"`
-}
-
-// String returns the string representation
-func (s DeleteTagsInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s DeleteTagsInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteTagsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteTagsInput"}
-	if s.ResourceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("ResourceId"))
-	}
-	if s.ResourceId != nil && len(*s.ResourceId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ResourceId", 1))
-	}
-	if s.TagKeys == nil {
-		invalidParams.Add(request.NewErrParamRequired("TagKeys"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// The result of the delete tags action.
-type DeleteTagsOutput struct {
-	_ struct{} `type:"structure"`
-}
-
-// String returns the string representation
-func (s DeleteTagsOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s DeleteTagsOutput) GoString() string {
-	return s.String()
-}
-
-// The request of the describe tags action.
-type DescribeTagsInput struct {
-	_ struct{} `type:"structure"`
-
-	// The resource ID of the request.
-	ResourceId *string `min:"1" type:"string" required:"true"`
-}
-
-// String returns the string representation
-func (s DescribeTagsInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s DescribeTagsInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeTagsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeTagsInput"}
-	if s.ResourceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("ResourceId"))
-	}
-	if s.ResourceId != nil && len(*s.ResourceId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ResourceId", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// The result of the describe tags action.
-type DescribeTagsOutput struct {
-	_ struct{} `type:"structure"`
-
-	// The list of tags.
-	TagList []*Tag `type:"list"`
-}
-
-// String returns the string representation
-func (s DescribeTagsOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s DescribeTagsOutput) GoString() string {
-	return s.String()
-}
-
 // Contains the inputs for the DescribeWorkspaceBundles operation.
 type DescribeWorkspaceBundlesInput struct {
-	_ struct{} `type:"structure"`
-
 	// An array of strings that contains the identifiers of the bundles to retrieve.
 	// This parameter cannot be combined with any other filter parameter.
-	BundleIds []*string `min:"1" type:"list"`
+	BundleIds []*string `type:"list"`
 
 	// The NextToken value from a previous call to this operation. Pass null if
 	// this is the first call.
-	NextToken *string `min:"1" type:"string"`
+	NextToken *string `type:"string"`
 
 	// The owner of the bundles to retrieve. This parameter cannot be combined with
 	// any other filter parameter.
@@ -688,8 +418,14 @@ type DescribeWorkspaceBundlesInput struct {
 	// This contains one of the following values:
 	//
 	//  null - Retrieves the bundles that belong to the account making the call.
-	// AMAZON - Retrieves the bundles that are provided by AWS.
+	//  AMAZON - Retrieves the bundles that are provided by AWS.
 	Owner *string `type:"string"`
+
+	metadataDescribeWorkspaceBundlesInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeWorkspaceBundlesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -702,33 +438,21 @@ func (s DescribeWorkspaceBundlesInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeWorkspaceBundlesInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeWorkspaceBundlesInput"}
-	if s.BundleIds != nil && len(s.BundleIds) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("BundleIds", 1))
-	}
-	if s.NextToken != nil && len(*s.NextToken) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("NextToken", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the results of the DescribeWorkspaceBundles operation.
 type DescribeWorkspaceBundlesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// An array of structures that contain information about the bundles.
 	Bundles []*WorkspaceBundle `type:"list"`
 
 	// If not null, more results are available. Pass this value for the NextToken
 	// parameter in a subsequent call to this operation to retrieve the next set
 	// of items. This token is valid for one day and must be used within that timeframe.
-	NextToken *string `min:"1" type:"string"`
+	NextToken *string `type:"string"`
+
+	metadataDescribeWorkspaceBundlesOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeWorkspaceBundlesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -743,15 +467,19 @@ func (s DescribeWorkspaceBundlesOutput) GoString() string {
 
 // Contains the inputs for the DescribeWorkspaceDirectories operation.
 type DescribeWorkspaceDirectoriesInput struct {
-	_ struct{} `type:"structure"`
-
 	// An array of strings that contains the directory identifiers to retrieve information
 	// for. If this member is null, all directories are retrieved.
-	DirectoryIds []*string `min:"1" type:"list"`
+	DirectoryIds []*string `type:"list"`
 
 	// The NextToken value from a previous call to this operation. Pass null if
 	// this is the first call.
-	NextToken *string `min:"1" type:"string"`
+	NextToken *string `type:"string"`
+
+	metadataDescribeWorkspaceDirectoriesInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeWorkspaceDirectoriesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -764,33 +492,21 @@ func (s DescribeWorkspaceDirectoriesInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeWorkspaceDirectoriesInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeWorkspaceDirectoriesInput"}
-	if s.DirectoryIds != nil && len(s.DirectoryIds) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("DirectoryIds", 1))
-	}
-	if s.NextToken != nil && len(*s.NextToken) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("NextToken", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the results of the DescribeWorkspaceDirectories operation.
 type DescribeWorkspaceDirectoriesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// An array of structures that contain information about the directories.
 	Directories []*WorkspaceDirectory `type:"list"`
 
 	// If not null, more results are available. Pass this value for the NextToken
 	// parameter in a subsequent call to this operation to retrieve the next set
 	// of items. This token is valid for one day and must be used within that timeframe.
-	NextToken *string `min:"1" type:"string"`
+	NextToken *string `type:"string"`
+
+	metadataDescribeWorkspaceDirectoriesOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeWorkspaceDirectoriesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -805,8 +521,6 @@ func (s DescribeWorkspaceDirectoriesOutput) GoString() string {
 
 // Contains the inputs for the DescribeWorkspaces operation.
 type DescribeWorkspacesInput struct {
-	_ struct{} `type:"structure"`
-
 	// The identifier of a bundle to obtain the WorkSpaces for. All WorkSpaces that
 	// are created from this bundle will be retrieved. This parameter cannot be
 	// combined with any other filter parameter.
@@ -818,15 +532,15 @@ type DescribeWorkspacesInput struct {
 	DirectoryId *string `type:"string"`
 
 	// The maximum number of items to return.
-	Limit *int64 `min:"1" type:"integer"`
+	Limit *int64 `type:"integer"`
 
 	// The NextToken value from a previous call to this operation. Pass null if
 	// this is the first call.
-	NextToken *string `min:"1" type:"string"`
+	NextToken *string `type:"string"`
 
 	// Used with the DirectoryId parameter to specify the directory user for which
 	// to obtain the WorkSpace.
-	UserName *string `min:"1" type:"string"`
+	UserName *string `type:"string"`
 
 	// An array of strings that contain the identifiers of the WorkSpaces for which
 	// to retrieve information. This parameter cannot be combined with any other
@@ -835,7 +549,13 @@ type DescribeWorkspacesInput struct {
 	// Because the CreateWorkspaces operation is asynchronous, the identifier returned
 	// by CreateWorkspaces is not immediately available. If you immediately call
 	// DescribeWorkspaces with this identifier, no information will be returned.
-	WorkspaceIds []*string `min:"1" type:"list"`
+	WorkspaceIds []*string `type:"list"`
+
+	metadataDescribeWorkspacesInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeWorkspacesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -848,42 +568,24 @@ func (s DescribeWorkspacesInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeWorkspacesInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeWorkspacesInput"}
-	if s.Limit != nil && *s.Limit < 1 {
-		invalidParams.Add(request.NewErrParamMinValue("Limit", 1))
-	}
-	if s.NextToken != nil && len(*s.NextToken) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("NextToken", 1))
-	}
-	if s.UserName != nil && len(*s.UserName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("UserName", 1))
-	}
-	if s.WorkspaceIds != nil && len(s.WorkspaceIds) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("WorkspaceIds", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the results for the DescribeWorkspaces operation.
 type DescribeWorkspacesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// If not null, more results are available. Pass this value for the NextToken
 	// parameter in a subsequent call to this operation to retrieve the next set
 	// of items. This token is valid for one day and must be used within that timeframe.
-	NextToken *string `min:"1" type:"string"`
+	NextToken *string `type:"string"`
 
 	// An array of structures that contain the information about the WorkSpaces.
 	//
 	// Because the CreateWorkspaces operation is asynchronous, some of this information
 	// may be incomplete for a newly-created WorkSpace.
 	Workspaces []*Workspace `type:"list"`
+
+	metadataDescribeWorkspacesOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeWorkspacesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -898,8 +600,6 @@ func (s DescribeWorkspacesOutput) GoString() string {
 
 // Contains information about a WorkSpace that could not be created.
 type FailedCreateWorkspaceRequest struct {
-	_ struct{} `type:"structure"`
-
 	// The error code.
 	ErrorCode *string `type:"string"`
 
@@ -909,6 +609,12 @@ type FailedCreateWorkspaceRequest struct {
 	// A WorkspaceRequest object that contains the information about the WorkSpace
 	// that could not be created.
 	WorkspaceRequest *WorkspaceRequest `type:"structure"`
+
+	metadataFailedCreateWorkspaceRequest `json:"-" xml:"-"`
+}
+
+type metadataFailedCreateWorkspaceRequest struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -924,8 +630,6 @@ func (s FailedCreateWorkspaceRequest) GoString() string {
 // Contains information about a WorkSpace that could not be rebooted (RebootWorkspaces),
 // rebuilt (RebuildWorkspaces), or terminated (TerminateWorkspaces).
 type FailedWorkspaceChangeRequest struct {
-	_ struct{} `type:"structure"`
-
 	// The error code.
 	ErrorCode *string `type:"string"`
 
@@ -934,6 +638,12 @@ type FailedWorkspaceChangeRequest struct {
 
 	// The identifier of the WorkSpace.
 	WorkspaceId *string `type:"string"`
+
+	metadataFailedWorkspaceChangeRequest `json:"-" xml:"-"`
+}
+
+type metadataFailedWorkspaceChangeRequest struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -949,10 +659,14 @@ func (s FailedWorkspaceChangeRequest) GoString() string {
 // Contains information used with the RebootWorkspaces operation to reboot a
 // WorkSpace.
 type RebootRequest struct {
-	_ struct{} `type:"structure"`
-
 	// The identifier of the WorkSpace to reboot.
 	WorkspaceId *string `type:"string" required:"true"`
+
+	metadataRebootRequest `json:"-" xml:"-"`
+}
+
+type metadataRebootRequest struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -965,25 +679,16 @@ func (s RebootRequest) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *RebootRequest) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "RebootRequest"}
-	if s.WorkspaceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("WorkspaceId"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the inputs for the RebootWorkspaces operation.
 type RebootWorkspacesInput struct {
-	_ struct{} `type:"structure"`
-
 	// An array of structures that specify the WorkSpaces to reboot.
-	RebootWorkspaceRequests []*RebootRequest `min:"1" type:"list" required:"true"`
+	RebootWorkspaceRequests []*RebootRequest `type:"list" required:"true"`
+
+	metadataRebootWorkspacesInput `json:"-" xml:"-"`
+}
+
+type metadataRebootWorkspacesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -996,38 +701,16 @@ func (s RebootWorkspacesInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *RebootWorkspacesInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "RebootWorkspacesInput"}
-	if s.RebootWorkspaceRequests == nil {
-		invalidParams.Add(request.NewErrParamRequired("RebootWorkspaceRequests"))
-	}
-	if s.RebootWorkspaceRequests != nil && len(s.RebootWorkspaceRequests) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("RebootWorkspaceRequests", 1))
-	}
-	if s.RebootWorkspaceRequests != nil {
-		for i, v := range s.RebootWorkspaceRequests {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "RebootWorkspaceRequests", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the results of the RebootWorkspaces operation.
 type RebootWorkspacesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// An array of structures that represent any WorkSpaces that could not be rebooted.
 	FailedRequests []*FailedWorkspaceChangeRequest `type:"list"`
+
+	metadataRebootWorkspacesOutput `json:"-" xml:"-"`
+}
+
+type metadataRebootWorkspacesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1043,10 +726,14 @@ func (s RebootWorkspacesOutput) GoString() string {
 // Contains information used with the RebuildWorkspaces operation to rebuild
 // a WorkSpace.
 type RebuildRequest struct {
-	_ struct{} `type:"structure"`
-
 	// The identifier of the WorkSpace to rebuild.
 	WorkspaceId *string `type:"string" required:"true"`
+
+	metadataRebuildRequest `json:"-" xml:"-"`
+}
+
+type metadataRebuildRequest struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1059,25 +746,16 @@ func (s RebuildRequest) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *RebuildRequest) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "RebuildRequest"}
-	if s.WorkspaceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("WorkspaceId"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the inputs for the RebuildWorkspaces operation.
 type RebuildWorkspacesInput struct {
-	_ struct{} `type:"structure"`
-
 	// An array of structures that specify the WorkSpaces to rebuild.
-	RebuildWorkspaceRequests []*RebuildRequest `min:"1" type:"list" required:"true"`
+	RebuildWorkspaceRequests []*RebuildRequest `type:"list" required:"true"`
+
+	metadataRebuildWorkspacesInput `json:"-" xml:"-"`
+}
+
+type metadataRebuildWorkspacesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1090,38 +768,16 @@ func (s RebuildWorkspacesInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *RebuildWorkspacesInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "RebuildWorkspacesInput"}
-	if s.RebuildWorkspaceRequests == nil {
-		invalidParams.Add(request.NewErrParamRequired("RebuildWorkspaceRequests"))
-	}
-	if s.RebuildWorkspaceRequests != nil && len(s.RebuildWorkspaceRequests) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("RebuildWorkspaceRequests", 1))
-	}
-	if s.RebuildWorkspaceRequests != nil {
-		for i, v := range s.RebuildWorkspaceRequests {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "RebuildWorkspaceRequests", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the results of the RebuildWorkspaces operation.
 type RebuildWorkspacesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// An array of structures that represent any WorkSpaces that could not be rebuilt.
 	FailedRequests []*FailedWorkspaceChangeRequest `type:"list"`
+
+	metadataRebuildWorkspacesOutput `json:"-" xml:"-"`
+}
+
+type metadataRebuildWorkspacesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1134,50 +790,17 @@ func (s RebuildWorkspacesOutput) GoString() string {
 	return s.String()
 }
 
-// Describes the tag of the WorkSpace.
-type Tag struct {
-	_ struct{} `type:"structure"`
-
-	// The key of the tag.
-	Key *string `min:"1" type:"string" required:"true"`
-
-	// The value of the tag.
-	Value *string `type:"string"`
-}
-
-// String returns the string representation
-func (s Tag) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s Tag) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *Tag) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "Tag"}
-	if s.Key == nil {
-		invalidParams.Add(request.NewErrParamRequired("Key"))
-	}
-	if s.Key != nil && len(*s.Key) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("Key", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains information used with the TerminateWorkspaces operation to terminate
 // a WorkSpace.
 type TerminateRequest struct {
-	_ struct{} `type:"structure"`
-
 	// The identifier of the WorkSpace to terminate.
 	WorkspaceId *string `type:"string" required:"true"`
+
+	metadataTerminateRequest `json:"-" xml:"-"`
+}
+
+type metadataTerminateRequest struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1190,25 +813,16 @@ func (s TerminateRequest) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *TerminateRequest) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "TerminateRequest"}
-	if s.WorkspaceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("WorkspaceId"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the inputs for the TerminateWorkspaces operation.
 type TerminateWorkspacesInput struct {
-	_ struct{} `type:"structure"`
-
 	// An array of structures that specify the WorkSpaces to terminate.
-	TerminateWorkspaceRequests []*TerminateRequest `min:"1" type:"list" required:"true"`
+	TerminateWorkspaceRequests []*TerminateRequest `type:"list" required:"true"`
+
+	metadataTerminateWorkspacesInput `json:"-" xml:"-"`
+}
+
+type metadataTerminateWorkspacesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1221,38 +835,16 @@ func (s TerminateWorkspacesInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *TerminateWorkspacesInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "TerminateWorkspacesInput"}
-	if s.TerminateWorkspaceRequests == nil {
-		invalidParams.Add(request.NewErrParamRequired("TerminateWorkspaceRequests"))
-	}
-	if s.TerminateWorkspaceRequests != nil && len(s.TerminateWorkspaceRequests) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TerminateWorkspaceRequests", 1))
-	}
-	if s.TerminateWorkspaceRequests != nil {
-		for i, v := range s.TerminateWorkspaceRequests {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "TerminateWorkspaceRequests", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Contains the results of the TerminateWorkspaces operation.
 type TerminateWorkspacesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// An array of structures that represent any WorkSpaces that could not be terminated.
 	FailedRequests []*FailedWorkspaceChangeRequest `type:"list"`
+
+	metadataTerminateWorkspacesOutput `json:"-" xml:"-"`
+}
+
+type metadataTerminateWorkspacesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1267,10 +859,14 @@ func (s TerminateWorkspacesOutput) GoString() string {
 
 // Contains information about the user storage for a WorkSpace bundle.
 type UserStorage struct {
-	_ struct{} `type:"structure"`
-
 	// The amount of user storage for the bundle.
-	Capacity *string `min:"1" type:"string"`
+	Capacity *string `type:"string"`
+
+	metadataUserStorage `json:"-" xml:"-"`
+}
+
+type metadataUserStorage struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1285,13 +881,8 @@ func (s UserStorage) GoString() string {
 
 // Contains information about a WorkSpace.
 type Workspace struct {
-	_ struct{} `type:"structure"`
-
 	// The identifier of the bundle that the WorkSpace was created from.
 	BundleId *string `type:"string"`
-
-	// The name of the WorkSpace as seen by the operating system.
-	ComputerName *string `type:"string"`
 
 	// The identifier of the AWS Directory Service directory that the WorkSpace
 	// belongs to.
@@ -1307,9 +898,6 @@ type Workspace struct {
 	// The IP address of the WorkSpace.
 	IpAddress *string `type:"string"`
 
-	// Specifies whether the data stored on the root volume, or C: drive, is encrypted.
-	RootVolumeEncryptionEnabled *bool `type:"boolean"`
-
 	// The operational state of the WorkSpace.
 	State *string `type:"string" enum:"WorkspaceState"`
 
@@ -1317,16 +905,16 @@ type Workspace struct {
 	SubnetId *string `type:"string"`
 
 	// The user that the WorkSpace is assigned to.
-	UserName *string `min:"1" type:"string"`
-
-	// Specifies whether the data stored on the user volume, or D: drive, is encrypted.
-	UserVolumeEncryptionEnabled *bool `type:"boolean"`
-
-	// The KMS key used to encrypt data stored on your WorkSpace.
-	VolumeEncryptionKey *string `type:"string"`
+	UserName *string `type:"string"`
 
 	// The identifier of the WorkSpace.
 	WorkspaceId *string `type:"string"`
+
+	metadataWorkspace `json:"-" xml:"-"`
+}
+
+type metadataWorkspace struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1341,8 +929,6 @@ func (s Workspace) GoString() string {
 
 // Contains information about a WorkSpace bundle.
 type WorkspaceBundle struct {
-	_ struct{} `type:"structure"`
-
 	// The bundle identifier.
 	BundleId *string `type:"string"`
 
@@ -1353,7 +939,7 @@ type WorkspaceBundle struct {
 	Description *string `type:"string"`
 
 	// The name of the bundle.
-	Name *string `min:"1" type:"string"`
+	Name *string `type:"string"`
 
 	// The owner of the bundle. This contains the owner's account identifier, or
 	// AMAZON if the bundle is provided by AWS.
@@ -1362,6 +948,12 @@ type WorkspaceBundle struct {
 	// A UserStorage object that specifies the amount of user storage that the bundle
 	// contains.
 	UserStorage *UserStorage `type:"structure"`
+
+	metadataWorkspaceBundle `json:"-" xml:"-"`
+}
+
+type metadataWorkspaceBundle struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1377,13 +969,11 @@ func (s WorkspaceBundle) GoString() string {
 // Contains information about an AWS Directory Service directory for use with
 // Amazon WorkSpaces.
 type WorkspaceDirectory struct {
-	_ struct{} `type:"structure"`
-
 	// The directory alias.
 	Alias *string `type:"string"`
 
 	// The user name for the service account.
-	CustomerUserName *string `min:"1" type:"string"`
+	CustomerUserName *string `type:"string"`
 
 	// The directory identifier.
 	DirectoryId *string `type:"string"`
@@ -1404,7 +994,7 @@ type WorkspaceDirectory struct {
 
 	// The registration code for the directory. This is the code that users enter
 	// in their Amazon WorkSpaces client application to connect to the directory.
-	RegistrationCode *string `min:"1" type:"string"`
+	RegistrationCode *string `type:"string"`
 
 	// The state of the directory's registration with Amazon WorkSpaces
 	State *string `type:"string" enum:"WorkspaceDirectoryState"`
@@ -1419,6 +1009,12 @@ type WorkspaceDirectory struct {
 
 	// The identifier of the security group that is assigned to new WorkSpaces.
 	WorkspaceSecurityGroupId *string `type:"string"`
+
+	metadataWorkspaceDirectory `json:"-" xml:"-"`
+}
+
+type metadataWorkspaceDirectory struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1433,8 +1029,6 @@ func (s WorkspaceDirectory) GoString() string {
 
 // Contains information about a WorkSpace creation request.
 type WorkspaceRequest struct {
-	_ struct{} `type:"structure"`
-
 	// The identifier of the bundle to create the WorkSpace from. You can use the
 	// DescribeWorkspaceBundles operation to obtain a list of the bundles that are
 	// available.
@@ -1445,21 +1039,15 @@ type WorkspaceRequest struct {
 	// of the directories that are available.
 	DirectoryId *string `type:"string" required:"true"`
 
-	// Specifies whether the data stored on the root volume, or C: drive, is encrypted.
-	RootVolumeEncryptionEnabled *bool `type:"boolean"`
-
-	// The tags of the WorkSpace request.
-	Tags []*Tag `type:"list"`
-
 	// The username that the WorkSpace is assigned to. This username must exist
 	// in the AWS Directory Service directory specified by the DirectoryId member.
-	UserName *string `min:"1" type:"string" required:"true"`
+	UserName *string `type:"string" required:"true"`
 
-	// Specifies whether the data stored on the user volume, or D: drive, is encrypted.
-	UserVolumeEncryptionEnabled *bool `type:"boolean"`
+	metadataWorkspaceRequest `json:"-" xml:"-"`
+}
 
-	// The KMS key used to encrypt data stored on your WorkSpace.
-	VolumeEncryptionKey *string `type:"string"`
+type metadataWorkspaceRequest struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1470,38 +1058,6 @@ func (s WorkspaceRequest) String() string {
 // GoString returns the string representation
 func (s WorkspaceRequest) GoString() string {
 	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *WorkspaceRequest) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "WorkspaceRequest"}
-	if s.BundleId == nil {
-		invalidParams.Add(request.NewErrParamRequired("BundleId"))
-	}
-	if s.DirectoryId == nil {
-		invalidParams.Add(request.NewErrParamRequired("DirectoryId"))
-	}
-	if s.UserName == nil {
-		invalidParams.Add(request.NewErrParamRequired("UserName"))
-	}
-	if s.UserName != nil && len(*s.UserName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("UserName", 1))
-	}
-	if s.Tags != nil {
-		for i, v := range s.Tags {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Tags", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
 }
 
 const (

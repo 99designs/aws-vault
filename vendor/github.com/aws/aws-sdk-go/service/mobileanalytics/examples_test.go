@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/mobileanalytics"
 )
 
@@ -16,7 +15,7 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleMobileAnalytics_PutEvents() {
-	svc := mobileanalytics.New(session.New())
+	svc := mobileanalytics.New(nil)
 
 	params := &mobileanalytics.PutEventsInput{
 		ClientContext: aws.String("String"), // Required

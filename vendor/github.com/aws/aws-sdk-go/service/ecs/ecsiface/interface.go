@@ -130,5 +130,3 @@ type ECSAPI interface {
 
 	UpdateService(*ecs.UpdateServiceInput) (*ecs.UpdateServiceOutput, error)
 }
-
-var _ ECSAPI = (*ecs.ECS)(nil)

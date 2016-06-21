@@ -14,13 +14,13 @@ package awserr
 //     if err != nil {
 //         if awsErr, ok := err.(awserr.Error); ok {
 //             // Get error details
-//             log.Println("Error:", awsErr.Code(), awsErr.Message())
+//             log.Println("Error:", err.Code(), err.Message())
 //
 //             // Prints out full error message, including original error if there was one.
-//             log.Println("Error:", awsErr.Error())
+//             log.Println("Error:", err.Error())
 //
 //             // Get original error
-//             if origErr := awsErr.OrigErr(); origErr != nil {
+//             if origErr := err.Err(); origErr != nil {
 //                 // operate on original error.
 //             }
 //         } else {
@@ -42,55 +42,15 @@ type Error interface {
 	OrigErr() error
 }
 
-// BatchError is a batch of errors which also wraps lower level errors with
-// code, message, and original errors. Calling Error() will include all errors
-// that occured in the batch.
-//
-// Deprecated: Replaced with BatchedErrors. Only defined for backwards
-// compatibility.
-type BatchError interface {
-	// Satisfy the generic error interface.
-	error
-
-	// Returns the short phrase depicting the classification of the error.
-	Code() string
-
-	// Returns the error details message.
-	Message() string
-
-	// Returns the original error if one was set.  Nil is returned if not set.
-	OrigErrs() []error
-}
-
-// BatchedErrors is a batch of errors which also wraps lower level errors with
-// code, message, and original errors. Calling Error() will include all errors
-// that occured in the batch.
-//
-// Replaces BatchError
-type BatchedErrors interface {
-	// Satisfy the base Error interface.
-	Error
-
-	// Returns the original error if one was set.  Nil is returned if not set.
-	OrigErrs() []error
-}
-
 // New returns an Error object described by the code, message, and origErr.
 //
 // If origErr satisfies the Error interface it will not be wrapped within a new
 // Error object and will instead be returned.
 func New(code, message string, origErr error) Error {
-	var errs []error
-	if origErr != nil {
-		errs = append(errs, origErr)
+	if e, ok := origErr.(Error); ok && e != nil {
+		return e
 	}
-	return newBaseError(code, message, errs)
-}
-
-// NewBatchError returns an BatchedErrors with a collection of errors as an
-// array of errors.
-func NewBatchError(code, message string, errs []error) BatchedErrors {
-	return newBaseError(code, message, errs)
+	return newBaseError(code, message, origErr)
 }
 
 // A RequestFailure is an interface to extract request failure information from
@@ -103,9 +63,9 @@ func NewBatchError(code, message string, errs []error) BatchedErrors {
 //     output, err := s3manage.Upload(svc, input, opts)
 //     if err != nil {
 //         if reqerr, ok := err.(RequestFailure); ok {
-//             log.Println("Request failed", reqerr.Code(), reqerr.Message(), reqerr.RequestID())
+//             log.Printf("Request failed", reqerr.Code(), reqerr.Message(), reqerr.RequestID())
 //         } else {
-//             log.Println("Error:", err.Error())
+//             log.Printf("Error:", err.Error()
 //         }
 //     }
 //

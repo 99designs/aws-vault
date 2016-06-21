@@ -4,13 +4,10 @@
 package autoscaling
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/awsutil"
 	"github.com/aws/aws-sdk-go/aws/request"
-	"github.com/aws/aws-sdk-go/private/protocol"
-	"github.com/aws/aws-sdk-go/private/protocol/query"
 )
 
 const opAttachInstances = "AttachInstances"
@@ -28,19 +25,12 @@ func (c *AutoScaling) AttachInstancesRequest(input *AttachInstancesInput) (req *
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &AttachInstancesOutput{}
 	req.Data = output
 	return
 }
 
 // Attaches one or more EC2 instances to the specified Auto Scaling group.
-//
-// When you attach instances, Auto Scaling increases the desired capacity of
-// the group by the number of instances being attached. If the number of instances
-// being attached plus the desired capacity of the group exceeds the maximum
-// size of the group, the operation fails.
 //
 // For more information, see Attach EC2 Instances to Your Auto Scaling Group
 // (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/attach-instance-asg.html)
@@ -105,22 +95,20 @@ func (c *AutoScaling) CompleteLifecycleActionRequest(input *CompleteLifecycleAct
 	return
 }
 
-// Completes the lifecycle action for the specified token or instance with the
-// specified result.
+// Completes the lifecycle action for the associated token initiated under the
+// given lifecycle hook with the specified result.
 //
-// This step is a part of the procedure for adding a lifecycle hook to an Auto
-// Scaling group:
+// This operation is a part of the basic sequence for adding a lifecycle hook
+// to an Auto Scaling group:
 //
-//  (Optional) Create a Lambda function and a rule that allows CloudWatch Events
-// to invoke your Lambda function when Auto Scaling launches or terminates instances.
-// (Optional) Create a notification target and an IAM role. The target can be
-// either an Amazon SQS queue or an Amazon SNS topic. The role allows Auto Scaling
-// to publish lifecycle notifications to the target. Create the lifecycle hook.
-// Specify whether the hook is used when the instances launch or terminate.
-// If you need more time, record the lifecycle action heartbeat to keep the
-// instance in a pending state. If you finish before the timeout period ends,
-// complete the lifecycle action.  For more information, see Auto Scaling Lifecycle
-// (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/AutoScalingGroupLifecycle.html)
+//  Create a notification target. A target can be either an Amazon SQS queue
+// or an Amazon SNS topic. Create an IAM role. This role allows Auto Scaling
+// to publish lifecycle notifications to the designated SQS queue or SNS topic.
+// Create the lifecycle hook. You can create a hook that acts when instances
+// launch or when instances terminate. If necessary, record the lifecycle action
+// heartbeat to keep the instance in a pending state.  Complete the lifecycle
+// action.  For more information, see Auto Scaling Pending State (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/AutoScalingPendingState.html)
+// and Auto Scaling Terminating State (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/AutoScalingTerminatingState.html)
 // in the Auto Scaling Developer Guide.
 func (c *AutoScaling) CompleteLifecycleAction(input *CompleteLifecycleActionInput) (*CompleteLifecycleActionOutput, error) {
 	req, out := c.CompleteLifecycleActionRequest(input)
@@ -143,8 +131,6 @@ func (c *AutoScaling) CreateAutoScalingGroupRequest(input *CreateAutoScalingGrou
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &CreateAutoScalingGroupOutput{}
 	req.Data = output
 	return
@@ -179,8 +165,6 @@ func (c *AutoScaling) CreateLaunchConfigurationRequest(input *CreateLaunchConfig
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &CreateLaunchConfigurationOutput{}
 	req.Data = output
 	return
@@ -215,14 +199,19 @@ func (c *AutoScaling) CreateOrUpdateTagsRequest(input *CreateOrUpdateTagsInput) 
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &CreateOrUpdateTagsOutput{}
 	req.Data = output
 	return
 }
 
 // Creates or updates tags for the specified Auto Scaling group.
+//
+// A tag is defined by its resource ID, resource type, key, value, and propagate
+// flag. The value and the propagate flag are optional parameters. The only
+// supported resource type is auto-scaling-group, and the resource ID must be
+// the name of the group. The PropagateAtLaunch flag determines whether the
+// tag is added to instances launched in the group. Valid values are true or
+// false.
 //
 // When you specify a tag with a key that already exists, the operation overwrites
 // the previous tag definition, and you do not get an error message.
@@ -250,8 +239,6 @@ func (c *AutoScaling) DeleteAutoScalingGroupRequest(input *DeleteAutoScalingGrou
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteAutoScalingGroupOutput{}
 	req.Data = output
 	return
@@ -259,20 +246,10 @@ func (c *AutoScaling) DeleteAutoScalingGroupRequest(input *DeleteAutoScalingGrou
 
 // Deletes the specified Auto Scaling group.
 //
-// If the group has instances or scaling activities in progress, you must specify
-// the option to force the deletion in order for it to succeed.
+// The group must have no instances and no scaling activities in progress.
 //
-// If the group has policies, deleting the group deletes the policies, the
-// underlying alarm actions, and any alarm that no longer has an associated
-// action.
-//
-// To remove instances from the Auto Scaling group before deleting it, call
-// DetachInstances with the list of instances and the option to decrement the
-// desired capacity so that Auto Scaling does not launch replacement instances.
-//
-// To terminate all instances before deleting the Auto Scaling group, call
-// UpdateAutoScalingGroup and set the minimum size and desired capacity of the
-// Auto Scaling group to zero.
+// To remove all instances before calling DeleteAutoScalingGroup, call UpdateAutoScalingGroup
+// to set the minimum and maximum size of the Auto Scaling group to zero.
 func (c *AutoScaling) DeleteAutoScalingGroup(input *DeleteAutoScalingGroupInput) (*DeleteAutoScalingGroupOutput, error) {
 	req, out := c.DeleteAutoScalingGroupRequest(input)
 	err := req.Send()
@@ -294,8 +271,6 @@ func (c *AutoScaling) DeleteLaunchConfigurationRequest(input *DeleteLaunchConfig
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteLaunchConfigurationOutput{}
 	req.Data = output
 	return
@@ -357,8 +332,6 @@ func (c *AutoScaling) DeleteNotificationConfigurationRequest(input *DeleteNotifi
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteNotificationConfigurationOutput{}
 	req.Data = output
 	return
@@ -386,17 +359,12 @@ func (c *AutoScaling) DeletePolicyRequest(input *DeletePolicyInput) (req *reques
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeletePolicyOutput{}
 	req.Data = output
 	return
 }
 
 // Deletes the specified Auto Scaling policy.
-//
-// Deleting a policy deletes the underlying alarm action, but does not delete
-// the alarm, even if it no longer has an associated action.
 func (c *AutoScaling) DeletePolicy(input *DeletePolicyInput) (*DeletePolicyOutput, error) {
 	req, out := c.DeletePolicyRequest(input)
 	err := req.Send()
@@ -418,8 +386,6 @@ func (c *AutoScaling) DeleteScheduledActionRequest(input *DeleteScheduledActionI
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteScheduledActionOutput{}
 	req.Data = output
 	return
@@ -447,8 +413,6 @@ func (c *AutoScaling) DeleteTagsRequest(input *DeleteTagsInput) (req *request.Re
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteTagsOutput{}
 	req.Data = output
 	return
@@ -555,7 +519,6 @@ func (c *AutoScaling) DescribeAutoScalingGroups(input *DescribeAutoScalingGroups
 
 func (c *AutoScaling) DescribeAutoScalingGroupsPages(input *DescribeAutoScalingGroupsInput, fn func(p *DescribeAutoScalingGroupsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeAutoScalingGroupsRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeAutoScalingGroupsOutput), lastPage)
 	})
@@ -597,7 +560,6 @@ func (c *AutoScaling) DescribeAutoScalingInstances(input *DescribeAutoScalingIns
 
 func (c *AutoScaling) DescribeAutoScalingInstancesPages(input *DescribeAutoScalingInstancesInput, fn func(p *DescribeAutoScalingInstancesOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeAutoScalingInstancesRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeAutoScalingInstancesOutput), lastPage)
 	})
@@ -666,7 +628,6 @@ func (c *AutoScaling) DescribeLaunchConfigurations(input *DescribeLaunchConfigur
 
 func (c *AutoScaling) DescribeLaunchConfigurationsPages(input *DescribeLaunchConfigurationsInput, fn func(p *DescribeLaunchConfigurationsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeLaunchConfigurationsRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeLaunchConfigurationsOutput), lastPage)
 	})
@@ -819,7 +780,6 @@ func (c *AutoScaling) DescribeNotificationConfigurations(input *DescribeNotifica
 
 func (c *AutoScaling) DescribeNotificationConfigurationsPages(input *DescribeNotificationConfigurationsInput, fn func(p *DescribeNotificationConfigurationsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeNotificationConfigurationsRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeNotificationConfigurationsOutput), lastPage)
 	})
@@ -860,7 +820,6 @@ func (c *AutoScaling) DescribePolicies(input *DescribePoliciesInput) (*DescribeP
 
 func (c *AutoScaling) DescribePoliciesPages(input *DescribePoliciesInput, fn func(p *DescribePoliciesOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribePoliciesRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribePoliciesOutput), lastPage)
 	})
@@ -904,7 +863,6 @@ func (c *AutoScaling) DescribeScalingActivities(input *DescribeScalingActivities
 
 func (c *AutoScaling) DescribeScalingActivitiesPages(input *DescribeScalingActivitiesInput, fn func(p *DescribeScalingActivitiesOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeScalingActivitiesRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeScalingActivitiesOutput), lastPage)
 	})
@@ -973,7 +931,6 @@ func (c *AutoScaling) DescribeScheduledActions(input *DescribeScheduledActionsIn
 
 func (c *AutoScaling) DescribeScheduledActionsPages(input *DescribeScheduledActionsInput, fn func(p *DescribeScheduledActionsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeScheduledActionsRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeScheduledActionsOutput), lastPage)
 	})
@@ -1023,7 +980,6 @@ func (c *AutoScaling) DescribeTags(input *DescribeTagsInput) (*DescribeTagsOutpu
 
 func (c *AutoScaling) DescribeTagsPages(input *DescribeTagsInput, fn func(p *DescribeTagsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeTagsRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeTagsOutput), lastPage)
 	})
@@ -1076,13 +1032,9 @@ func (c *AutoScaling) DetachInstancesRequest(input *DetachInstancesInput) (req *
 	return
 }
 
-// Removes one or more instances from the specified Auto Scaling group.
-//
-// After the instances are detached, you can manage them independently from
-// the rest of the Auto Scaling group.
-//
-// If you do not specify the option to decrement the desired capacity, Auto
-// Scaling launches instances to replace the ones that are detached.
+// Removes one or more instances from the specified Auto Scaling group. After
+// the instances are detached, you can manage them independently from the rest
+// of the Auto Scaling group.
 //
 // For more information, see Detach EC2 Instances from Your Auto Scaling Group
 // (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/detach-instance-asg.html)
@@ -1140,8 +1092,6 @@ func (c *AutoScaling) DisableMetricsCollectionRequest(input *DisableMetricsColle
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DisableMetricsCollectionOutput{}
 	req.Data = output
 	return
@@ -1170,8 +1120,6 @@ func (c *AutoScaling) EnableMetricsCollectionRequest(input *EnableMetricsCollect
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &EnableMetricsCollectionOutput{}
 	req.Data = output
 	return
@@ -1210,7 +1158,7 @@ func (c *AutoScaling) EnterStandbyRequest(input *EnterStandbyInput) (req *reques
 
 // Moves the specified instances into Standby mode.
 //
-// For more information, see Auto Scaling Lifecycle (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/AutoScalingGroupLifecycle.html)
+// For more information, see Auto Scaling InService State (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/AutoScalingInServiceState.html)
 // in the Auto Scaling Developer Guide.
 func (c *AutoScaling) EnterStandby(input *EnterStandbyInput) (*EnterStandbyOutput, error) {
 	req, out := c.EnterStandbyRequest(input)
@@ -1233,8 +1181,6 @@ func (c *AutoScaling) ExecutePolicyRequest(input *ExecutePolicyInput) (req *requ
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &ExecutePolicyOutput{}
 	req.Data = output
 	return
@@ -1269,7 +1215,7 @@ func (c *AutoScaling) ExitStandbyRequest(input *ExitStandbyInput) (req *request.
 
 // Moves the specified instances out of Standby mode.
 //
-// For more information, see Auto Scaling Lifecycle (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/AutoScalingGroupLifecycle.html)
+// For more information, see Auto Scaling InService State (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/AutoScalingInServiceState.html)
 // in the Auto Scaling Developer Guide.
 func (c *AutoScaling) ExitStandby(input *ExitStandbyInput) (*ExitStandbyOutput, error) {
 	req, out := c.ExitStandbyRequest(input)
@@ -1303,19 +1249,17 @@ func (c *AutoScaling) PutLifecycleHookRequest(input *PutLifecycleHookInput) (req
 // an instance that is not actively in service; for example, either when the
 // instance launches or before the instance terminates.
 //
-// This step is a part of the procedure for adding a lifecycle hook to an Auto
-// Scaling group:
+// This operation is a part of the basic sequence for adding a lifecycle hook
+// to an Auto Scaling group:
 //
-//  (Optional) Create a Lambda function and a rule that allows CloudWatch Events
-// to invoke your Lambda function when Auto Scaling launches or terminates instances.
-// (Optional) Create a notification target and an IAM role. The target can be
-// either an Amazon SQS queue or an Amazon SNS topic. The role allows Auto Scaling
-// to publish lifecycle notifications to the target. Create the lifecycle hook.
-// Specify whether the hook is used when the instances launch or terminate.
-// If you need more time, record the lifecycle action heartbeat to keep the
-// instance in a pending state. If you finish before the timeout period ends,
-// complete the lifecycle action.  For more information, see Auto Scaling Lifecycle
-// (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/AutoScalingGroupLifecycle.html)
+//  Create a notification target. A target can be either an Amazon SQS queue
+// or an Amazon SNS topic. Create an IAM role. This role allows Auto Scaling
+// to publish lifecycle notifications to the designated SQS queue or SNS topic.
+// Create the lifecycle hook. You can create a hook that acts when instances
+// launch or when instances terminate. If necessary, record the lifecycle action
+// heartbeat to keep the instance in a pending state. Complete the lifecycle
+// action.  For more information, see Auto Scaling Pending State (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/AutoScalingPendingState.html)
+// and Auto Scaling Terminating State (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/AutoScalingTerminatingState.html)
 // in the Auto Scaling Developer Guide.
 //
 // If you exceed your maximum limit of lifecycle hooks, which by default is
@@ -1343,8 +1287,6 @@ func (c *AutoScaling) PutNotificationConfigurationRequest(input *PutNotification
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &PutNotificationConfigurationOutput{}
 	req.Data = output
 	return
@@ -1415,8 +1357,6 @@ func (c *AutoScaling) PutScheduledUpdateGroupActionRequest(input *PutScheduledUp
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &PutScheduledUpdateGroupActionOutput{}
 	req.Data = output
 	return
@@ -1454,23 +1394,21 @@ func (c *AutoScaling) RecordLifecycleActionHeartbeatRequest(input *RecordLifecyc
 	return
 }
 
-// Records a heartbeat for the lifecycle action associated with the specified
-// token or instance. This extends the timeout by the length of time defined
-// using PutLifecycleHook.
+// Records a heartbeat for the lifecycle action associated with a specific token.
+// This extends the timeout by the length of time defined by the HeartbeatTimeout
+// parameter of PutLifecycleHook.
 //
-// This step is a part of the procedure for adding a lifecycle hook to an Auto
-// Scaling group:
+// This operation is a part of the basic sequence for adding a lifecycle hook
+// to an Auto Scaling group:
 //
-//  (Optional) Create a Lambda function and a rule that allows CloudWatch Events
-// to invoke your Lambda function when Auto Scaling launches or terminates instances.
-// (Optional) Create a notification target and an IAM role. The target can be
-// either an Amazon SQS queue or an Amazon SNS topic. The role allows Auto Scaling
-// to publish lifecycle notifications to the target. Create the lifecycle hook.
-// Specify whether the hook is used when the instances launch or terminate.
-// If you need more time, record the lifecycle action heartbeat to keep the
-// instance in a pending state. If you finish before the timeout period ends,
-// complete the lifecycle action.  For more information, see Auto Scaling Lifecycle
-// (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/AutoScalingGroupLifecycle.html)
+//  Create a notification target. A target can be either an Amazon SQS queue
+// or an Amazon SNS topic. Create an IAM role. This role allows Auto Scaling
+// to publish lifecycle notifications to the designated SQS queue or SNS topic.
+// Create the lifecycle hook. You can create a hook that acts when instances
+// launch or when instances terminate. If necessary, record the lifecycle action
+// heartbeat to keep the instance in a pending state. Complete the lifecycle
+// action.  For more information, see Auto Scaling Pending State (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/AutoScalingPendingState.html)
+// and Auto Scaling Terminating State (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/AutoScalingTerminatingState.html)
 // in the Auto Scaling Developer Guide.
 func (c *AutoScaling) RecordLifecycleActionHeartbeat(input *RecordLifecycleActionHeartbeatInput) (*RecordLifecycleActionHeartbeatOutput, error) {
 	req, out := c.RecordLifecycleActionHeartbeatRequest(input)
@@ -1493,18 +1431,15 @@ func (c *AutoScaling) ResumeProcessesRequest(input *ScalingProcessQuery) (req *r
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &ResumeProcessesOutput{}
 	req.Data = output
 	return
 }
 
-// Resumes the specified suspended Auto Scaling processes, or all suspended
-// process, for the specified Auto Scaling group.
-//
-// For more information, see Suspending and Resuming Auto Scaling Processes
-// (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/US_SuspendResume.html)
+// Resumes the specified suspended Auto Scaling processes for the specified
+// Auto Scaling group. To resume specific processes, use the ScalingProcesses
+// parameter. To resume all processes, omit the ScalingProcesses parameter.
+// For more information, see Suspend and Resume Auto Scaling Processes (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/US_SuspendResume.html)
 // in the Auto Scaling Developer Guide.
 func (c *AutoScaling) ResumeProcesses(input *ScalingProcessQuery) (*ResumeProcessesOutput, error) {
 	req, out := c.ResumeProcessesRequest(input)
@@ -1527,8 +1462,6 @@ func (c *AutoScaling) SetDesiredCapacityRequest(input *SetDesiredCapacityInput) 
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &SetDesiredCapacityOutput{}
 	req.Data = output
 	return
@@ -1559,8 +1492,6 @@ func (c *AutoScaling) SetInstanceHealthRequest(input *SetInstanceHealthInput) (r
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &SetInstanceHealthOutput{}
 	req.Data = output
 	return
@@ -1572,36 +1503,6 @@ func (c *AutoScaling) SetInstanceHealthRequest(input *SetInstanceHealthInput) (r
 // in the Auto Scaling Developer Guide.
 func (c *AutoScaling) SetInstanceHealth(input *SetInstanceHealthInput) (*SetInstanceHealthOutput, error) {
 	req, out := c.SetInstanceHealthRequest(input)
-	err := req.Send()
-	return out, err
-}
-
-const opSetInstanceProtection = "SetInstanceProtection"
-
-// SetInstanceProtectionRequest generates a request for the SetInstanceProtection operation.
-func (c *AutoScaling) SetInstanceProtectionRequest(input *SetInstanceProtectionInput) (req *request.Request, output *SetInstanceProtectionOutput) {
-	op := &request.Operation{
-		Name:       opSetInstanceProtection,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &SetInstanceProtectionInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &SetInstanceProtectionOutput{}
-	req.Data = output
-	return
-}
-
-// Updates the instance protection settings of the specified instances.
-//
-// For more information, see Instance Protection (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/AutoScalingBehavior.InstanceTermination.html#instance-protection)
-// in the Auto Scaling Developer Guide.
-func (c *AutoScaling) SetInstanceProtection(input *SetInstanceProtectionInput) (*SetInstanceProtectionOutput, error) {
-	req, out := c.SetInstanceProtectionRequest(input)
 	err := req.Send()
 	return out, err
 }
@@ -1621,23 +1522,21 @@ func (c *AutoScaling) SuspendProcessesRequest(input *ScalingProcessQuery) (req *
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &SuspendProcessesOutput{}
 	req.Data = output
 	return
 }
 
-// Suspends the specified Auto Scaling processes, or all processes, for the
-// specified Auto Scaling group.
+// Suspends the specified Auto Scaling processes for the specified Auto Scaling
+// group. To suspend specific processes, use the ScalingProcesses parameter.
+// To suspend all processes, omit the ScalingProcesses parameter.
 //
 // Note that if you suspend either the Launch or Terminate process types, it
 // can prevent other process types from functioning properly.
 //
 // To resume processes that have been suspended, use ResumeProcesses.
 //
-// For more information, see Suspending and Resuming Auto Scaling Processes
-// (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/US_SuspendResume.html)
+// For more information, see Suspend and Resume Auto Scaling Processes (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/US_SuspendResume.html)
 // in the Auto Scaling Developer Guide.
 func (c *AutoScaling) SuspendProcesses(input *ScalingProcessQuery) (*SuspendProcessesOutput, error) {
 	req, out := c.SuspendProcessesRequest(input)
@@ -1668,7 +1567,7 @@ func (c *AutoScaling) TerminateInstanceInAutoScalingGroupRequest(input *Terminat
 // Terminates the specified instance and optionally adjusts the desired group
 // size.
 //
-// This call simply makes a termination request. The instance is not terminated
+// This call simply makes a termination request. The instances is not terminated
 // immediately.
 func (c *AutoScaling) TerminateInstanceInAutoScalingGroup(input *TerminateInstanceInAutoScalingGroupInput) (*TerminateInstanceInAutoScalingGroupOutput, error) {
 	req, out := c.TerminateInstanceInAutoScalingGroupRequest(input)
@@ -1691,8 +1590,6 @@ func (c *AutoScaling) UpdateAutoScalingGroupRequest(input *UpdateAutoScalingGrou
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &UpdateAutoScalingGroupOutput{}
 	req.Data = output
 	return
@@ -1732,16 +1629,14 @@ func (c *AutoScaling) UpdateAutoScalingGroup(input *UpdateAutoScalingGroupInput)
 // a change to your Auto Scaling group, such as changing its size or replacing
 // an instance.
 type Activity struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the activity.
 	ActivityId *string `type:"string" required:"true"`
 
 	// The name of the Auto Scaling group.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
 	// The reason the activity began.
-	Cause *string `min:"1" type:"string" required:"true"`
+	Cause *string `type:"string" required:"true"`
 
 	// A friendly, more verbose description of the activity.
 	Description *string `type:"string"`
@@ -1762,7 +1657,13 @@ type Activity struct {
 	StatusCode *string `type:"string" required:"true" enum:"ScalingActivityStatusCode"`
 
 	// A friendly, more verbose description of the activity status.
-	StatusMessage *string `min:"1" type:"string"`
+	StatusMessage *string `type:"string"`
+
+	metadataActivity `json:"-" xml:"-"`
+}
+
+type metadataActivity struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1780,11 +1681,15 @@ func (s Activity) GoString() string {
 // For more information, see Dynamic Scaling (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/as-scale-based-on-demand.html)
 // in the Auto Scaling Developer Guide.
 type AdjustmentType struct {
-	_ struct{} `type:"structure"`
-
 	// The policy adjustment type. The valid values are ChangeInCapacity, ExactCapacity,
 	// and PercentChangeInCapacity.
-	AdjustmentType *string `min:"1" type:"string"`
+	AdjustmentType *string `type:"string"`
+
+	metadataAdjustmentType `json:"-" xml:"-"`
+}
+
+type metadataAdjustmentType struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1799,13 +1704,17 @@ func (s AdjustmentType) GoString() string {
 
 // Describes an alarm.
 type Alarm struct {
-	_ struct{} `type:"structure"`
-
 	// The Amazon Resource Name (ARN) of the alarm.
-	AlarmARN *string `min:"1" type:"string"`
+	AlarmARN *string `type:"string"`
 
 	// The name of the alarm.
-	AlarmName *string `min:"1" type:"string"`
+	AlarmName *string `type:"string"`
+
+	metadataAlarm `json:"-" xml:"-"`
+}
+
+type metadataAlarm struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1819,13 +1728,17 @@ func (s Alarm) GoString() string {
 }
 
 type AttachInstancesInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the group.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
-	// One or more instance IDs.
+	// One or more EC2 instance IDs.
 	InstanceIds []*string `type:"list"`
+
+	metadataAttachInstancesInput `json:"-" xml:"-"`
+}
+
+type metadataAttachInstancesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1838,24 +1751,12 @@ func (s AttachInstancesInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *AttachInstancesInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "AttachInstancesInput"}
-	if s.AutoScalingGroupName == nil {
-		invalidParams.Add(request.NewErrParamRequired("AutoScalingGroupName"))
-	}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type AttachInstancesOutput struct {
+	metadataAttachInstancesOutput `json:"-" xml:"-"`
 }
 
-type AttachInstancesOutput struct {
-	_ struct{} `type:"structure"`
+type metadataAttachInstancesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1869,13 +1770,17 @@ func (s AttachInstancesOutput) GoString() string {
 }
 
 type AttachLoadBalancersInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the group.
-	AutoScalingGroupName *string `min:"1" type:"string"`
+	AutoScalingGroupName *string `type:"string"`
 
 	// One or more load balancer names.
 	LoadBalancerNames []*string `type:"list"`
+
+	metadataAttachLoadBalancersInput `json:"-" xml:"-"`
+}
+
+type metadataAttachLoadBalancersInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1888,21 +1793,12 @@ func (s AttachLoadBalancersInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *AttachLoadBalancersInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "AttachLoadBalancersInput"}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type AttachLoadBalancersOutput struct {
+	metadataAttachLoadBalancersOutput `json:"-" xml:"-"`
 }
 
-type AttachLoadBalancersOutput struct {
-	_ struct{} `type:"structure"`
+type metadataAttachLoadBalancersOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1917,10 +1813,8 @@ func (s AttachLoadBalancersOutput) GoString() string {
 
 // Describes a block device mapping.
 type BlockDeviceMapping struct {
-	_ struct{} `type:"structure"`
-
 	// The device name exposed to the EC2 instance (for example, /dev/sdh or xvdh).
-	DeviceName *string `min:"1" type:"string" required:"true"`
+	DeviceName *string `type:"string" required:"true"`
 
 	// The information about the Amazon EBS volume.
 	Ebs *Ebs `type:"structure"`
@@ -1932,8 +1826,14 @@ type BlockDeviceMapping struct {
 	// fails the health check.
 	NoDevice *bool `type:"boolean"`
 
-	// The name of the virtual device (for example, ephemeral0).
-	VirtualName *string `min:"1" type:"string"`
+	// The name of the virtual device, ephemeral0 to ephemeral3.
+	VirtualName *string `type:"string"`
+
+	metadataBlockDeviceMapping `json:"-" xml:"-"`
+}
+
+type metadataBlockDeviceMapping struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1946,38 +1846,9 @@ func (s BlockDeviceMapping) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *BlockDeviceMapping) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "BlockDeviceMapping"}
-	if s.DeviceName == nil {
-		invalidParams.Add(request.NewErrParamRequired("DeviceName"))
-	}
-	if s.DeviceName != nil && len(*s.DeviceName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("DeviceName", 1))
-	}
-	if s.VirtualName != nil && len(*s.VirtualName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("VirtualName", 1))
-	}
-	if s.Ebs != nil {
-		if err := s.Ebs.Validate(); err != nil {
-			invalidParams.AddNested("Ebs", err.(request.ErrInvalidParams))
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type CompleteLifecycleActionInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the group for the lifecycle hook.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
-
-	// The ID of the instance.
-	InstanceId *string `min:"1" type:"string"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
 	// The action for the group to take. This parameter can be either CONTINUE or
 	// ABANDON.
@@ -1986,10 +1857,16 @@ type CompleteLifecycleActionInput struct {
 	// A universally unique identifier (UUID) that identifies a specific lifecycle
 	// action associated with an instance. Auto Scaling sends this token to the
 	// notification target you specified when you created the lifecycle hook.
-	LifecycleActionToken *string `min:"36" type:"string"`
+	LifecycleActionToken *string `type:"string" required:"true"`
 
 	// The name of the lifecycle hook.
-	LifecycleHookName *string `min:"1" type:"string" required:"true"`
+	LifecycleHookName *string `type:"string" required:"true"`
+
+	metadataCompleteLifecycleActionInput `json:"-" xml:"-"`
+}
+
+type metadataCompleteLifecycleActionInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2002,39 +1879,12 @@ func (s CompleteLifecycleActionInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CompleteLifecycleActionInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CompleteLifecycleActionInput"}
-	if s.AutoScalingGroupName == nil {
-		invalidParams.Add(request.NewErrParamRequired("AutoScalingGroupName"))
-	}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-	if s.InstanceId != nil && len(*s.InstanceId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("InstanceId", 1))
-	}
-	if s.LifecycleActionResult == nil {
-		invalidParams.Add(request.NewErrParamRequired("LifecycleActionResult"))
-	}
-	if s.LifecycleActionToken != nil && len(*s.LifecycleActionToken) < 36 {
-		invalidParams.Add(request.NewErrParamMinLen("LifecycleActionToken", 36))
-	}
-	if s.LifecycleHookName == nil {
-		invalidParams.Add(request.NewErrParamRequired("LifecycleHookName"))
-	}
-	if s.LifecycleHookName != nil && len(*s.LifecycleHookName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("LifecycleHookName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type CompleteLifecycleActionOutput struct {
+	metadataCompleteLifecycleActionOutput `json:"-" xml:"-"`
 }
 
-type CompleteLifecycleActionOutput struct {
-	_ struct{} `type:"structure"`
+type metadataCompleteLifecycleActionOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2048,20 +1898,19 @@ func (s CompleteLifecycleActionOutput) GoString() string {
 }
 
 type CreateAutoScalingGroupInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the group. This name must be unique within the scope of your
 	// AWS account.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
 	// One or more Availability Zones for the group. This parameter is optional
-	// if you specify one or more subnets.
-	AvailabilityZones []*string `min:"1" type:"list"`
+	// if you specify subnets using the VPCZoneIdentifier parameter.
+	AvailabilityZones []*string `type:"list"`
 
 	// The amount of time, in seconds, after a scaling activity completes before
-	// another scaling activity can start. The default is 300.
+	// another scaling activity can start.
 	//
-	// For more information, see Auto Scaling Cooldowns (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/Cooldown.html)
+	// If this parameter is not specified, the default value is 300. For more information,
+	// see Understanding Auto Scaling Cooldowns (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/Cooldown.html)
 	// in the Auto Scaling Developer Guide.
 	DefaultCooldown *int64 `type:"integer"`
 
@@ -2070,45 +1919,47 @@ type CreateAutoScalingGroupInput struct {
 	// or equal to the maximum size of the group.
 	DesiredCapacity *int64 `type:"integer"`
 
-	// The amount of time, in seconds, that Auto Scaling waits before checking the
-	// health status of an EC2 instance that has come into service. During this
-	// time, any health check failures for the instance are ignored. The default
-	// is 300.
+	// The amount of time, in seconds, after an EC2 instance comes into service
+	// that Auto Scaling starts checking its health. During this time, any health
+	// check failures for the instance are ignored.
 	//
-	// This parameter is required if you are adding an ELB health check.
+	// This parameter is required if you are adding an ELB health check. Frequently,
+	// new instances need to warm up, briefly, before they can pass a health check.
+	// To provide ample warm-up time, set the health check grace period of the group
+	// to match the expected startup period of your application.
 	//
-	// For more information, see Health Checks (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/healthcheck.html)
+	// For more information, see Add an Elastic Load Balancing Health Check to
+	// Your Auto Scaling Group (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/as-add-elb-healthcheck.html)
 	// in the Auto Scaling Developer Guide.
 	HealthCheckGracePeriod *int64 `type:"integer"`
 
 	// The service to use for the health checks. The valid values are EC2 and ELB.
 	//
 	// By default, health checks use Amazon EC2 instance status checks to determine
-	// the health of an instance. For more information, see Health Checks (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/healthcheck.html)
-	// in the Auto Scaling Developer Guide.
-	HealthCheckType *string `min:"1" type:"string"`
+	// the health of an instance. For more information, see Health Checks (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/healthcheck.html).
+	HealthCheckType *string `type:"string"`
 
-	// The ID of the instance used to create a launch configuration for the group.
-	// Alternatively, specify a launch configuration instead of an EC2 instance.
+	// The ID of the EC2 instance used to create a launch configuration for the
+	// group. Alternatively, use the LaunchConfigurationName parameter to specify
+	// a launch configuration instead of an EC2 instance.
 	//
 	// When you specify an ID of an instance, Auto Scaling creates a new launch
 	// configuration and associates it with the group. This launch configuration
 	// derives its attributes from the specified instance, with the exception of
 	// the block device mapping.
 	//
-	// For more information, see Create an Auto Scaling Group Using an EC2 Instance
+	// For more information, see Create an Auto Scaling Group from an EC2 Instance
 	// (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/create-asg-from-instance.html)
 	// in the Auto Scaling Developer Guide.
-	InstanceId *string `min:"1" type:"string"`
+	InstanceId *string `type:"string"`
 
-	// The name of the launch configuration. Alternatively, specify an EC2 instance
-	// instead of a launch configuration.
-	LaunchConfigurationName *string `min:"1" type:"string"`
+	// The name of the launch configuration. Alternatively, use the InstanceId parameter
+	// to specify an EC2 instance instead of a launch configuration.
+	LaunchConfigurationName *string `type:"string"`
 
 	// One or more load balancers.
 	//
-	// For more information, see Using a Load Balancer With an Auto Scaling Group
-	// (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/US_SetUpASLBApp.html)
+	// For more information, see Load Balance Your Auto Scaling Group (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/US_SetUpASLBApp.html)
 	// in the Auto Scaling Developer Guide.
 	LoadBalancerNames []*string `type:"list"`
 
@@ -2118,16 +1969,14 @@ type CreateAutoScalingGroupInput struct {
 	// The minimum size of the group.
 	MinSize *int64 `type:"integer" required:"true"`
 
-	// Indicates whether newly launched instances are protected from termination
-	// by Auto Scaling when scaling in.
-	NewInstancesProtectedFromScaleIn *bool `type:"boolean"`
-
 	// The name of the placement group into which you'll launch your instances,
 	// if any. For more information, see Placement Groups (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html)
 	// in the Amazon Elastic Compute Cloud User Guide.
-	PlacementGroup *string `min:"1" type:"string"`
+	PlacementGroup *string `type:"string"`
 
-	// One or more tags.
+	// The tag to be created or updated. Each tag should be defined by its resource
+	// type, resource ID, key, value, and a propagate flag. Valid values: key=value,
+	// value=value, propagate=true or false. Value and propagate are optional parameters.
 	//
 	// For more information, see Tagging Auto Scaling Groups and Instances (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/ASTagging.html)
 	// in the Auto Scaling Developer Guide.
@@ -2136,8 +1985,8 @@ type CreateAutoScalingGroupInput struct {
 	// One or more termination policies used to select the instance to terminate.
 	// These policies are executed in the order that they are listed.
 	//
-	// For more information, see Controlling Which Instances Auto Scaling Terminates
-	// During Scale In (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/AutoScalingBehavior.InstanceTermination.html)
+	// For more information, see Choosing a Termination Policy for Your Auto Scaling
+	// Group (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/us-termination-policy.html)
 	// in the Auto Scaling Developer Guide.
 	TerminationPolicies []*string `type:"list"`
 
@@ -2147,9 +1996,16 @@ type CreateAutoScalingGroupInput struct {
 	// If you specify subnets and Availability Zones with this call, ensure that
 	// the subnets' Availability Zones match the Availability Zones specified.
 	//
-	// For more information, see Launching Auto Scaling Instances in a VPC (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/asg-in-vpc.html)
+	// For more information, see Auto Scaling and Amazon Virtual Private Cloud
+	// (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/autoscalingsubnets.html)
 	// in the Auto Scaling Developer Guide.
-	VPCZoneIdentifier *string `min:"1" type:"string"`
+	VPCZoneIdentifier *string `type:"string"`
+
+	metadataCreateAutoScalingGroupInput `json:"-" xml:"-"`
+}
+
+type metadataCreateAutoScalingGroupInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2162,58 +2018,12 @@ func (s CreateAutoScalingGroupInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateAutoScalingGroupInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateAutoScalingGroupInput"}
-	if s.AutoScalingGroupName == nil {
-		invalidParams.Add(request.NewErrParamRequired("AutoScalingGroupName"))
-	}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-	if s.AvailabilityZones != nil && len(s.AvailabilityZones) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AvailabilityZones", 1))
-	}
-	if s.HealthCheckType != nil && len(*s.HealthCheckType) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("HealthCheckType", 1))
-	}
-	if s.InstanceId != nil && len(*s.InstanceId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("InstanceId", 1))
-	}
-	if s.LaunchConfigurationName != nil && len(*s.LaunchConfigurationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("LaunchConfigurationName", 1))
-	}
-	if s.MaxSize == nil {
-		invalidParams.Add(request.NewErrParamRequired("MaxSize"))
-	}
-	if s.MinSize == nil {
-		invalidParams.Add(request.NewErrParamRequired("MinSize"))
-	}
-	if s.PlacementGroup != nil && len(*s.PlacementGroup) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("PlacementGroup", 1))
-	}
-	if s.VPCZoneIdentifier != nil && len(*s.VPCZoneIdentifier) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("VPCZoneIdentifier", 1))
-	}
-	if s.Tags != nil {
-		for i, v := range s.Tags {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Tags", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type CreateAutoScalingGroupOutput struct {
+	metadataCreateAutoScalingGroupOutput `json:"-" xml:"-"`
 }
 
-type CreateAutoScalingGroupOutput struct {
-	_ struct{} `type:"structure"`
+type metadataCreateAutoScalingGroupOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2227,15 +2037,13 @@ func (s CreateAutoScalingGroupOutput) GoString() string {
 }
 
 type CreateLaunchConfigurationInput struct {
-	_ struct{} `type:"structure"`
-
 	// Used for groups that launch instances into a virtual private cloud (VPC).
 	// Specifies whether to assign a public IP address to each instance. For more
-	// information, see Launching Auto Scaling Instances in a VPC (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/asg-in-vpc.html)
+	// information, see Auto Scaling and Amazon Virtual Private Cloud (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/autoscalingsubnets.html)
 	// in the Auto Scaling Developer Guide.
 	//
-	// If you specify this parameter, be sure to specify at least one subnet when
-	// you create your group.
+	// If you specify a value for this parameter, be sure to specify at least one
+	// subnet using the VPCZoneIdentifier parameter when you create your group.
 	//
 	// Default: If the instance is launched into a default subnet, the default
 	// is true. If the instance is launched into a nondefault subnet, the default
@@ -2252,11 +2060,11 @@ type CreateLaunchConfigurationInput struct {
 	// This parameter is supported only if you are launching EC2-Classic instances.
 	// For more information, see ClassicLink (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/vpc-classiclink.html)
 	// in the Amazon Elastic Compute Cloud User Guide.
-	ClassicLinkVPCId *string `min:"1" type:"string"`
+	ClassicLinkVPCId *string `type:"string"`
 
-	// The IDs of one or more security groups for the specified ClassicLink-enabled
-	// VPC. This parameter is required if you specify a ClassicLink-enabled VPC,
-	// and is not supported otherwise. For more information, see ClassicLink (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/vpc-classiclink.html)
+	// The IDs of one or more security groups for the VPC specified in ClassicLinkVPCId.
+	// This parameter is required if ClassicLinkVPCId is specified, and is not supported
+	// otherwise. For more information, see ClassicLink (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/vpc-classiclink.html)
 	// in the Amazon Elastic Compute Cloud User Guide.
 	ClassicLinkVPCSecurityGroups []*string `type:"list"`
 
@@ -2278,14 +2086,14 @@ type CreateLaunchConfigurationInput struct {
 	// AWS resources. For more information, see Launch Auto Scaling Instances with
 	// an IAM Role (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/us-iam-role.html)
 	// in the Auto Scaling Developer Guide.
-	IamInstanceProfile *string `min:"1" type:"string"`
+	IamInstanceProfile *string `type:"string"`
 
 	// The ID of the Amazon Machine Image (AMI) to use to launch your EC2 instances.
 	// For more information, see Finding an AMI (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html)
 	// in the Amazon Elastic Compute Cloud User Guide.
-	ImageId *string `min:"1" type:"string"`
+	ImageId *string `type:"string"`
 
-	// The ID of the instance to use to create the launch configuration.
+	// The ID of the EC2 instance to use to create the launch configuration.
 	//
 	// The new launch configuration derives attributes from the instance, with
 	// the exception of the block device mapping.
@@ -2296,7 +2104,7 @@ type CreateLaunchConfigurationInput struct {
 	// For more information, see Create a Launch Configuration Using an EC2 Instance
 	// (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/create-lc-with-instanceID.html)
 	// in the Auto Scaling Developer Guide.
-	InstanceId *string `min:"1" type:"string"`
+	InstanceId *string `type:"string"`
 
 	// Enables detailed monitoring if it is disabled. Detailed monitoring is enabled
 	// by default.
@@ -2304,27 +2112,26 @@ type CreateLaunchConfigurationInput struct {
 	// When detailed monitoring is enabled, Amazon CloudWatch generates metrics
 	// every minute and your account is charged a fee. When you disable detailed
 	// monitoring, by specifying False, CloudWatch generates metrics every 5 minutes.
-	// For more information, see Monitoring Your Auto Scaling Instances and Groups
-	// (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/as-instance-monitoring.html)
+	// For more information, see Monitor Your Auto Scaling Instances (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/as-instance-monitoring.html)
 	// in the Auto Scaling Developer Guide.
 	InstanceMonitoring *InstanceMonitoring `type:"structure"`
 
 	// The instance type of the EC2 instance. For information about available instance
 	// types, see  Available Instance Types (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-types.html#AvailableInstanceTypes)
-	// in the Amazon Elastic Compute Cloud User Guide.
-	InstanceType *string `min:"1" type:"string"`
+	// in the Amazon Elastic Cloud Compute User Guide.
+	InstanceType *string `type:"string"`
 
 	// The ID of the kernel associated with the AMI.
-	KernelId *string `min:"1" type:"string"`
+	KernelId *string `type:"string"`
 
 	// The name of the key pair. For more information, see Amazon EC2 Key Pairs
 	// (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html) in
 	// the Amazon Elastic Compute Cloud User Guide.
-	KeyName *string `min:"1" type:"string"`
+	KeyName *string `type:"string"`
 
 	// The name of the launch configuration. This name must be unique within the
 	// scope of your AWS account.
-	LaunchConfigurationName *string `min:"1" type:"string" required:"true"`
+	LaunchConfigurationName *string `type:"string" required:"true"`
 
 	// The tenancy of the instance. An instance with a tenancy of dedicated runs
 	// on single-tenant hardware and can only be launched into a VPC.
@@ -2333,17 +2140,18 @@ type CreateLaunchConfigurationInput struct {
 	// Dedicated Instances into a shared tenancy VPC (VPC with instance placement
 	// tenancy attribute set to default).
 	//
-	// If you specify this parameter, be sure to specify at least one subnet when
-	// you create your group.
+	// If you specify a value for this parameter, be sure to specify at least one
+	// subnet using the VPCZoneIdentifier parameter when you create your group.
 	//
-	// For more information, see Launching Auto Scaling Instances in a VPC (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/asg-in-vpc.html)
+	// For more information, see Auto Scaling and Amazon Virtual Private Cloud
+	// (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/autoscalingsubnets.html)
 	// in the Auto Scaling Developer Guide.
 	//
 	// Valid values: default | dedicated
-	PlacementTenancy *string `min:"1" type:"string"`
+	PlacementTenancy *string `type:"string"`
 
 	// The ID of the RAM disk associated with the AMI.
-	RamdiskId *string `min:"1" type:"string"`
+	RamdiskId *string `type:"string"`
 
 	// One or more security groups with which to associate the instances.
 	//
@@ -2359,15 +2167,24 @@ type CreateLaunchConfigurationInput struct {
 
 	// The maximum hourly price to be paid for any Spot Instance launched to fulfill
 	// the request. Spot Instances are launched when the price you specify exceeds
-	// the current Spot market price. For more information, see Launching Spot Instances
+	// the current Spot market price. For more information, see Launch Spot Instances
 	// in Your Auto Scaling Group (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/US-SpotInstances.html)
 	// in the Auto Scaling Developer Guide.
-	SpotPrice *string `min:"1" type:"string"`
+	SpotPrice *string `type:"string"`
 
 	// The user data to make available to the launched EC2 instances. For more information,
 	// see Instance Metadata and User Data (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html)
 	// in the Amazon Elastic Compute Cloud User Guide.
+	//
+	// At this time, launch configurations don't support compressed (zipped) user
+	// data files.
 	UserData *string `type:"string"`
+
+	metadataCreateLaunchConfigurationInput `json:"-" xml:"-"`
+}
+
+type metadataCreateLaunchConfigurationInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2380,64 +2197,12 @@ func (s CreateLaunchConfigurationInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateLaunchConfigurationInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateLaunchConfigurationInput"}
-	if s.ClassicLinkVPCId != nil && len(*s.ClassicLinkVPCId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ClassicLinkVPCId", 1))
-	}
-	if s.IamInstanceProfile != nil && len(*s.IamInstanceProfile) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("IamInstanceProfile", 1))
-	}
-	if s.ImageId != nil && len(*s.ImageId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ImageId", 1))
-	}
-	if s.InstanceId != nil && len(*s.InstanceId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("InstanceId", 1))
-	}
-	if s.InstanceType != nil && len(*s.InstanceType) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("InstanceType", 1))
-	}
-	if s.KernelId != nil && len(*s.KernelId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("KernelId", 1))
-	}
-	if s.KeyName != nil && len(*s.KeyName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("KeyName", 1))
-	}
-	if s.LaunchConfigurationName == nil {
-		invalidParams.Add(request.NewErrParamRequired("LaunchConfigurationName"))
-	}
-	if s.LaunchConfigurationName != nil && len(*s.LaunchConfigurationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("LaunchConfigurationName", 1))
-	}
-	if s.PlacementTenancy != nil && len(*s.PlacementTenancy) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("PlacementTenancy", 1))
-	}
-	if s.RamdiskId != nil && len(*s.RamdiskId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("RamdiskId", 1))
-	}
-	if s.SpotPrice != nil && len(*s.SpotPrice) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("SpotPrice", 1))
-	}
-	if s.BlockDeviceMappings != nil {
-		for i, v := range s.BlockDeviceMappings {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "BlockDeviceMappings", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type CreateLaunchConfigurationOutput struct {
+	metadataCreateLaunchConfigurationOutput `json:"-" xml:"-"`
 }
 
-type CreateLaunchConfigurationOutput struct {
-	_ struct{} `type:"structure"`
+type metadataCreateLaunchConfigurationOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2451,10 +2216,14 @@ func (s CreateLaunchConfigurationOutput) GoString() string {
 }
 
 type CreateOrUpdateTagsInput struct {
-	_ struct{} `type:"structure"`
-
 	// One or more tags.
 	Tags []*Tag `type:"list" required:"true"`
+
+	metadataCreateOrUpdateTagsInput `json:"-" xml:"-"`
+}
+
+type metadataCreateOrUpdateTagsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2467,31 +2236,12 @@ func (s CreateOrUpdateTagsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateOrUpdateTagsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateOrUpdateTagsInput"}
-	if s.Tags == nil {
-		invalidParams.Add(request.NewErrParamRequired("Tags"))
-	}
-	if s.Tags != nil {
-		for i, v := range s.Tags {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Tags", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type CreateOrUpdateTagsOutput struct {
+	metadataCreateOrUpdateTagsOutput `json:"-" xml:"-"`
 }
 
-type CreateOrUpdateTagsOutput struct {
-	_ struct{} `type:"structure"`
+type metadataCreateOrUpdateTagsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2505,15 +2255,19 @@ func (s CreateOrUpdateTagsOutput) GoString() string {
 }
 
 type DeleteAutoScalingGroupInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the group to delete.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
 	// Specifies that the group will be deleted along with all instances associated
 	// with the group, without waiting for all instances to be terminated. This
 	// parameter also deletes any lifecycle actions associated with the group.
 	ForceDelete *bool `type:"boolean"`
+
+	metadataDeleteAutoScalingGroupInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteAutoScalingGroupInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2526,24 +2280,12 @@ func (s DeleteAutoScalingGroupInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteAutoScalingGroupInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteAutoScalingGroupInput"}
-	if s.AutoScalingGroupName == nil {
-		invalidParams.Add(request.NewErrParamRequired("AutoScalingGroupName"))
-	}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type DeleteAutoScalingGroupOutput struct {
+	metadataDeleteAutoScalingGroupOutput `json:"-" xml:"-"`
 }
 
-type DeleteAutoScalingGroupOutput struct {
-	_ struct{} `type:"structure"`
+type metadataDeleteAutoScalingGroupOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2557,10 +2299,14 @@ func (s DeleteAutoScalingGroupOutput) GoString() string {
 }
 
 type DeleteLaunchConfigurationInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the launch configuration.
-	LaunchConfigurationName *string `min:"1" type:"string" required:"true"`
+	LaunchConfigurationName *string `type:"string" required:"true"`
+
+	metadataDeleteLaunchConfigurationInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteLaunchConfigurationInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2573,24 +2319,12 @@ func (s DeleteLaunchConfigurationInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteLaunchConfigurationInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteLaunchConfigurationInput"}
-	if s.LaunchConfigurationName == nil {
-		invalidParams.Add(request.NewErrParamRequired("LaunchConfigurationName"))
-	}
-	if s.LaunchConfigurationName != nil && len(*s.LaunchConfigurationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("LaunchConfigurationName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type DeleteLaunchConfigurationOutput struct {
+	metadataDeleteLaunchConfigurationOutput `json:"-" xml:"-"`
 }
 
-type DeleteLaunchConfigurationOutput struct {
-	_ struct{} `type:"structure"`
+type metadataDeleteLaunchConfigurationOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2604,13 +2338,17 @@ func (s DeleteLaunchConfigurationOutput) GoString() string {
 }
 
 type DeleteLifecycleHookInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the Auto Scaling group for the lifecycle hook.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
 	// The name of the lifecycle hook.
-	LifecycleHookName *string `min:"1" type:"string" required:"true"`
+	LifecycleHookName *string `type:"string" required:"true"`
+
+	metadataDeleteLifecycleHookInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteLifecycleHookInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2623,30 +2361,12 @@ func (s DeleteLifecycleHookInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteLifecycleHookInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteLifecycleHookInput"}
-	if s.AutoScalingGroupName == nil {
-		invalidParams.Add(request.NewErrParamRequired("AutoScalingGroupName"))
-	}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-	if s.LifecycleHookName == nil {
-		invalidParams.Add(request.NewErrParamRequired("LifecycleHookName"))
-	}
-	if s.LifecycleHookName != nil && len(*s.LifecycleHookName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("LifecycleHookName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type DeleteLifecycleHookOutput struct {
+	metadataDeleteLifecycleHookOutput `json:"-" xml:"-"`
 }
 
-type DeleteLifecycleHookOutput struct {
-	_ struct{} `type:"structure"`
+type metadataDeleteLifecycleHookOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2660,14 +2380,18 @@ func (s DeleteLifecycleHookOutput) GoString() string {
 }
 
 type DeleteNotificationConfigurationInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the Auto Scaling group.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
 	// The Amazon Resource Name (ARN) of the Amazon Simple Notification Service
 	// (SNS) topic.
-	TopicARN *string `min:"1" type:"string" required:"true"`
+	TopicARN *string `type:"string" required:"true"`
+
+	metadataDeleteNotificationConfigurationInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteNotificationConfigurationInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2680,30 +2404,12 @@ func (s DeleteNotificationConfigurationInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteNotificationConfigurationInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteNotificationConfigurationInput"}
-	if s.AutoScalingGroupName == nil {
-		invalidParams.Add(request.NewErrParamRequired("AutoScalingGroupName"))
-	}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-	if s.TopicARN == nil {
-		invalidParams.Add(request.NewErrParamRequired("TopicARN"))
-	}
-	if s.TopicARN != nil && len(*s.TopicARN) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TopicARN", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type DeleteNotificationConfigurationOutput struct {
+	metadataDeleteNotificationConfigurationOutput `json:"-" xml:"-"`
 }
 
-type DeleteNotificationConfigurationOutput struct {
-	_ struct{} `type:"structure"`
+type metadataDeleteNotificationConfigurationOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2717,13 +2423,17 @@ func (s DeleteNotificationConfigurationOutput) GoString() string {
 }
 
 type DeletePolicyInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the Auto Scaling group.
-	AutoScalingGroupName *string `min:"1" type:"string"`
+	AutoScalingGroupName *string `type:"string"`
 
 	// The name or Amazon Resource Name (ARN) of the policy.
-	PolicyName *string `min:"1" type:"string" required:"true"`
+	PolicyName *string `type:"string" required:"true"`
+
+	metadataDeletePolicyInput `json:"-" xml:"-"`
+}
+
+type metadataDeletePolicyInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2736,27 +2446,12 @@ func (s DeletePolicyInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeletePolicyInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeletePolicyInput"}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-	if s.PolicyName == nil {
-		invalidParams.Add(request.NewErrParamRequired("PolicyName"))
-	}
-	if s.PolicyName != nil && len(*s.PolicyName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("PolicyName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type DeletePolicyOutput struct {
+	metadataDeletePolicyOutput `json:"-" xml:"-"`
 }
 
-type DeletePolicyOutput struct {
-	_ struct{} `type:"structure"`
+type metadataDeletePolicyOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2770,13 +2465,17 @@ func (s DeletePolicyOutput) GoString() string {
 }
 
 type DeleteScheduledActionInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the Auto Scaling group.
-	AutoScalingGroupName *string `min:"1" type:"string"`
+	AutoScalingGroupName *string `type:"string"`
 
 	// The name of the action to delete.
-	ScheduledActionName *string `min:"1" type:"string" required:"true"`
+	ScheduledActionName *string `type:"string" required:"true"`
+
+	metadataDeleteScheduledActionInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteScheduledActionInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2789,27 +2488,12 @@ func (s DeleteScheduledActionInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteScheduledActionInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteScheduledActionInput"}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-	if s.ScheduledActionName == nil {
-		invalidParams.Add(request.NewErrParamRequired("ScheduledActionName"))
-	}
-	if s.ScheduledActionName != nil && len(*s.ScheduledActionName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ScheduledActionName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type DeleteScheduledActionOutput struct {
+	metadataDeleteScheduledActionOutput `json:"-" xml:"-"`
 }
 
-type DeleteScheduledActionOutput struct {
-	_ struct{} `type:"structure"`
+type metadataDeleteScheduledActionOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2823,10 +2507,17 @@ func (s DeleteScheduledActionOutput) GoString() string {
 }
 
 type DeleteTagsInput struct {
-	_ struct{} `type:"structure"`
-
-	// One or more tags.
+	// Each tag should be defined by its resource type, resource ID, key, value,
+	// and a propagate flag. Valid values are: Resource type = auto-scaling-group,
+	// Resource ID = AutoScalingGroupName, key=value, value=value, propagate=true
+	// or false.
 	Tags []*Tag `type:"list" required:"true"`
+
+	metadataDeleteTagsInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteTagsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2839,31 +2530,12 @@ func (s DeleteTagsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteTagsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteTagsInput"}
-	if s.Tags == nil {
-		invalidParams.Add(request.NewErrParamRequired("Tags"))
-	}
-	if s.Tags != nil {
-		for i, v := range s.Tags {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Tags", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type DeleteTagsOutput struct {
+	metadataDeleteTagsOutput `json:"-" xml:"-"`
 }
 
-type DeleteTagsOutput struct {
-	_ struct{} `type:"structure"`
+type metadataDeleteTagsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2877,7 +2549,11 @@ func (s DeleteTagsOutput) GoString() string {
 }
 
 type DescribeAccountLimitsInput struct {
-	_ struct{} `type:"structure"`
+	metadataDescribeAccountLimitsInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeAccountLimitsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2891,8 +2567,6 @@ func (s DescribeAccountLimitsInput) GoString() string {
 }
 
 type DescribeAccountLimitsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The maximum number of groups allowed for your AWS account. The default limit
 	// is 20 per region.
 	MaxNumberOfAutoScalingGroups *int64 `type:"integer"`
@@ -2901,11 +2575,11 @@ type DescribeAccountLimitsOutput struct {
 	// The default limit is 100 per region.
 	MaxNumberOfLaunchConfigurations *int64 `type:"integer"`
 
-	// The current number of groups for your AWS account.
-	NumberOfAutoScalingGroups *int64 `type:"integer"`
+	metadataDescribeAccountLimitsOutput `json:"-" xml:"-"`
+}
 
-	// The current number of launch configurations for your AWS account.
-	NumberOfLaunchConfigurations *int64 `type:"integer"`
+type metadataDescribeAccountLimitsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2919,7 +2593,11 @@ func (s DescribeAccountLimitsOutput) GoString() string {
 }
 
 type DescribeAdjustmentTypesInput struct {
-	_ struct{} `type:"structure"`
+	metadataDescribeAdjustmentTypesInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeAdjustmentTypesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2933,10 +2611,14 @@ func (s DescribeAdjustmentTypesInput) GoString() string {
 }
 
 type DescribeAdjustmentTypesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The policy adjustment types.
 	AdjustmentTypes []*AdjustmentType `type:"list"`
+
+	metadataDescribeAdjustmentTypesOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeAdjustmentTypesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2950,8 +2632,6 @@ func (s DescribeAdjustmentTypesOutput) GoString() string {
 }
 
 type DescribeAutoScalingGroupsInput struct {
-	_ struct{} `type:"structure"`
-
 	// The group names.
 	AutoScalingGroupNames []*string `type:"list"`
 
@@ -2961,6 +2641,12 @@ type DescribeAutoScalingGroupsInput struct {
 	// The token for the next set of items to return. (You received this token from
 	// a previous call.)
 	NextToken *string `type:"string"`
+
+	metadataDescribeAutoScalingGroupsInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeAutoScalingGroupsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2974,14 +2660,18 @@ func (s DescribeAutoScalingGroupsInput) GoString() string {
 }
 
 type DescribeAutoScalingGroupsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The groups.
 	AutoScalingGroups []*Group `type:"list" required:"true"`
 
 	// The token to use when requesting the next set of items. If there are no additional
 	// items to return, the string is empty.
 	NextToken *string `type:"string"`
+
+	metadataDescribeAutoScalingGroupsOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeAutoScalingGroupsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2995,11 +2685,9 @@ func (s DescribeAutoScalingGroupsOutput) GoString() string {
 }
 
 type DescribeAutoScalingInstancesInput struct {
-	_ struct{} `type:"structure"`
-
-	// The instances to describe; up to 50 instance IDs. If you omit this parameter,
-	// all Auto Scaling instances are described. If you specify an ID that does
-	// not exist, it is ignored with no error.
+	// One or more Auto Scaling instances to describe, up to 50 instances. If you
+	// omit this parameter, all Auto Scaling instances are described. If you specify
+	// an ID that does not exist, it is ignored with no error.
 	InstanceIds []*string `type:"list"`
 
 	// The maximum number of items to return with this call.
@@ -3008,6 +2696,12 @@ type DescribeAutoScalingInstancesInput struct {
 	// The token for the next set of items to return. (You received this token from
 	// a previous call.)
 	NextToken *string `type:"string"`
+
+	metadataDescribeAutoScalingInstancesInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeAutoScalingInstancesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3021,14 +2715,18 @@ func (s DescribeAutoScalingInstancesInput) GoString() string {
 }
 
 type DescribeAutoScalingInstancesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The instances.
 	AutoScalingInstances []*InstanceDetails `type:"list"`
 
 	// The token to use when requesting the next set of items. If there are no additional
 	// items to return, the string is empty.
 	NextToken *string `type:"string"`
+
+	metadataDescribeAutoScalingInstancesOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeAutoScalingInstancesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3042,7 +2740,11 @@ func (s DescribeAutoScalingInstancesOutput) GoString() string {
 }
 
 type DescribeAutoScalingNotificationTypesInput struct {
-	_ struct{} `type:"structure"`
+	metadataDescribeAutoScalingNotificationTypesInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeAutoScalingNotificationTypesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3056,8 +2758,6 @@ func (s DescribeAutoScalingNotificationTypesInput) GoString() string {
 }
 
 type DescribeAutoScalingNotificationTypesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// One or more of the following notification types:
 	//
 	//  autoscaling:EC2_INSTANCE_LAUNCH
@@ -3070,6 +2770,12 @@ type DescribeAutoScalingNotificationTypesOutput struct {
 	//
 	// autoscaling:TEST_NOTIFICATION
 	AutoScalingNotificationTypes []*string `type:"list"`
+
+	metadataDescribeAutoScalingNotificationTypesOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeAutoScalingNotificationTypesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3083,8 +2789,6 @@ func (s DescribeAutoScalingNotificationTypesOutput) GoString() string {
 }
 
 type DescribeLaunchConfigurationsInput struct {
-	_ struct{} `type:"structure"`
-
 	// The launch configuration names.
 	LaunchConfigurationNames []*string `type:"list"`
 
@@ -3094,6 +2798,12 @@ type DescribeLaunchConfigurationsInput struct {
 	// The token for the next set of items to return. (You received this token from
 	// a previous call.)
 	NextToken *string `type:"string"`
+
+	metadataDescribeLaunchConfigurationsInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeLaunchConfigurationsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3107,14 +2817,18 @@ func (s DescribeLaunchConfigurationsInput) GoString() string {
 }
 
 type DescribeLaunchConfigurationsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The launch configurations.
 	LaunchConfigurations []*LaunchConfiguration `type:"list" required:"true"`
 
 	// The token to use when requesting the next set of items. If there are no additional
 	// items to return, the string is empty.
 	NextToken *string `type:"string"`
+
+	metadataDescribeLaunchConfigurationsOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeLaunchConfigurationsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3128,7 +2842,11 @@ func (s DescribeLaunchConfigurationsOutput) GoString() string {
 }
 
 type DescribeLifecycleHookTypesInput struct {
-	_ struct{} `type:"structure"`
+	metadataDescribeLifecycleHookTypesInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeLifecycleHookTypesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3142,14 +2860,18 @@ func (s DescribeLifecycleHookTypesInput) GoString() string {
 }
 
 type DescribeLifecycleHookTypesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// One or more of the following notification types:
 	//
 	//  autoscaling:EC2_INSTANCE_LAUNCHING
 	//
 	// autoscaling:EC2_INSTANCE_TERMINATING
 	LifecycleHookTypes []*string `type:"list"`
+
+	metadataDescribeLifecycleHookTypesOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeLifecycleHookTypesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3163,13 +2885,17 @@ func (s DescribeLifecycleHookTypesOutput) GoString() string {
 }
 
 type DescribeLifecycleHooksInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the group.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
 	// The names of one or more lifecycle hooks.
 	LifecycleHookNames []*string `type:"list"`
+
+	metadataDescribeLifecycleHooksInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeLifecycleHooksInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3182,27 +2908,15 @@ func (s DescribeLifecycleHooksInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeLifecycleHooksInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeLifecycleHooksInput"}
-	if s.AutoScalingGroupName == nil {
-		invalidParams.Add(request.NewErrParamRequired("AutoScalingGroupName"))
-	}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type DescribeLifecycleHooksOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The lifecycle hooks for the specified group.
 	LifecycleHooks []*LifecycleHook `type:"list"`
+
+	metadataDescribeLifecycleHooksOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeLifecycleHooksOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3216,10 +2930,8 @@ func (s DescribeLifecycleHooksOutput) GoString() string {
 }
 
 type DescribeLoadBalancersInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the group.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
 	// The maximum number of items to return with this call.
 	MaxRecords *int64 `type:"integer"`
@@ -3227,6 +2939,12 @@ type DescribeLoadBalancersInput struct {
 	// The token for the next set of items to return. (You received this token from
 	// a previous call.)
 	NextToken *string `type:"string"`
+
+	metadataDescribeLoadBalancersInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeLoadBalancersInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3239,31 +2957,19 @@ func (s DescribeLoadBalancersInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeLoadBalancersInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeLoadBalancersInput"}
-	if s.AutoScalingGroupName == nil {
-		invalidParams.Add(request.NewErrParamRequired("AutoScalingGroupName"))
-	}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type DescribeLoadBalancersOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The load balancers.
 	LoadBalancers []*LoadBalancerState `type:"list"`
 
 	// The token to use when requesting the next set of items. If there are no additional
 	// items to return, the string is empty.
 	NextToken *string `type:"string"`
+
+	metadataDescribeLoadBalancersOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeLoadBalancersOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3277,7 +2983,11 @@ func (s DescribeLoadBalancersOutput) GoString() string {
 }
 
 type DescribeMetricCollectionTypesInput struct {
-	_ struct{} `type:"structure"`
+	metadataDescribeMetricCollectionTypesInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeMetricCollectionTypesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3291,13 +3001,17 @@ func (s DescribeMetricCollectionTypesInput) GoString() string {
 }
 
 type DescribeMetricCollectionTypesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The granularities for the metrics.
 	Granularities []*MetricGranularityType `type:"list"`
 
 	// One or more metrics.
 	Metrics []*MetricCollectionType `type:"list"`
+
+	metadataDescribeMetricCollectionTypesOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeMetricCollectionTypesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3311,8 +3025,6 @@ func (s DescribeMetricCollectionTypesOutput) GoString() string {
 }
 
 type DescribeNotificationConfigurationsInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the group.
 	AutoScalingGroupNames []*string `type:"list"`
 
@@ -3322,6 +3034,12 @@ type DescribeNotificationConfigurationsInput struct {
 	// The token for the next set of items to return. (You received this token from
 	// a previous call.)
 	NextToken *string `type:"string"`
+
+	metadataDescribeNotificationConfigurationsInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeNotificationConfigurationsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3335,14 +3053,18 @@ func (s DescribeNotificationConfigurationsInput) GoString() string {
 }
 
 type DescribeNotificationConfigurationsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The token to use when requesting the next set of items. If there are no additional
 	// items to return, the string is empty.
 	NextToken *string `type:"string"`
 
 	// The notification configurations.
 	NotificationConfigurations []*NotificationConfiguration `type:"list" required:"true"`
+
+	metadataDescribeNotificationConfigurationsOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeNotificationConfigurationsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3356,10 +3078,8 @@ func (s DescribeNotificationConfigurationsOutput) GoString() string {
 }
 
 type DescribePoliciesInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the group.
-	AutoScalingGroupName *string `min:"1" type:"string"`
+	AutoScalingGroupName *string `type:"string"`
 
 	// The maximum number of items to be returned with each call.
 	MaxRecords *int64 `type:"integer"`
@@ -3376,6 +3096,12 @@ type DescribePoliciesInput struct {
 
 	// One or more policy types. Valid values are SimpleScaling and StepScaling.
 	PolicyTypes []*string `type:"list"`
+
+	metadataDescribePoliciesInput `json:"-" xml:"-"`
+}
+
+type metadataDescribePoliciesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3388,28 +3114,19 @@ func (s DescribePoliciesInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribePoliciesInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribePoliciesInput"}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type DescribePoliciesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The token to use when requesting the next set of items. If there are no additional
 	// items to return, the string is empty.
 	NextToken *string `type:"string"`
 
 	// The scaling policies.
 	ScalingPolicies []*ScalingPolicy `type:"list"`
+
+	metadataDescribePoliciesOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribePoliciesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3423,17 +3140,15 @@ func (s DescribePoliciesOutput) GoString() string {
 }
 
 type DescribeScalingActivitiesInput struct {
-	_ struct{} `type:"structure"`
-
 	// The activity IDs of the desired scaling activities. If this list is omitted,
-	// all activities are described. If you specify an Auto Scaling group, the results
-	// are limited to that group. The list of requested activities cannot contain
-	// more than 50 items. If unknown activities are requested, they are ignored
-	// with no error.
+	// all activities are described. If the AutoScalingGroupName parameter is provided,
+	// the results are limited to that group. The list of requested activities cannot
+	// contain more than 50 items. If unknown activities are requested, they are
+	// ignored with no error.
 	ActivityIds []*string `type:"list"`
 
 	// The name of the group.
-	AutoScalingGroupName *string `min:"1" type:"string"`
+	AutoScalingGroupName *string `type:"string"`
 
 	// The maximum number of items to return with this call.
 	MaxRecords *int64 `type:"integer"`
@@ -3441,6 +3156,12 @@ type DescribeScalingActivitiesInput struct {
 	// The token for the next set of items to return. (You received this token from
 	// a previous call.)
 	NextToken *string `type:"string"`
+
+	metadataDescribeScalingActivitiesInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeScalingActivitiesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3453,28 +3174,19 @@ func (s DescribeScalingActivitiesInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeScalingActivitiesInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeScalingActivitiesInput"}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type DescribeScalingActivitiesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The scaling activities.
 	Activities []*Activity `type:"list" required:"true"`
 
 	// The token to use when requesting the next set of items. If there are no additional
 	// items to return, the string is empty.
 	NextToken *string `type:"string"`
+
+	metadataDescribeScalingActivitiesOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeScalingActivitiesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3488,7 +3200,11 @@ func (s DescribeScalingActivitiesOutput) GoString() string {
 }
 
 type DescribeScalingProcessTypesInput struct {
-	_ struct{} `type:"structure"`
+	metadataDescribeScalingProcessTypesInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeScalingProcessTypesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3502,10 +3218,14 @@ func (s DescribeScalingProcessTypesInput) GoString() string {
 }
 
 type DescribeScalingProcessTypesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The names of the process types.
 	Processes []*ProcessType `type:"list"`
+
+	metadataDescribeScalingProcessTypesOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeScalingProcessTypesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3519,10 +3239,8 @@ func (s DescribeScalingProcessTypesOutput) GoString() string {
 }
 
 type DescribeScheduledActionsInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the group.
-	AutoScalingGroupName *string `min:"1" type:"string"`
+	AutoScalingGroupName *string `type:"string"`
 
 	// The latest scheduled start time to return. If scheduled action names are
 	// provided, this parameter is ignored.
@@ -3541,12 +3259,18 @@ type DescribeScheduledActionsInput struct {
 	//
 	// You can describe up to a maximum of 50 instances with a single call. If
 	// there are more items to return, the call returns a token. To get the next
-	// set of items, repeat the call with the returned token.
+	// set of items, repeat the call with the returned token in the NextToken parameter.
 	ScheduledActionNames []*string `type:"list"`
 
 	// The earliest scheduled start time to return. If scheduled action names are
 	// provided, this parameter is ignored.
 	StartTime *time.Time `type:"timestamp" timestampFormat:"iso8601"`
+
+	metadataDescribeScheduledActionsInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeScheduledActionsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3559,28 +3283,19 @@ func (s DescribeScheduledActionsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeScheduledActionsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeScheduledActionsInput"}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type DescribeScheduledActionsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The token to use when requesting the next set of items. If there are no additional
 	// items to return, the string is empty.
 	NextToken *string `type:"string"`
 
 	// The scheduled actions.
 	ScheduledUpdateGroupActions []*ScheduledUpdateGroupAction `type:"list"`
+
+	metadataDescribeScheduledActionsOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeScheduledActionsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3594,8 +3309,6 @@ func (s DescribeScheduledActionsOutput) GoString() string {
 }
 
 type DescribeTagsInput struct {
-	_ struct{} `type:"structure"`
-
 	// A filter used to scope the tags to return.
 	Filters []*Filter `type:"list"`
 
@@ -3605,6 +3318,12 @@ type DescribeTagsInput struct {
 	// The token for the next set of items to return. (You received this token from
 	// a previous call.)
 	NextToken *string `type:"string"`
+
+	metadataDescribeTagsInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeTagsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3618,14 +3337,18 @@ func (s DescribeTagsInput) GoString() string {
 }
 
 type DescribeTagsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The token to use when requesting the next set of items. If there are no additional
 	// items to return, the string is empty.
 	NextToken *string `type:"string"`
 
-	// One or more tags.
+	// The tags.
 	Tags []*TagDescription `type:"list"`
+
+	metadataDescribeTagsOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeTagsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3639,7 +3362,11 @@ func (s DescribeTagsOutput) GoString() string {
 }
 
 type DescribeTerminationPolicyTypesInput struct {
-	_ struct{} `type:"structure"`
+	metadataDescribeTerminationPolicyTypesInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeTerminationPolicyTypesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3653,11 +3380,15 @@ func (s DescribeTerminationPolicyTypesInput) GoString() string {
 }
 
 type DescribeTerminationPolicyTypesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The termination policies supported by Auto Scaling (OldestInstance, OldestLaunchConfiguration,
 	// NewestInstance, ClosestToNextInstanceHour, and Default).
 	TerminationPolicyTypes []*string `type:"list"`
+
+	metadataDescribeTerminationPolicyTypesOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeTerminationPolicyTypesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3671,10 +3402,8 @@ func (s DescribeTerminationPolicyTypesOutput) GoString() string {
 }
 
 type DetachInstancesInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the group.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
 	// One or more instance IDs.
 	InstanceIds []*string `type:"list"`
@@ -3682,6 +3411,12 @@ type DetachInstancesInput struct {
 	// If True, the Auto Scaling group decrements the desired capacity value by
 	// the number of instances detached.
 	ShouldDecrementDesiredCapacity *bool `type:"boolean" required:"true"`
+
+	metadataDetachInstancesInput `json:"-" xml:"-"`
+}
+
+type metadataDetachInstancesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3694,30 +3429,15 @@ func (s DetachInstancesInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DetachInstancesInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DetachInstancesInput"}
-	if s.AutoScalingGroupName == nil {
-		invalidParams.Add(request.NewErrParamRequired("AutoScalingGroupName"))
-	}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-	if s.ShouldDecrementDesiredCapacity == nil {
-		invalidParams.Add(request.NewErrParamRequired("ShouldDecrementDesiredCapacity"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type DetachInstancesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The activities related to detaching the instances from the Auto Scaling group.
 	Activities []*Activity `type:"list"`
+
+	metadataDetachInstancesOutput `json:"-" xml:"-"`
+}
+
+type metadataDetachInstancesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3731,13 +3451,17 @@ func (s DetachInstancesOutput) GoString() string {
 }
 
 type DetachLoadBalancersInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the group.
-	AutoScalingGroupName *string `min:"1" type:"string"`
+	AutoScalingGroupName *string `type:"string"`
 
 	// One or more load balancer names.
 	LoadBalancerNames []*string `type:"list"`
+
+	metadataDetachLoadBalancersInput `json:"-" xml:"-"`
+}
+
+type metadataDetachLoadBalancersInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3750,21 +3474,12 @@ func (s DetachLoadBalancersInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DetachLoadBalancersInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DetachLoadBalancersInput"}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type DetachLoadBalancersOutput struct {
+	metadataDetachLoadBalancersOutput `json:"-" xml:"-"`
 }
 
-type DetachLoadBalancersOutput struct {
-	_ struct{} `type:"structure"`
+type metadataDetachLoadBalancersOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3778,13 +3493,10 @@ func (s DetachLoadBalancersOutput) GoString() string {
 }
 
 type DisableMetricsCollectionInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name or Amazon Resource Name (ARN) of the group.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
-	// One or more of the following metrics. If you omit this parameter, all metrics
-	// are disabled.
+	// One or more metrics. If you omit this parameter, all metrics are disabled.
 	//
 	//  GroupMinSize
 	//
@@ -3802,6 +3514,12 @@ type DisableMetricsCollectionInput struct {
 	//
 	// GroupTotalInstances
 	Metrics []*string `type:"list"`
+
+	metadataDisableMetricsCollectionInput `json:"-" xml:"-"`
+}
+
+type metadataDisableMetricsCollectionInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3814,24 +3532,12 @@ func (s DisableMetricsCollectionInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DisableMetricsCollectionInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DisableMetricsCollectionInput"}
-	if s.AutoScalingGroupName == nil {
-		invalidParams.Add(request.NewErrParamRequired("AutoScalingGroupName"))
-	}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type DisableMetricsCollectionOutput struct {
+	metadataDisableMetricsCollectionOutput `json:"-" xml:"-"`
 }
 
-type DisableMetricsCollectionOutput struct {
-	_ struct{} `type:"structure"`
+type metadataDisableMetricsCollectionOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3846,46 +3552,46 @@ func (s DisableMetricsCollectionOutput) GoString() string {
 
 // Describes an Amazon EBS volume.
 type Ebs struct {
-	_ struct{} `type:"structure"`
-
-	// Indicates whether the volume is deleted on instance termination.
+	// Indicates whether to delete the volume on instance termination.
 	//
 	// Default: true
 	DeleteOnTermination *bool `type:"boolean"`
 
-	// Indicates whether the volume should be encrypted. Encrypted EBS volumes must
-	// be attached to instances that support Amazon EBS encryption. Volumes that
-	// are created from encrypted snapshots are automatically encrypted. There is
-	// no way to create an encrypted volume from an unencrypted snapshot or an unencrypted
-	// volume from an encrypted snapshot. For more information, see Amazon EBS Encryption
-	// (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSEncryption.html) in
-	// the Amazon Elastic Compute Cloud User Guide.
-	Encrypted *bool `type:"boolean"`
-
-	// The number of I/O operations per second (IOPS) to provision for the volume.
+	// For Provisioned IOPS (SSD) volumes only. The number of I/O operations per
+	// second (IOPS) to provision for the volume.
 	//
-	// Constraint: Required when the volume type is io1.
-	Iops *int64 `min:"100" type:"integer"`
+	// Valid values: Range is 100 to 4000.
+	//
+	// Default: None
+	Iops *int64 `type:"integer"`
 
 	// The ID of the snapshot.
-	SnapshotId *string `min:"1" type:"string"`
+	SnapshotId *string `type:"string"`
 
-	// The volume size, in GiB. For standard volumes, specify a value from 1 to
-	// 1,024. For io1 volumes, specify a value from 4 to 16,384. For gp2 volumes,
-	// specify a value from 1 to 16,384. If you specify a snapshot, the volume size
-	// must be equal to or larger than the snapshot size.
+	// The volume size, in gigabytes.
+	//
+	// Valid values: If the volume type is io1, the minimum size of the volume
+	// is 10 GiB. If you specify SnapshotId and VolumeSize, VolumeSize must be equal
+	// to or larger than the size of the snapshot.
 	//
 	// Default: If you create a volume from a snapshot and you don't specify a
-	// volume size, the default is the snapshot size.
-	VolumeSize *int64 `min:"1" type:"integer"`
+	// volume size, the default is the size of the snapshot.
+	//
+	// Required: Required when the volume type is io1.
+	VolumeSize *int64 `type:"integer"`
 
-	// The volume type. For more information, see Amazon EBS Volume Types (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EBSVolumeTypes.html)
-	// in the Amazon Elastic Compute Cloud User Guide.
+	// The volume type.
 	//
 	// Valid values: standard | io1 | gp2
 	//
 	// Default: standard
-	VolumeType *string `min:"1" type:"string"`
+	VolumeType *string `type:"string"`
+
+	metadataEbs `json:"-" xml:"-"`
+}
+
+type metadataEbs struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3898,40 +3604,15 @@ func (s Ebs) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *Ebs) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "Ebs"}
-	if s.Iops != nil && *s.Iops < 100 {
-		invalidParams.Add(request.NewErrParamMinValue("Iops", 100))
-	}
-	if s.SnapshotId != nil && len(*s.SnapshotId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("SnapshotId", 1))
-	}
-	if s.VolumeSize != nil && *s.VolumeSize < 1 {
-		invalidParams.Add(request.NewErrParamMinValue("VolumeSize", 1))
-	}
-	if s.VolumeType != nil && len(*s.VolumeType) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("VolumeType", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type EnableMetricsCollectionInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name or ARN of the Auto Scaling group.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
 	// The granularity to associate with the metrics to collect. The only valid
 	// value is 1Minute.
-	Granularity *string `min:"1" type:"string" required:"true"`
+	Granularity *string `type:"string" required:"true"`
 
-	// One or more of the following metrics. If you omit this parameter, all metrics
-	// are enabled.
+	// One or more metrics. If you omit this parameter, all metrics are enabled.
 	//
 	//  GroupMinSize
 	//
@@ -3952,6 +3633,12 @@ type EnableMetricsCollectionInput struct {
 	//  Note that the GroupStandbyInstances metric is not enabled by default. You
 	// must explicitly request this metric.
 	Metrics []*string `type:"list"`
+
+	metadataEnableMetricsCollectionInput `json:"-" xml:"-"`
+}
+
+type metadataEnableMetricsCollectionInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3964,30 +3651,12 @@ func (s EnableMetricsCollectionInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *EnableMetricsCollectionInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "EnableMetricsCollectionInput"}
-	if s.AutoScalingGroupName == nil {
-		invalidParams.Add(request.NewErrParamRequired("AutoScalingGroupName"))
-	}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-	if s.Granularity == nil {
-		invalidParams.Add(request.NewErrParamRequired("Granularity"))
-	}
-	if s.Granularity != nil && len(*s.Granularity) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("Granularity", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type EnableMetricsCollectionOutput struct {
+	metadataEnableMetricsCollectionOutput `json:"-" xml:"-"`
 }
 
-type EnableMetricsCollectionOutput struct {
-	_ struct{} `type:"structure"`
+type metadataEnableMetricsCollectionOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4002,12 +3671,10 @@ func (s EnableMetricsCollectionOutput) GoString() string {
 
 // Describes an enabled metric.
 type EnabledMetric struct {
-	_ struct{} `type:"structure"`
-
 	// The granularity of the metric. The only valid value is 1Minute.
-	Granularity *string `min:"1" type:"string"`
+	Granularity *string `type:"string"`
 
-	// One of the following metrics:
+	// The name of the metric.
 	//
 	//  GroupMinSize
 	//
@@ -4024,7 +3691,13 @@ type EnabledMetric struct {
 	// GroupTerminatingInstances
 	//
 	// GroupTotalInstances
-	Metric *string `min:"1" type:"string"`
+	Metric *string `type:"string"`
+
+	metadataEnabledMetric `json:"-" xml:"-"`
+}
+
+type metadataEnabledMetric struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4038,10 +3711,8 @@ func (s EnabledMetric) GoString() string {
 }
 
 type EnterStandbyInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the Auto Scaling group.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
 	// One or more instances to move into Standby mode. You must specify at least
 	// one instance ID.
@@ -4052,6 +3723,12 @@ type EnterStandbyInput struct {
 	// Auto Scaling group decrements by the number of instances moved to Standby
 	// mode.
 	ShouldDecrementDesiredCapacity *bool `type:"boolean" required:"true"`
+
+	metadataEnterStandbyInput `json:"-" xml:"-"`
+}
+
+type metadataEnterStandbyInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4064,30 +3741,15 @@ func (s EnterStandbyInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *EnterStandbyInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "EnterStandbyInput"}
-	if s.AutoScalingGroupName == nil {
-		invalidParams.Add(request.NewErrParamRequired("AutoScalingGroupName"))
-	}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-	if s.ShouldDecrementDesiredCapacity == nil {
-		invalidParams.Add(request.NewErrParamRequired("ShouldDecrementDesiredCapacity"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type EnterStandbyOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The activities related to moving instances into Standby mode.
 	Activities []*Activity `type:"list"`
+
+	metadataEnterStandbyOutput `json:"-" xml:"-"`
+}
+
+type metadataEnterStandbyOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4101,10 +3763,8 @@ func (s EnterStandbyOutput) GoString() string {
 }
 
 type ExecutePolicyInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name or Amazon Resource Name (ARN) of the Auto Scaling group.
-	AutoScalingGroupName *string `min:"1" type:"string"`
+	AutoScalingGroupName *string `type:"string"`
 
 	// The breach threshold for the alarm.
 	//
@@ -4118,7 +3778,7 @@ type ExecutePolicyInput struct {
 	//
 	// This parameter is not supported if the policy type is StepScaling.
 	//
-	// For more information, see Auto Scaling Cooldowns (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/Cooldown.html)
+	// For more information, see Understanding Auto Scaling Cooldowns (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/Cooldown.html)
 	// in the Auto Scaling Developer Guide.
 	HonorCooldown *bool `type:"boolean"`
 
@@ -4136,7 +3796,13 @@ type ExecutePolicyInput struct {
 	MetricValue *float64 `type:"double"`
 
 	// The name or ARN of the policy.
-	PolicyName *string `min:"1" type:"string" required:"true"`
+	PolicyName *string `type:"string" required:"true"`
+
+	metadataExecutePolicyInput `json:"-" xml:"-"`
+}
+
+type metadataExecutePolicyInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4149,27 +3815,12 @@ func (s ExecutePolicyInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ExecutePolicyInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ExecutePolicyInput"}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-	if s.PolicyName == nil {
-		invalidParams.Add(request.NewErrParamRequired("PolicyName"))
-	}
-	if s.PolicyName != nil && len(*s.PolicyName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("PolicyName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type ExecutePolicyOutput struct {
+	metadataExecutePolicyOutput `json:"-" xml:"-"`
 }
 
-type ExecutePolicyOutput struct {
-	_ struct{} `type:"structure"`
+type metadataExecutePolicyOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4183,13 +3834,17 @@ func (s ExecutePolicyOutput) GoString() string {
 }
 
 type ExitStandbyInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the Auto Scaling group.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
 	// One or more instance IDs. You must specify at least one instance ID.
 	InstanceIds []*string `type:"list"`
+
+	metadataExitStandbyInput `json:"-" xml:"-"`
+}
+
+type metadataExitStandbyInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4202,27 +3857,15 @@ func (s ExitStandbyInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ExitStandbyInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ExitStandbyInput"}
-	if s.AutoScalingGroupName == nil {
-		invalidParams.Add(request.NewErrParamRequired("AutoScalingGroupName"))
-	}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type ExitStandbyOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The activities related to moving instances out of Standby mode.
 	Activities []*Activity `type:"list"`
+
+	metadataExitStandbyOutput `json:"-" xml:"-"`
+}
+
+type metadataExitStandbyOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4237,14 +3880,18 @@ func (s ExitStandbyOutput) GoString() string {
 
 // Describes a filter.
 type Filter struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the filter. The valid values are: "auto-scaling-group", "key",
 	// "value", and "propagate-at-launch".
 	Name *string `type:"string"`
 
 	// The value of the filter.
 	Values []*string `type:"list"`
+
+	metadataFilter `json:"-" xml:"-"`
+}
+
+type metadataFilter struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4259,22 +3906,20 @@ func (s Filter) GoString() string {
 
 // Describes an Auto Scaling group.
 type Group struct {
-	_ struct{} `type:"structure"`
-
 	// The Amazon Resource Name (ARN) of the group.
-	AutoScalingGroupARN *string `min:"1" type:"string"`
+	AutoScalingGroupARN *string `type:"string"`
 
 	// The name of the group.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
 	// One or more Availability Zones for the group.
-	AvailabilityZones []*string `min:"1" type:"list" required:"true"`
+	AvailabilityZones []*string `type:"list" required:"true"`
 
 	// The date and time the group was created.
 	CreatedTime *time.Time `type:"timestamp" timestampFormat:"iso8601" required:"true"`
 
-	// The amount of time, in seconds, after a scaling activity completes before
-	// another scaling activity can start.
+	// The number of seconds after a scaling activity completes before any further
+	// scaling activities can start.
 	DefaultCooldown *int64 `type:"integer" required:"true"`
 
 	// The desired size of the group.
@@ -4283,18 +3928,19 @@ type Group struct {
 	// The metrics enabled for the group.
 	EnabledMetrics []*EnabledMetric `type:"list"`
 
-	// The amount of time, in seconds, that Auto Scaling waits before checking the
-	// health status of an EC2 instance that has come into service.
+	// The amount of time that Auto Scaling waits before checking an instance's
+	// health status. The grace period begins when an instance comes into service.
 	HealthCheckGracePeriod *int64 `type:"integer"`
 
-	// The service to use for the health checks. The valid values are EC2 and ELB.
-	HealthCheckType *string `min:"1" type:"string" required:"true"`
+	// The service of interest for the health status check, which can be either
+	// EC2 for Amazon EC2 or ELB for Elastic Load Balancing.
+	HealthCheckType *string `type:"string" required:"true"`
 
 	// The EC2 instances associated with the group.
 	Instances []*Instance `type:"list"`
 
 	// The name of the associated launch configuration.
-	LaunchConfigurationName *string `min:"1" type:"string"`
+	LaunchConfigurationName *string `type:"string" required:"true"`
 
 	// One or more load balancers associated with the group.
 	LoadBalancerNames []*string `type:"list"`
@@ -4305,17 +3951,12 @@ type Group struct {
 	// The minimum size of the group.
 	MinSize *int64 `type:"integer" required:"true"`
 
-	// Indicates whether newly launched instances are protected from termination
-	// by Auto Scaling when scaling in.
-	NewInstancesProtectedFromScaleIn *bool `type:"boolean"`
-
 	// The name of the placement group into which you'll launch your instances,
-	// if any. For more information, see Placement Groups (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html)
-	// in the Amazon Elastic Compute Cloud User Guide.
-	PlacementGroup *string `min:"1" type:"string"`
+	// if any. For more information, see Placement Groups (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html).
+	PlacementGroup *string `type:"string"`
 
 	// The current state of the group when DeleteAutoScalingGroup is in progress.
-	Status *string `min:"1" type:"string"`
+	Status *string `type:"string"`
 
 	// The suspended processes associated with the group.
 	SuspendedProcesses []*SuspendedProcess `type:"list"`
@@ -4330,7 +3971,13 @@ type Group struct {
 	//
 	// If you specify VPCZoneIdentifier and AvailabilityZones, ensure that the
 	// Availability Zones of the subnets match the values for AvailabilityZones.
-	VPCZoneIdentifier *string `min:"1" type:"string"`
+	VPCZoneIdentifier *string `type:"string"`
+
+	metadataGroup `json:"-" xml:"-"`
+}
+
+type metadataGroup struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4345,29 +3992,27 @@ func (s Group) GoString() string {
 
 // Describes an EC2 instance.
 type Instance struct {
-	_ struct{} `type:"structure"`
-
 	// The Availability Zone in which the instance is running.
-	AvailabilityZone *string `min:"1" type:"string" required:"true"`
+	AvailabilityZone *string `type:"string" required:"true"`
 
-	// The health status of the instance. "Healthy" means that the instance is healthy
-	// and should remain in service. "Unhealthy" means that the instance is unhealthy
-	// and Auto Scaling should terminate and replace it.
-	HealthStatus *string `min:"1" type:"string" required:"true"`
+	// The health status of the instance.
+	HealthStatus *string `type:"string" required:"true"`
 
 	// The ID of the instance.
-	InstanceId *string `min:"1" type:"string" required:"true"`
+	InstanceId *string `type:"string" required:"true"`
 
 	// The launch configuration associated with the instance.
-	LaunchConfigurationName *string `min:"1" type:"string" required:"true"`
+	LaunchConfigurationName *string `type:"string" required:"true"`
 
 	// A description of the current lifecycle state. Note that the Quarantined state
 	// is not used.
 	LifecycleState *string `type:"string" required:"true" enum:"LifecycleState"`
 
-	// Indicates whether the instance is protected from termination by Auto Scaling
-	// when scaling in.
-	ProtectedFromScaleIn *bool `type:"boolean" required:"true"`
+	metadataInstance `json:"-" xml:"-"`
+}
+
+type metadataInstance struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4382,33 +4027,33 @@ func (s Instance) GoString() string {
 
 // Describes an EC2 instance associated with an Auto Scaling group.
 type InstanceDetails struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the Auto Scaling group associated with the instance.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
 	// The Availability Zone for the instance.
-	AvailabilityZone *string `min:"1" type:"string" required:"true"`
+	AvailabilityZone *string `type:"string" required:"true"`
 
 	// The health status of this instance. "Healthy" means that the instance is
 	// healthy and should remain in service. "Unhealthy" means that the instance
 	// is unhealthy and Auto Scaling should terminate and replace it.
-	HealthStatus *string `min:"1" type:"string" required:"true"`
+	HealthStatus *string `type:"string" required:"true"`
 
 	// The ID of the instance.
-	InstanceId *string `min:"1" type:"string" required:"true"`
+	InstanceId *string `type:"string" required:"true"`
 
 	// The launch configuration associated with the instance.
-	LaunchConfigurationName *string `min:"1" type:"string" required:"true"`
+	LaunchConfigurationName *string `type:"string" required:"true"`
 
 	// The lifecycle state for the instance. For more information, see Auto Scaling
-	// Lifecycle (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/AutoScalingGroupLifecycle.html)
+	// Instance States (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/AutoScalingGroupLifecycle.html#AutoScalingStates)
 	// in the Auto Scaling Developer Guide.
-	LifecycleState *string `min:"1" type:"string" required:"true"`
+	LifecycleState *string `type:"string" required:"true"`
 
-	// Indicates whether the instance is protected from termination by Auto Scaling
-	// when scaling in.
-	ProtectedFromScaleIn *bool `type:"boolean" required:"true"`
+	metadataInstanceDetails `json:"-" xml:"-"`
+}
+
+type metadataInstanceDetails struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4423,10 +4068,14 @@ func (s InstanceDetails) GoString() string {
 
 // Describes whether instance monitoring is enabled.
 type InstanceMonitoring struct {
-	_ struct{} `type:"structure"`
-
 	// If True, instance monitoring is enabled.
 	Enabled *bool `type:"boolean"`
+
+	metadataInstanceMonitoring `json:"-" xml:"-"`
+}
+
+type metadataInstanceMonitoring struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4441,9 +4090,8 @@ func (s InstanceMonitoring) GoString() string {
 
 // Describes a launch configuration.
 type LaunchConfiguration struct {
-	_ struct{} `type:"structure"`
-
-	// [EC2-VPC] Indicates whether to assign a public IP address to each instance.
+	// Specifies whether the instances are associated with a public IP address (true)
+	// or not (false).
 	AssociatePublicIpAddress *bool `type:"boolean"`
 
 	// A block device mapping, which specifies the block devices for the instance.
@@ -4453,11 +4101,11 @@ type LaunchConfiguration struct {
 	// This parameter can only be used if you are launching EC2-Classic instances.
 	// For more information, see ClassicLink (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/vpc-classiclink.html)
 	// in the Amazon Elastic Compute Cloud User Guide.
-	ClassicLinkVPCId *string `min:"1" type:"string"`
+	ClassicLinkVPCId *string `type:"string"`
 
 	// The IDs of one or more security groups for the VPC specified in ClassicLinkVPCId.
-	// This parameter is required if you specify a ClassicLink-enabled VPC, and
-	// cannot be used otherwise. For more information, see ClassicLink (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/vpc-classiclink.html)
+	// This parameter is required if ClassicLinkVPCId is specified, and cannot be
+	// used otherwise. For more information, see ClassicLink (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/vpc-classiclink.html)
 	// in the Amazon Elastic Compute Cloud User Guide.
 	ClassicLinkVPCSecurityGroups []*string `type:"list"`
 
@@ -4469,45 +4117,51 @@ type LaunchConfiguration struct {
 
 	// The name or Amazon Resource Name (ARN) of the instance profile associated
 	// with the IAM role for the instance.
-	IamInstanceProfile *string `min:"1" type:"string"`
+	IamInstanceProfile *string `type:"string"`
 
 	// The ID of the Amazon Machine Image (AMI).
-	ImageId *string `min:"1" type:"string" required:"true"`
+	ImageId *string `type:"string" required:"true"`
 
 	// Controls whether instances in this group are launched with detailed monitoring.
 	InstanceMonitoring *InstanceMonitoring `type:"structure"`
 
 	// The instance type for the instances.
-	InstanceType *string `min:"1" type:"string" required:"true"`
+	InstanceType *string `type:"string" required:"true"`
 
 	// The ID of the kernel associated with the AMI.
-	KernelId *string `min:"1" type:"string"`
+	KernelId *string `type:"string"`
 
 	// The name of the key pair.
-	KeyName *string `min:"1" type:"string"`
+	KeyName *string `type:"string"`
 
 	// The Amazon Resource Name (ARN) of the launch configuration.
-	LaunchConfigurationARN *string `min:"1" type:"string"`
+	LaunchConfigurationARN *string `type:"string"`
 
 	// The name of the launch configuration.
-	LaunchConfigurationName *string `min:"1" type:"string" required:"true"`
+	LaunchConfigurationName *string `type:"string" required:"true"`
 
 	// The tenancy of the instance, either default or dedicated. An instance with
 	// dedicated tenancy runs in an isolated, single-tenant hardware and can only
 	// be launched into a VPC.
-	PlacementTenancy *string `min:"1" type:"string"`
+	PlacementTenancy *string `type:"string"`
 
 	// The ID of the RAM disk associated with the AMI.
-	RamdiskId *string `min:"1" type:"string"`
+	RamdiskId *string `type:"string"`
 
 	// The security groups to associate with the instances.
 	SecurityGroups []*string `type:"list"`
 
 	// The price to bid when launching Spot Instances.
-	SpotPrice *string `min:"1" type:"string"`
+	SpotPrice *string `type:"string"`
 
 	// The user data available to the instances.
 	UserData *string `type:"string"`
+
+	metadataLaunchConfiguration `json:"-" xml:"-"`
+}
+
+type metadataLaunchConfiguration struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4526,31 +4180,30 @@ func (s LaunchConfiguration) GoString() string {
 //
 //  Pause the instance after it launches, but before it is put into service
 // Pause the instance as it terminates, but before it is fully terminated  For
-// more information, see Auto Scaling Lifecycle (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/AutoScalingGroupLifecycle.html)
+// more information, see Auto Scaling Pending State (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/AutoScalingPendingState.html)
+// and Auto Scaling Terminating State (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/AutoScalingTerminatingState.html)
 // in the Auto Scaling Developer Guide.
 type LifecycleHook struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the Auto Scaling group for the lifecycle hook.
-	AutoScalingGroupName *string `min:"1" type:"string"`
+	AutoScalingGroupName *string `type:"string"`
 
 	// Defines the action the Auto Scaling group should take when the lifecycle
 	// hook timeout elapses or if an unexpected failure occurs. The valid values
 	// are CONTINUE and ABANDON. The default value is CONTINUE.
 	DefaultResult *string `type:"string"`
 
-	// The maximum time, in seconds, that an instance can remain in a Pending:Wait
-	// or Terminating:Wait state. The default is 172800 seconds (48 hours).
+	// The maximum length of time an instance can remain in a Pending:Wait or Terminating:Wait
+	// state. Currently, the maximum is set to 48 hours.
 	GlobalTimeout *int64 `type:"integer"`
 
-	// The maximum time, in seconds, that can elapse before the lifecycle hook times
-	// out. The default is 3600 seconds (1 hour). When the lifecycle hook times
-	// out, Auto Scaling performs the default action. You can prevent the lifecycle
-	// hook from timing out by calling RecordLifecycleActionHeartbeat.
+	// The amount of time that can elapse before the lifecycle hook times out. When
+	// the lifecycle hook times out, Auto Scaling performs the action defined in
+	// the DefaultResult parameter. You can prevent the lifecycle hook from timing
+	// out by calling RecordLifecycleActionHeartbeat.
 	HeartbeatTimeout *int64 `type:"integer"`
 
 	// The name of the lifecycle hook.
-	LifecycleHookName *string `min:"1" type:"string"`
+	LifecycleHookName *string `type:"string"`
 
 	// The state of the EC2 instance to which you want to attach the lifecycle hook.
 	// For a list of lifecycle hook types, see DescribeLifecycleHookTypes.
@@ -4558,7 +4211,7 @@ type LifecycleHook struct {
 
 	// Additional information that you want to include any time Auto Scaling sends
 	// a message to the notification target.
-	NotificationMetadata *string `min:"1" type:"string"`
+	NotificationMetadata *string `type:"string"`
 
 	// The ARN of the notification target that Auto Scaling uses to notify you when
 	// an instance is in the transition state for the lifecycle hook. This ARN target
@@ -4567,11 +4220,17 @@ type LifecycleHook struct {
 	//
 	//  Lifecycle action token User account ID Name of the Auto Scaling group Lifecycle
 	// hook name EC2 instance ID Lifecycle transition Notification metadata
-	NotificationTargetARN *string `min:"1" type:"string"`
+	NotificationTargetARN *string `type:"string"`
 
 	// The ARN of the IAM role that allows the Auto Scaling group to publish to
 	// the specified notification target.
-	RoleARN *string `min:"1" type:"string"`
+	RoleARN *string `type:"string"`
+
+	metadataLifecycleHook `json:"-" xml:"-"`
+}
+
+type metadataLifecycleHook struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4586,12 +4245,10 @@ func (s LifecycleHook) GoString() string {
 
 // Describes the state of a load balancer.
 type LoadBalancerState struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the load balancer.
-	LoadBalancerName *string `min:"1" type:"string"`
+	LoadBalancerName *string `type:"string"`
 
-	// One of the following load balancer states:
+	// The state of the load balancer.
 	//
 	//  Adding - The instances in the group are being registered with the load
 	// balancer.
@@ -4603,7 +4260,13 @@ type LoadBalancerState struct {
 	// Removing - The instances are being deregistered from the load balancer.
 	// If connection draining is enabled, Elastic Load Balancing waits for in-flight
 	// requests to complete before deregistering the instances.
-	State *string `min:"1" type:"string"`
+	State *string `type:"string"`
+
+	metadataLoadBalancerState `json:"-" xml:"-"`
+}
+
+type metadataLoadBalancerState struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4618,9 +4281,7 @@ func (s LoadBalancerState) GoString() string {
 
 // Describes a metric.
 type MetricCollectionType struct {
-	_ struct{} `type:"structure"`
-
-	// One of the following metrics:
+	// The metric.
 	//
 	//  GroupMinSize
 	//
@@ -4637,7 +4298,13 @@ type MetricCollectionType struct {
 	// GroupTerminatingInstances
 	//
 	// GroupTotalInstances
-	Metric *string `min:"1" type:"string"`
+	Metric *string `type:"string"`
+
+	metadataMetricCollectionType `json:"-" xml:"-"`
+}
+
+type metadataMetricCollectionType struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4652,10 +4319,14 @@ func (s MetricCollectionType) GoString() string {
 
 // Describes a granularity of a metric.
 type MetricGranularityType struct {
-	_ struct{} `type:"structure"`
-
 	// The granularity. The only valid value is 1Minute.
-	Granularity *string `min:"1" type:"string"`
+	Granularity *string `type:"string"`
+
+	metadataMetricGranularityType `json:"-" xml:"-"`
+}
+
+type metadataMetricGranularityType struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4670,12 +4341,10 @@ func (s MetricGranularityType) GoString() string {
 
 // Describes a notification.
 type NotificationConfiguration struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the group.
-	AutoScalingGroupName *string `min:"1" type:"string"`
+	AutoScalingGroupName *string `type:"string"`
 
-	// One of the following event notification types:
+	// The types of events for an action to start.
 	//
 	//  autoscaling:EC2_INSTANCE_LAUNCH
 	//
@@ -4686,11 +4355,17 @@ type NotificationConfiguration struct {
 	// autoscaling:EC2_INSTANCE_TERMINATE_ERROR
 	//
 	// autoscaling:TEST_NOTIFICATION
-	NotificationType *string `min:"1" type:"string"`
+	NotificationType *string `type:"string"`
 
 	// The Amazon Resource Name (ARN) of the Amazon Simple Notification Service
 	// (SNS) topic.
-	TopicARN *string `min:"1" type:"string"`
+	TopicARN *string `type:"string"`
+
+	metadataNotificationConfiguration `json:"-" xml:"-"`
+}
+
+type metadataNotificationConfiguration struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4708,9 +4383,7 @@ func (s NotificationConfiguration) GoString() string {
 // For more information, see Auto Scaling Processes (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/US_SuspendResume.html#process-types)
 // in the Auto Scaling Developer Guide.
 type ProcessType struct {
-	_ struct{} `type:"structure"`
-
-	// One of the following processes:
+	// The name of the process.
 	//
 	//  Launch
 	//
@@ -4727,7 +4400,13 @@ type ProcessType struct {
 	// ReplaceUnhealthy
 	//
 	// ScheduledActions
-	ProcessName *string `min:"1" type:"string" required:"true"`
+	ProcessName *string `type:"string" required:"true"`
+
+	metadataProcessType `json:"-" xml:"-"`
+}
+
+type metadataProcessType struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4741,25 +4420,25 @@ func (s ProcessType) GoString() string {
 }
 
 type PutLifecycleHookInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the Auto Scaling group to which you want to assign the lifecycle
 	// hook.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
 	// Defines the action the Auto Scaling group should take when the lifecycle
-	// hook timeout elapses or if an unexpected failure occurs. This parameter can
-	// be either CONTINUE or ABANDON. The default value is ABANDON.
+	// hook timeout elapses or if an unexpected failure occurs. The value for this
+	// parameter can be either CONTINUE or ABANDON. The default value for this parameter
+	// is ABANDON.
 	DefaultResult *string `type:"string"`
 
-	// The amount of time, in seconds, that can elapse before the lifecycle hook
-	// times out. When the lifecycle hook times out, Auto Scaling performs the default
-	// action. You can prevent the lifecycle hook from timing out by calling RecordLifecycleActionHeartbeat.
-	// The default is 3600 seconds (1 hour).
+	// Defines the amount of time, in seconds, that can elapse before the lifecycle
+	// hook times out. When the lifecycle hook times out, Auto Scaling performs
+	// the action defined in the DefaultResult parameter. You can prevent the lifecycle
+	// hook from timing out by calling RecordLifecycleActionHeartbeat. The default
+	// value for this parameter is 3600 seconds (1 hour).
 	HeartbeatTimeout *int64 `type:"integer"`
 
 	// The name of the lifecycle hook.
-	LifecycleHookName *string `min:"1" type:"string" required:"true"`
+	LifecycleHookName *string `type:"string" required:"true"`
 
 	// The instance state to which you want to attach the lifecycle hook. For a
 	// list of lifecycle hook types, see DescribeLifecycleHookTypes.
@@ -4770,26 +4449,27 @@ type PutLifecycleHookInput struct {
 
 	// Contains additional information that you want to include any time Auto Scaling
 	// sends a message to the notification target.
-	NotificationMetadata *string `min:"1" type:"string"`
+	NotificationMetadata *string `type:"string"`
 
 	// The ARN of the notification target that Auto Scaling will use to notify you
 	// when an instance is in the transition state for the lifecycle hook. This
-	// target can be either an SQS queue or an SNS topic. If you specify an empty
-	// string, this overrides the current ARN.
+	// ARN target can be either an SQS queue or an SNS topic.
 	//
-	// The notification messages sent to the target include the following information:
+	// This parameter is required for new lifecycle hooks, but optional when updating
+	// existing hooks.
 	//
-	//  AutoScalingGroupName. The name of the Auto Scaling group. AccountId. The
-	// AWS account ID. LifecycleTransition. The lifecycle hook type. LifecycleActionToken.
-	// The lifecycle action token. EC2InstanceId. The EC2 instance ID. LifecycleHookName.
-	// The name of the lifecycle hook. NotificationMetadata. User-defined information.
+	// The notification message sent to the target will include:
+	//
+	//   LifecycleActionToken. The Lifecycle action token.  AccountId. The user
+	// account ID.  AutoScalingGroupName. The name of the Auto Scaling group.  LifecycleHookName.
+	// The lifecycle hook name.  EC2InstanceId. The EC2 instance ID.  LifecycleTransition.
+	// The lifecycle transition.  NotificationMetadata. The notification metadata.
 	//  This operation uses the JSON format when sending notifications to an Amazon
 	// SQS queue, and an email key/value pair format when sending notifications
 	// to an Amazon SNS topic.
 	//
-	// When you specify a notification target, Auto Scaling sends it a test message.
-	// Test messages contains the following additional key/value pair: "Event":
-	// "autoscaling:TEST_NOTIFICATION".
+	// When you call this operation, a test message is sent to the notification
+	// target. This test message contains an additional key/value pair: Event:autoscaling:TEST_NOTIFICATION.
 	NotificationTargetARN *string `type:"string"`
 
 	// The ARN of the IAM role that allows the Auto Scaling group to publish to
@@ -4797,7 +4477,13 @@ type PutLifecycleHookInput struct {
 	//
 	// This parameter is required for new lifecycle hooks, but optional when updating
 	// existing hooks.
-	RoleARN *string `min:"1" type:"string"`
+	RoleARN *string `type:"string"`
+
+	metadataPutLifecycleHookInput `json:"-" xml:"-"`
+}
+
+type metadataPutLifecycleHookInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4810,36 +4496,12 @@ func (s PutLifecycleHookInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *PutLifecycleHookInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "PutLifecycleHookInput"}
-	if s.AutoScalingGroupName == nil {
-		invalidParams.Add(request.NewErrParamRequired("AutoScalingGroupName"))
-	}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-	if s.LifecycleHookName == nil {
-		invalidParams.Add(request.NewErrParamRequired("LifecycleHookName"))
-	}
-	if s.LifecycleHookName != nil && len(*s.LifecycleHookName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("LifecycleHookName", 1))
-	}
-	if s.NotificationMetadata != nil && len(*s.NotificationMetadata) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("NotificationMetadata", 1))
-	}
-	if s.RoleARN != nil && len(*s.RoleARN) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("RoleARN", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type PutLifecycleHookOutput struct {
+	metadataPutLifecycleHookOutput `json:"-" xml:"-"`
 }
 
-type PutLifecycleHookOutput struct {
-	_ struct{} `type:"structure"`
+type metadataPutLifecycleHookOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4853,10 +4515,8 @@ func (s PutLifecycleHookOutput) GoString() string {
 }
 
 type PutNotificationConfigurationInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the Auto Scaling group.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
 	// The type of event that will cause the notification to be sent. For details
 	// about notification types supported by Auto Scaling, see DescribeAutoScalingNotificationTypes.
@@ -4864,7 +4524,13 @@ type PutNotificationConfigurationInput struct {
 
 	// The Amazon Resource Name (ARN) of the Amazon Simple Notification Service
 	// (SNS) topic.
-	TopicARN *string `min:"1" type:"string" required:"true"`
+	TopicARN *string `type:"string" required:"true"`
+
+	metadataPutNotificationConfigurationInput `json:"-" xml:"-"`
+}
+
+type metadataPutNotificationConfigurationInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4877,33 +4543,12 @@ func (s PutNotificationConfigurationInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *PutNotificationConfigurationInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "PutNotificationConfigurationInput"}
-	if s.AutoScalingGroupName == nil {
-		invalidParams.Add(request.NewErrParamRequired("AutoScalingGroupName"))
-	}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-	if s.NotificationTypes == nil {
-		invalidParams.Add(request.NewErrParamRequired("NotificationTypes"))
-	}
-	if s.TopicARN == nil {
-		invalidParams.Add(request.NewErrParamRequired("TopicARN"))
-	}
-	if s.TopicARN != nil && len(*s.TopicARN) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TopicARN", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type PutNotificationConfigurationOutput struct {
+	metadataPutNotificationConfigurationOutput `json:"-" xml:"-"`
 }
 
-type PutNotificationConfigurationOutput struct {
-	_ struct{} `type:"structure"`
+type metadataPutNotificationConfigurationOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4917,17 +4562,15 @@ func (s PutNotificationConfigurationOutput) GoString() string {
 }
 
 type PutScalingPolicyInput struct {
-	_ struct{} `type:"structure"`
-
 	// The adjustment type. Valid values are ChangeInCapacity, ExactCapacity, and
 	// PercentChangeInCapacity.
 	//
 	// For more information, see Dynamic Scaling (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/as-scale-based-on-demand.html)
 	// in the Auto Scaling Developer Guide.
-	AdjustmentType *string `min:"1" type:"string" required:"true"`
+	AdjustmentType *string `type:"string" required:"true"`
 
 	// The name or ARN of the group.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
 	// The amount of time, in seconds, after a scaling activity completes and before
 	// the next scaling activity can start. If this parameter is not specified,
@@ -4935,7 +4578,7 @@ type PutScalingPolicyInput struct {
 	//
 	// This parameter is not supported unless the policy type is SimpleScaling.
 	//
-	// For more information, see Auto Scaling Cooldowns (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/Cooldown.html)
+	// For more information, see Understanding Auto Scaling Cooldowns (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/Cooldown.html)
 	// in the Auto Scaling Developer Guide.
 	Cooldown *int64 `type:"integer"`
 
@@ -4951,7 +4594,7 @@ type PutScalingPolicyInput struct {
 	// as Average.
 	//
 	// This parameter is not supported if the policy type is SimpleScaling.
-	MetricAggregationType *string `min:"1" type:"string"`
+	MetricAggregationType *string `type:"string"`
 
 	// The minimum number of instances to scale. If the value of AdjustmentType
 	// is PercentChangeInCapacity, the scaling policy changes the DesiredCapacity
@@ -4960,14 +4603,14 @@ type PutScalingPolicyInput struct {
 	MinAdjustmentMagnitude *int64 `type:"integer"`
 
 	// Available for backward compatibility. Use MinAdjustmentMagnitude instead.
-	MinAdjustmentStep *int64 `deprecated:"true" type:"integer"`
+	MinAdjustmentStep *int64 `type:"integer"`
 
 	// The name of the policy.
-	PolicyName *string `min:"1" type:"string" required:"true"`
+	PolicyName *string `type:"string" required:"true"`
 
 	// The policy type. Valid values are SimpleScaling and StepScaling. If the policy
 	// type is null, the value is treated as SimpleScaling.
-	PolicyType *string `min:"1" type:"string"`
+	PolicyType *string `type:"string"`
 
 	// The amount by which to scale, based on the specified adjustment type. A positive
 	// value adds to the current capacity while a negative number removes from the
@@ -4983,6 +4626,12 @@ type PutScalingPolicyInput struct {
 	// This parameter is required if the policy type is StepScaling and not supported
 	// otherwise.
 	StepAdjustments []*StepAdjustment `type:"list"`
+
+	metadataPutScalingPolicyInput `json:"-" xml:"-"`
+}
+
+type metadataPutScalingPolicyInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4995,55 +4644,15 @@ func (s PutScalingPolicyInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *PutScalingPolicyInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "PutScalingPolicyInput"}
-	if s.AdjustmentType == nil {
-		invalidParams.Add(request.NewErrParamRequired("AdjustmentType"))
-	}
-	if s.AdjustmentType != nil && len(*s.AdjustmentType) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AdjustmentType", 1))
-	}
-	if s.AutoScalingGroupName == nil {
-		invalidParams.Add(request.NewErrParamRequired("AutoScalingGroupName"))
-	}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-	if s.MetricAggregationType != nil && len(*s.MetricAggregationType) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("MetricAggregationType", 1))
-	}
-	if s.PolicyName == nil {
-		invalidParams.Add(request.NewErrParamRequired("PolicyName"))
-	}
-	if s.PolicyName != nil && len(*s.PolicyName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("PolicyName", 1))
-	}
-	if s.PolicyType != nil && len(*s.PolicyType) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("PolicyType", 1))
-	}
-	if s.StepAdjustments != nil {
-		for i, v := range s.StepAdjustments {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "StepAdjustments", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
+type PutScalingPolicyOutput struct {
+	// The Amazon Resource Name (ARN) of the policy.
+	PolicyARN *string `type:"string"`
 
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+	metadataPutScalingPolicyOutput `json:"-" xml:"-"`
 }
 
-type PutScalingPolicyOutput struct {
-	_ struct{} `type:"structure"`
-
-	// The Amazon Resource Name (ARN) of the policy.
-	PolicyARN *string `min:"1" type:"string"`
+type metadataPutScalingPolicyOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5057,10 +4666,8 @@ func (s PutScalingPolicyOutput) GoString() string {
 }
 
 type PutScheduledUpdateGroupActionInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name or Amazon Resource Name (ARN) of the Auto Scaling group.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
 	// The number of EC2 instances that should be running in the group.
 	DesiredCapacity *int64 `type:"integer"`
@@ -5080,10 +4687,10 @@ type PutScheduledUpdateGroupActionInput struct {
 	//
 	// When StartTime and EndTime are specified with Recurrence, they form the
 	// boundaries of when the recurring action will start and stop.
-	Recurrence *string `min:"1" type:"string"`
+	Recurrence *string `type:"string"`
 
 	// The name of this scaling action.
-	ScheduledActionName *string `min:"1" type:"string" required:"true"`
+	ScheduledActionName *string `type:"string" required:"true"`
 
 	// The time for this action to start, in "YYYY-MM-DDThh:mm:ssZ" format in UTC/GMT
 	// only (for example, 2014-06-01T00:00:00Z).
@@ -5095,8 +4702,17 @@ type PutScheduledUpdateGroupActionInput struct {
 	// boundaries of when the recurring action starts and stops.
 	StartTime *time.Time `type:"timestamp" timestampFormat:"iso8601"`
 
-	// This parameter is deprecated.
+	// This parameter is deprecated; use StartTime instead.
+	//
+	// The time for this action to start. If both Time and StartTime are specified,
+	// their values must be identical.
 	Time *time.Time `type:"timestamp" timestampFormat:"iso8601"`
+
+	metadataPutScheduledUpdateGroupActionInput `json:"-" xml:"-"`
+}
+
+type metadataPutScheduledUpdateGroupActionInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5109,33 +4725,12 @@ func (s PutScheduledUpdateGroupActionInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *PutScheduledUpdateGroupActionInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "PutScheduledUpdateGroupActionInput"}
-	if s.AutoScalingGroupName == nil {
-		invalidParams.Add(request.NewErrParamRequired("AutoScalingGroupName"))
-	}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-	if s.Recurrence != nil && len(*s.Recurrence) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("Recurrence", 1))
-	}
-	if s.ScheduledActionName == nil {
-		invalidParams.Add(request.NewErrParamRequired("ScheduledActionName"))
-	}
-	if s.ScheduledActionName != nil && len(*s.ScheduledActionName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ScheduledActionName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type PutScheduledUpdateGroupActionOutput struct {
+	metadataPutScheduledUpdateGroupActionOutput `json:"-" xml:"-"`
 }
 
-type PutScheduledUpdateGroupActionOutput struct {
-	_ struct{} `type:"structure"`
+type metadataPutScheduledUpdateGroupActionOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5149,21 +4744,22 @@ func (s PutScheduledUpdateGroupActionOutput) GoString() string {
 }
 
 type RecordLifecycleActionHeartbeatInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the Auto Scaling group for the hook.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
-
-	// The ID of the instance.
-	InstanceId *string `min:"1" type:"string"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
 	// A token that uniquely identifies a specific lifecycle action associated with
 	// an instance. Auto Scaling sends this token to the notification target you
 	// specified when you created the lifecycle hook.
-	LifecycleActionToken *string `min:"36" type:"string"`
+	LifecycleActionToken *string `type:"string" required:"true"`
 
 	// The name of the lifecycle hook.
-	LifecycleHookName *string `min:"1" type:"string" required:"true"`
+	LifecycleHookName *string `type:"string" required:"true"`
+
+	metadataRecordLifecycleActionHeartbeatInput `json:"-" xml:"-"`
+}
+
+type metadataRecordLifecycleActionHeartbeatInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5176,36 +4772,12 @@ func (s RecordLifecycleActionHeartbeatInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *RecordLifecycleActionHeartbeatInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "RecordLifecycleActionHeartbeatInput"}
-	if s.AutoScalingGroupName == nil {
-		invalidParams.Add(request.NewErrParamRequired("AutoScalingGroupName"))
-	}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-	if s.InstanceId != nil && len(*s.InstanceId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("InstanceId", 1))
-	}
-	if s.LifecycleActionToken != nil && len(*s.LifecycleActionToken) < 36 {
-		invalidParams.Add(request.NewErrParamMinLen("LifecycleActionToken", 36))
-	}
-	if s.LifecycleHookName == nil {
-		invalidParams.Add(request.NewErrParamRequired("LifecycleHookName"))
-	}
-	if s.LifecycleHookName != nil && len(*s.LifecycleHookName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("LifecycleHookName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type RecordLifecycleActionHeartbeatOutput struct {
+	metadataRecordLifecycleActionHeartbeatOutput `json:"-" xml:"-"`
 }
 
-type RecordLifecycleActionHeartbeatOutput struct {
-	_ struct{} `type:"structure"`
+type metadataRecordLifecycleActionHeartbeatOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5219,7 +4791,11 @@ func (s RecordLifecycleActionHeartbeatOutput) GoString() string {
 }
 
 type ResumeProcessesOutput struct {
-	_ struct{} `type:"structure"`
+	metadataResumeProcessesOutput `json:"-" xml:"-"`
+}
+
+type metadataResumeProcessesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5234,17 +4810,15 @@ func (s ResumeProcessesOutput) GoString() string {
 
 // Describes a scaling policy.
 type ScalingPolicy struct {
-	_ struct{} `type:"structure"`
-
 	// The adjustment type, which specifies how ScalingAdjustment is interpreted.
 	// Valid values are ChangeInCapacity, ExactCapacity, and PercentChangeInCapacity.
-	AdjustmentType *string `min:"1" type:"string"`
+	AdjustmentType *string `type:"string"`
 
 	// The CloudWatch alarms related to the policy.
 	Alarms []*Alarm `type:"list"`
 
 	// The name of the Auto Scaling group associated with this scaling policy.
-	AutoScalingGroupName *string `min:"1" type:"string"`
+	AutoScalingGroupName *string `type:"string"`
 
 	// The amount of time, in seconds, after a scaling activity completes before
 	// any further trigger-related scaling activities can start.
@@ -5256,7 +4830,7 @@ type ScalingPolicy struct {
 
 	// The aggregation type for the CloudWatch metrics. Valid values are Minimum,
 	// Maximum, and Average.
-	MetricAggregationType *string `min:"1" type:"string"`
+	MetricAggregationType *string `type:"string"`
 
 	// The minimum number of instances to scale. If the value of AdjustmentType
 	// is PercentChangeInCapacity, the scaling policy changes the DesiredCapacity
@@ -5265,16 +4839,16 @@ type ScalingPolicy struct {
 	MinAdjustmentMagnitude *int64 `type:"integer"`
 
 	// Available for backward compatibility. Use MinAdjustmentMagnitude instead.
-	MinAdjustmentStep *int64 `deprecated:"true" type:"integer"`
+	MinAdjustmentStep *int64 `type:"integer"`
 
 	// The Amazon Resource Name (ARN) of the policy.
-	PolicyARN *string `min:"1" type:"string"`
+	PolicyARN *string `type:"string"`
 
 	// The name of the scaling policy.
-	PolicyName *string `min:"1" type:"string"`
+	PolicyName *string `type:"string"`
 
 	// The policy type. Valid values are SimpleScaling and StepScaling.
-	PolicyType *string `min:"1" type:"string"`
+	PolicyType *string `type:"string"`
 
 	// The amount by which to scale, based on the specified adjustment type. A positive
 	// value adds to the current capacity while a negative number removes from the
@@ -5284,6 +4858,12 @@ type ScalingPolicy struct {
 	// A set of adjustments that enable you to scale based on the size of the alarm
 	// breach.
 	StepAdjustments []*StepAdjustment `type:"list"`
+
+	metadataScalingPolicy `json:"-" xml:"-"`
+}
+
+type metadataScalingPolicy struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5297,10 +4877,8 @@ func (s ScalingPolicy) GoString() string {
 }
 
 type ScalingProcessQuery struct {
-	_ struct{} `type:"structure"`
-
 	// The name or Amazon Resource Name (ARN) of the Auto Scaling group.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
 	// One or more of the following processes:
 	//
@@ -5320,6 +4898,12 @@ type ScalingProcessQuery struct {
 	//
 	// AddToLoadBalancer
 	ScalingProcesses []*string `type:"list"`
+
+	metadataScalingProcessQuery `json:"-" xml:"-"`
+}
+
+type metadataScalingProcessQuery struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5332,28 +4916,10 @@ func (s ScalingProcessQuery) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ScalingProcessQuery) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ScalingProcessQuery"}
-	if s.AutoScalingGroupName == nil {
-		invalidParams.Add(request.NewErrParamRequired("AutoScalingGroupName"))
-	}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Describes a scheduled update to an Auto Scaling group.
 type ScheduledUpdateGroupAction struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the group.
-	AutoScalingGroupName *string `min:"1" type:"string"`
+	AutoScalingGroupName *string `type:"string"`
 
 	// The number of instances you prefer to maintain in the group.
 	DesiredCapacity *int64 `type:"integer"`
@@ -5369,13 +4935,13 @@ type ScheduledUpdateGroupAction struct {
 	MinSize *int64 `type:"integer"`
 
 	// The recurring schedule for the action.
-	Recurrence *string `min:"1" type:"string"`
+	Recurrence *string `type:"string"`
 
 	// The Amazon Resource Name (ARN) of the scheduled action.
-	ScheduledActionARN *string `min:"1" type:"string"`
+	ScheduledActionARN *string `type:"string"`
 
 	// The name of the scheduled action.
-	ScheduledActionName *string `min:"1" type:"string"`
+	ScheduledActionName *string `type:"string"`
 
 	// The date and time that the action is scheduled to begin. This date and time
 	// can be up to one month in the future.
@@ -5384,8 +4950,14 @@ type ScheduledUpdateGroupAction struct {
 	// boundaries of when the recurring action will start and stop.
 	StartTime *time.Time `type:"timestamp" timestampFormat:"iso8601"`
 
-	// This parameter is deprecated.
+	// This parameter is deprecated; use StartTime instead.
 	Time *time.Time `type:"timestamp" timestampFormat:"iso8601"`
+
+	metadataScheduledUpdateGroupAction `json:"-" xml:"-"`
+}
+
+type metadataScheduledUpdateGroupAction struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5399,10 +4971,8 @@ func (s ScheduledUpdateGroupAction) GoString() string {
 }
 
 type SetDesiredCapacityInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the Auto Scaling group.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
 	// The number of EC2 instances that should be running in the Auto Scaling group.
 	DesiredCapacity *int64 `type:"integer" required:"true"`
@@ -5412,6 +4982,12 @@ type SetDesiredCapacityInput struct {
 	// cool-down period associated with the Auto Scaling group to complete before
 	// initiating a scaling activity to set your Auto Scaling group to its new capacity.
 	HonorCooldown *bool `type:"boolean"`
+
+	metadataSetDesiredCapacityInput `json:"-" xml:"-"`
+}
+
+type metadataSetDesiredCapacityInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5424,27 +5000,12 @@ func (s SetDesiredCapacityInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *SetDesiredCapacityInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "SetDesiredCapacityInput"}
-	if s.AutoScalingGroupName == nil {
-		invalidParams.Add(request.NewErrParamRequired("AutoScalingGroupName"))
-	}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-	if s.DesiredCapacity == nil {
-		invalidParams.Add(request.NewErrParamRequired("DesiredCapacity"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type SetDesiredCapacityOutput struct {
+	metadataSetDesiredCapacityOutput `json:"-" xml:"-"`
 }
 
-type SetDesiredCapacityOutput struct {
-	_ struct{} `type:"structure"`
+type metadataSetDesiredCapacityOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5458,24 +5019,28 @@ func (s SetDesiredCapacityOutput) GoString() string {
 }
 
 type SetInstanceHealthInput struct {
-	_ struct{} `type:"structure"`
-
 	// The health status of the instance. Set to Healthy if you want the instance
 	// to remain in service. Set to Unhealthy if you want the instance to be out
 	// of service. Auto Scaling will terminate and replace the unhealthy instance.
-	HealthStatus *string `min:"1" type:"string" required:"true"`
+	HealthStatus *string `type:"string" required:"true"`
 
-	// The ID of the instance.
-	InstanceId *string `min:"1" type:"string" required:"true"`
+	// The ID of the EC2 instance.
+	InstanceId *string `type:"string" required:"true"`
 
 	// If the Auto Scaling group of the specified instance has a HealthCheckGracePeriod
 	// specified for the group, by default, this call will respect the grace period.
 	// Set this to False, if you do not want the call to respect the grace period
 	// associated with the group.
 	//
-	// For more information, see the description of the health check grace period
+	// For more information, see the HealthCheckGracePeriod parameter description
 	// for CreateAutoScalingGroup.
 	ShouldRespectGracePeriod *bool `type:"boolean"`
+
+	metadataSetInstanceHealthInput `json:"-" xml:"-"`
+}
+
+type metadataSetInstanceHealthInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5488,30 +5053,12 @@ func (s SetInstanceHealthInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *SetInstanceHealthInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "SetInstanceHealthInput"}
-	if s.HealthStatus == nil {
-		invalidParams.Add(request.NewErrParamRequired("HealthStatus"))
-	}
-	if s.HealthStatus != nil && len(*s.HealthStatus) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("HealthStatus", 1))
-	}
-	if s.InstanceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("InstanceId"))
-	}
-	if s.InstanceId != nil && len(*s.InstanceId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("InstanceId", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type SetInstanceHealthOutput struct {
+	metadataSetInstanceHealthOutput `json:"-" xml:"-"`
 }
 
-type SetInstanceHealthOutput struct {
-	_ struct{} `type:"structure"`
+type metadataSetInstanceHealthOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5521,66 +5068,6 @@ func (s SetInstanceHealthOutput) String() string {
 
 // GoString returns the string representation
 func (s SetInstanceHealthOutput) GoString() string {
-	return s.String()
-}
-
-type SetInstanceProtectionInput struct {
-	_ struct{} `type:"structure"`
-
-	// The name of the group.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
-
-	// One or more instance IDs.
-	InstanceIds []*string `type:"list" required:"true"`
-
-	// Indicates whether the instance is protected from termination by Auto Scaling
-	// when scaling in.
-	ProtectedFromScaleIn *bool `type:"boolean" required:"true"`
-}
-
-// String returns the string representation
-func (s SetInstanceProtectionInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s SetInstanceProtectionInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *SetInstanceProtectionInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "SetInstanceProtectionInput"}
-	if s.AutoScalingGroupName == nil {
-		invalidParams.Add(request.NewErrParamRequired("AutoScalingGroupName"))
-	}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-	if s.InstanceIds == nil {
-		invalidParams.Add(request.NewErrParamRequired("InstanceIds"))
-	}
-	if s.ProtectedFromScaleIn == nil {
-		invalidParams.Add(request.NewErrParamRequired("ProtectedFromScaleIn"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-type SetInstanceProtectionOutput struct {
-	_ struct{} `type:"structure"`
-}
-
-// String returns the string representation
-func (s SetInstanceProtectionOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s SetInstanceProtectionOutput) GoString() string {
 	return s.String()
 }
 
@@ -5613,8 +5100,6 @@ func (s SetInstanceProtectionOutput) GoString() string {
 //
 //   The upper and lower bound can't be null in the same step adjustment.
 type StepAdjustment struct {
-	_ struct{} `type:"structure"`
-
 	// The lower bound for the difference between the alarm threshold and the CloudWatch
 	// metric. If the metric value is above the breach threshold, the lower bound
 	// is inclusive (the metric must be greater than or equal to the threshold plus
@@ -5636,6 +5121,12 @@ type StepAdjustment struct {
 	// value adds to the current capacity while a negative number removes from the
 	// current capacity.
 	ScalingAdjustment *int64 `type:"integer" required:"true"`
+
+	metadataStepAdjustment `json:"-" xml:"-"`
+}
+
+type metadataStepAdjustment struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5648,21 +5139,12 @@ func (s StepAdjustment) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *StepAdjustment) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "StepAdjustment"}
-	if s.ScalingAdjustment == nil {
-		invalidParams.Add(request.NewErrParamRequired("ScalingAdjustment"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type SuspendProcessesOutput struct {
+	metadataSuspendProcessesOutput `json:"-" xml:"-"`
 }
 
-type SuspendProcessesOutput struct {
-	_ struct{} `type:"structure"`
+type metadataSuspendProcessesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5678,13 +5160,17 @@ func (s SuspendProcessesOutput) GoString() string {
 // Describes an Auto Scaling process that has been suspended. For more information,
 // see ProcessType.
 type SuspendedProcess struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the suspended process.
-	ProcessName *string `min:"1" type:"string"`
+	ProcessName *string `type:"string"`
 
 	// The reason that the process was suspended.
-	SuspensionReason *string `min:"1" type:"string"`
+	SuspensionReason *string `type:"string"`
+
+	metadataSuspendedProcess `json:"-" xml:"-"`
+}
+
+type metadataSuspendedProcess struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5699,10 +5185,8 @@ func (s SuspendedProcess) GoString() string {
 
 // Describes a tag for an Auto Scaling group.
 type Tag struct {
-	_ struct{} `type:"structure"`
-
 	// The tag key.
-	Key *string `min:"1" type:"string" required:"true"`
+	Key *string `type:"string" required:"true"`
 
 	// Determines whether the tag is added to new instances as they are launched
 	// in the group.
@@ -5716,6 +5200,12 @@ type Tag struct {
 
 	// The tag value.
 	Value *string `type:"string"`
+
+	metadataTag `json:"-" xml:"-"`
+}
+
+type metadataTag struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5728,28 +5218,10 @@ func (s Tag) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *Tag) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "Tag"}
-	if s.Key == nil {
-		invalidParams.Add(request.NewErrParamRequired("Key"))
-	}
-	if s.Key != nil && len(*s.Key) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("Key", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Describes a tag for an Auto Scaling group.
 type TagDescription struct {
-	_ struct{} `type:"structure"`
-
 	// The tag key.
-	Key *string `min:"1" type:"string"`
+	Key *string `type:"string"`
 
 	// Determines whether the tag is added to new instances as they are launched
 	// in the group.
@@ -5763,6 +5235,12 @@ type TagDescription struct {
 
 	// The tag value.
 	Value *string `type:"string"`
+
+	metadataTagDescription `json:"-" xml:"-"`
+}
+
+type metadataTagDescription struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5776,14 +5254,18 @@ func (s TagDescription) GoString() string {
 }
 
 type TerminateInstanceInAutoScalingGroupInput struct {
-	_ struct{} `type:"structure"`
+	// The ID of the EC2 instance.
+	InstanceId *string `type:"string" required:"true"`
 
-	// The ID of the instance.
-	InstanceId *string `min:"1" type:"string" required:"true"`
-
-	// If true, terminating the instance also decrements the size of the Auto Scaling
+	// If true, terminating this instance also decrements the size of the Auto Scaling
 	// group.
 	ShouldDecrementDesiredCapacity *bool `type:"boolean" required:"true"`
+
+	metadataTerminateInstanceInAutoScalingGroupInput `json:"-" xml:"-"`
+}
+
+type metadataTerminateInstanceInAutoScalingGroupInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5796,30 +5278,15 @@ func (s TerminateInstanceInAutoScalingGroupInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *TerminateInstanceInAutoScalingGroupInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "TerminateInstanceInAutoScalingGroupInput"}
-	if s.InstanceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("InstanceId"))
-	}
-	if s.InstanceId != nil && len(*s.InstanceId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("InstanceId", 1))
-	}
-	if s.ShouldDecrementDesiredCapacity == nil {
-		invalidParams.Add(request.NewErrParamRequired("ShouldDecrementDesiredCapacity"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type TerminateInstanceInAutoScalingGroupOutput struct {
-	_ struct{} `type:"structure"`
-
 	// A scaling activity.
 	Activity *Activity `type:"structure"`
+
+	metadataTerminateInstanceInAutoScalingGroupOutput `json:"-" xml:"-"`
+}
+
+type metadataTerminateInstanceInAutoScalingGroupOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5833,19 +5300,15 @@ func (s TerminateInstanceInAutoScalingGroupOutput) GoString() string {
 }
 
 type UpdateAutoScalingGroupInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the Auto Scaling group.
-	AutoScalingGroupName *string `min:"1" type:"string" required:"true"`
+	AutoScalingGroupName *string `type:"string" required:"true"`
 
 	// One or more Availability Zones for the group.
-	AvailabilityZones []*string `min:"1" type:"list"`
+	AvailabilityZones []*string `type:"list"`
 
 	// The amount of time, in seconds, after a scaling activity completes before
-	// another scaling activity can start. The default is 300.
-	//
-	// For more information, see Auto Scaling Cooldowns (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/Cooldown.html)
-	// in the Auto Scaling Developer Guide.
+	// another scaling activity can start. For more information, see Understanding
+	// Auto Scaling Cooldowns (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/Cooldown.html).
 	DefaultCooldown *int64 `type:"integer"`
 
 	// The number of EC2 instances that should be running in the Auto Scaling group.
@@ -5854,18 +5317,18 @@ type UpdateAutoScalingGroupInput struct {
 	DesiredCapacity *int64 `type:"integer"`
 
 	// The amount of time, in seconds, that Auto Scaling waits before checking the
-	// health status of an EC2 instance that has come into service. The default
-	// is 300.
-	//
-	// For more information, see Health Checks (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/healthcheck.html)
-	// in the Auto Scaling Developer Guide.
+	// health status of an instance. The grace period begins when the instance passes
+	// the system status and instance status checks from Amazon EC2. For more information,
+	// see .
 	HealthCheckGracePeriod *int64 `type:"integer"`
 
-	// The service to use for the health checks. The valid values are EC2 and ELB.
-	HealthCheckType *string `min:"1" type:"string"`
+	// The type of health check for the instances in the Auto Scaling group. The
+	// health check type can either be EC2 for Amazon EC2 or ELB for Elastic Load
+	// Balancing.
+	HealthCheckType *string `type:"string"`
 
 	// The name of the launch configuration.
-	LaunchConfigurationName *string `min:"1" type:"string"`
+	LaunchConfigurationName *string `type:"string"`
 
 	// The maximum size of the Auto Scaling group.
 	MaxSize *int64 `type:"integer"`
@@ -5873,21 +5336,16 @@ type UpdateAutoScalingGroupInput struct {
 	// The minimum size of the Auto Scaling group.
 	MinSize *int64 `type:"integer"`
 
-	// Indicates whether newly launched instances are protected from termination
-	// by Auto Scaling when scaling in.
-	NewInstancesProtectedFromScaleIn *bool `type:"boolean"`
-
 	// The name of the placement group into which you'll launch your instances,
-	// if any. For more information, see Placement Groups (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html)
-	// in the Amazon Elastic Compute Cloud User Guide.
-	PlacementGroup *string `min:"1" type:"string"`
+	// if any. For more information, see Placement Groups (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/placement-groups.html).
+	PlacementGroup *string `type:"string"`
 
 	// A standalone termination policy or a list of termination policies used to
 	// select the instance to terminate. The policies are executed in the order
 	// that they are listed.
 	//
-	// For more information, see Controlling Which Instances Auto Scaling Terminates
-	// During Scale In (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/AutoScalingBehavior.InstanceTermination.html)
+	// For more information, see Choosing a Termination Policy for Your Auto Scaling
+	// Group (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/us-termination-policy.html)
 	// in the Auto Scaling Developer Guide.
 	TerminationPolicies []*string `type:"list"`
 
@@ -5897,9 +5355,16 @@ type UpdateAutoScalingGroupInput struct {
 	// When you specify VPCZoneIdentifier with AvailabilityZones, ensure that the
 	// subnets' Availability Zones match the values you specify for AvailabilityZones.
 	//
-	// For more information, see Launching Auto Scaling Instances in a VPC (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/asg-in-vpc.html)
+	// For more information, see Auto Scaling and Amazon Virtual Private Cloud
+	// (http://docs.aws.amazon.com/AutoScaling/latest/DeveloperGuide/autoscalingsubnets.html)
 	// in the Auto Scaling Developer Guide.
-	VPCZoneIdentifier *string `min:"1" type:"string"`
+	VPCZoneIdentifier *string `type:"string"`
+
+	metadataUpdateAutoScalingGroupInput `json:"-" xml:"-"`
+}
+
+type metadataUpdateAutoScalingGroupInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5912,39 +5377,12 @@ func (s UpdateAutoScalingGroupInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *UpdateAutoScalingGroupInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "UpdateAutoScalingGroupInput"}
-	if s.AutoScalingGroupName == nil {
-		invalidParams.Add(request.NewErrParamRequired("AutoScalingGroupName"))
-	}
-	if s.AutoScalingGroupName != nil && len(*s.AutoScalingGroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AutoScalingGroupName", 1))
-	}
-	if s.AvailabilityZones != nil && len(s.AvailabilityZones) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AvailabilityZones", 1))
-	}
-	if s.HealthCheckType != nil && len(*s.HealthCheckType) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("HealthCheckType", 1))
-	}
-	if s.LaunchConfigurationName != nil && len(*s.LaunchConfigurationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("LaunchConfigurationName", 1))
-	}
-	if s.PlacementGroup != nil && len(*s.PlacementGroup) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("PlacementGroup", 1))
-	}
-	if s.VPCZoneIdentifier != nil && len(*s.VPCZoneIdentifier) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("VPCZoneIdentifier", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type UpdateAutoScalingGroupOutput struct {
+	metadataUpdateAutoScalingGroupOutput `json:"-" xml:"-"`
 }
 
-type UpdateAutoScalingGroupOutput struct {
-	_ struct{} `type:"structure"`
+type metadataUpdateAutoScalingGroupOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5987,8 +5425,6 @@ const (
 )
 
 const (
-	// @enum ScalingActivityStatusCode
-	ScalingActivityStatusCodePendingSpotBidPlacement = "PendingSpotBidPlacement"
 	// @enum ScalingActivityStatusCode
 	ScalingActivityStatusCodeWaitingForSpotInstanceRequestId = "WaitingForSpotInstanceRequestId"
 	// @enum ScalingActivityStatusCode

@@ -10,10 +10,6 @@ import (
 
 // ConfigServiceAPI is the interface type for configservice.ConfigService.
 type ConfigServiceAPI interface {
-	DeleteConfigRuleRequest(*configservice.DeleteConfigRuleInput) (*request.Request, *configservice.DeleteConfigRuleOutput)
-
-	DeleteConfigRule(*configservice.DeleteConfigRuleInput) (*configservice.DeleteConfigRuleOutput, error)
-
 	DeleteDeliveryChannelRequest(*configservice.DeleteDeliveryChannelInput) (*request.Request, *configservice.DeleteDeliveryChannelOutput)
 
 	DeleteDeliveryChannel(*configservice.DeleteDeliveryChannelInput) (*configservice.DeleteDeliveryChannelOutput, error)
@@ -21,22 +17,6 @@ type ConfigServiceAPI interface {
 	DeliverConfigSnapshotRequest(*configservice.DeliverConfigSnapshotInput) (*request.Request, *configservice.DeliverConfigSnapshotOutput)
 
 	DeliverConfigSnapshot(*configservice.DeliverConfigSnapshotInput) (*configservice.DeliverConfigSnapshotOutput, error)
-
-	DescribeComplianceByConfigRuleRequest(*configservice.DescribeComplianceByConfigRuleInput) (*request.Request, *configservice.DescribeComplianceByConfigRuleOutput)
-
-	DescribeComplianceByConfigRule(*configservice.DescribeComplianceByConfigRuleInput) (*configservice.DescribeComplianceByConfigRuleOutput, error)
-
-	DescribeComplianceByResourceRequest(*configservice.DescribeComplianceByResourceInput) (*request.Request, *configservice.DescribeComplianceByResourceOutput)
-
-	DescribeComplianceByResource(*configservice.DescribeComplianceByResourceInput) (*configservice.DescribeComplianceByResourceOutput, error)
-
-	DescribeConfigRuleEvaluationStatusRequest(*configservice.DescribeConfigRuleEvaluationStatusInput) (*request.Request, *configservice.DescribeConfigRuleEvaluationStatusOutput)
-
-	DescribeConfigRuleEvaluationStatus(*configservice.DescribeConfigRuleEvaluationStatusInput) (*configservice.DescribeConfigRuleEvaluationStatusOutput, error)
-
-	DescribeConfigRulesRequest(*configservice.DescribeConfigRulesInput) (*request.Request, *configservice.DescribeConfigRulesOutput)
-
-	DescribeConfigRules(*configservice.DescribeConfigRulesInput) (*configservice.DescribeConfigRulesOutput, error)
 
 	DescribeConfigurationRecorderStatusRequest(*configservice.DescribeConfigurationRecorderStatusInput) (*request.Request, *configservice.DescribeConfigurationRecorderStatusOutput)
 
@@ -54,22 +34,6 @@ type ConfigServiceAPI interface {
 
 	DescribeDeliveryChannels(*configservice.DescribeDeliveryChannelsInput) (*configservice.DescribeDeliveryChannelsOutput, error)
 
-	GetComplianceDetailsByConfigRuleRequest(*configservice.GetComplianceDetailsByConfigRuleInput) (*request.Request, *configservice.GetComplianceDetailsByConfigRuleOutput)
-
-	GetComplianceDetailsByConfigRule(*configservice.GetComplianceDetailsByConfigRuleInput) (*configservice.GetComplianceDetailsByConfigRuleOutput, error)
-
-	GetComplianceDetailsByResourceRequest(*configservice.GetComplianceDetailsByResourceInput) (*request.Request, *configservice.GetComplianceDetailsByResourceOutput)
-
-	GetComplianceDetailsByResource(*configservice.GetComplianceDetailsByResourceInput) (*configservice.GetComplianceDetailsByResourceOutput, error)
-
-	GetComplianceSummaryByConfigRuleRequest(*configservice.GetComplianceSummaryByConfigRuleInput) (*request.Request, *configservice.GetComplianceSummaryByConfigRuleOutput)
-
-	GetComplianceSummaryByConfigRule(*configservice.GetComplianceSummaryByConfigRuleInput) (*configservice.GetComplianceSummaryByConfigRuleOutput, error)
-
-	GetComplianceSummaryByResourceTypeRequest(*configservice.GetComplianceSummaryByResourceTypeInput) (*request.Request, *configservice.GetComplianceSummaryByResourceTypeOutput)
-
-	GetComplianceSummaryByResourceType(*configservice.GetComplianceSummaryByResourceTypeInput) (*configservice.GetComplianceSummaryByResourceTypeOutput, error)
-
 	GetResourceConfigHistoryRequest(*configservice.GetResourceConfigHistoryInput) (*request.Request, *configservice.GetResourceConfigHistoryOutput)
 
 	GetResourceConfigHistory(*configservice.GetResourceConfigHistoryInput) (*configservice.GetResourceConfigHistoryOutput, error)
@@ -80,10 +44,6 @@ type ConfigServiceAPI interface {
 
 	ListDiscoveredResources(*configservice.ListDiscoveredResourcesInput) (*configservice.ListDiscoveredResourcesOutput, error)
 
-	PutConfigRuleRequest(*configservice.PutConfigRuleInput) (*request.Request, *configservice.PutConfigRuleOutput)
-
-	PutConfigRule(*configservice.PutConfigRuleInput) (*configservice.PutConfigRuleOutput, error)
-
 	PutConfigurationRecorderRequest(*configservice.PutConfigurationRecorderInput) (*request.Request, *configservice.PutConfigurationRecorderOutput)
 
 	PutConfigurationRecorder(*configservice.PutConfigurationRecorderInput) (*configservice.PutConfigurationRecorderOutput, error)
@@ -91,10 +51,6 @@ type ConfigServiceAPI interface {
 	PutDeliveryChannelRequest(*configservice.PutDeliveryChannelInput) (*request.Request, *configservice.PutDeliveryChannelOutput)
 
 	PutDeliveryChannel(*configservice.PutDeliveryChannelInput) (*configservice.PutDeliveryChannelOutput, error)
-
-	PutEvaluationsRequest(*configservice.PutEvaluationsInput) (*request.Request, *configservice.PutEvaluationsOutput)
-
-	PutEvaluations(*configservice.PutEvaluationsInput) (*configservice.PutEvaluationsOutput, error)
 
 	StartConfigurationRecorderRequest(*configservice.StartConfigurationRecorderInput) (*request.Request, *configservice.StartConfigurationRecorderOutput)
 
@@ -104,5 +60,3 @@ type ConfigServiceAPI interface {
 
 	StopConfigurationRecorder(*configservice.StopConfigurationRecorderInput) (*configservice.StopConfigurationRecorderOutput, error)
 }
-
-var _ ConfigServiceAPI = (*configservice.ConfigService)(nil)

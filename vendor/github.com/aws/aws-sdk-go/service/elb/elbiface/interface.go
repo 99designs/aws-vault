@@ -124,5 +124,3 @@ type ELBAPI interface {
 
 	SetLoadBalancerPoliciesOfListener(*elb.SetLoadBalancerPoliciesOfListenerInput) (*elb.SetLoadBalancerPoliciesOfListenerOutput, error)
 }
-
-var _ ELBAPI = (*elb.ELB)(nil)

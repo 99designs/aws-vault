@@ -6,15 +6,16 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awsutil"
-	"github.com/aws/aws-sdk-go/awstesting/unit"
+	"github.com/aws/aws-sdk-go/internal/test/unit"
 	"github.com/aws/aws-sdk-go/service/glacier"
+	"github.com/stretchr/testify/assert"
 )
 
 var (
+	_ = unit.Imported
+
 	payloadBuf = func() *bytes.Reader {
 		buf := make([]byte, 5767168) // 5.5MB buffer
 		for i := range buf {
@@ -23,7 +24,7 @@ var (
 		return bytes.NewReader(buf)
 	}()
 
-	svc = glacier.New(unit.Session)
+	svc = glacier.New(nil)
 )
 
 func TestCustomizations(t *testing.T) {
@@ -35,11 +36,11 @@ func TestCustomizations(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Sets API version
-	assert.Equal(t, req.ClientInfo.APIVersion, req.HTTPRequest.Header.Get("x-amz-glacier-version"))
+	assert.Equal(t, req.Service.APIVersion, req.HTTPRequest.Header.Get("x-amz-glacier-version"))
 
 	// Sets Account ID
-	v, _ := awsutil.ValuesAtPath(req.Params, "AccountId")
-	assert.Equal(t, "-", *(v[0].(*string)))
+	v := awsutil.ValuesAtPath(req.Params, "AccountId")
+	assert.Equal(t, "-", v[0])
 
 	// Computes checksums
 	linear := "68aff0c5a91aa0491752bfb96e3fef33eb74953804f6a2f7b708d5bcefa8ff6b"
@@ -68,23 +69,10 @@ func TestFillAccountIDWithNilStruct(t *testing.T) {
 	empty := "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 
 	// Sets Account ID
-	v, _ := awsutil.ValuesAtPath(req.Params, "AccountId")
-	assert.Equal(t, "-", *(v[0].(*string)))
+	v := awsutil.ValuesAtPath(req.Params, "AccountId")
+	assert.Equal(t, "-", v[0])
 
 	// Does not set tree hash
 	assert.Equal(t, empty, req.HTTPRequest.Header.Get("x-amz-content-sha256"))
 	assert.Equal(t, "", req.HTTPRequest.Header.Get("x-amz-sha256-tree-hash"))
-}
-
-func TestHashOnce(t *testing.T) {
-	req, _ := svc.UploadArchiveRequest(&glacier.UploadArchiveInput{
-		VaultName: aws.String("vault"),
-		Body:      payloadBuf,
-	})
-	req.HTTPRequest.Header.Set("X-Amz-Sha256-Tree-Hash", "0")
-
-	err := req.Build()
-	assert.NoError(t, err)
-
-	assert.Equal(t, "0", req.HTTPRequest.Header.Get("x-amz-sha256-tree-hash"))
 }

@@ -4,40 +4,11 @@
 package ssm
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/awsutil"
 	"github.com/aws/aws-sdk-go/aws/request"
 )
-
-const opCancelCommand = "CancelCommand"
-
-// CancelCommandRequest generates a request for the CancelCommand operation.
-func (c *SSM) CancelCommandRequest(input *CancelCommandInput) (req *request.Request, output *CancelCommandOutput) {
-	op := &request.Operation{
-		Name:       opCancelCommand,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &CancelCommandInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &CancelCommandOutput{}
-	req.Data = output
-	return
-}
-
-// Attempts to cancel the command specified by the Command ID. There is no guarantee
-// that the command will be terminated and the underlying process stopped.
-func (c *SSM) CancelCommand(input *CancelCommandInput) (*CancelCommandOutput, error) {
-	req, out := c.CancelCommandRequest(input)
-	err := req.Send()
-	return out, err
-}
 
 const opCreateAssociation = "CreateAssociation"
 
@@ -59,13 +30,15 @@ func (c *SSM) CreateAssociationRequest(input *CreateAssociationInput) (req *requ
 	return
 }
 
-// Associates the specified SSM document with the specified instance.
+// Associates the specified configuration document with the specified instance.
 //
-// When you associate an SSM document with an instance, the configuration agent
-// on the instance processes the document and configures the instance as specified.
+// When you associate a configuration document with an instance, the configuration
+// agent on the instance processes the configuration document and configures
+// the instance as specified.
 //
-// If you associate a document with an instance that already has an associated
-// document, the system throws the AssociationAlreadyExists exception.
+// If you associate a configuration document with an instance that already
+// has an associated configuration document, we replace the current configuration
+// document with the new configuration document.
 func (c *SSM) CreateAssociation(input *CreateAssociationInput) (*CreateAssociationOutput, error) {
 	req, out := c.CreateAssociationRequest(input)
 	err := req.Send()
@@ -92,13 +65,15 @@ func (c *SSM) CreateAssociationBatchRequest(input *CreateAssociationBatchInput) 
 	return
 }
 
-// Associates the specified SSM document with the specified instances.
+// Associates the specified configuration documents with the specified instances.
 //
-// When you associate an SSM document with an instance, the configuration agent
-// on the instance processes the document and configures the instance as specified.
+// When you associate a configuration document with an instance, the configuration
+// agent on the instance processes the configuration document and configures
+// the instance as specified.
 //
-// If you associate a document with an instance that already has an associated
-// document, the system throws the AssociationAlreadyExists exception.
+// If you associate a configuration document with an instance that already
+// has an associated configuration document, we replace the current configuration
+// document with the new configuration document.
 func (c *SSM) CreateAssociationBatch(input *CreateAssociationBatchInput) (*CreateAssociationBatchOutput, error) {
 	req, out := c.CreateAssociationBatchRequest(input)
 	err := req.Send()
@@ -125,10 +100,10 @@ func (c *SSM) CreateDocumentRequest(input *CreateDocumentInput) (req *request.Re
 	return
 }
 
-// Creates an SSM document.
+// Creates a configuration document.
 //
-// After you create an SSM document, you can use CreateAssociation to associate
-// it with one or more running instances.
+// After you create a configuration document, you can use CreateAssociation
+// to associate it with one or more running instances.
 func (c *SSM) CreateDocument(input *CreateDocumentInput) (*CreateDocumentOutput, error) {
 	req, out := c.CreateDocumentRequest(input)
 	err := req.Send()
@@ -155,12 +130,13 @@ func (c *SSM) DeleteAssociationRequest(input *DeleteAssociationInput) (req *requ
 	return
 }
 
-// Disassociates the specified SSM document from the specified instance.
+// Disassociates the specified configuration document from the specified instance.
 //
-// When you disassociate an SSM document from an instance, it does not change
-// the configuration of the instance. To change the configuration state of an
-// instance after you disassociate a document, you must create a new document
-// with the desired configuration and associate it with the instance.
+// When you disassociate a configuration document from an instance, it does
+// not change the configuration of the instance. To change the configuration
+// state of an instance after you disassociate a configuration document, you
+// must create a new configuration document with the desired configuration and
+// associate it with the instance.
 func (c *SSM) DeleteAssociation(input *DeleteAssociationInput) (*DeleteAssociationOutput, error) {
 	req, out := c.DeleteAssociationRequest(input)
 	err := req.Send()
@@ -187,10 +163,10 @@ func (c *SSM) DeleteDocumentRequest(input *DeleteDocumentInput) (req *request.Re
 	return
 }
 
-// Deletes the SSM document and all instance associations to the document.
+// Deletes the specified configuration document.
 //
-// Before you delete the SSM document, we recommend that you use DeleteAssociation
-// to disassociate all instances that are associated with the document.
+// You must use DeleteAssociation to disassociate all instances that are associated
+// with the configuration document before you can delete it.
 func (c *SSM) DeleteDocument(input *DeleteDocumentInput) (*DeleteDocumentOutput, error) {
 	req, out := c.DeleteDocumentRequest(input)
 	err := req.Send()
@@ -217,7 +193,7 @@ func (c *SSM) DescribeAssociationRequest(input *DescribeAssociationInput) (req *
 	return
 }
 
-// Describes the associations for the specified SSM document or instance.
+// Describes the associations for the specified configuration document or instance.
 func (c *SSM) DescribeAssociation(input *DescribeAssociationInput) (*DescribeAssociationOutput, error) {
 	req, out := c.DescribeAssociationRequest(input)
 	err := req.Send()
@@ -244,70 +220,9 @@ func (c *SSM) DescribeDocumentRequest(input *DescribeDocumentInput) (req *reques
 	return
 }
 
-// Describes the specified SSM document.
+// Describes the specified configuration document.
 func (c *SSM) DescribeDocument(input *DescribeDocumentInput) (*DescribeDocumentOutput, error) {
 	req, out := c.DescribeDocumentRequest(input)
-	err := req.Send()
-	return out, err
-}
-
-const opDescribeDocumentPermission = "DescribeDocumentPermission"
-
-// DescribeDocumentPermissionRequest generates a request for the DescribeDocumentPermission operation.
-func (c *SSM) DescribeDocumentPermissionRequest(input *DescribeDocumentPermissionInput) (req *request.Request, output *DescribeDocumentPermissionOutput) {
-	op := &request.Operation{
-		Name:       opDescribeDocumentPermission,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &DescribeDocumentPermissionInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &DescribeDocumentPermissionOutput{}
-	req.Data = output
-	return
-}
-
-// Describes the permissions for an SSM document. If you created the document,
-// you are the owner. If a document is shared, it can either be shared privately
-// (by specifying a user’s AWS account ID) or publicly (All).
-func (c *SSM) DescribeDocumentPermission(input *DescribeDocumentPermissionInput) (*DescribeDocumentPermissionOutput, error) {
-	req, out := c.DescribeDocumentPermissionRequest(input)
-	err := req.Send()
-	return out, err
-}
-
-const opDescribeInstanceInformation = "DescribeInstanceInformation"
-
-// DescribeInstanceInformationRequest generates a request for the DescribeInstanceInformation operation.
-func (c *SSM) DescribeInstanceInformationRequest(input *DescribeInstanceInformationInput) (req *request.Request, output *DescribeInstanceInformationOutput) {
-	op := &request.Operation{
-		Name:       opDescribeInstanceInformation,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &DescribeInstanceInformationInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &DescribeInstanceInformationOutput{}
-	req.Data = output
-	return
-}
-
-// Describes one or more of your instances. You can use this to get information
-// about instances like the operating system platform, the SSM agent version,
-// status etc. If you specify one or more instance IDs, it returns information
-// for those instances. If you do not specify instance IDs, it returns information
-// for all your instances. If you specify an instance ID that is not valid or
-// an instance that you do not own, you receive an error.
-func (c *SSM) DescribeInstanceInformation(input *DescribeInstanceInformationInput) (*DescribeInstanceInformationOutput, error) {
-	req, out := c.DescribeInstanceInformationRequest(input)
 	err := req.Send()
 	return out, err
 }
@@ -332,7 +247,7 @@ func (c *SSM) GetDocumentRequest(input *GetDocumentInput) (req *request.Request,
 	return
 }
 
-// Gets the contents of the specified SSM document.
+// Gets the contents of the specified configuration document.
 func (c *SSM) GetDocument(input *GetDocumentInput) (*GetDocumentOutput, error) {
 	req, out := c.GetDocumentRequest(input)
 	err := req.Send()
@@ -347,12 +262,6 @@ func (c *SSM) ListAssociationsRequest(input *ListAssociationsInput) (req *reques
 		Name:       opListAssociations,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
-		Paginator: &request.Paginator{
-			InputTokens:     []string{"NextToken"},
-			OutputTokens:    []string{"NextToken"},
-			LimitToken:      "MaxResults",
-			TruncationToken: "",
-		},
 	}
 
 	if input == nil {
@@ -365,105 +274,11 @@ func (c *SSM) ListAssociationsRequest(input *ListAssociationsInput) (req *reques
 	return
 }
 
-// Lists the associations for the specified SSM document or instance.
+// Lists the associations for the specified configuration document or instance.
 func (c *SSM) ListAssociations(input *ListAssociationsInput) (*ListAssociationsOutput, error) {
 	req, out := c.ListAssociationsRequest(input)
 	err := req.Send()
 	return out, err
-}
-
-func (c *SSM) ListAssociationsPages(input *ListAssociationsInput, fn func(p *ListAssociationsOutput, lastPage bool) (shouldContinue bool)) error {
-	page, _ := c.ListAssociationsRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
-	return page.EachPage(func(p interface{}, lastPage bool) bool {
-		return fn(p.(*ListAssociationsOutput), lastPage)
-	})
-}
-
-const opListCommandInvocations = "ListCommandInvocations"
-
-// ListCommandInvocationsRequest generates a request for the ListCommandInvocations operation.
-func (c *SSM) ListCommandInvocationsRequest(input *ListCommandInvocationsInput) (req *request.Request, output *ListCommandInvocationsOutput) {
-	op := &request.Operation{
-		Name:       opListCommandInvocations,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-		Paginator: &request.Paginator{
-			InputTokens:     []string{"NextToken"},
-			OutputTokens:    []string{"NextToken"},
-			LimitToken:      "MaxResults",
-			TruncationToken: "",
-		},
-	}
-
-	if input == nil {
-		input = &ListCommandInvocationsInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &ListCommandInvocationsOutput{}
-	req.Data = output
-	return
-}
-
-// An invocation is copy of a command sent to a specific instance. A command
-// can apply to one or more instances. A command invocation applies to one instance.
-// For example, if a user executes SendCommand against three instances, then
-// a command invocation is created for each requested instance ID. ListCommandInvocations
-// provide status about command execution.
-func (c *SSM) ListCommandInvocations(input *ListCommandInvocationsInput) (*ListCommandInvocationsOutput, error) {
-	req, out := c.ListCommandInvocationsRequest(input)
-	err := req.Send()
-	return out, err
-}
-
-func (c *SSM) ListCommandInvocationsPages(input *ListCommandInvocationsInput, fn func(p *ListCommandInvocationsOutput, lastPage bool) (shouldContinue bool)) error {
-	page, _ := c.ListCommandInvocationsRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
-	return page.EachPage(func(p interface{}, lastPage bool) bool {
-		return fn(p.(*ListCommandInvocationsOutput), lastPage)
-	})
-}
-
-const opListCommands = "ListCommands"
-
-// ListCommandsRequest generates a request for the ListCommands operation.
-func (c *SSM) ListCommandsRequest(input *ListCommandsInput) (req *request.Request, output *ListCommandsOutput) {
-	op := &request.Operation{
-		Name:       opListCommands,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-		Paginator: &request.Paginator{
-			InputTokens:     []string{"NextToken"},
-			OutputTokens:    []string{"NextToken"},
-			LimitToken:      "MaxResults",
-			TruncationToken: "",
-		},
-	}
-
-	if input == nil {
-		input = &ListCommandsInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &ListCommandsOutput{}
-	req.Data = output
-	return
-}
-
-// Lists the commands requested by users of the AWS account.
-func (c *SSM) ListCommands(input *ListCommandsInput) (*ListCommandsOutput, error) {
-	req, out := c.ListCommandsRequest(input)
-	err := req.Send()
-	return out, err
-}
-
-func (c *SSM) ListCommandsPages(input *ListCommandsInput, fn func(p *ListCommandsOutput, lastPage bool) (shouldContinue bool)) error {
-	page, _ := c.ListCommandsRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
-	return page.EachPage(func(p interface{}, lastPage bool) bool {
-		return fn(p.(*ListCommandsOutput), lastPage)
-	})
 }
 
 const opListDocuments = "ListDocuments"
@@ -474,12 +289,6 @@ func (c *SSM) ListDocumentsRequest(input *ListDocumentsInput) (req *request.Requ
 		Name:       opListDocuments,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
-		Paginator: &request.Paginator{
-			InputTokens:     []string{"NextToken"},
-			OutputTokens:    []string{"NextToken"},
-			LimitToken:      "MaxResults",
-			TruncationToken: "",
-		},
 	}
 
 	if input == nil {
@@ -492,74 +301,9 @@ func (c *SSM) ListDocumentsRequest(input *ListDocumentsInput) (req *request.Requ
 	return
 }
 
-// Describes one or more of your SSM documents.
+// Describes one or more of your configuration documents.
 func (c *SSM) ListDocuments(input *ListDocumentsInput) (*ListDocumentsOutput, error) {
 	req, out := c.ListDocumentsRequest(input)
-	err := req.Send()
-	return out, err
-}
-
-func (c *SSM) ListDocumentsPages(input *ListDocumentsInput, fn func(p *ListDocumentsOutput, lastPage bool) (shouldContinue bool)) error {
-	page, _ := c.ListDocumentsRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
-	return page.EachPage(func(p interface{}, lastPage bool) bool {
-		return fn(p.(*ListDocumentsOutput), lastPage)
-	})
-}
-
-const opModifyDocumentPermission = "ModifyDocumentPermission"
-
-// ModifyDocumentPermissionRequest generates a request for the ModifyDocumentPermission operation.
-func (c *SSM) ModifyDocumentPermissionRequest(input *ModifyDocumentPermissionInput) (req *request.Request, output *ModifyDocumentPermissionOutput) {
-	op := &request.Operation{
-		Name:       opModifyDocumentPermission,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &ModifyDocumentPermissionInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &ModifyDocumentPermissionOutput{}
-	req.Data = output
-	return
-}
-
-// Share a document publicly or privately. If you share a document privately,
-// you must specify the AWS user account IDs for those people who can use the
-// document. If you share a document publicly, you must specify All as the account
-// ID.
-func (c *SSM) ModifyDocumentPermission(input *ModifyDocumentPermissionInput) (*ModifyDocumentPermissionOutput, error) {
-	req, out := c.ModifyDocumentPermissionRequest(input)
-	err := req.Send()
-	return out, err
-}
-
-const opSendCommand = "SendCommand"
-
-// SendCommandRequest generates a request for the SendCommand operation.
-func (c *SSM) SendCommandRequest(input *SendCommandInput) (req *request.Request, output *SendCommandOutput) {
-	op := &request.Operation{
-		Name:       opSendCommand,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &SendCommandInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &SendCommandOutput{}
-	req.Data = output
-	return
-}
-
-// Executes commands on one or more remote instances.
-func (c *SSM) SendCommand(input *SendCommandInput) (*SendCommandOutput, error) {
-	req, out := c.SendCommandRequest(input)
 	err := req.Send()
 	return out, err
 }
@@ -584,22 +328,27 @@ func (c *SSM) UpdateAssociationStatusRequest(input *UpdateAssociationStatusInput
 	return
 }
 
-// Updates the status of the SSM document associated with the specified instance.
+// Updates the status of the configuration document associated with the specified
+// instance.
 func (c *SSM) UpdateAssociationStatus(input *UpdateAssociationStatusInput) (*UpdateAssociationStatusOutput, error) {
 	req, out := c.UpdateAssociationStatusRequest(input)
 	err := req.Send()
 	return out, err
 }
 
-// Describes an association of an SSM document and an instance.
+// Describes an association of a configuration document and an instance.
 type Association struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the instance.
 	InstanceId *string `type:"string"`
 
-	// The name of the SSM document.
+	// The name of the configuration document.
 	Name *string `type:"string"`
+
+	metadataAssociation `json:"-" xml:"-"`
+}
+
+type metadataAssociation struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -612,24 +361,25 @@ func (s Association) GoString() string {
 	return s.String()
 }
 
-// Describes the parameters for a document.
+// Describes an association.
 type AssociationDescription struct {
-	_ struct{} `type:"structure"`
-
 	// The date when the association was made.
 	Date *time.Time `type:"timestamp" timestampFormat:"unix"`
 
 	// The ID of the instance.
 	InstanceId *string `type:"string"`
 
-	// The name of the SSM document.
+	// The name of the configuration document.
 	Name *string `type:"string"`
-
-	// A description of the parameters for a document.
-	Parameters map[string][]*string `type:"map"`
 
 	// The association status.
 	Status *AssociationStatus `type:"structure"`
+
+	metadataAssociationDescription `json:"-" xml:"-"`
+}
+
+type metadataAssociationDescription struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -644,13 +394,17 @@ func (s AssociationDescription) GoString() string {
 
 // Describes a filter.
 type AssociationFilter struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the filter.
 	Key *string `locationName:"key" type:"string" required:"true" enum:"AssociationFilterKey"`
 
 	// The filter value.
-	Value *string `locationName:"value" min:"1" type:"string" required:"true"`
+	Value *string `locationName:"value" type:"string" required:"true"`
+
+	metadataAssociationFilter `json:"-" xml:"-"`
+}
+
+type metadataAssociationFilter struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -663,29 +417,8 @@ func (s AssociationFilter) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *AssociationFilter) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "AssociationFilter"}
-	if s.Key == nil {
-		invalidParams.Add(request.NewErrParamRequired("Key"))
-	}
-	if s.Value == nil {
-		invalidParams.Add(request.NewErrParamRequired("Value"))
-	}
-	if s.Value != nil && len(*s.Value) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("Value", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Describes an association status.
 type AssociationStatus struct {
-	_ struct{} `type:"structure"`
-
 	// A user-defined string.
 	AdditionalInfo *string `type:"string"`
 
@@ -697,6 +430,12 @@ type AssociationStatus struct {
 
 	// The status.
 	Name *string `type:"string" required:"true" enum:"AssociationStatusName"`
+
+	metadataAssociationStatus `json:"-" xml:"-"`
+}
+
+type metadataAssociationStatus struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -709,265 +448,15 @@ func (s AssociationStatus) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *AssociationStatus) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "AssociationStatus"}
-	if s.Date == nil {
-		invalidParams.Add(request.NewErrParamRequired("Date"))
-	}
-	if s.Message == nil {
-		invalidParams.Add(request.NewErrParamRequired("Message"))
-	}
-	if s.Name == nil {
-		invalidParams.Add(request.NewErrParamRequired("Name"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-type CancelCommandInput struct {
-	_ struct{} `type:"structure"`
-
-	// The ID of the command you want to cancel.
-	CommandId *string `min:"36" type:"string" required:"true"`
-
-	// (Optional) A list of instance IDs on which you want to cancel the command.
-	// If not provided, the command is canceled on every instance on which it was
-	// requested.
-	InstanceIds []*string `min:"1" type:"list"`
-}
-
-// String returns the string representation
-func (s CancelCommandInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s CancelCommandInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CancelCommandInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CancelCommandInput"}
-	if s.CommandId == nil {
-		invalidParams.Add(request.NewErrParamRequired("CommandId"))
-	}
-	if s.CommandId != nil && len(*s.CommandId) < 36 {
-		invalidParams.Add(request.NewErrParamMinLen("CommandId", 36))
-	}
-	if s.InstanceIds != nil && len(s.InstanceIds) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("InstanceIds", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// Whether or not the command was successfully canceled. There is no guarantee
-// that a request can be canceled.
-type CancelCommandOutput struct {
-	_ struct{} `type:"structure"`
-}
-
-// String returns the string representation
-func (s CancelCommandOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s CancelCommandOutput) GoString() string {
-	return s.String()
-}
-
-// Describes a command request.
-type Command struct {
-	_ struct{} `type:"structure"`
-
-	// A unique identifier for this command.
-	CommandId *string `min:"36" type:"string"`
-
-	// User-specified information about the command, such as a brief description
-	// of what the command should do.
-	Comment *string `type:"string"`
-
-	// The name of the SSM document requested for execution.
-	DocumentName *string `type:"string"`
-
-	// If this time is reached and the command has not already started executing,
-	// it will not execute. Calculated based on the ExpiresAfter user input provided
-	// as part of the SendCommand API.
-	ExpiresAfter *time.Time `type:"timestamp" timestampFormat:"unix"`
-
-	// The instance IDs against which this command was requested.
-	InstanceIds []*string `min:"1" type:"list"`
-
-	// The S3 bucket where the responses to the command executions should be stored.
-	// This was requested when issuing the command.
-	OutputS3BucketName *string `min:"3" type:"string"`
-
-	// The S3 directory path inside the bucket where the responses to the command
-	// executions should be stored. This was requested when issuing the command.
-	OutputS3KeyPrefix *string `type:"string"`
-
-	// The parameter values to be inserted in the SSM document when executing the
-	// command.
-	Parameters map[string][]*string `type:"map"`
-
-	// The date and time the command was requested.
-	RequestedDateTime *time.Time `type:"timestamp" timestampFormat:"unix"`
-
-	// The status of the command.
-	Status *string `type:"string" enum:"CommandStatus"`
-}
-
-// String returns the string representation
-func (s Command) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s Command) GoString() string {
-	return s.String()
-}
-
-// Describes a command filter.
-type CommandFilter struct {
-	_ struct{} `type:"structure"`
-
-	// The name of the filter. For example, requested date and time.
-	Key *string `locationName:"key" type:"string" required:"true" enum:"CommandFilterKey"`
-
-	// The filter value. For example: June 30, 2015.
-	Value *string `locationName:"value" min:"1" type:"string" required:"true"`
-}
-
-// String returns the string representation
-func (s CommandFilter) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s CommandFilter) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CommandFilter) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CommandFilter"}
-	if s.Key == nil {
-		invalidParams.Add(request.NewErrParamRequired("Key"))
-	}
-	if s.Value == nil {
-		invalidParams.Add(request.NewErrParamRequired("Value"))
-	}
-	if s.Value != nil && len(*s.Value) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("Value", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// An invocation is copy of a command sent to a specific instance. A command
-// can apply to one or more instances. A command invocation applies to one instance.
-// For example, if a user executes SendCommand against three instances, then
-// a command invocation is created for each requested instance ID. A command
-// invocation returns status and detail information about a command you executed.
-type CommandInvocation struct {
-	_ struct{} `type:"structure"`
-
-	// The command against which this invocation was requested.
-	CommandId *string `min:"36" type:"string"`
-
-	CommandPlugins []*CommandPlugin `type:"list"`
-
-	// User-specified information about the command, such as a brief description
-	// of what the command should do.
-	Comment *string `type:"string"`
-
-	// The document name that was requested for execution.
-	DocumentName *string `type:"string"`
-
-	// The instance ID in which this invocation was requested.
-	InstanceId *string `type:"string"`
-
-	// The time and date the request was sent to this instance.
-	RequestedDateTime *time.Time `type:"timestamp" timestampFormat:"unix"`
-
-	// Whether or not the invocation succeeded, failed, or is pending.
-	Status *string `type:"string" enum:"CommandInvocationStatus"`
-
-	// Gets the trace output sent by the agent.
-	TraceOutput *string `type:"string"`
-}
-
-// String returns the string representation
-func (s CommandInvocation) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s CommandInvocation) GoString() string {
-	return s.String()
-}
-
-// Describes plugin details.
-type CommandPlugin struct {
-	_ struct{} `type:"structure"`
-
-	// The name of the plugin. Must be one of the following: aws:updateAgent, aws:domainjoin,
-	// aws:applications, aws:runPowerShellScript, aws:psmodule, aws:cloudWatch,
-	// aws:runShellScript, or aws:updateSSMAgent.
-	Name *string `min:"4" type:"string"`
-
-	// Output of the plugin execution.
-	Output *string `type:"string"`
-
-	// The S3 bucket where the responses to the command executions should be stored.
-	// This was requested when issuing the command.
-	OutputS3BucketName *string `min:"3" type:"string"`
-
-	// The S3 directory path inside the bucket where the responses to the command
-	// executions should be stored. This was requested when issuing the command.
-	OutputS3KeyPrefix *string `type:"string"`
-
-	// A numeric response code generated after executing the plugin.
-	ResponseCode *int64 `type:"integer"`
-
-	// The time the plugin stopped executing. Could stop prematurely if, for example,
-	// a cancel command was sent.
-	ResponseFinishDateTime *time.Time `type:"timestamp" timestampFormat:"unix"`
-
-	// The time the plugin started executing.
-	ResponseStartDateTime *time.Time `type:"timestamp" timestampFormat:"unix"`
-
-	// The status of this plugin. You can execute a document with multiple plugins.
-	Status *string `type:"string" enum:"CommandPluginStatus"`
-}
-
-// String returns the string representation
-func (s CommandPlugin) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s CommandPlugin) GoString() string {
-	return s.String()
-}
-
 type CreateAssociationBatchInput struct {
-	_ struct{} `type:"structure"`
-
 	// One or more associations.
 	Entries []*CreateAssociationBatchRequestEntry `locationNameList:"entries" type:"list" required:"true"`
+
+	metadataCreateAssociationBatchInput `json:"-" xml:"-"`
+}
+
+type metadataCreateAssociationBatchInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -980,27 +469,18 @@ func (s CreateAssociationBatchInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateAssociationBatchInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateAssociationBatchInput"}
-	if s.Entries == nil {
-		invalidParams.Add(request.NewErrParamRequired("Entries"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type CreateAssociationBatchOutput struct {
-	_ struct{} `type:"structure"`
-
 	// Information about the associations that failed.
 	Failed []*FailedCreateAssociation `locationNameList:"FailedCreateAssociationEntry" type:"list"`
 
 	// Information about the associations that succeeded.
 	Successful []*AssociationDescription `locationNameList:"AssociationDescription" type:"list"`
+
+	metadataCreateAssociationBatchOutput `json:"-" xml:"-"`
+}
+
+type metadataCreateAssociationBatchOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1013,18 +493,19 @@ func (s CreateAssociationBatchOutput) GoString() string {
 	return s.String()
 }
 
-// Describes the association of an SSM document and an instance.
+// Describes the association of a configuration document and an instance.
 type CreateAssociationBatchRequestEntry struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the instance.
 	InstanceId *string `type:"string"`
 
 	// The name of the configuration document.
 	Name *string `type:"string"`
 
-	// A description of the parameters for a document.
-	Parameters map[string][]*string `type:"map"`
+	metadataCreateAssociationBatchRequestEntry `json:"-" xml:"-"`
+}
+
+type metadataCreateAssociationBatchRequestEntry struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1038,16 +519,17 @@ func (s CreateAssociationBatchRequestEntry) GoString() string {
 }
 
 type CreateAssociationInput struct {
-	_ struct{} `type:"structure"`
-
-	// The instance ID.
+	// The ID of the instance.
 	InstanceId *string `type:"string" required:"true"`
 
-	// The name of the SSM document.
+	// The name of the configuration document.
 	Name *string `type:"string" required:"true"`
 
-	// The parameters for the documents runtime configuration.
-	Parameters map[string][]*string `type:"map"`
+	metadataCreateAssociationInput `json:"-" xml:"-"`
+}
+
+type metadataCreateAssociationInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1060,27 +542,15 @@ func (s CreateAssociationInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateAssociationInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateAssociationInput"}
-	if s.InstanceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("InstanceId"))
-	}
-	if s.Name == nil {
-		invalidParams.Add(request.NewErrParamRequired("Name"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type CreateAssociationOutput struct {
-	_ struct{} `type:"structure"`
-
 	// Information about the association.
 	AssociationDescription *AssociationDescription `type:"structure"`
+
+	metadataCreateAssociationOutput `json:"-" xml:"-"`
+}
+
+type metadataCreateAssociationOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1094,13 +564,18 @@ func (s CreateAssociationOutput) GoString() string {
 }
 
 type CreateDocumentInput struct {
-	_ struct{} `type:"structure"`
+	// A valid JSON file. For more information about the contents of this file,
+	// see Configuration Document (http://docs.aws.amazon.com/ssm/latest/APIReference/aws-ssm-document.html).
+	Content *string `type:"string" required:"true"`
 
-	// A valid JSON string.
-	Content *string `min:"1" type:"string" required:"true"`
-
-	// A name for the SSM document.
+	// A name for the configuration document.
 	Name *string `type:"string" required:"true"`
+
+	metadataCreateDocumentInput `json:"-" xml:"-"`
+}
+
+type metadataCreateDocumentInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1113,30 +588,15 @@ func (s CreateDocumentInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateDocumentInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateDocumentInput"}
-	if s.Content == nil {
-		invalidParams.Add(request.NewErrParamRequired("Content"))
-	}
-	if s.Content != nil && len(*s.Content) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("Content", 1))
-	}
-	if s.Name == nil {
-		invalidParams.Add(request.NewErrParamRequired("Name"))
-	}
+type CreateDocumentOutput struct {
+	// Information about the configuration document.
+	DocumentDescription *DocumentDescription `type:"structure"`
 
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+	metadataCreateDocumentOutput `json:"-" xml:"-"`
 }
 
-type CreateDocumentOutput struct {
-	_ struct{} `type:"structure"`
-
-	// Information about the SSM document.
-	DocumentDescription *DocumentDescription `type:"structure"`
+type metadataCreateDocumentOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1150,13 +610,17 @@ func (s CreateDocumentOutput) GoString() string {
 }
 
 type DeleteAssociationInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the instance.
 	InstanceId *string `type:"string" required:"true"`
 
-	// The name of the SSM document.
+	// The name of the configuration document.
 	Name *string `type:"string" required:"true"`
+
+	metadataDeleteAssociationInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteAssociationInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1169,24 +633,12 @@ func (s DeleteAssociationInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteAssociationInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteAssociationInput"}
-	if s.InstanceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("InstanceId"))
-	}
-	if s.Name == nil {
-		invalidParams.Add(request.NewErrParamRequired("Name"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type DeleteAssociationOutput struct {
+	metadataDeleteAssociationOutput `json:"-" xml:"-"`
 }
 
-type DeleteAssociationOutput struct {
-	_ struct{} `type:"structure"`
+type metadataDeleteAssociationOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1200,10 +652,14 @@ func (s DeleteAssociationOutput) GoString() string {
 }
 
 type DeleteDocumentInput struct {
-	_ struct{} `type:"structure"`
-
-	// The name of the SSM document.
+	// The name of the configuration document.
 	Name *string `type:"string" required:"true"`
+
+	metadataDeleteDocumentInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteDocumentInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1216,21 +672,12 @@ func (s DeleteDocumentInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteDocumentInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteDocumentInput"}
-	if s.Name == nil {
-		invalidParams.Add(request.NewErrParamRequired("Name"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type DeleteDocumentOutput struct {
+	metadataDeleteDocumentOutput `json:"-" xml:"-"`
 }
 
-type DeleteDocumentOutput struct {
-	_ struct{} `type:"structure"`
+type metadataDeleteDocumentOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1244,13 +691,17 @@ func (s DeleteDocumentOutput) GoString() string {
 }
 
 type DescribeAssociationInput struct {
-	_ struct{} `type:"structure"`
-
-	// The instance ID.
+	// The ID of the instance.
 	InstanceId *string `type:"string" required:"true"`
 
-	// The name of the SSM document.
+	// The name of the configuration document.
 	Name *string `type:"string" required:"true"`
+
+	metadataDescribeAssociationInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeAssociationInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1263,27 +714,15 @@ func (s DescribeAssociationInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeAssociationInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeAssociationInput"}
-	if s.InstanceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("InstanceId"))
-	}
-	if s.Name == nil {
-		invalidParams.Add(request.NewErrParamRequired("Name"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type DescribeAssociationOutput struct {
-	_ struct{} `type:"structure"`
-
 	// Information about the association.
 	AssociationDescription *AssociationDescription `type:"structure"`
+
+	metadataDescribeAssociationOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeAssociationOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1297,10 +736,14 @@ func (s DescribeAssociationOutput) GoString() string {
 }
 
 type DescribeDocumentInput struct {
-	_ struct{} `type:"structure"`
-
-	// The name of the SSM document.
+	// The name of the configuration document.
 	Name *string `type:"string" required:"true"`
+
+	metadataDescribeDocumentInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeDocumentInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1313,24 +756,15 @@ func (s DescribeDocumentInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeDocumentInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeDocumentInput"}
-	if s.Name == nil {
-		invalidParams.Add(request.NewErrParamRequired("Name"))
-	}
+type DescribeDocumentOutput struct {
+	// Information about the configuration document.
+	Document *DocumentDescription `type:"structure"`
 
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+	metadataDescribeDocumentOutput `json:"-" xml:"-"`
 }
 
-type DescribeDocumentOutput struct {
-	_ struct{} `type:"structure"`
-
-	// Information about the SSM document.
-	Document *DocumentDescription `type:"structure"`
+type metadataDescribeDocumentOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1343,170 +777,25 @@ func (s DescribeDocumentOutput) GoString() string {
 	return s.String()
 }
 
-type DescribeDocumentPermissionInput struct {
-	_ struct{} `type:"structure"`
-
-	// The name of the document for which you are the owner.
-	Name *string `type:"string" required:"true"`
-
-	// The permission type for the document. The permission type can be Share.
-	PermissionType *string `type:"string" required:"true" enum:"DocumentPermissionType"`
-}
-
-// String returns the string representation
-func (s DescribeDocumentPermissionInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s DescribeDocumentPermissionInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeDocumentPermissionInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeDocumentPermissionInput"}
-	if s.Name == nil {
-		invalidParams.Add(request.NewErrParamRequired("Name"))
-	}
-	if s.PermissionType == nil {
-		invalidParams.Add(request.NewErrParamRequired("PermissionType"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-type DescribeDocumentPermissionOutput struct {
-	_ struct{} `type:"structure"`
-
-	// The account IDs that have permission to use this document. The ID can be
-	// either an AWS account or All.
-	AccountIds []*string `locationNameList:"AccountId" type:"list"`
-}
-
-// String returns the string representation
-func (s DescribeDocumentPermissionOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s DescribeDocumentPermissionOutput) GoString() string {
-	return s.String()
-}
-
-type DescribeInstanceInformationInput struct {
-	_ struct{} `type:"structure"`
-
-	// One or more filters. Use a filter to return a more specific list of instances.
-	InstanceInformationFilterList []*InstanceInformationFilter `locationNameList:"InstanceInformationFilter" min:"1" type:"list"`
-
-	// The maximum number of items to return for this call. The call also returns
-	// a token that you can specify in a subsequent call to get the next set of
-	// results.
-	MaxResults *int64 `min:"5" type:"integer"`
-
-	// The token for the next set of items to return. (You received this token from
-	// a previous call.)
-	NextToken *string `type:"string"`
-}
-
-// String returns the string representation
-func (s DescribeInstanceInformationInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s DescribeInstanceInformationInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeInstanceInformationInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeInstanceInformationInput"}
-	if s.InstanceInformationFilterList != nil && len(s.InstanceInformationFilterList) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("InstanceInformationFilterList", 1))
-	}
-	if s.MaxResults != nil && *s.MaxResults < 5 {
-		invalidParams.Add(request.NewErrParamMinValue("MaxResults", 5))
-	}
-	if s.InstanceInformationFilterList != nil {
-		for i, v := range s.InstanceInformationFilterList {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "InstanceInformationFilterList", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-type DescribeInstanceInformationOutput struct {
-	_ struct{} `type:"structure"`
-
-	// The instance information list.
-	InstanceInformationList []*InstanceInformation `locationNameList:"InstanceInformation" type:"list"`
-
-	// The token to use when requesting the next set of items. If there are no additional
-	// items to return, the string is empty.
-	NextToken *string `type:"string"`
-}
-
-// String returns the string representation
-func (s DescribeInstanceInformationOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s DescribeInstanceInformationOutput) GoString() string {
-	return s.String()
-}
-
-// Describes an SSM document.
+// Describes a configuration document.
 type DocumentDescription struct {
-	_ struct{} `type:"structure"`
-
-	// The date when the SSM document was created.
+	// The date when the configuration document was created.
 	CreatedDate *time.Time `type:"timestamp" timestampFormat:"unix"`
 
-	// A description of the document.
-	Description *string `type:"string"`
-
-	// The Sha256 or Sha1 hash created by the system when the document was created.
-	//
-	//  Sha1 hashes have been deprecated.
-	Hash *string `type:"string"`
-
-	// Sha256 or Sha1.
-	//
-	//  Sha1 hashes have been deprecated.
-	HashType *string `type:"string" enum:"DocumentHashType"`
-
-	// The name of the SSM document.
+	// The name of the configuration document.
 	Name *string `type:"string"`
-
-	// The AWS user account of the person who created the document.
-	Owner *string `type:"string"`
-
-	// A description of the parameters for a document.
-	Parameters []*DocumentParameter `locationNameList:"DocumentParameter" type:"list"`
-
-	// The list of OS platforms compatible with this SSM document.
-	PlatformTypes []*string `locationNameList:"PlatformType" type:"list"`
 
 	// The SHA1 hash of the document, which you can use for verification purposes.
 	Sha1 *string `type:"string"`
 
-	// The status of the SSM document.
+	// The status of the configuration document.
 	Status *string `type:"string" enum:"DocumentStatus"`
+
+	metadataDocumentDescription `json:"-" xml:"-"`
+}
+
+type metadataDocumentDescription struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1521,13 +810,17 @@ func (s DocumentDescription) GoString() string {
 
 // Describes a filter.
 type DocumentFilter struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the filter.
 	Key *string `locationName:"key" type:"string" required:"true" enum:"DocumentFilterKey"`
 
 	// The value of the filter.
-	Value *string `locationName:"value" min:"1" type:"string" required:"true"`
+	Value *string `locationName:"value" type:"string" required:"true"`
+
+	metadataDocumentFilter `json:"-" xml:"-"`
+}
+
+type metadataDocumentFilter struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1540,37 +833,16 @@ func (s DocumentFilter) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DocumentFilter) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DocumentFilter"}
-	if s.Key == nil {
-		invalidParams.Add(request.NewErrParamRequired("Key"))
-	}
-	if s.Value == nil {
-		invalidParams.Add(request.NewErrParamRequired("Value"))
-	}
-	if s.Value != nil && len(*s.Value) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("Value", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// Describes the name of an SSM document.
+// Describes the name of a configuration document.
 type DocumentIdentifier struct {
-	_ struct{} `type:"structure"`
-
-	// The name of the SSM document.
+	// The name of the configuration document.
 	Name *string `type:"string"`
 
-	// The AWS user account of the person who created the document.
-	Owner *string `type:"string"`
+	metadataDocumentIdentifier `json:"-" xml:"-"`
+}
 
-	// The operating system platform.
-	PlatformTypes []*string `locationNameList:"PlatformType" type:"list"`
+type metadataDocumentIdentifier struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1583,40 +855,8 @@ func (s DocumentIdentifier) GoString() string {
 	return s.String()
 }
 
-// Parameters specified in the SSM document that execute on the server when
-// the command is run.
-type DocumentParameter struct {
-	_ struct{} `type:"structure"`
-
-	// If specified, the default values for the parameters. Parameters without a
-	// default value are required. Parameters with a default value are optional.
-	DefaultValue *string `type:"string"`
-
-	// A description of what the parameter does, how to use it, the default value,
-	// and whether or not the parameter is optional.
-	Description *string `type:"string"`
-
-	// The name of the parameter.
-	Name *string `type:"string"`
-
-	// The type of parameter. The type can be either “String” or “StringList”.
-	Type *string `type:"string" enum:"DocumentParameterType"`
-}
-
-// String returns the string representation
-func (s DocumentParameter) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s DocumentParameter) GoString() string {
-	return s.String()
-}
-
 // Describes a failed association.
 type FailedCreateAssociation struct {
-	_ struct{} `type:"structure"`
-
 	// The association.
 	Entry *CreateAssociationBatchRequestEntry `type:"structure"`
 
@@ -1625,6 +865,12 @@ type FailedCreateAssociation struct {
 
 	// A description of the failure.
 	Message *string `type:"string"`
+
+	metadataFailedCreateAssociation `json:"-" xml:"-"`
+}
+
+type metadataFailedCreateAssociation struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1638,10 +884,14 @@ func (s FailedCreateAssociation) GoString() string {
 }
 
 type GetDocumentInput struct {
-	_ struct{} `type:"structure"`
-
-	// The name of the SSM document.
+	// The name of the configuration document.
 	Name *string `type:"string" required:"true"`
+
+	metadataGetDocumentInput `json:"-" xml:"-"`
+}
+
+type metadataGetDocumentInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1654,27 +904,18 @@ func (s GetDocumentInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *GetDocumentInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "GetDocumentInput"}
-	if s.Name == nil {
-		invalidParams.Add(request.NewErrParamRequired("Name"))
-	}
+type GetDocumentOutput struct {
+	// The contents of the configuration document.
+	Content *string `type:"string"`
 
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+	// The name of the configuration document.
+	Name *string `type:"string"`
+
+	metadataGetDocumentOutput `json:"-" xml:"-"`
 }
 
-type GetDocumentOutput struct {
-	_ struct{} `type:"structure"`
-
-	// The contents of the SSM document.
-	Content *string `min:"1" type:"string"`
-
-	// The name of the SSM document.
-	Name *string `type:"string"`
+type metadataGetDocumentOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1687,99 +928,24 @@ func (s GetDocumentOutput) GoString() string {
 	return s.String()
 }
 
-// Describes a filter for a specific list of instances.
-type InstanceInformation struct {
-	_ struct{} `type:"structure"`
-
-	// The version of the SSM agent running on your instance.
-	AgentVersion *string `type:"string"`
-
-	// The instance ID.
-	InstanceId *string `type:"string"`
-
-	// Indicates whether latest version of the SSM agent is running on your instance.
-	IsLatestVersion *bool `type:"boolean"`
-
-	// The date and time when agent last pinged SSM service.
-	LastPingDateTime *time.Time `type:"timestamp" timestampFormat:"unix"`
-
-	// Connection status of the SSM agent.
-	PingStatus *string `type:"string" enum:"PingStatus"`
-
-	// The name of the operating system platform running on your instance.
-	PlatformName *string `type:"string"`
-
-	// The operating system platform type.
-	PlatformType *string `type:"string" enum:"PlatformType"`
-
-	// The version of the OS platform running on your instance.
-	PlatformVersion *string `type:"string"`
-}
-
-// String returns the string representation
-func (s InstanceInformation) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s InstanceInformation) GoString() string {
-	return s.String()
-}
-
-// Describes a filter for a specific list of instances.
-type InstanceInformationFilter struct {
-	_ struct{} `type:"structure"`
-
-	// The name of the filter.
-	Key *string `locationName:"key" type:"string" required:"true" enum:"InstanceInformationFilterKey"`
-
-	// The filter values.
-	ValueSet []*string `locationName:"valueSet" locationNameList:"InstanceInformationFilterValue" min:"1" type:"list" required:"true"`
-}
-
-// String returns the string representation
-func (s InstanceInformationFilter) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s InstanceInformationFilter) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *InstanceInformationFilter) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "InstanceInformationFilter"}
-	if s.Key == nil {
-		invalidParams.Add(request.NewErrParamRequired("Key"))
-	}
-	if s.ValueSet == nil {
-		invalidParams.Add(request.NewErrParamRequired("ValueSet"))
-	}
-	if s.ValueSet != nil && len(s.ValueSet) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ValueSet", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type ListAssociationsInput struct {
-	_ struct{} `type:"structure"`
-
 	// One or more filters. Use a filter to return a more specific list of results.
-	AssociationFilterList []*AssociationFilter `locationNameList:"AssociationFilter" min:"1" type:"list" required:"true"`
+	AssociationFilterList []*AssociationFilter `locationNameList:"AssociationFilter" type:"list" required:"true"`
 
 	// The maximum number of items to return for this call. The call also returns
 	// a token that you can specify in a subsequent call to get the next set of
 	// results.
-	MaxResults *int64 `min:"1" type:"integer"`
+	MaxResults *int64 `type:"integer"`
 
 	// The token for the next set of items to return. (You received this token from
 	// a previous call.)
 	NextToken *string `type:"string"`
+
+	metadataListAssociationsInput `json:"-" xml:"-"`
+}
+
+type metadataListAssociationsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1792,44 +958,19 @@ func (s ListAssociationsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ListAssociationsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ListAssociationsInput"}
-	if s.AssociationFilterList == nil {
-		invalidParams.Add(request.NewErrParamRequired("AssociationFilterList"))
-	}
-	if s.AssociationFilterList != nil && len(s.AssociationFilterList) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("AssociationFilterList", 1))
-	}
-	if s.MaxResults != nil && *s.MaxResults < 1 {
-		invalidParams.Add(request.NewErrParamMinValue("MaxResults", 1))
-	}
-	if s.AssociationFilterList != nil {
-		for i, v := range s.AssociationFilterList {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "AssociationFilterList", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type ListAssociationsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The associations.
 	Associations []*Association `locationNameList:"Association" type:"list"`
 
 	// The token to use when requesting the next set of items. If there are no additional
 	// items to return, the string is empty.
 	NextToken *string `type:"string"`
+
+	metadataListAssociationsOutput `json:"-" xml:"-"`
+}
+
+type metadataListAssociationsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1842,190 +983,24 @@ func (s ListAssociationsOutput) GoString() string {
 	return s.String()
 }
 
-type ListCommandInvocationsInput struct {
-	_ struct{} `type:"structure"`
-
-	// (Optional) The invocations for a specific command ID.
-	CommandId *string `min:"36" type:"string"`
-
-	// (Optional) If set this returns the response of the command executions and
-	// any command output. By default this is set to False.
-	Details *bool `type:"boolean"`
-
-	// (Optional) One or more filters. Use a filter to return a more specific list
-	// of results.
-	Filters []*CommandFilter `min:"1" type:"list"`
-
-	// (Optional) The command execution details for a specific instance ID.
-	InstanceId *string `type:"string"`
-
-	// (Optional) The maximum number of items to return for this call. The call
-	// also returns a token that you can specify in a subsequent call to get the
-	// next set of results.
-	MaxResults *int64 `min:"1" type:"integer"`
-
-	// (Optional) The token for the next set of items to return. (You received this
-	// token from a previous call.)
-	NextToken *string `type:"string"`
-}
-
-// String returns the string representation
-func (s ListCommandInvocationsInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s ListCommandInvocationsInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ListCommandInvocationsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ListCommandInvocationsInput"}
-	if s.CommandId != nil && len(*s.CommandId) < 36 {
-		invalidParams.Add(request.NewErrParamMinLen("CommandId", 36))
-	}
-	if s.Filters != nil && len(s.Filters) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("Filters", 1))
-	}
-	if s.MaxResults != nil && *s.MaxResults < 1 {
-		invalidParams.Add(request.NewErrParamMinValue("MaxResults", 1))
-	}
-	if s.Filters != nil {
-		for i, v := range s.Filters {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Filters", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-type ListCommandInvocationsOutput struct {
-	_ struct{} `type:"structure"`
-
-	// (Optional) A list of all invocations.
-	CommandInvocations []*CommandInvocation `type:"list"`
-
-	// (Optional) The token for the next set of items to return. (You received this
-	// token from a previous call.)
-	NextToken *string `type:"string"`
-}
-
-// String returns the string representation
-func (s ListCommandInvocationsOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s ListCommandInvocationsOutput) GoString() string {
-	return s.String()
-}
-
-type ListCommandsInput struct {
-	_ struct{} `type:"structure"`
-
-	// (Optional) If provided, lists only the specified command.
-	CommandId *string `min:"36" type:"string"`
-
-	// (Optional) One or more filters. Use a filter to return a more specific list
-	// of results.
-	Filters []*CommandFilter `min:"1" type:"list"`
-
-	// (Optional) Lists commands issued against this instance ID.
-	InstanceId *string `type:"string"`
-
-	// (Optional) The maximum number of items to return for this call. The call
-	// also returns a token that you can specify in a subsequent call to get the
-	// next set of results.
-	MaxResults *int64 `min:"1" type:"integer"`
-
-	// (Optional) The token for the next set of items to return. (You received this
-	// token from a previous call.)
-	NextToken *string `type:"string"`
-}
-
-// String returns the string representation
-func (s ListCommandsInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s ListCommandsInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ListCommandsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ListCommandsInput"}
-	if s.CommandId != nil && len(*s.CommandId) < 36 {
-		invalidParams.Add(request.NewErrParamMinLen("CommandId", 36))
-	}
-	if s.Filters != nil && len(s.Filters) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("Filters", 1))
-	}
-	if s.MaxResults != nil && *s.MaxResults < 1 {
-		invalidParams.Add(request.NewErrParamMinValue("MaxResults", 1))
-	}
-	if s.Filters != nil {
-		for i, v := range s.Filters {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Filters", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-type ListCommandsOutput struct {
-	_ struct{} `type:"structure"`
-
-	// (Optional) The list of commands requested by the user.
-	Commands []*Command `type:"list"`
-
-	// (Optional) The token for the next set of items to return. (You received this
-	// token from a previous call.)
-	NextToken *string `type:"string"`
-}
-
-// String returns the string representation
-func (s ListCommandsOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s ListCommandsOutput) GoString() string {
-	return s.String()
-}
-
 type ListDocumentsInput struct {
-	_ struct{} `type:"structure"`
-
 	// One or more filters. Use a filter to return a more specific list of results.
-	DocumentFilterList []*DocumentFilter `locationNameList:"DocumentFilter" min:"1" type:"list"`
+	DocumentFilterList []*DocumentFilter `locationNameList:"DocumentFilter" type:"list"`
 
 	// The maximum number of items to return for this call. The call also returns
 	// a token that you can specify in a subsequent call to get the next set of
 	// results.
-	MaxResults *int64 `min:"1" type:"integer"`
+	MaxResults *int64 `type:"integer"`
 
 	// The token for the next set of items to return. (You received this token from
 	// a previous call.)
 	NextToken *string `type:"string"`
+
+	metadataListDocumentsInput `json:"-" xml:"-"`
+}
+
+type metadataListDocumentsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2038,41 +1013,19 @@ func (s ListDocumentsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ListDocumentsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ListDocumentsInput"}
-	if s.DocumentFilterList != nil && len(s.DocumentFilterList) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("DocumentFilterList", 1))
-	}
-	if s.MaxResults != nil && *s.MaxResults < 1 {
-		invalidParams.Add(request.NewErrParamMinValue("MaxResults", 1))
-	}
-	if s.DocumentFilterList != nil {
-		for i, v := range s.DocumentFilterList {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "DocumentFilterList", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type ListDocumentsOutput struct {
-	_ struct{} `type:"structure"`
-
-	// The names of the SSM documents.
+	// The names of the configuration documents.
 	DocumentIdentifiers []*DocumentIdentifier `locationNameList:"DocumentIdentifier" type:"list"`
 
 	// The token to use when requesting the next set of items. If there are no additional
 	// items to return, the string is empty.
 	NextToken *string `type:"string"`
+
+	metadataListDocumentsOutput `json:"-" xml:"-"`
+}
+
+type metadataListDocumentsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2085,170 +1038,21 @@ func (s ListDocumentsOutput) GoString() string {
 	return s.String()
 }
 
-type ModifyDocumentPermissionInput struct {
-	_ struct{} `type:"structure"`
-
-	// The AWS user accounts that should have access to the document. The account
-	// IDs can either be a group of account IDs or All.
-	AccountIdsToAdd []*string `locationNameList:"AccountId" type:"list"`
-
-	// The AWS user accounts that should no longer have access to the document.
-	// The AWS user account can either be a group of account IDs or All. This action
-	// has a higher priority than AccountIdsToAdd. If you specify an account ID
-	// to add and the same ID to remove, the system removes access to the document.
-	AccountIdsToRemove []*string `locationNameList:"AccountId" type:"list"`
-
-	// The name of the document that you want to share.
-	Name *string `type:"string" required:"true"`
-
-	// The permission type for the document. The permission type can be Share.
-	PermissionType *string `type:"string" required:"true" enum:"DocumentPermissionType"`
-}
-
-// String returns the string representation
-func (s ModifyDocumentPermissionInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s ModifyDocumentPermissionInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ModifyDocumentPermissionInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ModifyDocumentPermissionInput"}
-	if s.Name == nil {
-		invalidParams.Add(request.NewErrParamRequired("Name"))
-	}
-	if s.PermissionType == nil {
-		invalidParams.Add(request.NewErrParamRequired("PermissionType"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-type ModifyDocumentPermissionOutput struct {
-	_ struct{} `type:"structure"`
-}
-
-// String returns the string representation
-func (s ModifyDocumentPermissionOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s ModifyDocumentPermissionOutput) GoString() string {
-	return s.String()
-}
-
-type SendCommandInput struct {
-	_ struct{} `type:"structure"`
-
-	// User-specified information about the command, such as a brief description
-	// of what the command should do.
-	Comment *string `type:"string"`
-
-	// The Sha256 or Sha1 hash created by the system when the document was created.
-	//
-	//  Sha1 hashes have been deprecated.
-	DocumentHash *string `type:"string"`
-
-	// Sha256 or Sha1.
-	//
-	//  Sha1 hashes have been deprecated.
-	DocumentHashType *string `type:"string" enum:"DocumentHashType"`
-
-	// Required. The name of the SSM document to execute. This can be an SSM public
-	// document or a custom document.
-	DocumentName *string `type:"string" required:"true"`
-
-	// Required. The instance IDs where the command should execute.
-	InstanceIds []*string `min:"1" type:"list" required:"true"`
-
-	// The name of the S3 bucket where command execution responses should be stored.
-	OutputS3BucketName *string `min:"3" type:"string"`
-
-	// The directory structure within the S3 bucket where the responses should be
-	// stored.
-	OutputS3KeyPrefix *string `type:"string"`
-
-	// The required and optional parameters specified in the SSM document being
-	// executed.
-	Parameters map[string][]*string `type:"map"`
-
-	// If this time is reached and the command has not already started executing,
-	// it will not execute.
-	TimeoutSeconds *int64 `min:"30" type:"integer"`
-}
-
-// String returns the string representation
-func (s SendCommandInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s SendCommandInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *SendCommandInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "SendCommandInput"}
-	if s.DocumentName == nil {
-		invalidParams.Add(request.NewErrParamRequired("DocumentName"))
-	}
-	if s.InstanceIds == nil {
-		invalidParams.Add(request.NewErrParamRequired("InstanceIds"))
-	}
-	if s.InstanceIds != nil && len(s.InstanceIds) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("InstanceIds", 1))
-	}
-	if s.OutputS3BucketName != nil && len(*s.OutputS3BucketName) < 3 {
-		invalidParams.Add(request.NewErrParamMinLen("OutputS3BucketName", 3))
-	}
-	if s.TimeoutSeconds != nil && *s.TimeoutSeconds < 30 {
-		invalidParams.Add(request.NewErrParamMinValue("TimeoutSeconds", 30))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-type SendCommandOutput struct {
-	_ struct{} `type:"structure"`
-
-	// The request as it was received by SSM. Also provides the command ID which
-	// can be used future references to this request.
-	Command *Command `type:"structure"`
-}
-
-// String returns the string representation
-func (s SendCommandOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s SendCommandOutput) GoString() string {
-	return s.String()
-}
-
 type UpdateAssociationStatusInput struct {
-	_ struct{} `type:"structure"`
-
 	// The association status.
 	AssociationStatus *AssociationStatus `type:"structure" required:"true"`
 
 	// The ID of the instance.
 	InstanceId *string `type:"string" required:"true"`
 
-	// The name of the SSM document.
+	// The name of the configuration document.
 	Name *string `type:"string" required:"true"`
+
+	metadataUpdateAssociationStatusInput `json:"-" xml:"-"`
+}
+
+type metadataUpdateAssociationStatusInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2261,35 +1065,15 @@ func (s UpdateAssociationStatusInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *UpdateAssociationStatusInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "UpdateAssociationStatusInput"}
-	if s.AssociationStatus == nil {
-		invalidParams.Add(request.NewErrParamRequired("AssociationStatus"))
-	}
-	if s.InstanceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("InstanceId"))
-	}
-	if s.Name == nil {
-		invalidParams.Add(request.NewErrParamRequired("Name"))
-	}
-	if s.AssociationStatus != nil {
-		if err := s.AssociationStatus.Validate(); err != nil {
-			invalidParams.AddNested("AssociationStatus", err.(request.ErrInvalidParams))
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type UpdateAssociationStatusOutput struct {
-	_ struct{} `type:"structure"`
-
 	// Information about the association.
 	AssociationDescription *AssociationDescription `type:"structure"`
+
+	metadataUpdateAssociationStatusOutput `json:"-" xml:"-"`
+}
+
+type metadataUpdateAssociationStatusOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2319,89 +1103,8 @@ const (
 )
 
 const (
-	// @enum CommandFilterKey
-	CommandFilterKeyInvokedAfter = "InvokedAfter"
-	// @enum CommandFilterKey
-	CommandFilterKeyInvokedBefore = "InvokedBefore"
-	// @enum CommandFilterKey
-	CommandFilterKeyStatus = "Status"
-)
-
-const (
-	// @enum CommandInvocationStatus
-	CommandInvocationStatusPending = "Pending"
-	// @enum CommandInvocationStatus
-	CommandInvocationStatusInProgress = "InProgress"
-	// @enum CommandInvocationStatus
-	CommandInvocationStatusCancelling = "Cancelling"
-	// @enum CommandInvocationStatus
-	CommandInvocationStatusSuccess = "Success"
-	// @enum CommandInvocationStatus
-	CommandInvocationStatusTimedOut = "TimedOut"
-	// @enum CommandInvocationStatus
-	CommandInvocationStatusCancelled = "Cancelled"
-	// @enum CommandInvocationStatus
-	CommandInvocationStatusFailed = "Failed"
-)
-
-const (
-	// @enum CommandPluginStatus
-	CommandPluginStatusPending = "Pending"
-	// @enum CommandPluginStatus
-	CommandPluginStatusInProgress = "InProgress"
-	// @enum CommandPluginStatus
-	CommandPluginStatusSuccess = "Success"
-	// @enum CommandPluginStatus
-	CommandPluginStatusTimedOut = "TimedOut"
-	// @enum CommandPluginStatus
-	CommandPluginStatusCancelled = "Cancelled"
-	// @enum CommandPluginStatus
-	CommandPluginStatusFailed = "Failed"
-)
-
-const (
-	// @enum CommandStatus
-	CommandStatusPending = "Pending"
-	// @enum CommandStatus
-	CommandStatusInProgress = "InProgress"
-	// @enum CommandStatus
-	CommandStatusCancelling = "Cancelling"
-	// @enum CommandStatus
-	CommandStatusSuccess = "Success"
-	// @enum CommandStatus
-	CommandStatusTimedOut = "TimedOut"
-	// @enum CommandStatus
-	CommandStatusCancelled = "Cancelled"
-	// @enum CommandStatus
-	CommandStatusFailed = "Failed"
-)
-
-const (
 	// @enum DocumentFilterKey
 	DocumentFilterKeyName = "Name"
-	// @enum DocumentFilterKey
-	DocumentFilterKeyOwner = "Owner"
-	// @enum DocumentFilterKey
-	DocumentFilterKeyPlatformTypes = "PlatformTypes"
-)
-
-const (
-	// @enum DocumentHashType
-	DocumentHashTypeSha256 = "Sha256"
-	// @enum DocumentHashType
-	DocumentHashTypeSha1 = "Sha1"
-)
-
-const (
-	// @enum DocumentParameterType
-	DocumentParameterTypeString = "String"
-	// @enum DocumentParameterType
-	DocumentParameterTypeStringList = "StringList"
-)
-
-const (
-	// @enum DocumentPermissionType
-	DocumentPermissionTypeShare = "Share"
 )
 
 const (
@@ -2420,31 +1123,4 @@ const (
 	FaultServer = "Server"
 	// @enum Fault
 	FaultUnknown = "Unknown"
-)
-
-const (
-	// @enum InstanceInformationFilterKey
-	InstanceInformationFilterKeyInstanceIds = "InstanceIds"
-	// @enum InstanceInformationFilterKey
-	InstanceInformationFilterKeyAgentVersion = "AgentVersion"
-	// @enum InstanceInformationFilterKey
-	InstanceInformationFilterKeyPingStatus = "PingStatus"
-	// @enum InstanceInformationFilterKey
-	InstanceInformationFilterKeyPlatformTypes = "PlatformTypes"
-)
-
-const (
-	// @enum PingStatus
-	PingStatusOnline = "Online"
-	// @enum PingStatus
-	PingStatusConnectionLost = "ConnectionLost"
-	// @enum PingStatus
-	PingStatusInactive = "Inactive"
-)
-
-const (
-	// @enum PlatformType
-	PlatformTypeWindows = "Windows"
-	// @enum PlatformType
-	PlatformTypeLinux = "Linux"
 )

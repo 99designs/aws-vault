@@ -3,7 +3,6 @@ package request
 import (
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 )
 
@@ -13,31 +12,18 @@ import (
 type Retryer interface {
 	RetryRules(*Request) time.Duration
 	ShouldRetry(*Request) bool
-	MaxRetries() int
-}
-
-// WithRetryer sets a config Retryer value to the given Config returning it
-// for chaining.
-func WithRetryer(cfg *aws.Config, retryer Retryer) *aws.Config {
-	cfg.Retryer = retryer
-	return cfg
+	MaxRetries() uint
 }
 
 // retryableCodes is a collection of service response codes which are retry-able
 // without any further action.
 var retryableCodes = map[string]struct{}{
-	"RequestError":   {},
-	"RequestTimeout": {},
-}
-
-var throttleCodes = map[string]struct{}{
+	"RequestError":                           {},
 	"ProvisionedThroughputExceededException": {},
 	"Throttling":                             {},
 	"ThrottlingException":                    {},
 	"RequestLimitExceeded":                   {},
 	"RequestThrottled":                       {},
-	"LimitExceededException":                 {}, // Deleting 10+ DynamoDb tables at once
-	"TooManyRequestsException":               {}, // Lambda functions
 }
 
 // credsExpiredCodes is a collection of error codes which signify the credentials
@@ -47,11 +33,6 @@ var credsExpiredCodes = map[string]struct{}{
 	"ExpiredToken":          {},
 	"ExpiredTokenException": {},
 	"RequestExpired":        {}, // EC2 Only
-}
-
-func isCodeThrottle(code string) bool {
-	_, ok := throttleCodes[code]
-	return ok
 }
 
 func isCodeRetryable(code string) bool {
@@ -73,17 +54,6 @@ func (r *Request) IsErrorRetryable() bool {
 	if r.Error != nil {
 		if err, ok := r.Error.(awserr.Error); ok {
 			return isCodeRetryable(err.Code())
-		}
-	}
-	return false
-}
-
-// IsErrorThrottle returns whether the error is to be throttled based on its code.
-// Returns false if the request has no Error set
-func (r *Request) IsErrorThrottle() bool {
-	if r.Error != nil {
-		if err, ok := r.Error.(awserr.Error); ok {
-			return isCodeThrottle(err.Code())
 		}
 	}
 	return false

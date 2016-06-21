@@ -8,8 +8,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/awsutil"
 	"github.com/aws/aws-sdk-go/aws/request"
-	"github.com/aws/aws-sdk-go/private/protocol"
-	"github.com/aws/aws-sdk-go/private/protocol/jsonrpc"
 )
 
 const opBatchGetRepositories = "BatchGetRepositories"
@@ -32,7 +30,7 @@ func (c *CodeCommit) BatchGetRepositoriesRequest(input *BatchGetRepositoriesInpu
 	return
 }
 
-// Returns information about one or more repositories.
+// Gets information about one or more repositories.
 //
 // The description field for a repository accepts all HTML characters and all
 // valid Unicode characters. Applications that do not HTML-encode the description
@@ -60,8 +58,6 @@ func (c *CodeCommit) CreateBranchRequest(input *CreateBranchInput) (req *request
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &CreateBranchOutput{}
 	req.Data = output
 	return
@@ -156,38 +152,10 @@ func (c *CodeCommit) GetBranchRequest(input *GetBranchInput) (req *request.Reque
 	return
 }
 
-// Returns information about a repository branch, including its name and the
+// Retrieves information about a repository branch, including its name and the
 // last commit ID.
 func (c *CodeCommit) GetBranch(input *GetBranchInput) (*GetBranchOutput, error) {
 	req, out := c.GetBranchRequest(input)
-	err := req.Send()
-	return out, err
-}
-
-const opGetCommit = "GetCommit"
-
-// GetCommitRequest generates a request for the GetCommit operation.
-func (c *CodeCommit) GetCommitRequest(input *GetCommitInput) (req *request.Request, output *GetCommitOutput) {
-	op := &request.Operation{
-		Name:       opGetCommit,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &GetCommitInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &GetCommitOutput{}
-	req.Data = output
-	return
-}
-
-// Returns information about a commit, including commit message and committer
-// information.
-func (c *CodeCommit) GetCommit(input *GetCommitInput) (*GetCommitOutput, error) {
-	req, out := c.GetCommitRequest(input)
 	err := req.Send()
 	return out, err
 }
@@ -212,7 +180,7 @@ func (c *CodeCommit) GetRepositoryRequest(input *GetRepositoryInput) (req *reque
 	return
 }
 
-// Returns information about a repository.
+// Gets information about a repository.
 //
 // The description field for a repository accepts all HTML characters and all
 // valid Unicode characters. Applications that do not HTML-encode the description
@@ -225,33 +193,6 @@ func (c *CodeCommit) GetRepository(input *GetRepositoryInput) (*GetRepositoryOut
 	return out, err
 }
 
-const opGetRepositoryTriggers = "GetRepositoryTriggers"
-
-// GetRepositoryTriggersRequest generates a request for the GetRepositoryTriggers operation.
-func (c *CodeCommit) GetRepositoryTriggersRequest(input *GetRepositoryTriggersInput) (req *request.Request, output *GetRepositoryTriggersOutput) {
-	op := &request.Operation{
-		Name:       opGetRepositoryTriggers,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &GetRepositoryTriggersInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &GetRepositoryTriggersOutput{}
-	req.Data = output
-	return
-}
-
-// Gets information about triggers configured for a repository.
-func (c *CodeCommit) GetRepositoryTriggers(input *GetRepositoryTriggersInput) (*GetRepositoryTriggersOutput, error) {
-	req, out := c.GetRepositoryTriggersRequest(input)
-	err := req.Send()
-	return out, err
-}
-
 const opListBranches = "ListBranches"
 
 // ListBranchesRequest generates a request for the ListBranches operation.
@@ -260,12 +201,6 @@ func (c *CodeCommit) ListBranchesRequest(input *ListBranchesInput) (req *request
 		Name:       opListBranches,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
-		Paginator: &request.Paginator{
-			InputTokens:     []string{"nextToken"},
-			OutputTokens:    []string{"nextToken"},
-			LimitToken:      "",
-			TruncationToken: "",
-		},
 	}
 
 	if input == nil {
@@ -285,14 +220,6 @@ func (c *CodeCommit) ListBranches(input *ListBranchesInput) (*ListBranchesOutput
 	return out, err
 }
 
-func (c *CodeCommit) ListBranchesPages(input *ListBranchesInput, fn func(p *ListBranchesOutput, lastPage bool) (shouldContinue bool)) error {
-	page, _ := c.ListBranchesRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
-	return page.EachPage(func(p interface{}, lastPage bool) bool {
-		return fn(p.(*ListBranchesOutput), lastPage)
-	})
-}
-
 const opListRepositories = "ListRepositories"
 
 // ListRepositoriesRequest generates a request for the ListRepositories operation.
@@ -301,12 +228,6 @@ func (c *CodeCommit) ListRepositoriesRequest(input *ListRepositoriesInput) (req 
 		Name:       opListRepositories,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
-		Paginator: &request.Paginator{
-			InputTokens:     []string{"nextToken"},
-			OutputTokens:    []string{"nextToken"},
-			LimitToken:      "",
-			TruncationToken: "",
-		},
 	}
 
 	if input == nil {
@@ -326,72 +247,6 @@ func (c *CodeCommit) ListRepositories(input *ListRepositoriesInput) (*ListReposi
 	return out, err
 }
 
-func (c *CodeCommit) ListRepositoriesPages(input *ListRepositoriesInput, fn func(p *ListRepositoriesOutput, lastPage bool) (shouldContinue bool)) error {
-	page, _ := c.ListRepositoriesRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
-	return page.EachPage(func(p interface{}, lastPage bool) bool {
-		return fn(p.(*ListRepositoriesOutput), lastPage)
-	})
-}
-
-const opPutRepositoryTriggers = "PutRepositoryTriggers"
-
-// PutRepositoryTriggersRequest generates a request for the PutRepositoryTriggers operation.
-func (c *CodeCommit) PutRepositoryTriggersRequest(input *PutRepositoryTriggersInput) (req *request.Request, output *PutRepositoryTriggersOutput) {
-	op := &request.Operation{
-		Name:       opPutRepositoryTriggers,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &PutRepositoryTriggersInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &PutRepositoryTriggersOutput{}
-	req.Data = output
-	return
-}
-
-// Replaces all triggers for a repository. This can be used to create or delete
-// triggers.
-func (c *CodeCommit) PutRepositoryTriggers(input *PutRepositoryTriggersInput) (*PutRepositoryTriggersOutput, error) {
-	req, out := c.PutRepositoryTriggersRequest(input)
-	err := req.Send()
-	return out, err
-}
-
-const opTestRepositoryTriggers = "TestRepositoryTriggers"
-
-// TestRepositoryTriggersRequest generates a request for the TestRepositoryTriggers operation.
-func (c *CodeCommit) TestRepositoryTriggersRequest(input *TestRepositoryTriggersInput) (req *request.Request, output *TestRepositoryTriggersOutput) {
-	op := &request.Operation{
-		Name:       opTestRepositoryTriggers,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &TestRepositoryTriggersInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &TestRepositoryTriggersOutput{}
-	req.Data = output
-	return
-}
-
-// Tests the functionality of repository triggers by sending information to
-// the trigger target. If real data is available in the repository, the test
-// will send data from the last commit. If no data is available, sample data
-// will be generated.
-func (c *CodeCommit) TestRepositoryTriggers(input *TestRepositoryTriggersInput) (*TestRepositoryTriggersOutput, error) {
-	req, out := c.TestRepositoryTriggersRequest(input)
-	err := req.Send()
-	return out, err
-}
-
 const opUpdateDefaultBranch = "UpdateDefaultBranch"
 
 // UpdateDefaultBranchRequest generates a request for the UpdateDefaultBranch operation.
@@ -407,8 +262,6 @@ func (c *CodeCommit) UpdateDefaultBranchRequest(input *UpdateDefaultBranchInput)
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &UpdateDefaultBranchOutput{}
 	req.Data = output
 	return
@@ -440,8 +293,6 @@ func (c *CodeCommit) UpdateRepositoryDescriptionRequest(input *UpdateRepositoryD
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &UpdateRepositoryDescriptionOutput{}
 	req.Data = output
 	return
@@ -475,19 +326,12 @@ func (c *CodeCommit) UpdateRepositoryNameRequest(input *UpdateRepositoryNameInpu
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &UpdateRepositoryNameOutput{}
 	req.Data = output
 	return
 }
 
-// Renames a repository. The repository name must be unique across the calling
-// AWS account. In addition, repository names are limited to 100 alphanumeric,
-// dash, and underscore characters, and cannot include certain characters. The
-// suffix ".git" is prohibited. For a full description of the limits on repository
-// names, see Limits (http://docs.aws.amazon.com/codecommit/latest/userguide/limits.html)
-// in the AWS CodeCommit User Guide.
+// Renames a repository.
 func (c *CodeCommit) UpdateRepositoryName(input *UpdateRepositoryNameInput) (*UpdateRepositoryNameOutput, error) {
 	req, out := c.UpdateRepositoryNameRequest(input)
 	err := req.Send()
@@ -496,10 +340,14 @@ func (c *CodeCommit) UpdateRepositoryName(input *UpdateRepositoryNameInput) (*Up
 
 // Represents the input of a batch get repositories operation.
 type BatchGetRepositoriesInput struct {
-	_ struct{} `type:"structure"`
-
 	// The names of the repositories to get information about.
 	RepositoryNames []*string `locationName:"repositoryNames" type:"list" required:"true"`
+
+	metadataBatchGetRepositoriesInput `json:"-" xml:"-"`
+}
+
+type metadataBatchGetRepositoriesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -512,28 +360,19 @@ func (s BatchGetRepositoriesInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *BatchGetRepositoriesInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "BatchGetRepositoriesInput"}
-	if s.RepositoryNames == nil {
-		invalidParams.Add(request.NewErrParamRequired("RepositoryNames"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of a batch get repositories operation.
 type BatchGetRepositoriesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// A list of repositories returned by the batch get repositories operation.
 	Repositories []*RepositoryMetadata `locationName:"repositories" type:"list"`
 
 	// Returns a list of repository names for which information could not be found.
 	RepositoriesNotFound []*string `locationName:"repositoriesNotFound" type:"list"`
+
+	metadataBatchGetRepositoriesOutput `json:"-" xml:"-"`
+}
+
+type metadataBatchGetRepositoriesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -548,13 +387,17 @@ func (s BatchGetRepositoriesOutput) GoString() string {
 
 // Returns information about a branch.
 type BranchInfo struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the branch.
-	BranchName *string `locationName:"branchName" min:"1" type:"string"`
+	BranchName *string `locationName:"branchName" type:"string"`
 
 	// The ID of the last commit made to the branch.
 	CommitId *string `locationName:"commitId" type:"string"`
+
+	metadataBranchInfo `json:"-" xml:"-"`
+}
+
+type metadataBranchInfo struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -567,54 +410,25 @@ func (s BranchInfo) GoString() string {
 	return s.String()
 }
 
-// Returns information about a specific commit.
-type Commit struct {
-	_ struct{} `type:"structure"`
-
-	// Any additional data associated with the specified commit.
-	AdditionalData *string `locationName:"additionalData" type:"string"`
-
-	// Information about the author of the specified commit.
-	Author *UserInfo `locationName:"author" type:"structure"`
-
-	// Information about the person who committed the specified commit, also known
-	// as the committer. For more information about the difference between an author
-	// and a committer in Git, see Viewing the Commit History (http://git-scm.com/book/ch2-3.html)
-	// in Pro Git by Scott Chacon and Ben Straub.
-	Committer *UserInfo `locationName:"committer" type:"structure"`
-
-	// The message associated with the specified commit.
-	Message *string `locationName:"message" type:"string"`
-
-	// The parent list for the specified commit.
-	Parents []*string `locationName:"parents" type:"list"`
-
-	// Tree information for the specified commit.
-	TreeId *string `locationName:"treeId" type:"string"`
-}
-
-// String returns the string representation
-func (s Commit) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s Commit) GoString() string {
-	return s.String()
-}
-
 // Represents the input of a create branch operation.
 type CreateBranchInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the new branch to create.
-	BranchName *string `locationName:"branchName" min:"1" type:"string" required:"true"`
+	BranchName *string `locationName:"branchName" type:"string" required:"true"`
 
 	// The ID of the commit to point the new branch to.
+	//
+	// If this commit ID is not specified, the new branch will point to the commit
+	// that is pointed to by the repository's default branch.
 	CommitId *string `locationName:"commitId" type:"string" required:"true"`
 
 	// The name of the repository in which you want to create the new branch.
-	RepositoryName *string `locationName:"repositoryName" min:"1" type:"string" required:"true"`
+	RepositoryName *string `locationName:"repositoryName" type:"string" required:"true"`
+
+	metadataCreateBranchInput `json:"-" xml:"-"`
+}
+
+type metadataCreateBranchInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -627,33 +441,12 @@ func (s CreateBranchInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateBranchInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateBranchInput"}
-	if s.BranchName == nil {
-		invalidParams.Add(request.NewErrParamRequired("BranchName"))
-	}
-	if s.BranchName != nil && len(*s.BranchName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("BranchName", 1))
-	}
-	if s.CommitId == nil {
-		invalidParams.Add(request.NewErrParamRequired("CommitId"))
-	}
-	if s.RepositoryName == nil {
-		invalidParams.Add(request.NewErrParamRequired("RepositoryName"))
-	}
-	if s.RepositoryName != nil && len(*s.RepositoryName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("RepositoryName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type CreateBranchOutput struct {
+	metadataCreateBranchOutput `json:"-" xml:"-"`
 }
 
-type CreateBranchOutput struct {
-	_ struct{} `type:"structure"`
+type metadataCreateBranchOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -668,25 +461,21 @@ func (s CreateBranchOutput) GoString() string {
 
 // Represents the input of a create repository operation.
 type CreateRepositoryInput struct {
-	_ struct{} `type:"structure"`
-
 	// A comment or description about the new repository.
-	//
-	// The description field for a repository accepts all HTML characters and all
-	// valid Unicode characters. Applications that do not HTML-encode the description
-	// and display it in a web page could expose users to potentially malicious
-	// code. Make sure that you HTML-encode the description field in any application
-	// that uses this API to display the repository description on a web page.
 	RepositoryDescription *string `locationName:"repositoryDescription" type:"string"`
 
 	// The name of the new repository to be created.
 	//
 	// The repository name must be unique across the calling AWS account. In addition,
-	// repository names are limited to 100 alphanumeric, dash, and underscore characters,
-	// and cannot include certain characters. For a full description of the limits
-	// on repository names, see Limits (http://docs.aws.amazon.com/codecommit/latest/userguide/limits.html)
-	// in the AWS CodeCommit User Guide. The suffix ".git" is prohibited.
-	RepositoryName *string `locationName:"repositoryName" min:"1" type:"string" required:"true"`
+	// repository names are restricted to alphanumeric characters. The suffix ".git"
+	// is prohibited.
+	RepositoryName *string `locationName:"repositoryName" type:"string" required:"true"`
+
+	metadataCreateRepositoryInput `json:"-" xml:"-"`
+}
+
+type metadataCreateRepositoryInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -699,28 +488,16 @@ func (s CreateRepositoryInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateRepositoryInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateRepositoryInput"}
-	if s.RepositoryName == nil {
-		invalidParams.Add(request.NewErrParamRequired("RepositoryName"))
-	}
-	if s.RepositoryName != nil && len(*s.RepositoryName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("RepositoryName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of a create repository operation.
 type CreateRepositoryOutput struct {
-	_ struct{} `type:"structure"`
-
 	// Information about the newly created repository.
 	RepositoryMetadata *RepositoryMetadata `locationName:"repositoryMetadata" type:"structure"`
+
+	metadataCreateRepositoryOutput `json:"-" xml:"-"`
+}
+
+type metadataCreateRepositoryOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -735,10 +512,14 @@ func (s CreateRepositoryOutput) GoString() string {
 
 // Represents the input of a delete repository operation.
 type DeleteRepositoryInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the repository to delete.
-	RepositoryName *string `locationName:"repositoryName" min:"1" type:"string" required:"true"`
+	RepositoryName *string `locationName:"repositoryName" type:"string" required:"true"`
+
+	metadataDeleteRepositoryInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteRepositoryInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -751,28 +532,16 @@ func (s DeleteRepositoryInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteRepositoryInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteRepositoryInput"}
-	if s.RepositoryName == nil {
-		invalidParams.Add(request.NewErrParamRequired("RepositoryName"))
-	}
-	if s.RepositoryName != nil && len(*s.RepositoryName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("RepositoryName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of a delete repository operation.
 type DeleteRepositoryOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the repository that was deleted.
 	RepositoryId *string `locationName:"repositoryId" type:"string"`
+
+	metadataDeleteRepositoryOutput `json:"-" xml:"-"`
+}
+
+type metadataDeleteRepositoryOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -787,14 +556,19 @@ func (s DeleteRepositoryOutput) GoString() string {
 
 // Represents the input of a get branch operation.
 type GetBranchInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the branch for which you want to retrieve information.
-	BranchName *string `locationName:"branchName" min:"1" type:"string"`
+	BranchName *string `locationName:"branchName" type:"string"`
 
-	// The name of the repository that contains the branch for which you want to
-	// retrieve information.
-	RepositoryName *string `locationName:"repositoryName" min:"1" type:"string"`
+	// Repository name is restricted to alphanumeric characters (a-z, A-Z, 0-9),
+	// ".", "_", and "-". Additionally, the suffix ".git" is prohibited in a repository
+	// name.
+	RepositoryName *string `locationName:"repositoryName" type:"string"`
+
+	metadataGetBranchInput `json:"-" xml:"-"`
+}
+
+type metadataGetBranchInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -807,28 +581,16 @@ func (s GetBranchInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *GetBranchInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "GetBranchInput"}
-	if s.BranchName != nil && len(*s.BranchName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("BranchName", 1))
-	}
-	if s.RepositoryName != nil && len(*s.RepositoryName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("RepositoryName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of a get branch operation.
 type GetBranchOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the branch.
 	Branch *BranchInfo `locationName:"branch" type:"structure"`
+
+	metadataGetBranchOutput `json:"-" xml:"-"`
+}
+
+type metadataGetBranchOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -841,70 +603,16 @@ func (s GetBranchOutput) GoString() string {
 	return s.String()
 }
 
-// Represents the input of a get commit operation.
-type GetCommitInput struct {
-	_ struct{} `type:"structure"`
-
-	// The commit ID.
-	CommitId *string `locationName:"commitId" type:"string" required:"true"`
-
-	// The name of the repository to which the commit was made.
-	RepositoryName *string `locationName:"repositoryName" min:"1" type:"string" required:"true"`
-}
-
-// String returns the string representation
-func (s GetCommitInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s GetCommitInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *GetCommitInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "GetCommitInput"}
-	if s.CommitId == nil {
-		invalidParams.Add(request.NewErrParamRequired("CommitId"))
-	}
-	if s.RepositoryName == nil {
-		invalidParams.Add(request.NewErrParamRequired("RepositoryName"))
-	}
-	if s.RepositoryName != nil && len(*s.RepositoryName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("RepositoryName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// Represents the output of a get commit operation.
-type GetCommitOutput struct {
-	_ struct{} `type:"structure"`
-
-	// Information about the specified commit.
-	Commit *Commit `locationName:"commit" type:"structure" required:"true"`
-}
-
-// String returns the string representation
-func (s GetCommitOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s GetCommitOutput) GoString() string {
-	return s.String()
-}
-
 // Represents the input of a get repository operation.
 type GetRepositoryInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the repository to get information about.
-	RepositoryName *string `locationName:"repositoryName" min:"1" type:"string" required:"true"`
+	RepositoryName *string `locationName:"repositoryName" type:"string" required:"true"`
+
+	metadataGetRepositoryInput `json:"-" xml:"-"`
+}
+
+type metadataGetRepositoryInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -917,28 +625,16 @@ func (s GetRepositoryInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *GetRepositoryInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "GetRepositoryInput"}
-	if s.RepositoryName == nil {
-		invalidParams.Add(request.NewErrParamRequired("RepositoryName"))
-	}
-	if s.RepositoryName != nil && len(*s.RepositoryName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("RepositoryName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of a get repository operation.
 type GetRepositoryOutput struct {
-	_ struct{} `type:"structure"`
-
 	// Information about the repository.
 	RepositoryMetadata *RepositoryMetadata `locationName:"repositoryMetadata" type:"structure"`
+
+	metadataGetRepositoryOutput `json:"-" xml:"-"`
+}
+
+type metadataGetRepositoryOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -951,67 +647,19 @@ func (s GetRepositoryOutput) GoString() string {
 	return s.String()
 }
 
-// Represents the input of a get repository triggers operation.
-type GetRepositoryTriggersInput struct {
-	_ struct{} `type:"structure"`
-
-	// The name of the repository for which the trigger is configured.
-	RepositoryName *string `locationName:"repositoryName" min:"1" type:"string"`
-}
-
-// String returns the string representation
-func (s GetRepositoryTriggersInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s GetRepositoryTriggersInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *GetRepositoryTriggersInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "GetRepositoryTriggersInput"}
-	if s.RepositoryName != nil && len(*s.RepositoryName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("RepositoryName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// Represents the output of a get repository triggers operation.
-type GetRepositoryTriggersOutput struct {
-	_ struct{} `type:"structure"`
-
-	// The system-generated unique ID for the trigger.
-	ConfigurationId *string `locationName:"configurationId" type:"string"`
-
-	// The JSON block of configuration information for each trigger.
-	Triggers []*RepositoryTrigger `locationName:"triggers" type:"list"`
-}
-
-// String returns the string representation
-func (s GetRepositoryTriggersOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s GetRepositoryTriggersOutput) GoString() string {
-	return s.String()
-}
-
 // Represents the input of a list branches operation.
 type ListBranchesInput struct {
-	_ struct{} `type:"structure"`
-
 	// An enumeration token that allows the operation to batch the results.
 	NextToken *string `locationName:"nextToken" type:"string"`
 
 	// The name of the repository that contains the branches.
-	RepositoryName *string `locationName:"repositoryName" min:"1" type:"string" required:"true"`
+	RepositoryName *string `locationName:"repositoryName" type:"string" required:"true"`
+
+	metadataListBranchesInput `json:"-" xml:"-"`
+}
+
+type metadataListBranchesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1024,31 +672,19 @@ func (s ListBranchesInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ListBranchesInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ListBranchesInput"}
-	if s.RepositoryName == nil {
-		invalidParams.Add(request.NewErrParamRequired("RepositoryName"))
-	}
-	if s.RepositoryName != nil && len(*s.RepositoryName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("RepositoryName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of a list branches operation.
 type ListBranchesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The list of branch names.
 	Branches []*string `locationName:"branches" type:"list"`
 
 	// An enumeration token that returns the batch of the results.
 	NextToken *string `locationName:"nextToken" type:"string"`
+
+	metadataListBranchesOutput `json:"-" xml:"-"`
+}
+
+type metadataListBranchesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1063,8 +699,6 @@ func (s ListBranchesOutput) GoString() string {
 
 // Represents the input of a list repositories operation.
 type ListRepositoriesInput struct {
-	_ struct{} `type:"structure"`
-
 	// An enumeration token that allows the operation to batch the results of the
 	// operation. Batch sizes are 1,000 for list repository operations. When the
 	// client sends the token back to AWS CodeCommit, another page of 1,000 records
@@ -1076,6 +710,12 @@ type ListRepositoriesInput struct {
 
 	// The criteria used to sort the results of a list repositories operation.
 	SortBy *string `locationName:"sortBy" type:"string" enum:"SortByEnum"`
+
+	metadataListRepositoriesInput `json:"-" xml:"-"`
+}
+
+type metadataListRepositoriesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1090,8 +730,6 @@ func (s ListRepositoriesInput) GoString() string {
 
 // Represents the output of a list repositories operation.
 type ListRepositoriesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// An enumeration token that allows the operation to batch the results of the
 	// operation. Batch sizes are 1,000 for list repository operations. When the
 	// client sends the token back to AWS CodeCommit, another page of 1,000 records
@@ -1100,6 +738,12 @@ type ListRepositoriesOutput struct {
 
 	// Lists the repositories called by the list repositories operation.
 	Repositories []*RepositoryNameIdPair `locationName:"repositories" type:"list"`
+
+	metadataListRepositoriesOutput `json:"-" xml:"-"`
+}
+
+type metadataListRepositoriesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1112,62 +756,8 @@ func (s ListRepositoriesOutput) GoString() string {
 	return s.String()
 }
 
-// Represents the input ofa put repository triggers operation.
-type PutRepositoryTriggersInput struct {
-	_ struct{} `type:"structure"`
-
-	// The name of the repository where you want to create or update the trigger.
-	RepositoryName *string `locationName:"repositoryName" min:"1" type:"string"`
-
-	// The JSON block of configuration information for each trigger.
-	Triggers []*RepositoryTrigger `locationName:"triggers" type:"list"`
-}
-
-// String returns the string representation
-func (s PutRepositoryTriggersInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s PutRepositoryTriggersInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *PutRepositoryTriggersInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "PutRepositoryTriggersInput"}
-	if s.RepositoryName != nil && len(*s.RepositoryName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("RepositoryName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// Represents the output of a put repository triggers operation.
-type PutRepositoryTriggersOutput struct {
-	_ struct{} `type:"structure"`
-
-	// The system-generated unique ID for the create or update operation.
-	ConfigurationId *string `locationName:"configurationId" type:"string"`
-}
-
-// String returns the string representation
-func (s PutRepositoryTriggersOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s PutRepositoryTriggersOutput) GoString() string {
-	return s.String()
-}
-
 // Information about a repository.
 type RepositoryMetadata struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the AWS account associated with the repository.
 	AccountId *string `locationName:"accountId" type:"string"`
 
@@ -1184,7 +774,7 @@ type RepositoryMetadata struct {
 	CreationDate *time.Time `locationName:"creationDate" type:"timestamp" timestampFormat:"unix"`
 
 	// The repository's default branch name.
-	DefaultBranch *string `locationName:"defaultBranch" min:"1" type:"string"`
+	DefaultBranch *string `locationName:"defaultBranch" type:"string"`
 
 	// The date and time the repository was last modified, in timestamp format.
 	LastModifiedDate *time.Time `locationName:"lastModifiedDate" type:"timestamp" timestampFormat:"unix"`
@@ -1196,7 +786,13 @@ type RepositoryMetadata struct {
 	RepositoryId *string `locationName:"repositoryId" type:"string"`
 
 	// The repository's name.
-	RepositoryName *string `locationName:"repositoryName" min:"1" type:"string"`
+	RepositoryName *string `locationName:"repositoryName" type:"string"`
+
+	metadataRepositoryMetadata `json:"-" xml:"-"`
+}
+
+type metadataRepositoryMetadata struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1211,13 +807,19 @@ func (s RepositoryMetadata) GoString() string {
 
 // Information about a repository name and ID.
 type RepositoryNameIdPair struct {
-	_ struct{} `type:"structure"`
-
-	// The ID associated with the repository.
+	// The ID associated with the repository name.
 	RepositoryId *string `locationName:"repositoryId" type:"string"`
 
-	// The name associated with the repository.
-	RepositoryName *string `locationName:"repositoryName" min:"1" type:"string"`
+	// Repository name is restricted to alphanumeric characters (a-z, A-Z, 0-9),
+	// ".", "_", and "-". Additionally, the suffix ".git" is prohibited in a repository
+	// name.
+	RepositoryName *string `locationName:"repositoryName" type:"string"`
+
+	metadataRepositoryNameIdPair `json:"-" xml:"-"`
+}
+
+type metadataRepositoryNameIdPair struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1230,129 +832,19 @@ func (s RepositoryNameIdPair) GoString() string {
 	return s.String()
 }
 
-// Information about a trigger for a repository.
-type RepositoryTrigger struct {
-	_ struct{} `type:"structure"`
-
-	// The branches that will be included in the trigger configuration. If no branches
-	// are specified, the trigger will apply to all branches.
-	Branches []*string `locationName:"branches" type:"list"`
-
-	// Any custom data associated with the trigger that will be included in the
-	// information sent to the target of the trigger.
-	CustomData *string `locationName:"customData" type:"string"`
-
-	// The ARN of the resource that is the target for a trigger. For example, the
-	// ARN of a topic in Amazon Simple Notification Service (SNS).
-	DestinationArn *string `locationName:"destinationArn" type:"string"`
-
-	// The repository events that will cause the trigger to run actions in another
-	// service, such as sending a notification through Amazon Simple Notification
-	// Service (SNS). If no events are specified, the trigger will run for all repository
-	// events.
-	Events []*string `locationName:"events" type:"list"`
-
-	// The name of the trigger.
-	Name *string `locationName:"name" type:"string"`
-}
-
-// String returns the string representation
-func (s RepositoryTrigger) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s RepositoryTrigger) GoString() string {
-	return s.String()
-}
-
-// A trigger failed to run.
-type RepositoryTriggerExecutionFailure struct {
-	_ struct{} `type:"structure"`
-
-	// Additional message information about the trigger that did not run.
-	FailureMessage *string `locationName:"failureMessage" type:"string"`
-
-	// The name of the trigger that did not run.
-	Trigger *string `locationName:"trigger" type:"string"`
-}
-
-// String returns the string representation
-func (s RepositoryTriggerExecutionFailure) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s RepositoryTriggerExecutionFailure) GoString() string {
-	return s.String()
-}
-
-// Represents the input of a test repository triggers operation.
-type TestRepositoryTriggersInput struct {
-	_ struct{} `type:"structure"`
-
-	// The name of the repository in which to test the triggers.
-	RepositoryName *string `locationName:"repositoryName" min:"1" type:"string"`
-
-	// The list of triggers to test.
-	Triggers []*RepositoryTrigger `locationName:"triggers" type:"list"`
-}
-
-// String returns the string representation
-func (s TestRepositoryTriggersInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s TestRepositoryTriggersInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *TestRepositoryTriggersInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "TestRepositoryTriggersInput"}
-	if s.RepositoryName != nil && len(*s.RepositoryName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("RepositoryName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// Represents the output of a test repository triggers operation.
-type TestRepositoryTriggersOutput struct {
-	_ struct{} `type:"structure"`
-
-	// The list of triggers that were not able to be tested. This list provides
-	// the names of the triggers that could not be tested, separated by commas.
-	FailedExecutions []*RepositoryTriggerExecutionFailure `locationName:"failedExecutions" type:"list"`
-
-	// The list of triggers that were successfully tested. This list provides the
-	// names of the triggers that were successfully tested, separated by commas.
-	SuccessfulExecutions []*string `locationName:"successfulExecutions" type:"list"`
-}
-
-// String returns the string representation
-func (s TestRepositoryTriggersOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s TestRepositoryTriggersOutput) GoString() string {
-	return s.String()
-}
-
 // Represents the input of an update default branch operation.
 type UpdateDefaultBranchInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the branch to set as the default.
-	DefaultBranchName *string `locationName:"defaultBranchName" min:"1" type:"string" required:"true"`
+	DefaultBranchName *string `locationName:"defaultBranchName" type:"string" required:"true"`
 
 	// The name of the repository to set or change the default branch for.
-	RepositoryName *string `locationName:"repositoryName" min:"1" type:"string" required:"true"`
+	RepositoryName *string `locationName:"repositoryName" type:"string" required:"true"`
+
+	metadataUpdateDefaultBranchInput `json:"-" xml:"-"`
+}
+
+type metadataUpdateDefaultBranchInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1365,30 +857,12 @@ func (s UpdateDefaultBranchInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *UpdateDefaultBranchInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "UpdateDefaultBranchInput"}
-	if s.DefaultBranchName == nil {
-		invalidParams.Add(request.NewErrParamRequired("DefaultBranchName"))
-	}
-	if s.DefaultBranchName != nil && len(*s.DefaultBranchName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("DefaultBranchName", 1))
-	}
-	if s.RepositoryName == nil {
-		invalidParams.Add(request.NewErrParamRequired("RepositoryName"))
-	}
-	if s.RepositoryName != nil && len(*s.RepositoryName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("RepositoryName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type UpdateDefaultBranchOutput struct {
+	metadataUpdateDefaultBranchOutput `json:"-" xml:"-"`
 }
 
-type UpdateDefaultBranchOutput struct {
-	_ struct{} `type:"structure"`
+type metadataUpdateDefaultBranchOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1403,14 +877,17 @@ func (s UpdateDefaultBranchOutput) GoString() string {
 
 // Represents the input of an update repository description operation.
 type UpdateRepositoryDescriptionInput struct {
-	_ struct{} `type:"structure"`
-
-	// The new comment or description for the specified repository. Repository descriptions
-	// are limited to 1,000 characters.
+	// The new comment or description for the specified repository.
 	RepositoryDescription *string `locationName:"repositoryDescription" type:"string"`
 
 	// The name of the repository to set or change the comment or description for.
-	RepositoryName *string `locationName:"repositoryName" min:"1" type:"string" required:"true"`
+	RepositoryName *string `locationName:"repositoryName" type:"string" required:"true"`
+
+	metadataUpdateRepositoryDescriptionInput `json:"-" xml:"-"`
+}
+
+type metadataUpdateRepositoryDescriptionInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1423,24 +900,12 @@ func (s UpdateRepositoryDescriptionInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *UpdateRepositoryDescriptionInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "UpdateRepositoryDescriptionInput"}
-	if s.RepositoryName == nil {
-		invalidParams.Add(request.NewErrParamRequired("RepositoryName"))
-	}
-	if s.RepositoryName != nil && len(*s.RepositoryName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("RepositoryName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type UpdateRepositoryDescriptionOutput struct {
+	metadataUpdateRepositoryDescriptionOutput `json:"-" xml:"-"`
 }
 
-type UpdateRepositoryDescriptionOutput struct {
-	_ struct{} `type:"structure"`
+type metadataUpdateRepositoryDescriptionOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1455,13 +920,21 @@ func (s UpdateRepositoryDescriptionOutput) GoString() string {
 
 // Represents the input of an update repository description operation.
 type UpdateRepositoryNameInput struct {
-	_ struct{} `type:"structure"`
+	// Repository name is restricted to alphanumeric characters (a-z, A-Z, 0-9),
+	// ".", "_", and "-". Additionally, the suffix ".git" is prohibited in a repository
+	// name.
+	NewName *string `locationName:"newName" type:"string" required:"true"`
 
-	// The new name for the repository.
-	NewName *string `locationName:"newName" min:"1" type:"string" required:"true"`
+	// Repository name is restricted to alphanumeric characters (a-z, A-Z, 0-9),
+	// ".", "_", and "-". Additionally, the suffix ".git" is prohibited in a repository
+	// name.
+	OldName *string `locationName:"oldName" type:"string" required:"true"`
 
-	// The existing name of the repository.
-	OldName *string `locationName:"oldName" min:"1" type:"string" required:"true"`
+	metadataUpdateRepositoryNameInput `json:"-" xml:"-"`
+}
+
+type metadataUpdateRepositoryNameInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1474,30 +947,12 @@ func (s UpdateRepositoryNameInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *UpdateRepositoryNameInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "UpdateRepositoryNameInput"}
-	if s.NewName == nil {
-		invalidParams.Add(request.NewErrParamRequired("NewName"))
-	}
-	if s.NewName != nil && len(*s.NewName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("NewName", 1))
-	}
-	if s.OldName == nil {
-		invalidParams.Add(request.NewErrParamRequired("OldName"))
-	}
-	if s.OldName != nil && len(*s.OldName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("OldName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type UpdateRepositoryNameOutput struct {
+	metadataUpdateRepositoryNameOutput `json:"-" xml:"-"`
 }
 
-type UpdateRepositoryNameOutput struct {
-	_ struct{} `type:"structure"`
+type metadataUpdateRepositoryNameOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1510,46 +965,11 @@ func (s UpdateRepositoryNameOutput) GoString() string {
 	return s.String()
 }
 
-// Information about the user who made a specified commit.
-type UserInfo struct {
-	_ struct{} `type:"structure"`
-
-	// The date when the specified commit was pushed to the repository.
-	Date *string `locationName:"date" type:"string"`
-
-	// The email address associated with the user who made the commit, if any.
-	Email *string `locationName:"email" type:"string"`
-
-	// The name of the user who made the specified commit.
-	Name *string `locationName:"name" type:"string"`
-}
-
-// String returns the string representation
-func (s UserInfo) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s UserInfo) GoString() string {
-	return s.String()
-}
-
 const (
 	// @enum OrderEnum
 	OrderEnumAscending = "ascending"
 	// @enum OrderEnum
 	OrderEnumDescending = "descending"
-)
-
-const (
-	// @enum RepositoryTriggerEventEnum
-	RepositoryTriggerEventEnumAll = "all"
-	// @enum RepositoryTriggerEventEnum
-	RepositoryTriggerEventEnumUpdateReference = "updateReference"
-	// @enum RepositoryTriggerEventEnum
-	RepositoryTriggerEventEnumCreateReference = "createReference"
-	// @enum RepositoryTriggerEventEnum
-	RepositoryTriggerEventEnumDeleteReference = "deleteReference"
 )
 
 const (

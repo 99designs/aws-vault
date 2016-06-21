@@ -70,5 +70,3 @@ type SupportAPI interface {
 
 	ResolveCase(*support.ResolveCaseInput) (*support.ResolveCaseOutput, error)
 }
-
-var _ SupportAPI = (*support.Support)(nil)

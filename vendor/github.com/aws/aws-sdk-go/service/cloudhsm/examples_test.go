@@ -8,41 +8,14 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudhsm"
 )
 
 var _ time.Duration
 var _ bytes.Buffer
 
-func ExampleCloudHSM_AddTagsToResource() {
-	svc := cloudhsm.New(session.New())
-
-	params := &cloudhsm.AddTagsToResourceInput{
-		ResourceArn: aws.String("String"), // Required
-		TagList: []*cloudhsm.Tag{ // Required
-			{ // Required
-				Key:   aws.String("TagKey"),   // Required
-				Value: aws.String("TagValue"), // Required
-			},
-			// More values...
-		},
-	}
-	resp, err := svc.AddTagsToResource(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
 func ExampleCloudHSM_CreateHapg() {
-	svc := cloudhsm.New(session.New())
+	svc := cloudhsm.New(nil)
 
 	params := &cloudhsm.CreateHapgInput{
 		Label: aws.String("Label"), // Required
@@ -61,7 +34,7 @@ func ExampleCloudHSM_CreateHapg() {
 }
 
 func ExampleCloudHSM_CreateHsm() {
-	svc := cloudhsm.New(session.New())
+	svc := cloudhsm.New(nil)
 
 	params := &cloudhsm.CreateHsmInput{
 		IamRoleArn:       aws.String("IamRoleArn"),       // Required
@@ -87,7 +60,7 @@ func ExampleCloudHSM_CreateHsm() {
 }
 
 func ExampleCloudHSM_CreateLunaClient() {
-	svc := cloudhsm.New(session.New())
+	svc := cloudhsm.New(nil)
 
 	params := &cloudhsm.CreateLunaClientInput{
 		Certificate: aws.String("Certificate"), // Required
@@ -107,7 +80,7 @@ func ExampleCloudHSM_CreateLunaClient() {
 }
 
 func ExampleCloudHSM_DeleteHapg() {
-	svc := cloudhsm.New(session.New())
+	svc := cloudhsm.New(nil)
 
 	params := &cloudhsm.DeleteHapgInput{
 		HapgArn: aws.String("HapgArn"), // Required
@@ -126,7 +99,7 @@ func ExampleCloudHSM_DeleteHapg() {
 }
 
 func ExampleCloudHSM_DeleteHsm() {
-	svc := cloudhsm.New(session.New())
+	svc := cloudhsm.New(nil)
 
 	params := &cloudhsm.DeleteHsmInput{
 		HsmArn: aws.String("HsmArn"), // Required
@@ -145,7 +118,7 @@ func ExampleCloudHSM_DeleteHsm() {
 }
 
 func ExampleCloudHSM_DeleteLunaClient() {
-	svc := cloudhsm.New(session.New())
+	svc := cloudhsm.New(nil)
 
 	params := &cloudhsm.DeleteLunaClientInput{
 		ClientArn: aws.String("ClientArn"), // Required
@@ -164,7 +137,7 @@ func ExampleCloudHSM_DeleteLunaClient() {
 }
 
 func ExampleCloudHSM_DescribeHapg() {
-	svc := cloudhsm.New(session.New())
+	svc := cloudhsm.New(nil)
 
 	params := &cloudhsm.DescribeHapgInput{
 		HapgArn: aws.String("HapgArn"), // Required
@@ -183,7 +156,7 @@ func ExampleCloudHSM_DescribeHapg() {
 }
 
 func ExampleCloudHSM_DescribeHsm() {
-	svc := cloudhsm.New(session.New())
+	svc := cloudhsm.New(nil)
 
 	params := &cloudhsm.DescribeHsmInput{
 		HsmArn:          aws.String("HsmArn"),
@@ -203,7 +176,7 @@ func ExampleCloudHSM_DescribeHsm() {
 }
 
 func ExampleCloudHSM_DescribeLunaClient() {
-	svc := cloudhsm.New(session.New())
+	svc := cloudhsm.New(nil)
 
 	params := &cloudhsm.DescribeLunaClientInput{
 		CertificateFingerprint: aws.String("CertificateFingerprint"),
@@ -223,7 +196,7 @@ func ExampleCloudHSM_DescribeLunaClient() {
 }
 
 func ExampleCloudHSM_GetConfig() {
-	svc := cloudhsm.New(session.New())
+	svc := cloudhsm.New(nil)
 
 	params := &cloudhsm.GetConfigInput{
 		ClientArn:     aws.String("ClientArn"),     // Required
@@ -247,7 +220,7 @@ func ExampleCloudHSM_GetConfig() {
 }
 
 func ExampleCloudHSM_ListAvailableZones() {
-	svc := cloudhsm.New(session.New())
+	svc := cloudhsm.New(nil)
 
 	var params *cloudhsm.ListAvailableZonesInput
 	resp, err := svc.ListAvailableZones(params)
@@ -264,7 +237,7 @@ func ExampleCloudHSM_ListAvailableZones() {
 }
 
 func ExampleCloudHSM_ListHapgs() {
-	svc := cloudhsm.New(session.New())
+	svc := cloudhsm.New(nil)
 
 	params := &cloudhsm.ListHapgsInput{
 		NextToken: aws.String("PaginationToken"),
@@ -283,7 +256,7 @@ func ExampleCloudHSM_ListHapgs() {
 }
 
 func ExampleCloudHSM_ListHsms() {
-	svc := cloudhsm.New(session.New())
+	svc := cloudhsm.New(nil)
 
 	params := &cloudhsm.ListHsmsInput{
 		NextToken: aws.String("PaginationToken"),
@@ -302,7 +275,7 @@ func ExampleCloudHSM_ListHsms() {
 }
 
 func ExampleCloudHSM_ListLunaClients() {
-	svc := cloudhsm.New(session.New())
+	svc := cloudhsm.New(nil)
 
 	params := &cloudhsm.ListLunaClientsInput{
 		NextToken: aws.String("PaginationToken"),
@@ -320,27 +293,8 @@ func ExampleCloudHSM_ListLunaClients() {
 	fmt.Println(resp)
 }
 
-func ExampleCloudHSM_ListTagsForResource() {
-	svc := cloudhsm.New(session.New())
-
-	params := &cloudhsm.ListTagsForResourceInput{
-		ResourceArn: aws.String("String"), // Required
-	}
-	resp, err := svc.ListTagsForResource(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
 func ExampleCloudHSM_ModifyHapg() {
-	svc := cloudhsm.New(session.New())
+	svc := cloudhsm.New(nil)
 
 	params := &cloudhsm.ModifyHapgInput{
 		HapgArn: aws.String("HapgArn"), // Required
@@ -364,7 +318,7 @@ func ExampleCloudHSM_ModifyHapg() {
 }
 
 func ExampleCloudHSM_ModifyHsm() {
-	svc := cloudhsm.New(session.New())
+	svc := cloudhsm.New(nil)
 
 	params := &cloudhsm.ModifyHsmInput{
 		HsmArn:     aws.String("HsmArn"), // Required
@@ -388,36 +342,13 @@ func ExampleCloudHSM_ModifyHsm() {
 }
 
 func ExampleCloudHSM_ModifyLunaClient() {
-	svc := cloudhsm.New(session.New())
+	svc := cloudhsm.New(nil)
 
 	params := &cloudhsm.ModifyLunaClientInput{
 		Certificate: aws.String("Certificate"), // Required
 		ClientArn:   aws.String("ClientArn"),   // Required
 	}
 	resp, err := svc.ModifyLunaClient(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
-func ExampleCloudHSM_RemoveTagsFromResource() {
-	svc := cloudhsm.New(session.New())
-
-	params := &cloudhsm.RemoveTagsFromResourceInput{
-		ResourceArn: aws.String("String"), // Required
-		TagKeyList: []*string{ // Required
-			aws.String("TagKey"), // Required
-			// More values...
-		},
-	}
-	resp, err := svc.RemoveTagsFromResource(params)
 
 	if err != nil {
 		// Print the error, cast err to awserr.Error to get the Code and

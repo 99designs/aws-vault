@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatch"
 )
 
@@ -16,7 +15,7 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleCloudWatch_DeleteAlarms() {
-	svc := cloudwatch.New(session.New())
+	svc := cloudwatch.New(nil)
 
 	params := &cloudwatch.DeleteAlarmsInput{
 		AlarmNames: []*string{ // Required
@@ -38,7 +37,7 @@ func ExampleCloudWatch_DeleteAlarms() {
 }
 
 func ExampleCloudWatch_DescribeAlarmHistory() {
-	svc := cloudwatch.New(session.New())
+	svc := cloudwatch.New(nil)
 
 	params := &cloudwatch.DescribeAlarmHistoryInput{
 		AlarmName:       aws.String("AlarmName"),
@@ -62,7 +61,7 @@ func ExampleCloudWatch_DescribeAlarmHistory() {
 }
 
 func ExampleCloudWatch_DescribeAlarms() {
-	svc := cloudwatch.New(session.New())
+	svc := cloudwatch.New(nil)
 
 	params := &cloudwatch.DescribeAlarmsInput{
 		ActionPrefix:    aws.String("ActionPrefix"),
@@ -89,7 +88,7 @@ func ExampleCloudWatch_DescribeAlarms() {
 }
 
 func ExampleCloudWatch_DescribeAlarmsForMetric() {
-	svc := cloudwatch.New(session.New())
+	svc := cloudwatch.New(nil)
 
 	params := &cloudwatch.DescribeAlarmsForMetricInput{
 		MetricName: aws.String("MetricName"), // Required
@@ -119,7 +118,7 @@ func ExampleCloudWatch_DescribeAlarmsForMetric() {
 }
 
 func ExampleCloudWatch_DisableAlarmActions() {
-	svc := cloudwatch.New(session.New())
+	svc := cloudwatch.New(nil)
 
 	params := &cloudwatch.DisableAlarmActionsInput{
 		AlarmNames: []*string{ // Required
@@ -141,7 +140,7 @@ func ExampleCloudWatch_DisableAlarmActions() {
 }
 
 func ExampleCloudWatch_EnableAlarmActions() {
-	svc := cloudwatch.New(session.New())
+	svc := cloudwatch.New(nil)
 
 	params := &cloudwatch.EnableAlarmActionsInput{
 		AlarmNames: []*string{ // Required
@@ -163,7 +162,7 @@ func ExampleCloudWatch_EnableAlarmActions() {
 }
 
 func ExampleCloudWatch_GetMetricStatistics() {
-	svc := cloudwatch.New(session.New())
+	svc := cloudwatch.New(nil)
 
 	params := &cloudwatch.GetMetricStatisticsInput{
 		EndTime:    aws.Time(time.Now()),     // Required
@@ -198,7 +197,7 @@ func ExampleCloudWatch_GetMetricStatistics() {
 }
 
 func ExampleCloudWatch_ListMetrics() {
-	svc := cloudwatch.New(session.New())
+	svc := cloudwatch.New(nil)
 
 	params := &cloudwatch.ListMetricsInput{
 		Dimensions: []*cloudwatch.DimensionFilter{
@@ -226,7 +225,7 @@ func ExampleCloudWatch_ListMetrics() {
 }
 
 func ExampleCloudWatch_PutMetricAlarm() {
-	svc := cloudwatch.New(session.New())
+	svc := cloudwatch.New(nil)
 
 	params := &cloudwatch.PutMetricAlarmInput{
 		AlarmName:          aws.String("AlarmName"),          // Required
@@ -274,7 +273,7 @@ func ExampleCloudWatch_PutMetricAlarm() {
 }
 
 func ExampleCloudWatch_PutMetricData() {
-	svc := cloudwatch.New(session.New())
+	svc := cloudwatch.New(nil)
 
 	params := &cloudwatch.PutMetricDataInput{
 		MetricData: []*cloudwatch.MetricDatum{ // Required
@@ -315,7 +314,7 @@ func ExampleCloudWatch_PutMetricData() {
 }
 
 func ExampleCloudWatch_SetAlarmState() {
-	svc := cloudwatch.New(session.New())
+	svc := cloudwatch.New(nil)
 
 	params := &cloudwatch.SetAlarmStateInput{
 		AlarmName:       aws.String("AlarmName"),   // Required

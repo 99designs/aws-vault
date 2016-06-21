@@ -10,21 +10,9 @@ import (
 
 // WorkSpacesAPI is the interface type for workspaces.WorkSpaces.
 type WorkSpacesAPI interface {
-	CreateTagsRequest(*workspaces.CreateTagsInput) (*request.Request, *workspaces.CreateTagsOutput)
-
-	CreateTags(*workspaces.CreateTagsInput) (*workspaces.CreateTagsOutput, error)
-
 	CreateWorkspacesRequest(*workspaces.CreateWorkspacesInput) (*request.Request, *workspaces.CreateWorkspacesOutput)
 
 	CreateWorkspaces(*workspaces.CreateWorkspacesInput) (*workspaces.CreateWorkspacesOutput, error)
-
-	DeleteTagsRequest(*workspaces.DeleteTagsInput) (*request.Request, *workspaces.DeleteTagsOutput)
-
-	DeleteTags(*workspaces.DeleteTagsInput) (*workspaces.DeleteTagsOutput, error)
-
-	DescribeTagsRequest(*workspaces.DescribeTagsInput) (*request.Request, *workspaces.DescribeTagsOutput)
-
-	DescribeTags(*workspaces.DescribeTagsInput) (*workspaces.DescribeTagsOutput, error)
 
 	DescribeWorkspaceBundlesRequest(*workspaces.DescribeWorkspaceBundlesInput) (*request.Request, *workspaces.DescribeWorkspaceBundlesOutput)
 
@@ -56,5 +44,3 @@ type WorkSpacesAPI interface {
 
 	TerminateWorkspaces(*workspaces.TerminateWorkspacesInput) (*workspaces.TerminateWorkspacesOutput, error)
 }
-
-var _ WorkSpacesAPI = (*workspaces.WorkSpaces)(nil)

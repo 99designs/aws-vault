@@ -8,8 +8,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/awsutil"
 	"github.com/aws/aws-sdk-go/aws/request"
-	"github.com/aws/aws-sdk-go/private/protocol"
-	"github.com/aws/aws-sdk-go/private/protocol/query"
 )
 
 const opCancelUpdateStack = "CancelUpdateStack"
@@ -27,98 +25,17 @@ func (c *CloudFormation) CancelUpdateStackRequest(input *CancelUpdateStackInput)
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &CancelUpdateStackOutput{}
 	req.Data = output
 	return
 }
 
 // Cancels an update on the specified stack. If the call completes successfully,
-// the stack rolls back the update and reverts to the previous stack configuration.
+// the stack will roll back the update and revert to the previous stack configuration.
 //
-//  You can cancel only stacks that are in the UPDATE_IN_PROGRESS state.
+// Only stacks that are in the UPDATE_IN_PROGRESS state can be canceled.
 func (c *CloudFormation) CancelUpdateStack(input *CancelUpdateStackInput) (*CancelUpdateStackOutput, error) {
 	req, out := c.CancelUpdateStackRequest(input)
-	err := req.Send()
-	return out, err
-}
-
-const opContinueUpdateRollback = "ContinueUpdateRollback"
-
-// ContinueUpdateRollbackRequest generates a request for the ContinueUpdateRollback operation.
-func (c *CloudFormation) ContinueUpdateRollbackRequest(input *ContinueUpdateRollbackInput) (req *request.Request, output *ContinueUpdateRollbackOutput) {
-	op := &request.Operation{
-		Name:       opContinueUpdateRollback,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &ContinueUpdateRollbackInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &ContinueUpdateRollbackOutput{}
-	req.Data = output
-	return
-}
-
-// For a specified stack that is in the UPDATE_ROLLBACK_FAILED state, continues
-// rolling it back to the UPDATE_ROLLBACK_COMPLETE state. Depending on the cause
-// of the failure, you can manually  fix the error (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/troubleshooting.html#troubleshooting-errors-update-rollback-failed)
-// and continue the rollback. By continuing the rollback, you can return your
-// stack to a working state (the UPDATE_ROLLBACK_COMPLETE state), and then try
-// to update the stack again.
-//
-// A stack goes into the UPDATE_ROLLBACK_FAILED state when AWS CloudFormation
-// cannot roll back all changes after a failed stack update. For example, you
-// might have a stack that is rolling back to an old database instance that
-// was deleted outside of AWS CloudFormation. Because AWS CloudFormation doesn't
-// know the database was deleted, it assumes that the database instance still
-// exists and attempts to roll back to it, causing the update rollback to fail.
-func (c *CloudFormation) ContinueUpdateRollback(input *ContinueUpdateRollbackInput) (*ContinueUpdateRollbackOutput, error) {
-	req, out := c.ContinueUpdateRollbackRequest(input)
-	err := req.Send()
-	return out, err
-}
-
-const opCreateChangeSet = "CreateChangeSet"
-
-// CreateChangeSetRequest generates a request for the CreateChangeSet operation.
-func (c *CloudFormation) CreateChangeSetRequest(input *CreateChangeSetInput) (req *request.Request, output *CreateChangeSetOutput) {
-	op := &request.Operation{
-		Name:       opCreateChangeSet,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &CreateChangeSetInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &CreateChangeSetOutput{}
-	req.Data = output
-	return
-}
-
-// Creates a list of changes for a stack. AWS CloudFormation generates the change
-// set by comparing the stack's information with the information that you submit.
-// A change set can help you understand which resources AWS CloudFormation will
-// change and how it will change them before you update your stack. Change sets
-// allow you to check before you make a change so that you don't delete or replace
-// critical resources.
-//
-// AWS CloudFormation doesn't make any changes to the stack when you create
-// a change set. To make the specified changes, you must execute the change
-// set by using the ExecuteChangeSet action.
-//
-// After the call successfully completes, AWS CloudFormation starts creating
-// the change set. To check the status of the change set, use the DescribeChangeSet
-// action.
-func (c *CloudFormation) CreateChangeSet(input *CreateChangeSetInput) (*CreateChangeSetOutput, error) {
-	req, out := c.CreateChangeSetRequest(input)
 	err := req.Send()
 	return out, err
 }
@@ -152,37 +69,6 @@ func (c *CloudFormation) CreateStack(input *CreateStackInput) (*CreateStackOutpu
 	return out, err
 }
 
-const opDeleteChangeSet = "DeleteChangeSet"
-
-// DeleteChangeSetRequest generates a request for the DeleteChangeSet operation.
-func (c *CloudFormation) DeleteChangeSetRequest(input *DeleteChangeSetInput) (req *request.Request, output *DeleteChangeSetOutput) {
-	op := &request.Operation{
-		Name:       opDeleteChangeSet,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &DeleteChangeSetInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &DeleteChangeSetOutput{}
-	req.Data = output
-	return
-}
-
-// Deletes the specified change set. Deleting change sets ensures that no one
-// executes the wrong change set.
-//
-// If the call successfully completes, AWS CloudFormation successfully deleted
-// the change set.
-func (c *CloudFormation) DeleteChangeSet(input *DeleteChangeSetInput) (*DeleteChangeSetOutput, error) {
-	req, out := c.DeleteChangeSetRequest(input)
-	err := req.Send()
-	return out, err
-}
-
 const opDeleteStack = "DeleteStack"
 
 // DeleteStackRequest generates a request for the DeleteStack operation.
@@ -198,8 +84,6 @@ func (c *CloudFormation) DeleteStackRequest(input *DeleteStackInput) (req *reque
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteStackOutput{}
 	req.Data = output
 	return
@@ -210,64 +94,6 @@ func (c *CloudFormation) DeleteStackRequest(input *DeleteStackInput) (req *reque
 // has been completed successfully.
 func (c *CloudFormation) DeleteStack(input *DeleteStackInput) (*DeleteStackOutput, error) {
 	req, out := c.DeleteStackRequest(input)
-	err := req.Send()
-	return out, err
-}
-
-const opDescribeAccountLimits = "DescribeAccountLimits"
-
-// DescribeAccountLimitsRequest generates a request for the DescribeAccountLimits operation.
-func (c *CloudFormation) DescribeAccountLimitsRequest(input *DescribeAccountLimitsInput) (req *request.Request, output *DescribeAccountLimitsOutput) {
-	op := &request.Operation{
-		Name:       opDescribeAccountLimits,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &DescribeAccountLimitsInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &DescribeAccountLimitsOutput{}
-	req.Data = output
-	return
-}
-
-// Retrieves your account's AWS CloudFormation limits, such as the maximum number
-// of stacks that you can create in your account.
-func (c *CloudFormation) DescribeAccountLimits(input *DescribeAccountLimitsInput) (*DescribeAccountLimitsOutput, error) {
-	req, out := c.DescribeAccountLimitsRequest(input)
-	err := req.Send()
-	return out, err
-}
-
-const opDescribeChangeSet = "DescribeChangeSet"
-
-// DescribeChangeSetRequest generates a request for the DescribeChangeSet operation.
-func (c *CloudFormation) DescribeChangeSetRequest(input *DescribeChangeSetInput) (req *request.Request, output *DescribeChangeSetOutput) {
-	op := &request.Operation{
-		Name:       opDescribeChangeSet,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &DescribeChangeSetInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &DescribeChangeSetOutput{}
-	req.Data = output
-	return
-}
-
-// Returns the inputs for the change set and a list of changes that AWS CloudFormation
-// will make if you execute the change set. For more information, see Updating
-// Stacks Using Change Sets (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-changesets.html)
-// in the AWS CloudFormation User Guide.
-func (c *CloudFormation) DescribeChangeSet(input *DescribeChangeSetInput) (*DescribeChangeSetOutput, error) {
-	req, out := c.DescribeChangeSetRequest(input)
 	err := req.Send()
 	return out, err
 }
@@ -298,12 +124,12 @@ func (c *CloudFormation) DescribeStackEventsRequest(input *DescribeStackEventsIn
 	return
 }
 
-// Returns all stack related events for a specified stack in reverse chronological
-// order. For more information about a stack's event history, go to Stacks (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/concept-stack.html)
+// Returns all stack related events for a specified stack. For more information
+// about a stack's event history, go to Stacks (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/concept-stack.html)
 // in the AWS CloudFormation User Guide.
 //
-//  You can list events for stacks that have failed to create or have been
-// deleted by specifying the unique stack identifier (stack ID).
+// You can list events for stacks that have failed to create or have been deleted
+// by specifying the unique stack identifier (stack ID).
 func (c *CloudFormation) DescribeStackEvents(input *DescribeStackEventsInput) (*DescribeStackEventsOutput, error) {
 	req, out := c.DescribeStackEventsRequest(input)
 	err := req.Send()
@@ -312,7 +138,6 @@ func (c *CloudFormation) DescribeStackEvents(input *DescribeStackEventsInput) (*
 
 func (c *CloudFormation) DescribeStackEventsPages(input *DescribeStackEventsInput, fn func(p *DescribeStackEventsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeStackEventsRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeStackEventsOutput), lastPage)
 	})
@@ -373,18 +198,17 @@ func (c *CloudFormation) DescribeStackResourcesRequest(input *DescribeStackResou
 // returned. If PhysicalResourceId is specified, the associated resources of
 // the stack that the resource belongs to are returned.
 //
-//  Only the first 100 resources will be returned. If your stack has more resources
-// than this, you should use ListStackResources instead.
-//
-//  For deleted stacks, DescribeStackResources returns resource information
-// for up to 90 days after the stack has been deleted.
+// Only the first 100 resources will be returned. If your stack has more resources
+// than this, you should use ListStackResources instead. For deleted stacks,
+// DescribeStackResources returns resource information for up to 90 days after
+// the stack has been deleted.
 //
 // You must specify either StackName or PhysicalResourceId, but not both. In
 // addition, you can specify LogicalResourceId to filter the returned result.
 // For more information about resources, the LogicalResourceId and PhysicalResourceId,
-// go to the AWS CloudFormation User Guide (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/).
+// go to the AWS CloudFormation User Guide (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide).
 //
-//  A ValidationError is returned if you specify both StackName and PhysicalResourceId
+// A ValidationError is returned if you specify both StackName and PhysicalResourceId
 // in the same request.
 func (c *CloudFormation) DescribeStackResources(input *DescribeStackResourcesInput) (*DescribeStackResourcesOutput, error) {
 	req, out := c.DescribeStackResourcesRequest(input)
@@ -428,7 +252,6 @@ func (c *CloudFormation) DescribeStacks(input *DescribeStacksInput) (*DescribeSt
 
 func (c *CloudFormation) DescribeStacksPages(input *DescribeStacksInput, fn func(p *DescribeStacksOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeStacksRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeStacksOutput), lastPage)
 	})
@@ -459,44 +282,6 @@ func (c *CloudFormation) EstimateTemplateCostRequest(input *EstimateTemplateCost
 // resources required to run the template.
 func (c *CloudFormation) EstimateTemplateCost(input *EstimateTemplateCostInput) (*EstimateTemplateCostOutput, error) {
 	req, out := c.EstimateTemplateCostRequest(input)
-	err := req.Send()
-	return out, err
-}
-
-const opExecuteChangeSet = "ExecuteChangeSet"
-
-// ExecuteChangeSetRequest generates a request for the ExecuteChangeSet operation.
-func (c *CloudFormation) ExecuteChangeSetRequest(input *ExecuteChangeSetInput) (req *request.Request, output *ExecuteChangeSetOutput) {
-	op := &request.Operation{
-		Name:       opExecuteChangeSet,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &ExecuteChangeSetInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &ExecuteChangeSetOutput{}
-	req.Data = output
-	return
-}
-
-// Updates a stack using the input information that was provided when the specified
-// change set was created. After the call successfully completes, AWS CloudFormation
-// starts updating the stack. Use the DescribeStacks action to view the status
-// of the update.
-//
-// When you execute a change set, AWS CloudFormation deletes all other change
-// sets associated with the stack because they aren't valid for the updated
-// stack.
-//
-// If a stack policy is associated with the stack, AWS CloudFormation enforces
-// the policy during the update. You can't specify a temporary stack policy
-// that overrides the current policy.
-func (c *CloudFormation) ExecuteChangeSet(input *ExecuteChangeSetInput) (*ExecuteChangeSetOutput, error) {
-	req, out := c.ExecuteChangeSetRequest(input)
 	err := req.Send()
 	return out, err
 }
@@ -555,7 +340,7 @@ func (c *CloudFormation) GetTemplateRequest(input *GetTemplateInput) (req *reque
 // For deleted stacks, GetTemplate returns the template for up to 90 days after
 // the stack has been deleted.
 //
-//   If the template does not exist, a ValidationError is returned.
+//  If the template does not exist, a ValidationError is returned.
 func (c *CloudFormation) GetTemplate(input *GetTemplateInput) (*GetTemplateOutput, error) {
 	req, out := c.GetTemplateRequest(input)
 	err := req.Send()
@@ -598,35 +383,6 @@ func (c *CloudFormation) GetTemplateSummary(input *GetTemplateSummaryInput) (*Ge
 	return out, err
 }
 
-const opListChangeSets = "ListChangeSets"
-
-// ListChangeSetsRequest generates a request for the ListChangeSets operation.
-func (c *CloudFormation) ListChangeSetsRequest(input *ListChangeSetsInput) (req *request.Request, output *ListChangeSetsOutput) {
-	op := &request.Operation{
-		Name:       opListChangeSets,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &ListChangeSetsInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &ListChangeSetsOutput{}
-	req.Data = output
-	return
-}
-
-// Returns the ID and status of each active change set for a stack. For example,
-// AWS CloudFormation lists change sets that are in the CREATE_IN_PROGRESS or
-// CREATE_PENDING state.
-func (c *CloudFormation) ListChangeSets(input *ListChangeSetsInput) (*ListChangeSetsOutput, error) {
-	req, out := c.ListChangeSetsRequest(input)
-	err := req.Send()
-	return out, err
-}
-
 const opListStackResources = "ListStackResources"
 
 // ListStackResourcesRequest generates a request for the ListStackResources operation.
@@ -665,7 +421,6 @@ func (c *CloudFormation) ListStackResources(input *ListStackResourcesInput) (*Li
 
 func (c *CloudFormation) ListStackResourcesPages(input *ListStackResourcesInput, fn func(p *ListStackResourcesOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListStackResourcesRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListStackResourcesOutput), lastPage)
 	})
@@ -710,7 +465,6 @@ func (c *CloudFormation) ListStacks(input *ListStacksInput) (*ListStacksOutput, 
 
 func (c *CloudFormation) ListStacksPages(input *ListStacksInput, fn func(p *ListStacksOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListStacksRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListStacksOutput), lastPage)
 	})
@@ -731,8 +485,6 @@ func (c *CloudFormation) SetStackPolicyRequest(input *SetStackPolicyInput) (req 
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &SetStackPolicyOutput{}
 	req.Data = output
 	return
@@ -760,8 +512,6 @@ func (c *CloudFormation) SignalResourceRequest(input *SignalResourceInput) (req 
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &SignalResourceOutput{}
 	req.Data = output
 	return
@@ -806,6 +556,9 @@ func (c *CloudFormation) UpdateStackRequest(input *UpdateStackInput) (req *reque
 // To get a copy of the template for an existing stack, you can use the GetTemplate
 // action.
 //
+// Tags that were associated with this stack during creation time will still
+// be associated with the stack after an UpdateStack operation.
+//
 // For more information about creating an update template, updating a stack,
 // and monitoring the progress of the update, see Updating a Stack (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks.html).
 func (c *CloudFormation) UpdateStack(input *UpdateStackInput) (*UpdateStackOutput, error) {
@@ -841,33 +594,16 @@ func (c *CloudFormation) ValidateTemplate(input *ValidateTemplateInput) (*Valida
 	return out, err
 }
 
-// The AccountLimit data type.
-type AccountLimit struct {
-	_ struct{} `type:"structure"`
-
-	// The name of the account limit. Currently, the only account limit is StackLimit.
-	Name *string `type:"string"`
-
-	// The value that is associated with the account limit name.
-	Value *int64 `type:"integer"`
-}
-
-// String returns the string representation
-func (s AccountLimit) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s AccountLimit) GoString() string {
-	return s.String()
-}
-
-// The input for the CancelUpdateStack action.
+// The input for CancelUpdateStack action.
 type CancelUpdateStackInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name or the unique stack ID that is associated with the stack.
 	StackName *string `type:"string" required:"true"`
+
+	metadataCancelUpdateStackInput `json:"-" xml:"-"`
+}
+
+type metadataCancelUpdateStackInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -880,21 +616,12 @@ func (s CancelUpdateStackInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CancelUpdateStackInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CancelUpdateStackInput"}
-	if s.StackName == nil {
-		invalidParams.Add(request.NewErrParamRequired("StackName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type CancelUpdateStackOutput struct {
+	metadataCancelUpdateStackOutput `json:"-" xml:"-"`
 }
 
-type CancelUpdateStackOutput struct {
-	_ struct{} `type:"structure"`
+type metadataCancelUpdateStackOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -907,294 +634,11 @@ func (s CancelUpdateStackOutput) GoString() string {
 	return s.String()
 }
 
-// The Change structure describes the changes AWS CloudFormation will perform
-// if you execute the change set.
-type Change struct {
-	_ struct{} `type:"structure"`
-
-	// A ResourceChange structure that describes the resource and action that AWS
-	// CloudFormation will perform.
-	ResourceChange *ResourceChange `type:"structure"`
-
-	// The type of entity that AWS CloudFormation changes. Currently, the only entity
-	// type is Resource.
-	Type *string `type:"string" enum:"ChangeType"`
-}
-
-// String returns the string representation
-func (s Change) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s Change) GoString() string {
-	return s.String()
-}
-
-// The ChangeSetSummary structure describes a change set, its status, and the
-// stack with which it's associated.
-type ChangeSetSummary struct {
-	_ struct{} `type:"structure"`
-
-	// The ID of the change set.
-	ChangeSetId *string `min:"1" type:"string"`
-
-	// The name of the change set.
-	ChangeSetName *string `min:"1" type:"string"`
-
-	// The start time when the change set was created, in UTC.
-	CreationTime *time.Time `type:"timestamp" timestampFormat:"iso8601"`
-
-	// Descriptive information about the change set.
-	Description *string `min:"1" type:"string"`
-
-	// If the change set execution status is AVAILABLE, you can execute the change
-	// set. If you can’t execute the change set, the status indicates why. For example,
-	// a change set might be in an UNAVAILABLE state because AWS CloudFormation
-	// is still creating it or in an OBSOLETE state because the stack was already
-	// updated.
-	ExecutionStatus *string `type:"string" enum:"ExecutionStatus"`
-
-	// The ID of the stack with which the change set is associated.
-	StackId *string `type:"string"`
-
-	// The name of the stack with which the change set is associated.
-	StackName *string `type:"string"`
-
-	// The state of the change set, such as CREATE_IN_PROGRESS, CREATE_COMPLETE,
-	// or FAILED.
-	Status *string `type:"string" enum:"ChangeSetStatus"`
-
-	// A description of the change set's status. For example, if your change set
-	// is in the FAILED state, AWS CloudFormation shows the error message.
-	StatusReason *string `type:"string"`
-}
-
-// String returns the string representation
-func (s ChangeSetSummary) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s ChangeSetSummary) GoString() string {
-	return s.String()
-}
-
-// The input for the ContinueUpdateRollback action.
-type ContinueUpdateRollbackInput struct {
-	_ struct{} `type:"structure"`
-
-	// The name or the unique ID of the stack that you want to continue rolling
-	// back.
-	StackName *string `min:"1" type:"string" required:"true"`
-}
-
-// String returns the string representation
-func (s ContinueUpdateRollbackInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s ContinueUpdateRollbackInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ContinueUpdateRollbackInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ContinueUpdateRollbackInput"}
-	if s.StackName == nil {
-		invalidParams.Add(request.NewErrParamRequired("StackName"))
-	}
-	if s.StackName != nil && len(*s.StackName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("StackName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// The output for a ContinueUpdateRollback action.
-type ContinueUpdateRollbackOutput struct {
-	_ struct{} `type:"structure"`
-}
-
-// String returns the string representation
-func (s ContinueUpdateRollbackOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s ContinueUpdateRollbackOutput) GoString() string {
-	return s.String()
-}
-
-// The input for the CreateChangeSet action.
-type CreateChangeSetInput struct {
-	_ struct{} `type:"structure"`
-
-	// A list of capabilities that you must specify before AWS CloudFormation can
-	// update certain stacks. Some stack templates might include resources that
-	// can affect permissions in your AWS account, for example, by creating new
-	// AWS Identity and Access Management (IAM) users. For those stacks, you must
-	// explicitly acknowledge their capabilities by specifying this parameter.
-	//
-	// Currently, the only valid value is CAPABILITY_IAM, which is required for
-	// the following resources:  AWS::IAM::AccessKey (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-iam-accesskey.html),
-	//  AWS::IAM::Group (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-iam-group.html),
-	//  AWS::IAM::InstanceProfile (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-instanceprofile.html),
-	//  AWS::IAM::Policy (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-iam-policy.html),
-	//  AWS::IAM::Role (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-role.html),
-	//  AWS::IAM::User (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-iam-user.html),
-	// and  AWS::IAM::UserToGroupAddition (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-iam-addusertogroup.html).
-	// If your stack template contains these resources, we recommend that you review
-	// all permissions associated with them and edit their permissions if necessary.
-	// If your template contains any of the listed resources and you don't specify
-	// this parameter, this action returns an InsufficientCapabilities error.
-	Capabilities []*string `type:"list"`
-
-	// The name of the change set. The name must be unique among all change sets
-	// that are associated with the specified stack.
-	//
-	// A change set name can contain only alphanumeric, case sensitive characters
-	// and hyphens. It must start with an alphabetic character and cannot exceed
-	// 128 characters.
-	ChangeSetName *string `min:"1" type:"string" required:"true"`
-
-	// A unique identifier for this CreateChangeSet request. Specify this token
-	// if you plan to retry requests so that AWS CloudFormation knows that you're
-	// not attempting to create another change set with the same name. You might
-	// retry CreateChangeSet requests to ensure that AWS CloudFormation successfully
-	// received them.
-	ClientToken *string `min:"1" type:"string"`
-
-	// A description to help you identify this change set.
-	Description *string `min:"1" type:"string"`
-
-	// The Amazon Resource Names (ARNs) of Amazon Simple Notification Service (Amazon
-	// SNS) topics that AWS CloudFormation associates with the stack. To remove
-	// all associated notification topics, specify an empty list.
-	NotificationARNs []*string `type:"list"`
-
-	// A list of Parameter structures that specify input parameters for the change
-	// set. For more information, see the Parameter (http://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_Parameter.html)
-	// data type.
-	Parameters []*Parameter `type:"list"`
-
-	// The template resource types that you have permissions to work with if you
-	// execute this change set, such as AWS::EC2::Instance, AWS::EC2::*, or Custom::MyCustomInstance.
-	//
-	// If the list of resource types doesn't include a resource type that you're
-	// updating, the stack update fails. By default, AWS CloudFormation grants permissions
-	// to all resource types. AWS Identity and Access Management (IAM) uses this
-	// parameter for condition keys in IAM policies for AWS CloudFormation. For
-	// more information, see Controlling Access with AWS Identity and Access Management
-	// (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-iam-template.html)
-	// in the AWS CloudFormation User Guide.
-	ResourceTypes []*string `type:"list"`
-
-	// The name or the unique ID of the stack for which you are creating a change
-	// set. AWS CloudFormation generates the change set by comparing this stack's
-	// information with the information that you submit, such as a modified template
-	// or different parameter input values.
-	StackName *string `min:"1" type:"string" required:"true"`
-
-	// Key-value pairs to associate with this stack. AWS CloudFormation also propagates
-	// these tags to resources in the stack. You can specify a maximum of 10 tags.
-	Tags []*Tag `type:"list"`
-
-	// A structure that contains the body of the revised template, with a minimum
-	// length of 1 byte and a maximum length of 51,200 bytes. AWS CloudFormation
-	// generates the change set by comparing this template with the template of
-	// the stack that you specified.
-	//
-	// Conditional: You must specify only TemplateBody or TemplateURL.
-	TemplateBody *string `min:"1" type:"string"`
-
-	// The location of the file that contains the revised template. The URL must
-	// point to a template (max size: 460,800 bytes) that is located in an S3 bucket.
-	// AWS CloudFormation generates the change set by comparing this template with
-	// the stack that you specified.
-	//
-	// Conditional: You must specify only TemplateBody or TemplateURL.
-	TemplateURL *string `min:"1" type:"string"`
-
-	// Whether to reuse the template that is associated with the stack to create
-	// the change set.
-	UsePreviousTemplate *bool `type:"boolean"`
-}
-
-// String returns the string representation
-func (s CreateChangeSetInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s CreateChangeSetInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateChangeSetInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateChangeSetInput"}
-	if s.ChangeSetName == nil {
-		invalidParams.Add(request.NewErrParamRequired("ChangeSetName"))
-	}
-	if s.ChangeSetName != nil && len(*s.ChangeSetName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ChangeSetName", 1))
-	}
-	if s.ClientToken != nil && len(*s.ClientToken) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ClientToken", 1))
-	}
-	if s.Description != nil && len(*s.Description) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("Description", 1))
-	}
-	if s.StackName == nil {
-		invalidParams.Add(request.NewErrParamRequired("StackName"))
-	}
-	if s.StackName != nil && len(*s.StackName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("StackName", 1))
-	}
-	if s.TemplateBody != nil && len(*s.TemplateBody) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TemplateBody", 1))
-	}
-	if s.TemplateURL != nil && len(*s.TemplateURL) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TemplateURL", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// The output for the CreateChangeSet action.
-type CreateChangeSetOutput struct {
-	_ struct{} `type:"structure"`
-
-	// The Amazon Resource Name (ARN) of the change set.
-	Id *string `min:"1" type:"string"`
-}
-
-// String returns the string representation
-func (s CreateChangeSetOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s CreateChangeSetOutput) GoString() string {
-	return s.String()
-}
-
 // The input for CreateStack action.
 type CreateStackInput struct {
-	_ struct{} `type:"structure"`
-
 	// A list of capabilities that you must specify before AWS CloudFormation can
-	// create certain stacks. Some stack templates might include resources that
-	// can affect permissions in your AWS account, for example, by creating new
-	// AWS Identity and Access Management (IAM) users. For those stacks, you must
+	// create or update certain stacks. Some stack templates might include resources
+	// that can affect permissions in your AWS account. For those stacks, you must
 	// explicitly acknowledge their capabilities by specifying this parameter.
 	//
 	// Currently, the only valid value is CAPABILITY_IAM, which is required for
@@ -1206,9 +650,8 @@ type CreateStackInput struct {
 	//  AWS::IAM::User (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-iam-user.html),
 	// and  AWS::IAM::UserToGroupAddition (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-iam-addusertogroup.html).
 	// If your stack template contains these resources, we recommend that you review
-	// all permissions associated with them and edit their permissions if necessary.
-	// If your template contains any of the listed resources and you don't specify
-	// this parameter, this action returns an InsufficientCapabilities error.
+	// any permissions associated with them. If you don't specify this parameter,
+	// this action returns an InsufficientCapabilities error.
 	Capabilities []*string `type:"list"`
 
 	// Set to true to disable rollback of the stack if stack creation failed. You
@@ -1218,7 +661,7 @@ type CreateStackInput struct {
 	DisableRollback *bool `type:"boolean"`
 
 	// The Simple Notification Service (SNS) topic ARNs to publish stack related
-	// events. You can find your SNS topic ARNs using the SNS console (https://console.aws.amazon.com/sns)
+	// events. You can find your SNS topic ARNs using the SNS console (http://console.aws.amazon.com/sns)
 	// or your Command Line Interface (CLI).
 	NotificationARNs []*string `type:"list"`
 
@@ -1230,49 +673,31 @@ type CreateStackInput struct {
 	OnFailure *string `type:"string" enum:"OnFailure"`
 
 	// A list of Parameter structures that specify input parameters for the stack.
-	// For more information, see the Parameter (http://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_Parameter.html)
-	// data type.
 	Parameters []*Parameter `type:"list"`
-
-	// The template resource types that you have permissions to work with for this
-	// create stack action, such as AWS::EC2::Instance, AWS::EC2::*, or Custom::MyCustomInstance.
-	// Use the following syntax to describe template resource types: AWS::* (for
-	// all AWS resource), Custom::* (for all custom resources), Custom::logical_ID
-	//  (for a specific custom resource), AWS::service_name::* (for all resources
-	// of a particular AWS service), and AWS::service_name::resource_logical_ID
-	//  (for a specific AWS resource).
-	//
-	// If the list of resource types doesn't include a resource that you're creating,
-	// the stack creation fails. By default, AWS CloudFormation grants permissions
-	// to all resource types. AWS Identity and Access Management (IAM) uses this
-	// parameter for AWS CloudFormation-specific condition keys in IAM policies.
-	// For more information, see Controlling Access with AWS Identity and Access
-	// Management (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-iam-template.html).
-	ResourceTypes []*string `type:"list"`
 
 	// The name that is associated with the stack. The name must be unique in the
 	// region in which you are creating the stack.
 	//
-	//  A stack name can contain only alphanumeric characters (case sensitive)
-	// and hyphens. It must start with an alphabetic character and cannot be longer
-	// than 128 characters.
+	// A stack name can contain only alphanumeric characters (case sensitive) and
+	// hyphens. It must start with an alphabetic character and cannot be longer
+	// than 255 characters.
 	StackName *string `type:"string" required:"true"`
 
 	// Structure containing the stack policy body. For more information, go to
 	// Prevent Updates to Stack Resources (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html)
 	// in the AWS CloudFormation User Guide. You can specify either the StackPolicyBody
 	// or the StackPolicyURL parameter, but not both.
-	StackPolicyBody *string `min:"1" type:"string"`
+	StackPolicyBody *string `type:"string"`
 
 	// Location of a file containing the stack policy. The URL must point to a policy
 	// (max size: 16KB) located in an S3 bucket in the same region as the stack.
 	// You can specify either the StackPolicyBody or the StackPolicyURL parameter,
 	// but not both.
-	StackPolicyURL *string `min:"1" type:"string"`
+	StackPolicyURL *string `type:"string"`
 
-	// Key-value pairs to associate with this stack. AWS CloudFormation also propagates
-	// these tags to the resources created in the stack. A maximum number of 10
-	// tags can be specified.
+	// A set of user-defined Tags to associate with this stack, represented by key/value
+	// pairs. Tags defined for the stack are propagated to EC2 resources that are
+	// created as part of the stack. A maximum number of 10 tags can be specified.
 	Tags []*Tag `type:"list"`
 
 	// Structure containing the template body with a minimum length of 1 byte and
@@ -1282,21 +707,27 @@ type CreateStackInput struct {
 	//
 	// Conditional: You must specify either the TemplateBody or the TemplateURL
 	// parameter, but not both.
-	TemplateBody *string `min:"1" type:"string"`
+	TemplateBody *string `type:"string"`
 
 	// Location of file containing the template body. The URL must point to a template
-	// (max size: 460,800 bytes) that is located in an Amazon S3 bucket. For more
-	// information, go to the Template Anatomy (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html)
+	// (max size: 460,800 bytes) located in an S3 bucket in the same region as the
+	// stack. For more information, go to the Template Anatomy (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html)
 	// in the AWS CloudFormation User Guide.
 	//
 	// Conditional: You must specify either the TemplateBody or the TemplateURL
 	// parameter, but not both.
-	TemplateURL *string `min:"1" type:"string"`
+	TemplateURL *string `type:"string"`
 
 	// The amount of time that can pass before the stack status becomes CREATE_FAILED;
 	// if DisableRollback is not set or is set to false, the stack will be rolled
 	// back.
-	TimeoutInMinutes *int64 `min:"1" type:"integer"`
+	TimeoutInMinutes *int64 `type:"integer"`
+
+	metadataCreateStackInput `json:"-" xml:"-"`
+}
+
+type metadataCreateStackInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1309,40 +740,16 @@ func (s CreateStackInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateStackInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateStackInput"}
-	if s.StackName == nil {
-		invalidParams.Add(request.NewErrParamRequired("StackName"))
-	}
-	if s.StackPolicyBody != nil && len(*s.StackPolicyBody) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("StackPolicyBody", 1))
-	}
-	if s.StackPolicyURL != nil && len(*s.StackPolicyURL) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("StackPolicyURL", 1))
-	}
-	if s.TemplateBody != nil && len(*s.TemplateBody) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TemplateBody", 1))
-	}
-	if s.TemplateURL != nil && len(*s.TemplateURL) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TemplateURL", 1))
-	}
-	if s.TimeoutInMinutes != nil && *s.TimeoutInMinutes < 1 {
-		invalidParams.Add(request.NewErrParamMinValue("TimeoutInMinutes", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The output for a CreateStack action.
 type CreateStackOutput struct {
-	_ struct{} `type:"structure"`
-
 	// Unique identifier of the stack.
 	StackId *string `type:"string"`
+
+	metadataCreateStackOutput `json:"-" xml:"-"`
+}
+
+type metadataCreateStackOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1355,77 +762,16 @@ func (s CreateStackOutput) GoString() string {
 	return s.String()
 }
 
-// The input for the DeleteChangeSet action.
-type DeleteChangeSetInput struct {
-	_ struct{} `type:"structure"`
-
-	// The name or Amazon Resource Name (ARN) of the change set that you want to
-	// delete.
-	ChangeSetName *string `min:"1" type:"string" required:"true"`
-
-	// If you specified the name of a change set to delete, specify the stack name
-	// or ID (ARN) that is associated with it.
-	StackName *string `min:"1" type:"string"`
-}
-
-// String returns the string representation
-func (s DeleteChangeSetInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s DeleteChangeSetInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteChangeSetInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteChangeSetInput"}
-	if s.ChangeSetName == nil {
-		invalidParams.Add(request.NewErrParamRequired("ChangeSetName"))
-	}
-	if s.ChangeSetName != nil && len(*s.ChangeSetName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ChangeSetName", 1))
-	}
-	if s.StackName != nil && len(*s.StackName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("StackName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// The output for the DeleteChangeSet action.
-type DeleteChangeSetOutput struct {
-	_ struct{} `type:"structure"`
-}
-
-// String returns the string representation
-func (s DeleteChangeSetOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s DeleteChangeSetOutput) GoString() string {
-	return s.String()
-}
-
 // The input for DeleteStack action.
 type DeleteStackInput struct {
-	_ struct{} `type:"structure"`
-
-	// For stacks in the DELETE_FAILED state, a list of resource logical IDs that
-	// are associated with the resources you want to retain. During deletion, AWS
-	// CloudFormation deletes the stack but does not delete the retained resources.
-	//
-	// Retaining resources is useful when you cannot delete a resource, such as
-	// a non-empty S3 bucket, but you want to delete the stack.
-	RetainResources []*string `type:"list"`
-
 	// The name or the unique stack ID that is associated with the stack.
 	StackName *string `type:"string" required:"true"`
+
+	metadataDeleteStackInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteStackInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1438,21 +784,12 @@ func (s DeleteStackInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteStackInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteStackInput"}
-	if s.StackName == nil {
-		invalidParams.Add(request.NewErrParamRequired("StackName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type DeleteStackOutput struct {
+	metadataDeleteStackOutput `json:"-" xml:"-"`
 }
 
-type DeleteStackOutput struct {
-	_ struct{} `type:"structure"`
+type metadataDeleteStackOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1465,200 +802,27 @@ func (s DeleteStackOutput) GoString() string {
 	return s.String()
 }
 
-// The input for the DescribeAccountLimits action.
-type DescribeAccountLimitsInput struct {
-	_ struct{} `type:"structure"`
-
-	// A string that identifies the next page of limits that you want to retrieve.
-	NextToken *string `min:"1" type:"string"`
-}
-
-// String returns the string representation
-func (s DescribeAccountLimitsInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s DescribeAccountLimitsInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeAccountLimitsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeAccountLimitsInput"}
-	if s.NextToken != nil && len(*s.NextToken) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("NextToken", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// The output for the DescribeAccountLimits action.
-type DescribeAccountLimitsOutput struct {
-	_ struct{} `type:"structure"`
-
-	// An account limit structure that contain a list of AWS CloudFormation account
-	// limits and their values.
-	AccountLimits []*AccountLimit `type:"list"`
-
-	// If the output exceeds 1 MB in size, a string that identifies the next page
-	// of limits. If no additional page exists, this value is null.
-	NextToken *string `min:"1" type:"string"`
-}
-
-// String returns the string representation
-func (s DescribeAccountLimitsOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s DescribeAccountLimitsOutput) GoString() string {
-	return s.String()
-}
-
-// The input for the DescribeChangeSet action.
-type DescribeChangeSetInput struct {
-	_ struct{} `type:"structure"`
-
-	// The name or Amazon Resource Name (ARN) of the change set that you want to
-	// describe.
-	ChangeSetName *string `min:"1" type:"string" required:"true"`
-
-	// A string (provided by the DescribeChangeSet response output) that identifies
-	// the next page of information that you want to retrieve.
-	NextToken *string `min:"1" type:"string"`
-
-	// If you specified the name of a change set, specify the stack name or ID (ARN)
-	// of the change set you want to describe.
-	StackName *string `min:"1" type:"string"`
-}
-
-// String returns the string representation
-func (s DescribeChangeSetInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s DescribeChangeSetInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeChangeSetInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeChangeSetInput"}
-	if s.ChangeSetName == nil {
-		invalidParams.Add(request.NewErrParamRequired("ChangeSetName"))
-	}
-	if s.ChangeSetName != nil && len(*s.ChangeSetName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ChangeSetName", 1))
-	}
-	if s.NextToken != nil && len(*s.NextToken) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("NextToken", 1))
-	}
-	if s.StackName != nil && len(*s.StackName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("StackName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// The output for the DescribeChangeSet action.
-type DescribeChangeSetOutput struct {
-	_ struct{} `type:"structure"`
-
-	// If you execute the change set, the list of capabilities that were explicitly
-	// acknowledged when the change set was created.
-	Capabilities []*string `type:"list"`
-
-	// The ARN of the change set.
-	ChangeSetId *string `min:"1" type:"string"`
-
-	// The name of the change set.
-	ChangeSetName *string `min:"1" type:"string"`
-
-	// A list of Change structures that describes the resources AWS CloudFormation
-	// changes if you execute the change set.
-	Changes []*Change `type:"list"`
-
-	// The start time when the change set was created, in UTC.
-	CreationTime *time.Time `type:"timestamp" timestampFormat:"iso8601"`
-
-	// Information about the change set.
-	Description *string `min:"1" type:"string"`
-
-	// If the change set execution status is AVAILABLE, you can execute the change
-	// set. If you can’t execute the change set, the status indicates why. For example,
-	// a change set might be in an UNAVAILABLE state because AWS CloudFormation
-	// is still creating it or in an OBSOLETE state because the stack was already
-	// updated.
-	ExecutionStatus *string `type:"string" enum:"ExecutionStatus"`
-
-	// If the output exceeds 1 MB, a string that identifies the next page of changes.
-	// If there is no additional page, this value is null.
-	NextToken *string `min:"1" type:"string"`
-
-	// The ARNs of the Amazon Simple Notification Service (Amazon SNS) topics that
-	// will be associated with the stack if you execute the change set.
-	NotificationARNs []*string `type:"list"`
-
-	// A list of Parameter structures that describes the input parameters and their
-	// values used to create the change set. For more information, see the Parameter
-	// (http://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_Parameter.html)
-	// data type.
-	Parameters []*Parameter `type:"list"`
-
-	// The ARN of the stack that is associated with the change set.
-	StackId *string `type:"string"`
-
-	// The name of the stack that is associated with the change set.
-	StackName *string `type:"string"`
-
-	// The current status of the change set, such as CREATE_IN_PROGRESS, CREATE_COMPLETE,
-	// or FAILED.
-	Status *string `type:"string" enum:"ChangeSetStatus"`
-
-	// A description of the change set's status. For example, if your attempt to
-	// create a change set failed, AWS CloudFormation shows the error message.
-	StatusReason *string `type:"string"`
-
-	// If you execute the change set, the tags that will be associated with the
-	// stack.
-	Tags []*Tag `type:"list"`
-}
-
-// String returns the string representation
-func (s DescribeChangeSetOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s DescribeChangeSetOutput) GoString() string {
-	return s.String()
-}
-
 // The input for DescribeStackEvents action.
 type DescribeStackEventsInput struct {
-	_ struct{} `type:"structure"`
-
-	// A string that identifies the next page of events that you want to retrieve.
-	NextToken *string `min:"1" type:"string"`
+	// String that identifies the start of the next list of events, if there is
+	// one.
+	//
+	// Default: There is no default value.
+	NextToken *string `type:"string"`
 
 	// The name or the unique stack ID that is associated with the stack, which
 	// are not always interchangeable:
 	//
-	//   Running stacks: You can specify either the stack's name or its unique
-	// stack ID.
-	//
-	//   Deleted stacks: You must specify the unique stack ID.
-	//
-	//   Default: There is no default value.
+	//  Running stacks: You can specify either the stack's name or its unique stack
+	// ID. Deleted stacks: You must specify the unique stack ID.  Default: There
+	// is no default value.
 	StackName *string `type:"string"`
+
+	metadataDescribeStackEventsInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeStackEventsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1671,29 +835,20 @@ func (s DescribeStackEventsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeStackEventsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeStackEventsInput"}
-	if s.NextToken != nil && len(*s.NextToken) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("NextToken", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The output for a DescribeStackEvents action.
 type DescribeStackEventsOutput struct {
-	_ struct{} `type:"structure"`
-
-	// If the output exceeds 1 MB in size, a string that identifies the next page
-	// of events. If no additional page exists, this value is null.
-	NextToken *string `min:"1" type:"string"`
+	// String that identifies the start of the next list of events, if there is
+	// one.
+	NextToken *string `type:"string"`
 
 	// A list of StackEvents structures.
 	StackEvents []*StackEvent `type:"list"`
+
+	metadataDescribeStackEventsOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeStackEventsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1708,8 +863,6 @@ func (s DescribeStackEventsOutput) GoString() string {
 
 // The input for DescribeStackResource action.
 type DescribeStackResourceInput struct {
-	_ struct{} `type:"structure"`
-
 	// The logical name of the resource as specified in the template.
 	//
 	// Default: There is no default value.
@@ -1718,13 +871,16 @@ type DescribeStackResourceInput struct {
 	// The name or the unique stack ID that is associated with the stack, which
 	// are not always interchangeable:
 	//
-	//   Running stacks: You can specify either the stack's name or its unique
-	// stack ID.
-	//
-	//   Deleted stacks: You must specify the unique stack ID.
-	//
-	//   Default: There is no default value.
+	//  Running stacks: You can specify either the stack's name or its unique stack
+	// ID. Deleted stacks: You must specify the unique stack ID.  Default: There
+	// is no default value.
 	StackName *string `type:"string" required:"true"`
+
+	metadataDescribeStackResourceInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeStackResourceInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1737,29 +893,17 @@ func (s DescribeStackResourceInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeStackResourceInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeStackResourceInput"}
-	if s.LogicalResourceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("LogicalResourceId"))
-	}
-	if s.StackName == nil {
-		invalidParams.Add(request.NewErrParamRequired("StackName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The output for a DescribeStackResource action.
 type DescribeStackResourceOutput struct {
-	_ struct{} `type:"structure"`
-
 	// A StackResourceDetail structure containing the description of the specified
 	// resource in the specified stack.
 	StackResourceDetail *StackResourceDetail `type:"structure"`
+
+	metadataDescribeStackResourceOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeStackResourceOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1774,8 +918,6 @@ func (s DescribeStackResourceOutput) GoString() string {
 
 // The input for DescribeStackResources action.
 type DescribeStackResourcesInput struct {
-	_ struct{} `type:"structure"`
-
 	// The logical name of the resource as specified in the template.
 	//
 	// Default: There is no default value.
@@ -1798,16 +940,19 @@ type DescribeStackResourcesInput struct {
 	// The name or the unique stack ID that is associated with the stack, which
 	// are not always interchangeable:
 	//
-	//   Running stacks: You can specify either the stack's name or its unique
-	// stack ID.
-	//
-	//   Deleted stacks: You must specify the unique stack ID.
-	//
-	//   Default: There is no default value.
+	//  Running stacks: You can specify either the stack's name or its unique stack
+	// ID. Deleted stacks: You must specify the unique stack ID.  Default: There
+	// is no default value.
 	//
 	// Required: Conditional. If you do not specify StackName, you must specify
 	// PhysicalResourceId.
 	StackName *string `type:"string"`
+
+	metadataDescribeStackResourcesInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeStackResourcesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1822,10 +967,14 @@ func (s DescribeStackResourcesInput) GoString() string {
 
 // The output for a DescribeStackResources action.
 type DescribeStackResourcesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// A list of StackResource structures.
 	StackResources []*StackResource `type:"list"`
+
+	metadataDescribeStackResourcesOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeStackResourcesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1840,21 +989,23 @@ func (s DescribeStackResourcesOutput) GoString() string {
 
 // The input for DescribeStacks action.
 type DescribeStacksInput struct {
-	_ struct{} `type:"structure"`
-
-	// A string that identifies the next page of stacks that you want to retrieve.
-	NextToken *string `min:"1" type:"string"`
+	// String that identifies the start of the next list of stacks, if there is
+	// one.
+	NextToken *string `type:"string"`
 
 	// The name or the unique stack ID that is associated with the stack, which
 	// are not always interchangeable:
 	//
-	//   Running stacks: You can specify either the stack's name or its unique
-	// stack ID.
-	//
-	//   Deleted stacks: You must specify the unique stack ID.
-	//
-	//   Default: There is no default value.
+	//  Running stacks: You can specify either the stack's name or its unique stack
+	// ID. Deleted stacks: You must specify the unique stack ID.  Default: There
+	// is no default value.
 	StackName *string `type:"string"`
+
+	metadataDescribeStacksInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeStacksInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1867,29 +1018,20 @@ func (s DescribeStacksInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeStacksInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeStacksInput"}
-	if s.NextToken != nil && len(*s.NextToken) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("NextToken", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The output for a DescribeStacks action.
 type DescribeStacksOutput struct {
-	_ struct{} `type:"structure"`
-
-	// If the output exceeds 1 MB in size, a string that identifies the next page
-	// of stacks. If no additional page exists, this value is null.
-	NextToken *string `min:"1" type:"string"`
+	// String that identifies the start of the next list of stacks, if there is
+	// one.
+	NextToken *string `type:"string"`
 
 	// A list of stack structures.
 	Stacks []*Stack `type:"list"`
+
+	metadataDescribeStacksOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeStacksOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1902,10 +1044,7 @@ func (s DescribeStacksOutput) GoString() string {
 	return s.String()
 }
 
-// The input for an EstimateTemplateCost action.
 type EstimateTemplateCostInput struct {
-	_ struct{} `type:"structure"`
-
 	// A list of Parameter structures that specify input parameters.
 	Parameters []*Parameter `type:"list"`
 
@@ -1916,16 +1055,22 @@ type EstimateTemplateCostInput struct {
 	//
 	// Conditional: You must pass TemplateBody or TemplateURL. If both are passed,
 	// only TemplateBody is used.
-	TemplateBody *string `min:"1" type:"string"`
+	TemplateBody *string `type:"string"`
 
 	// Location of file containing the template body. The URL must point to a template
-	// that is located in an Amazon S3 bucket. For more information, go to Template
-	// Anatomy (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html)
+	// located in an S3 bucket in the same region as the stack. For more information,
+	// go to Template Anatomy (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html)
 	// in the AWS CloudFormation User Guide.
 	//
 	// Conditional: You must pass TemplateURL or TemplateBody. If both are passed,
 	// only TemplateBody is used.
-	TemplateURL *string `min:"1" type:"string"`
+	TemplateURL *string `type:"string"`
+
+	metadataEstimateTemplateCostInput `json:"-" xml:"-"`
+}
+
+type metadataEstimateTemplateCostInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1938,29 +1083,17 @@ func (s EstimateTemplateCostInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *EstimateTemplateCostInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "EstimateTemplateCostInput"}
-	if s.TemplateBody != nil && len(*s.TemplateBody) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TemplateBody", 1))
-	}
-	if s.TemplateURL != nil && len(*s.TemplateURL) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TemplateURL", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The output for a EstimateTemplateCost action.
 type EstimateTemplateCostOutput struct {
-	_ struct{} `type:"structure"`
-
 	// An AWS Simple Monthly Calculator URL with a query string that describes the
 	// resources required to run the template.
 	Url *string `type:"string"`
+
+	metadataEstimateTemplateCostOutput `json:"-" xml:"-"`
+}
+
+type metadataEstimateTemplateCostOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1973,70 +1106,17 @@ func (s EstimateTemplateCostOutput) GoString() string {
 	return s.String()
 }
 
-// The input for the ExecuteChangeSet action.
-type ExecuteChangeSetInput struct {
-	_ struct{} `type:"structure"`
-
-	// The name or ARN of the change set that you want use to update the specified
-	// stack.
-	ChangeSetName *string `min:"1" type:"string" required:"true"`
-
-	// If you specified the name of a change set, specify the stack name or ID (ARN)
-	// that is associated with the change set you want to execute.
-	StackName *string `min:"1" type:"string"`
-}
-
-// String returns the string representation
-func (s ExecuteChangeSetInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s ExecuteChangeSetInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ExecuteChangeSetInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ExecuteChangeSetInput"}
-	if s.ChangeSetName == nil {
-		invalidParams.Add(request.NewErrParamRequired("ChangeSetName"))
-	}
-	if s.ChangeSetName != nil && len(*s.ChangeSetName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ChangeSetName", 1))
-	}
-	if s.StackName != nil && len(*s.StackName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("StackName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// The output for the ExecuteChangeSet action.
-type ExecuteChangeSetOutput struct {
-	_ struct{} `type:"structure"`
-}
-
-// String returns the string representation
-func (s ExecuteChangeSetOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s ExecuteChangeSetOutput) GoString() string {
-	return s.String()
-}
-
 // The input for the GetStackPolicy action.
 type GetStackPolicyInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name or unique stack ID that is associated with the stack whose policy
 	// you want to get.
 	StackName *string `type:"string" required:"true"`
+
+	metadataGetStackPolicyInput `json:"-" xml:"-"`
+}
+
+type metadataGetStackPolicyInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2049,27 +1129,18 @@ func (s GetStackPolicyInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *GetStackPolicyInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "GetStackPolicyInput"}
-	if s.StackName == nil {
-		invalidParams.Add(request.NewErrParamRequired("StackName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The output for the GetStackPolicy action.
 type GetStackPolicyOutput struct {
-	_ struct{} `type:"structure"`
-
 	// Structure containing the stack policy body. (For more information, go to
 	//  Prevent Updates to Stack Resources (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html)
 	// in the AWS CloudFormation User Guide.)
-	StackPolicyBody *string `min:"1" type:"string"`
+	StackPolicyBody *string `type:"string"`
+
+	metadataGetStackPolicyOutput `json:"-" xml:"-"`
+}
+
+type metadataGetStackPolicyOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2084,18 +1155,19 @@ func (s GetStackPolicyOutput) GoString() string {
 
 // The input for a GetTemplate action.
 type GetTemplateInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name or the unique stack ID that is associated with the stack, which
 	// are not always interchangeable:
 	//
-	//   Running stacks: You can specify either the stack's name or its unique
-	// stack ID.
-	//
-	//   Deleted stacks: You must specify the unique stack ID.
-	//
-	//   Default: There is no default value.
+	//  Running stacks: You can specify either the stack's name or its unique stack
+	// ID. Deleted stacks: You must specify the unique stack ID.  Default: There
+	// is no default value.
 	StackName *string `type:"string" required:"true"`
+
+	metadataGetTemplateInput `json:"-" xml:"-"`
+}
+
+type metadataGetTemplateInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2108,27 +1180,18 @@ func (s GetTemplateInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *GetTemplateInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "GetTemplateInput"}
-	if s.StackName == nil {
-		invalidParams.Add(request.NewErrParamRequired("StackName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The output for GetTemplate action.
 type GetTemplateOutput struct {
-	_ struct{} `type:"structure"`
-
 	// Structure containing the template body. (For more information, go to Template
 	// Anatomy (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html)
 	// in the AWS CloudFormation User Guide.)
-	TemplateBody *string `min:"1" type:"string"`
+	TemplateBody *string `type:"string"`
+
+	metadataGetTemplateOutput `json:"-" xml:"-"`
+}
+
+type metadataGetTemplateOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2143,8 +1206,6 @@ func (s GetTemplateOutput) GoString() string {
 
 // The input for the GetTemplateSummary action.
 type GetTemplateSummaryInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name or the stack ID that is associated with the stack, which are not
 	// always interchangeable. For running stacks, you can specify either the stack's
 	// name or its unique stack ID. For deleted stack, you must specify the unique
@@ -2152,7 +1213,7 @@ type GetTemplateSummaryInput struct {
 	//
 	// Conditional: You must specify only one of the following parameters: StackName,
 	// TemplateBody, or TemplateURL.
-	StackName *string `min:"1" type:"string"`
+	StackName *string `type:"string"`
 
 	// Structure containing the template body with a minimum length of 1 byte and
 	// a maximum length of 51,200 bytes. For more information about templates, see
@@ -2161,16 +1222,22 @@ type GetTemplateSummaryInput struct {
 	//
 	// Conditional: You must specify only one of the following parameters: StackName,
 	// TemplateBody, or TemplateURL.
-	TemplateBody *string `min:"1" type:"string"`
+	TemplateBody *string `type:"string"`
 
 	// Location of file containing the template body. The URL must point to a template
-	// (max size: 460,800 bytes) that is located in an Amazon S3 bucket. For more
-	// information about templates, see Template Anatomy (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html)
+	// (max size: 460,800 bytes) located in an Amazon S3 bucket. For more information
+	// about templates, see Template Anatomy (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html)
 	// in the AWS CloudFormation User Guide.
 	//
 	// Conditional: You must specify only one of the following parameters: StackName,
 	// TemplateBody, or TemplateURL.
-	TemplateURL *string `min:"1" type:"string"`
+	TemplateURL *string `type:"string"`
+
+	metadataGetTemplateSummaryInput `json:"-" xml:"-"`
+}
+
+type metadataGetTemplateSummaryInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2183,29 +1250,8 @@ func (s GetTemplateSummaryInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *GetTemplateSummaryInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "GetTemplateSummaryInput"}
-	if s.StackName != nil && len(*s.StackName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("StackName", 1))
-	}
-	if s.TemplateBody != nil && len(*s.TemplateBody) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TemplateBody", 1))
-	}
-	if s.TemplateURL != nil && len(*s.TemplateURL) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TemplateURL", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The output for the GetTemplateSummary action.
 type GetTemplateSummaryOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The capabilities found within the template. Currently, AWS CloudFormation
 	// supports only the CAPABILITY_IAM capability. If your template contains IAM
 	// resources, you must specify the CAPABILITY_IAM value for this parameter when
@@ -2218,7 +1264,7 @@ type GetTemplateSummaryOutput struct {
 	CapabilitiesReason *string `type:"string"`
 
 	// The value that is defined in the Description property of the template.
-	Description *string `min:"1" type:"string"`
+	Description *string `type:"string"`
 
 	// The value that is defined for the Metadata property of the template.
 	Metadata *string `type:"string"`
@@ -2227,13 +1273,15 @@ type GetTemplateSummaryOutput struct {
 	// parameter.
 	Parameters []*ParameterDeclaration `type:"list"`
 
-	// A list of all the template resource types that are defined in the template,
-	// such as AWS::EC2::Instance, AWS::Dynamo::Table, and Custom::MyCustomInstance.
-	ResourceTypes []*string `type:"list"`
-
 	// The AWS template format version, which identifies the capabilities of the
 	// template.
 	Version *string `type:"string"`
+
+	metadataGetTemplateSummaryOutput `json:"-" xml:"-"`
+}
+
+type metadataGetTemplateSummaryOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2246,89 +1294,27 @@ func (s GetTemplateSummaryOutput) GoString() string {
 	return s.String()
 }
 
-// The input for the ListChangeSets action.
-type ListChangeSetsInput struct {
-	_ struct{} `type:"structure"`
-
-	// A string (provided by the ListChangeSets response output) that identifies
-	// the next page of change sets that you want to retrieve.
-	NextToken *string `min:"1" type:"string"`
-
-	// The name or the Amazon Resource Name (ARN) of the stack for which you want
-	// to list change sets.
-	StackName *string `min:"1" type:"string" required:"true"`
-}
-
-// String returns the string representation
-func (s ListChangeSetsInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s ListChangeSetsInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ListChangeSetsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ListChangeSetsInput"}
-	if s.NextToken != nil && len(*s.NextToken) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("NextToken", 1))
-	}
-	if s.StackName == nil {
-		invalidParams.Add(request.NewErrParamRequired("StackName"))
-	}
-	if s.StackName != nil && len(*s.StackName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("StackName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// The output for the ListChangeSets action.
-type ListChangeSetsOutput struct {
-	_ struct{} `type:"structure"`
-
-	// If the output exceeds 1 MB, a string that identifies the next page of change
-	// sets. If there is no additional page, this value is null.
-	NextToken *string `min:"1" type:"string"`
-
-	// A list of ChangeSetSummary structures that provides the ID and status of
-	// each change set for the specified stack.
-	Summaries []*ChangeSetSummary `type:"list"`
-}
-
-// String returns the string representation
-func (s ListChangeSetsOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s ListChangeSetsOutput) GoString() string {
-	return s.String()
-}
-
 // The input for the ListStackResource action.
 type ListStackResourcesInput struct {
-	_ struct{} `type:"structure"`
-
-	// A string that identifies the next page of stack resources that you want to
-	// retrieve.
-	NextToken *string `min:"1" type:"string"`
+	// String that identifies the start of the next list of stack resource summaries,
+	// if there is one.
+	//
+	// Default: There is no default value.
+	NextToken *string `type:"string"`
 
 	// The name or the unique stack ID that is associated with the stack, which
 	// are not always interchangeable:
 	//
-	//   Running stacks: You can specify either the stack's name or its unique
-	// stack ID.
-	//
-	//   Deleted stacks: You must specify the unique stack ID.
-	//
-	//   Default: There is no default value.
+	//  Running stacks: You can specify either the stack's name or its unique stack
+	// ID. Deleted stacks: You must specify the unique stack ID.  Default: There
+	// is no default value.
 	StackName *string `type:"string" required:"true"`
+
+	metadataListStackResourcesInput `json:"-" xml:"-"`
+}
+
+type metadataListStackResourcesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2341,32 +1327,20 @@ func (s ListStackResourcesInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ListStackResourcesInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ListStackResourcesInput"}
-	if s.NextToken != nil && len(*s.NextToken) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("NextToken", 1))
-	}
-	if s.StackName == nil {
-		invalidParams.Add(request.NewErrParamRequired("StackName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The output for a ListStackResources action.
 type ListStackResourcesOutput struct {
-	_ struct{} `type:"structure"`
-
-	// If the output exceeds 1 MB, a string that identifies the next page of stack
-	// resources. If no additional page exists, this value is null.
-	NextToken *string `min:"1" type:"string"`
+	// String that identifies the start of the next list of stack resources, if
+	// there is one.
+	NextToken *string `type:"string"`
 
 	// A list of StackResourceSummary structures.
 	StackResourceSummaries []*StackResourceSummary `type:"list"`
+
+	metadataListStackResourcesOutput `json:"-" xml:"-"`
+}
+
+type metadataListStackResourcesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2381,15 +1355,22 @@ func (s ListStackResourcesOutput) GoString() string {
 
 // The input for ListStacks action.
 type ListStacksInput struct {
-	_ struct{} `type:"structure"`
-
-	// A string that identifies the next page of stacks that you want to retrieve.
-	NextToken *string `min:"1" type:"string"`
+	// String that identifies the start of the next list of stacks, if there is
+	// one.
+	//
+	// Default: There is no default value.
+	NextToken *string `type:"string"`
 
 	// Stack status to use as a filter. Specify one or more stack status codes to
 	// list only stacks with the specified status codes. For a complete list of
 	// stack status codes, see the StackStatus parameter of the Stack data type.
 	StackStatusFilter []*string `type:"list"`
+
+	metadataListStacksInput `json:"-" xml:"-"`
+}
+
+type metadataListStacksInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2402,30 +1383,21 @@ func (s ListStacksInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ListStacksInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ListStacksInput"}
-	if s.NextToken != nil && len(*s.NextToken) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("NextToken", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The output for ListStacks action.
 type ListStacksOutput struct {
-	_ struct{} `type:"structure"`
-
-	// If the output exceeds 1 MB in size, a string that identifies the next page
-	// of stacks. If no additional page exists, this value is null.
-	NextToken *string `min:"1" type:"string"`
+	// String that identifies the start of the next list of stacks, if there is
+	// one.
+	NextToken *string `type:"string"`
 
 	// A list of StackSummary structures containing information about the specified
 	// stacks.
 	StackSummaries []*StackSummary `type:"list"`
+
+	metadataListStacksOutput `json:"-" xml:"-"`
+}
+
+type metadataListStacksOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2440,16 +1412,20 @@ func (s ListStacksOutput) GoString() string {
 
 // The Output data type.
 type Output struct {
-	_ struct{} `type:"structure"`
-
 	// User defined description associated with the output.
-	Description *string `min:"1" type:"string"`
+	Description *string `type:"string"`
 
 	// The key associated with the output.
 	OutputKey *string `type:"string"`
 
 	// The value associated with the output.
 	OutputValue *string `type:"string"`
+
+	metadataOutput `json:"-" xml:"-"`
+}
+
+type metadataOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2464,8 +1440,6 @@ func (s Output) GoString() string {
 
 // The Parameter data type.
 type Parameter struct {
-	_ struct{} `type:"structure"`
-
 	// The key associated with the parameter. If you don't specify a key and value
 	// for a particular parameter, AWS CloudFormation uses the default value that
 	// is specified in your template.
@@ -2478,6 +1452,12 @@ type Parameter struct {
 	// using for a given parameter key. If you specify true, do not specify a parameter
 	// value.
 	UsePreviousValue *bool `type:"boolean"`
+
+	metadataParameter `json:"-" xml:"-"`
+}
+
+type metadataParameter struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2494,10 +1474,14 @@ func (s Parameter) GoString() string {
 // Although other constraints might be defined in the stack template, AWS CloudFormation
 // returns only the AllowedValues property.
 type ParameterConstraints struct {
-	_ struct{} `type:"structure"`
-
 	// A list of values that are permitted for a parameter.
 	AllowedValues []*string `type:"list"`
+
+	metadataParameterConstraints `json:"-" xml:"-"`
+}
+
+type metadataParameterConstraints struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2512,13 +1496,11 @@ func (s ParameterConstraints) GoString() string {
 
 // The ParameterDeclaration data type.
 type ParameterDeclaration struct {
-	_ struct{} `type:"structure"`
-
 	// The default value of the parameter.
 	DefaultValue *string `type:"string"`
 
 	// The description that is associate with the parameter.
-	Description *string `min:"1" type:"string"`
+	Description *string `type:"string"`
 
 	// Flag that indicates whether the parameter value is shown as plain text in
 	// logs and in the AWS Management Console.
@@ -2532,6 +1514,12 @@ type ParameterDeclaration struct {
 
 	// The type of parameter.
 	ParameterType *string `type:"string"`
+
+	metadataParameterDeclaration `json:"-" xml:"-"`
+}
+
+type metadataParameterDeclaration struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2544,162 +1532,8 @@ func (s ParameterDeclaration) GoString() string {
 	return s.String()
 }
 
-// The ResourceChange structure describes the resource and the action that AWS
-// CloudFormation will perform on it if you execute this change set.
-type ResourceChange struct {
-	_ struct{} `type:"structure"`
-
-	// The action that AWS CloudFormation takes on the resource, such as Add (adds
-	// a new resource), Modify (changes a resource), or Remove (deletes a resource).
-	Action *string `type:"string" enum:"ChangeAction"`
-
-	// For the Modify action, a list of ResourceChangeDetail structures that describes
-	// the changes that AWS CloudFormation will make to the resource.
-	Details []*ResourceChangeDetail `type:"list"`
-
-	// The resource's logical ID, which is defined in the stack's template.
-	LogicalResourceId *string `type:"string"`
-
-	// The resource's physical ID (resource name). Resources that you are adding
-	// don't have physical IDs because they haven't been created.
-	PhysicalResourceId *string `type:"string"`
-
-	// For the Modify action, indicates whether AWS CloudFormation will replace
-	// the resource by creating a new one and deleting the old one. This value depends
-	// on the value of the RequiresRecreation property in the ResourceTargetDefinition
-	// structure. For example, if the RequiresRecreation field is Always and the
-	// Evaluation field is Static, Replacement is True. If the RequiresRecreation
-	// field is Always and the Evaluation field is Dynamic, Replacement is Conditionally.
-	//
-	// If you have multiple changes with different RequiresRecreation values, the
-	// Replacement value depends on the change with the most impact. A RequiresRecreation
-	// value of Always has the most impact, followed by Conditionally, and then
-	// Never.
-	Replacement *string `type:"string" enum:"Replacement"`
-
-	// The type of AWS CloudFormation resource, such as AWS::S3::Bucket.
-	ResourceType *string `min:"1" type:"string"`
-
-	// For the Modify action, indicates which resource attribute is triggering this
-	// update, such as a change in the resource attribute's Metadata, Properties,
-	// or Tags.
-	Scope []*string `type:"list"`
-}
-
-// String returns the string representation
-func (s ResourceChange) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s ResourceChange) GoString() string {
-	return s.String()
-}
-
-// For a resource with Modify as the action, the ResourceChange structure describes
-// the changes AWS CloudFormation will make to that resource.
-type ResourceChangeDetail struct {
-	_ struct{} `type:"structure"`
-
-	// The identity of the entity that triggered this change. This entity is a member
-	// of the group that is specified by the ChangeSource field. For example, if
-	// you modified the value of the KeyPairName parameter, the CausingEntity is
-	// the name of the parameter (KeyPairName).
-	//
-	// If the ChangeSource value is DirectModification, no value is given for CausingEntity.
-	CausingEntity *string `type:"string"`
-
-	// The group to which the CausingEntity value belongs. There are five entity
-	// groups:
-	//
-	//    ResourceReference entities are Ref intrinsic functions that refer to
-	// resources in the template, such as { "Ref" : "MyEC2InstanceResource" }.
-	//
-	//    ParameterReference entities are Ref intrinsic functions that get template
-	// parameter values, such as { "Ref" : "MyPasswordParameter" }.
-	//
-	//    ResourceAttribute entities are Fn::GetAtt intrinsic functions that get
-	// resource attribute values, such as { "Fn::GetAtt" : [ "MyEC2InstanceResource",
-	// "PublicDnsName" ] }.
-	//
-	//    DirectModification entities are changes that are made directly to the
-	// template.
-	//
-	//    Automatic entities are AWS::CloudFormation::Stack resource types, which
-	// are also known as nested stacks. If you made no changes to the AWS::CloudFormation::Stack
-	// resource, AWS CloudFormation sets the ChangeSource to Automatic because the
-	// nested stack's template might have changed. Changes to a nested stack's template
-	// aren't visible to AWS CloudFormation until you run an update on the parent
-	// stack.
-	ChangeSource *string `type:"string" enum:"ChangeSource"`
-
-	// Indicates whether AWS CloudFormation can determine the target value, and
-	// whether the target value will change before you execute a change set.
-	//
-	// For Static evaluations, AWS CloudFormation can determine that the target
-	// value will change, and its value. For example, if you directly modify the
-	// InstanceType property of an EC2 instance, AWS CloudFormation knows that this
-	// property value will change, and its value, so this is a Static evaluation.
-	//
-	// For Dynamic evaluations, cannot determine the target value because it depends
-	// on the result of an intrinsic function, such as a Ref or Fn::GetAtt intrinsic
-	// function, when the stack is updated. For example, if your template includes
-	// a reference to a resource that is conditionally recreated, the value of the
-	// reference (the physical ID of the resource) might change, depending on if
-	// the resource is recreated. If the resource is recreated, it will have a new
-	// physical ID, so all references to that resource will also be updated.
-	Evaluation *string `type:"string" enum:"EvaluationType"`
-
-	// A ResourceTargetDefinition structure that describes the field that AWS CloudFormation
-	// will change and whether the resource will be recreated.
-	Target *ResourceTargetDefinition `type:"structure"`
-}
-
-// String returns the string representation
-func (s ResourceChangeDetail) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s ResourceChangeDetail) GoString() string {
-	return s.String()
-}
-
-// The field that AWS CloudFormation will change, such as the name of a resource's
-// property, and whether the resource will be recreated.
-type ResourceTargetDefinition struct {
-	_ struct{} `type:"structure"`
-
-	// Indicates which resource attribute is triggering this update, such as a change
-	// in the resource attribute's Metadata, Properties, or Tags.
-	Attribute *string `type:"string" enum:"ResourceAttribute"`
-
-	// If the Attribute value is Properties, the name of the property. For all other
-	// attributes, the value is null.
-	Name *string `type:"string"`
-
-	// If the Attribute value is Properties, indicates whether a change to this
-	// property causes the resource to be recreated. The value can be Never, Always,
-	// or Conditionally. To determine the conditions for a Conditionally recreation,
-	// see the update behavior for that property (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html)
-	// in the AWS CloudFormation User Guide.
-	RequiresRecreation *string `type:"string" enum:"RequiresRecreation"`
-}
-
-// String returns the string representation
-func (s ResourceTargetDefinition) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s ResourceTargetDefinition) GoString() string {
-	return s.String()
-}
-
 // The input for the SetStackPolicy action.
 type SetStackPolicyInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name or unique stack ID that you want to associate a policy with.
 	StackName *string `type:"string" required:"true"`
 
@@ -2707,13 +1541,19 @@ type SetStackPolicyInput struct {
 	// Prevent Updates to Stack Resources (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/protect-stack-resources.html)
 	// in the AWS CloudFormation User Guide. You can specify either the StackPolicyBody
 	// or the StackPolicyURL parameter, but not both.
-	StackPolicyBody *string `min:"1" type:"string"`
+	StackPolicyBody *string `type:"string"`
 
 	// Location of a file containing the stack policy. The URL must point to a policy
-	// (maximum size: 16 KB) located in an S3 bucket in the same region as the stack.
+	// (max size: 16KB) located in an S3 bucket in the same region as the stack.
 	// You can specify either the StackPolicyBody or the StackPolicyURL parameter,
 	// but not both.
-	StackPolicyURL *string `min:"1" type:"string"`
+	StackPolicyURL *string `type:"string"`
+
+	metadataSetStackPolicyInput `json:"-" xml:"-"`
+}
+
+type metadataSetStackPolicyInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2726,27 +1566,12 @@ func (s SetStackPolicyInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *SetStackPolicyInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "SetStackPolicyInput"}
-	if s.StackName == nil {
-		invalidParams.Add(request.NewErrParamRequired("StackName"))
-	}
-	if s.StackPolicyBody != nil && len(*s.StackPolicyBody) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("StackPolicyBody", 1))
-	}
-	if s.StackPolicyURL != nil && len(*s.StackPolicyURL) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("StackPolicyURL", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type SetStackPolicyOutput struct {
+	metadataSetStackPolicyOutput `json:"-" xml:"-"`
 }
 
-type SetStackPolicyOutput struct {
-	_ struct{} `type:"structure"`
+type metadataSetStackPolicyOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2761,15 +1586,13 @@ func (s SetStackPolicyOutput) GoString() string {
 
 // The input for the SignalResource action.
 type SignalResourceInput struct {
-	_ struct{} `type:"structure"`
-
 	// The logical ID of the resource that you want to signal. The logical ID is
 	// the name of the resource that given in the template.
 	LogicalResourceId *string `type:"string" required:"true"`
 
 	// The stack name or unique stack ID that includes the resource that you want
 	// to signal.
-	StackName *string `min:"1" type:"string" required:"true"`
+	StackName *string `type:"string" required:"true"`
 
 	// The status of the signal, which is either success or failure. A failure signal
 	// causes AWS CloudFormation to immediately fail the stack creation or update.
@@ -2779,7 +1602,13 @@ type SignalResourceInput struct {
 	// groups, specify the instance ID that you are signaling as the unique ID.
 	// If you send multiple signals to a single resource (such as signaling a wait
 	// condition), each signal requires a different unique ID.
-	UniqueId *string `min:"1" type:"string" required:"true"`
+	UniqueId *string `type:"string" required:"true"`
+
+	metadataSignalResourceInput `json:"-" xml:"-"`
+}
+
+type metadataSignalResourceInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2792,36 +1621,12 @@ func (s SignalResourceInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *SignalResourceInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "SignalResourceInput"}
-	if s.LogicalResourceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("LogicalResourceId"))
-	}
-	if s.StackName == nil {
-		invalidParams.Add(request.NewErrParamRequired("StackName"))
-	}
-	if s.StackName != nil && len(*s.StackName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("StackName", 1))
-	}
-	if s.Status == nil {
-		invalidParams.Add(request.NewErrParamRequired("Status"))
-	}
-	if s.UniqueId == nil {
-		invalidParams.Add(request.NewErrParamRequired("UniqueId"))
-	}
-	if s.UniqueId != nil && len(*s.UniqueId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("UniqueId", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type SignalResourceOutput struct {
+	metadataSignalResourceOutput `json:"-" xml:"-"`
 }
 
-type SignalResourceOutput struct {
-	_ struct{} `type:"structure"`
+type metadataSignalResourceOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2836,22 +1641,18 @@ func (s SignalResourceOutput) GoString() string {
 
 // The Stack data type.
 type Stack struct {
-	_ struct{} `type:"structure"`
-
 	// The capabilities allowed in the stack.
 	Capabilities []*string `type:"list"`
 
-	// The time at which the stack was created.
+	// Time at which the stack was created.
 	CreationTime *time.Time `type:"timestamp" timestampFormat:"iso8601" required:"true"`
 
-	// A user-defined description associated with the stack.
-	Description *string `min:"1" type:"string"`
+	// User defined description associated with the stack.
+	Description *string `type:"string"`
 
 	// Boolean to enable or disable rollback on stack creation failures:
 	//
-	//    true: disable rollback
-	//
-	//    false: enable rollback
+	//    true: disable rollback  false: enable rollback
 	DisableRollback *bool `type:"boolean"`
 
 	// The time the stack was last updated. This field will only be returned if
@@ -2879,11 +1680,17 @@ type Stack struct {
 	// Success/failure message associated with the stack status.
 	StackStatusReason *string `type:"string"`
 
-	// A list of Tags that specify information about the stack.
+	// A list of Tags that specify cost allocation information for the stack.
 	Tags []*Tag `type:"list"`
 
 	// The amount of time within which stack creation should complete.
-	TimeoutInMinutes *int64 `min:"1" type:"integer"`
+	TimeoutInMinutes *int64 `type:"integer"`
+
+	metadataStack `json:"-" xml:"-"`
+}
+
+type metadataStack struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2898,8 +1705,6 @@ func (s Stack) GoString() string {
 
 // The StackEvent data type.
 type StackEvent struct {
-	_ struct{} `type:"structure"`
-
 	// The unique ID of this event.
 	EventId *string `type:"string" required:"true"`
 
@@ -2922,7 +1727,7 @@ type StackEvent struct {
 	// Type of resource. (For more information, go to  AWS Resource Types Reference
 	// (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html)
 	// in the AWS CloudFormation User Guide.)
-	ResourceType *string `min:"1" type:"string"`
+	ResourceType *string `type:"string"`
 
 	// The unique ID name of the instance of the stack.
 	StackId *string `type:"string" required:"true"`
@@ -2932,6 +1737,12 @@ type StackEvent struct {
 
 	// Time the status was updated.
 	Timestamp *time.Time `type:"timestamp" timestampFormat:"iso8601" required:"true"`
+
+	metadataStackEvent `json:"-" xml:"-"`
+}
+
+type metadataStackEvent struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2946,10 +1757,8 @@ func (s StackEvent) GoString() string {
 
 // The StackResource data type.
 type StackResource struct {
-	_ struct{} `type:"structure"`
-
 	// User defined description associated with the resource.
-	Description *string `min:"1" type:"string"`
+	Description *string `type:"string"`
 
 	// The logical name of the resource specified in the template.
 	LogicalResourceId *string `type:"string" required:"true"`
@@ -2967,7 +1776,7 @@ type StackResource struct {
 	// Type of resource. (For more information, go to  AWS Resource Types Reference
 	// (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html)
 	// in the AWS CloudFormation User Guide.)
-	ResourceType *string `min:"1" type:"string" required:"true"`
+	ResourceType *string `type:"string" required:"true"`
 
 	// Unique identifier of the stack.
 	StackId *string `type:"string"`
@@ -2977,6 +1786,12 @@ type StackResource struct {
 
 	// Time the status was updated.
 	Timestamp *time.Time `type:"timestamp" timestampFormat:"iso8601" required:"true"`
+
+	metadataStackResource `json:"-" xml:"-"`
+}
+
+type metadataStackResource struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2991,10 +1806,8 @@ func (s StackResource) GoString() string {
 
 // Contains detailed information about the specified stack resource.
 type StackResourceDetail struct {
-	_ struct{} `type:"structure"`
-
 	// User defined description associated with the resource.
-	Description *string `min:"1" type:"string"`
+	Description *string `type:"string"`
 
 	// Time the status was updated.
 	LastUpdatedTimestamp *time.Time `type:"timestamp" timestampFormat:"iso8601" required:"true"`
@@ -3020,13 +1833,19 @@ type StackResourceDetail struct {
 	// Type of resource. ((For more information, go to  AWS Resource Types Reference
 	// (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html)
 	// in the AWS CloudFormation User Guide.)
-	ResourceType *string `min:"1" type:"string" required:"true"`
+	ResourceType *string `type:"string" required:"true"`
 
 	// Unique identifier of the stack.
 	StackId *string `type:"string"`
 
 	// The name associated with the stack.
 	StackName *string `type:"string"`
+
+	metadataStackResourceDetail `json:"-" xml:"-"`
+}
+
+type metadataStackResourceDetail struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3041,8 +1860,6 @@ func (s StackResourceDetail) GoString() string {
 
 // Contains high-level information about the specified stack resource.
 type StackResourceSummary struct {
-	_ struct{} `type:"structure"`
-
 	// Time the status was updated.
 	LastUpdatedTimestamp *time.Time `type:"timestamp" timestampFormat:"iso8601" required:"true"`
 
@@ -3062,7 +1879,13 @@ type StackResourceSummary struct {
 	// Type of resource. (For more information, go to  AWS Resource Types Reference
 	// (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html)
 	// in the AWS CloudFormation User Guide.)
-	ResourceType *string `min:"1" type:"string" required:"true"`
+	ResourceType *string `type:"string" required:"true"`
+
+	metadataStackResourceSummary `json:"-" xml:"-"`
+}
+
+type metadataStackResourceSummary struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3077,8 +1900,6 @@ func (s StackResourceSummary) GoString() string {
 
 // The StackSummary Data Type
 type StackSummary struct {
-	_ struct{} `type:"structure"`
-
 	// The time the stack was created.
 	CreationTime *time.Time `type:"timestamp" timestampFormat:"iso8601" required:"true"`
 
@@ -3103,6 +1924,12 @@ type StackSummary struct {
 
 	// The template description of the template used to create the stack.
 	TemplateDescription *string `type:"string"`
+
+	metadataStackSummary `json:"-" xml:"-"`
+}
+
+type metadataStackSummary struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3115,11 +1942,10 @@ func (s StackSummary) GoString() string {
 	return s.String()
 }
 
-// The Tag type enables you to specify a key-value pair that can be used to
-// store information about an AWS CloudFormation stack.
+// The Tag type is used by CreateStack in the Tags parameter. It allows you
+// to specify a key/value pair that can be used to store information related
+// to cost allocation for an AWS CloudFormation stack.
 type Tag struct {
-	_ struct{} `type:"structure"`
-
 	// Required. A string used to identify this tag. You can specify a maximum of
 	// 128 characters for a tag key. Tags owned by Amazon Web Services (AWS) have
 	// the reserved prefix: aws:.
@@ -3128,6 +1954,12 @@ type Tag struct {
 	// Required. A string containing the value for this tag. You can specify a maximum
 	// of 256 characters for a tag value.
 	Value *string `type:"string"`
+
+	metadataTag `json:"-" xml:"-"`
+}
+
+type metadataTag struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3142,13 +1974,11 @@ func (s Tag) GoString() string {
 
 // The TemplateParameter data type.
 type TemplateParameter struct {
-	_ struct{} `type:"structure"`
-
 	// The default value associated with the parameter.
 	DefaultValue *string `type:"string"`
 
 	// User defined description associated with the parameter.
-	Description *string `min:"1" type:"string"`
+	Description *string `type:"string"`
 
 	// Flag indicating whether the parameter should be displayed as plain text in
 	// logs and UIs.
@@ -3156,6 +1986,12 @@ type TemplateParameter struct {
 
 	// The name associated with the parameter.
 	ParameterKey *string `type:"string"`
+
+	metadataTemplateParameter `json:"-" xml:"-"`
+}
+
+type metadataTemplateParameter struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3168,18 +2004,14 @@ func (s TemplateParameter) GoString() string {
 	return s.String()
 }
 
-// The input for an UpdateStack action.
+// The input for UpdateStack action.
 type UpdateStackInput struct {
-	_ struct{} `type:"structure"`
-
 	// A list of capabilities that you must specify before AWS CloudFormation can
-	// update certain stacks. Some stack templates might include resources that
-	// can affect permissions in your AWS account, for example, by creating new
-	// AWS Identity and Access Management (IAM) users. For those stacks, you must
-	// explicitly acknowledge their capabilities by specifying this parameter.
-	//
-	// Currently, the only valid value is CAPABILITY_IAM, which is required for
-	// the following resources:  AWS::IAM::AccessKey (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-iam-accesskey.html),
+	// create or update certain stacks. Some stack templates might include resources
+	// that can affect permissions in your AWS account. For those stacks, you must
+	// explicitly acknowledge their capabilities by specifying this parameter. Currently,
+	// the only valid value is CAPABILITY_IAM, which is required for the following
+	// resources:  AWS::IAM::AccessKey (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-iam-accesskey.html),
 	//  AWS::IAM::Group (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-iam-group.html),
 	//  AWS::IAM::InstanceProfile (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-iam-instanceprofile.html),
 	//  AWS::IAM::Policy (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-iam-policy.html),
@@ -3187,31 +2019,17 @@ type UpdateStackInput struct {
 	//  AWS::IAM::User (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-iam-user.html),
 	// and  AWS::IAM::UserToGroupAddition (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-iam-addusertogroup.html).
 	// If your stack template contains these resources, we recommend that you review
-	// all permissions associated with them and edit their permissions if necessary.
-	// If your template contains any of the listed resources and you don't specify
-	// this parameter, this action returns an InsufficientCapabilities error.
+	// any permissions associated with them. If you don't specify this parameter,
+	// this action returns an InsufficientCapabilities error.
 	Capabilities []*string `type:"list"`
 
-	// Amazon Simple Notification Service topic Amazon Resource Names (ARNs) that
-	// AWS CloudFormation associates with the stack. Specify an empty list to remove
-	// all notification topics.
+	// Update the ARNs for the Amazon SNS topics that are associated with the stack.
 	NotificationARNs []*string `type:"list"`
 
 	// A list of Parameter structures that specify input parameters for the stack.
 	// For more information, see the Parameter (http://docs.aws.amazon.com/AWSCloudFormation/latest/APIReference/API_Parameter.html)
 	// data type.
 	Parameters []*Parameter `type:"list"`
-
-	// The template resource types that you have permissions to work with for this
-	// update stack action, such as AWS::EC2::Instance, AWS::EC2::*, or Custom::MyCustomInstance.
-	//
-	// If the list of resource types doesn't include a resource that you're updating,
-	// the stack update fails. By default, AWS CloudFormation grants permissions
-	// to all resource types. AWS Identity and Access Management (IAM) uses this
-	// parameter for AWS CloudFormation-specific condition keys in IAM policies.
-	// For more information, see Controlling Access with AWS Identity and Access
-	// Management (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-iam-template.html).
-	ResourceTypes []*string `type:"list"`
 
 	// The name or unique stack ID of the stack to update.
 	StackName *string `type:"string" required:"true"`
@@ -3222,7 +2040,7 @@ type UpdateStackInput struct {
 	// You might update the stack policy, for example, in order to protect a new
 	// resource that you created during a stack update. If you do not specify a
 	// stack policy, the current policy that is associated with the stack is unchanged.
-	StackPolicyBody *string `min:"1" type:"string"`
+	StackPolicyBody *string `type:"string"`
 
 	// Structure containing the temporary overriding stack policy body. You can
 	// specify either the StackPolicyDuringUpdateBody or the StackPolicyDuringUpdateURL
@@ -3231,7 +2049,7 @@ type UpdateStackInput struct {
 	// If you want to update protected resources, specify a temporary overriding
 	// stack policy during this update. If you do not specify a stack policy, the
 	// current policy that is associated with the stack will be used.
-	StackPolicyDuringUpdateBody *string `min:"1" type:"string"`
+	StackPolicyDuringUpdateBody *string `type:"string"`
 
 	// Location of a file containing the temporary overriding stack policy. The
 	// URL must point to a policy (max size: 16KB) located in an S3 bucket in the
@@ -3241,7 +2059,7 @@ type UpdateStackInput struct {
 	// If you want to update protected resources, specify a temporary overriding
 	// stack policy during this update. If you do not specify a stack policy, the
 	// current policy that is associated with the stack will be used.
-	StackPolicyDuringUpdateURL *string `min:"1" type:"string"`
+	StackPolicyDuringUpdateURL *string `type:"string"`
 
 	// Location of a file containing the updated stack policy. The URL must point
 	// to a policy (max size: 16KB) located in an S3 bucket in the same region as
@@ -3251,16 +2069,7 @@ type UpdateStackInput struct {
 	// You might update the stack policy, for example, in order to protect a new
 	// resource that you created during a stack update. If you do not specify a
 	// stack policy, the current policy that is associated with the stack is unchanged.
-	StackPolicyURL *string `min:"1" type:"string"`
-
-	// Key-value pairs to associate with this stack. AWS CloudFormation also propagates
-	// these tags to supported resources in the stack. You can specify a maximum
-	// number of 10 tags.
-	//
-	// If you don't specify this parameter, AWS CloudFormation doesn't modify the
-	// stack's tags. If you specify an empty value, AWS CloudFormation removes all
-	// associated tags.
-	Tags []*Tag `type:"list"`
+	StackPolicyURL *string `type:"string"`
 
 	// Structure containing the template body with a minimum length of 1 byte and
 	// a maximum length of 51,200 bytes. (For more information, go to Template Anatomy
@@ -3269,20 +2078,26 @@ type UpdateStackInput struct {
 	//
 	// Conditional: You must specify either the TemplateBody or the TemplateURL
 	// parameter, but not both.
-	TemplateBody *string `min:"1" type:"string"`
+	TemplateBody *string `type:"string"`
 
 	// Location of file containing the template body. The URL must point to a template
-	// that is located in an Amazon S3 bucket. For more information, go to Template
-	// Anatomy (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html)
+	// located in an S3 bucket in the same region as the stack. For more information,
+	// go to Template Anatomy (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html)
 	// in the AWS CloudFormation User Guide.
 	//
 	// Conditional: You must specify either the TemplateBody or the TemplateURL
 	// parameter, but not both.
-	TemplateURL *string `min:"1" type:"string"`
+	TemplateURL *string `type:"string"`
 
 	// Reuse the existing template that is associated with the stack that you are
 	// updating.
 	UsePreviousTemplate *bool `type:"boolean"`
+
+	metadataUpdateStackInput `json:"-" xml:"-"`
+}
+
+type metadataUpdateStackInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3295,43 +2110,16 @@ func (s UpdateStackInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *UpdateStackInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "UpdateStackInput"}
-	if s.StackName == nil {
-		invalidParams.Add(request.NewErrParamRequired("StackName"))
-	}
-	if s.StackPolicyBody != nil && len(*s.StackPolicyBody) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("StackPolicyBody", 1))
-	}
-	if s.StackPolicyDuringUpdateBody != nil && len(*s.StackPolicyDuringUpdateBody) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("StackPolicyDuringUpdateBody", 1))
-	}
-	if s.StackPolicyDuringUpdateURL != nil && len(*s.StackPolicyDuringUpdateURL) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("StackPolicyDuringUpdateURL", 1))
-	}
-	if s.StackPolicyURL != nil && len(*s.StackPolicyURL) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("StackPolicyURL", 1))
-	}
-	if s.TemplateBody != nil && len(*s.TemplateBody) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TemplateBody", 1))
-	}
-	if s.TemplateURL != nil && len(*s.TemplateURL) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TemplateURL", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// The output for an UpdateStack action.
+// The output for a UpdateStack action.
 type UpdateStackOutput struct {
-	_ struct{} `type:"structure"`
-
 	// Unique identifier of the stack.
 	StackId *string `type:"string"`
+
+	metadataUpdateStackOutput `json:"-" xml:"-"`
+}
+
+type metadataUpdateStackOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3346,8 +2134,6 @@ func (s UpdateStackOutput) GoString() string {
 
 // The input for ValidateTemplate action.
 type ValidateTemplateInput struct {
-	_ struct{} `type:"structure"`
-
 	// Structure containing the template body with a minimum length of 1 byte and
 	// a maximum length of 51,200 bytes. For more information, go to Template Anatomy
 	// (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html)
@@ -3355,16 +2141,22 @@ type ValidateTemplateInput struct {
 	//
 	// Conditional: You must pass TemplateURL or TemplateBody. If both are passed,
 	// only TemplateBody is used.
-	TemplateBody *string `min:"1" type:"string"`
+	TemplateBody *string `type:"string"`
 
 	// Location of file containing the template body. The URL must point to a template
-	// (max size: 460,800 bytes) that is located in an Amazon S3 bucket. For more
-	// information, go to Template Anatomy (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html)
+	// (max size: 460,800 bytes) located in an S3 bucket in the same region as the
+	// stack. For more information, go to Template Anatomy (http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html)
 	// in the AWS CloudFormation User Guide.
 	//
 	// Conditional: You must pass TemplateURL or TemplateBody. If both are passed,
 	// only TemplateBody is used.
-	TemplateURL *string `min:"1" type:"string"`
+	TemplateURL *string `type:"string"`
+
+	metadataValidateTemplateInput `json:"-" xml:"-"`
+}
+
+type metadataValidateTemplateInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3377,26 +2169,8 @@ func (s ValidateTemplateInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ValidateTemplateInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ValidateTemplateInput"}
-	if s.TemplateBody != nil && len(*s.TemplateBody) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TemplateBody", 1))
-	}
-	if s.TemplateURL != nil && len(*s.TemplateURL) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TemplateURL", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The output for ValidateTemplate action.
 type ValidateTemplateOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The capabilities found within the template. Currently, AWS CloudFormation
 	// supports only the CAPABILITY_IAM capability. If your template contains IAM
 	// resources, you must specify the CAPABILITY_IAM value for this parameter when
@@ -3409,10 +2183,16 @@ type ValidateTemplateOutput struct {
 	CapabilitiesReason *string `type:"string"`
 
 	// The description found within the template.
-	Description *string `min:"1" type:"string"`
+	Description *string `type:"string"`
 
 	// A list of TemplateParameter structures.
 	Parameters []*TemplateParameter `type:"list"`
+
+	metadataValidateTemplateOutput `json:"-" xml:"-"`
+}
+
+type metadataValidateTemplateOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3431,107 +2211,12 @@ const (
 )
 
 const (
-	// @enum ChangeAction
-	ChangeActionAdd = "Add"
-	// @enum ChangeAction
-	ChangeActionModify = "Modify"
-	// @enum ChangeAction
-	ChangeActionRemove = "Remove"
-)
-
-const (
-	// @enum ChangeSetStatus
-	ChangeSetStatusCreatePending = "CREATE_PENDING"
-	// @enum ChangeSetStatus
-	ChangeSetStatusCreateInProgress = "CREATE_IN_PROGRESS"
-	// @enum ChangeSetStatus
-	ChangeSetStatusCreateComplete = "CREATE_COMPLETE"
-	// @enum ChangeSetStatus
-	ChangeSetStatusDeleteComplete = "DELETE_COMPLETE"
-	// @enum ChangeSetStatus
-	ChangeSetStatusFailed = "FAILED"
-)
-
-const (
-	// @enum ChangeSource
-	ChangeSourceResourceReference = "ResourceReference"
-	// @enum ChangeSource
-	ChangeSourceParameterReference = "ParameterReference"
-	// @enum ChangeSource
-	ChangeSourceResourceAttribute = "ResourceAttribute"
-	// @enum ChangeSource
-	ChangeSourceDirectModification = "DirectModification"
-	// @enum ChangeSource
-	ChangeSourceAutomatic = "Automatic"
-)
-
-const (
-	// @enum ChangeType
-	ChangeTypeResource = "Resource"
-)
-
-const (
-	// @enum EvaluationType
-	EvaluationTypeStatic = "Static"
-	// @enum EvaluationType
-	EvaluationTypeDynamic = "Dynamic"
-)
-
-const (
-	// @enum ExecutionStatus
-	ExecutionStatusUnavailable = "UNAVAILABLE"
-	// @enum ExecutionStatus
-	ExecutionStatusAvailable = "AVAILABLE"
-	// @enum ExecutionStatus
-	ExecutionStatusExecuteInProgress = "EXECUTE_IN_PROGRESS"
-	// @enum ExecutionStatus
-	ExecutionStatusExecuteComplete = "EXECUTE_COMPLETE"
-	// @enum ExecutionStatus
-	ExecutionStatusExecuteFailed = "EXECUTE_FAILED"
-	// @enum ExecutionStatus
-	ExecutionStatusObsolete = "OBSOLETE"
-)
-
-const (
 	// @enum OnFailure
 	OnFailureDoNothing = "DO_NOTHING"
 	// @enum OnFailure
 	OnFailureRollback = "ROLLBACK"
 	// @enum OnFailure
 	OnFailureDelete = "DELETE"
-)
-
-const (
-	// @enum Replacement
-	ReplacementTrue = "True"
-	// @enum Replacement
-	ReplacementFalse = "False"
-	// @enum Replacement
-	ReplacementConditional = "Conditional"
-)
-
-const (
-	// @enum RequiresRecreation
-	RequiresRecreationNever = "Never"
-	// @enum RequiresRecreation
-	RequiresRecreationConditionally = "Conditionally"
-	// @enum RequiresRecreation
-	RequiresRecreationAlways = "Always"
-)
-
-const (
-	// @enum ResourceAttribute
-	ResourceAttributeProperties = "Properties"
-	// @enum ResourceAttribute
-	ResourceAttributeMetadata = "Metadata"
-	// @enum ResourceAttribute
-	ResourceAttributeCreationPolicy = "CreationPolicy"
-	// @enum ResourceAttribute
-	ResourceAttributeUpdatePolicy = "UpdatePolicy"
-	// @enum ResourceAttribute
-	ResourceAttributeDeletionPolicy = "DeletionPolicy"
-	// @enum ResourceAttribute
-	ResourceAttributeTags = "Tags"
 )
 
 const (

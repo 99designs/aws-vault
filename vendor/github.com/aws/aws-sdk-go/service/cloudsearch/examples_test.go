@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudsearch"
 )
 
@@ -16,7 +15,7 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleCloudSearch_BuildSuggesters() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.BuildSuggestersInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -35,7 +34,7 @@ func ExampleCloudSearch_BuildSuggesters() {
 }
 
 func ExampleCloudSearch_CreateDomain() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.CreateDomainInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -54,7 +53,7 @@ func ExampleCloudSearch_CreateDomain() {
 }
 
 func ExampleCloudSearch_DefineAnalysisScheme() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.DefineAnalysisSchemeInput{
 		AnalysisScheme: &cloudsearch.AnalysisScheme{ // Required
@@ -84,7 +83,7 @@ func ExampleCloudSearch_DefineAnalysisScheme() {
 }
 
 func ExampleCloudSearch_DefineExpression() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.DefineExpressionInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -107,7 +106,7 @@ func ExampleCloudSearch_DefineExpression() {
 }
 
 func ExampleCloudSearch_DefineIndexField() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.DefineIndexFieldInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -213,7 +212,7 @@ func ExampleCloudSearch_DefineIndexField() {
 }
 
 func ExampleCloudSearch_DefineSuggester() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.DefineSuggesterInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -240,7 +239,7 @@ func ExampleCloudSearch_DefineSuggester() {
 }
 
 func ExampleCloudSearch_DeleteAnalysisScheme() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.DeleteAnalysisSchemeInput{
 		AnalysisSchemeName: aws.String("StandardName"), // Required
@@ -260,7 +259,7 @@ func ExampleCloudSearch_DeleteAnalysisScheme() {
 }
 
 func ExampleCloudSearch_DeleteDomain() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.DeleteDomainInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -279,7 +278,7 @@ func ExampleCloudSearch_DeleteDomain() {
 }
 
 func ExampleCloudSearch_DeleteExpression() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.DeleteExpressionInput{
 		DomainName:     aws.String("DomainName"),   // Required
@@ -299,7 +298,7 @@ func ExampleCloudSearch_DeleteExpression() {
 }
 
 func ExampleCloudSearch_DeleteIndexField() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.DeleteIndexFieldInput{
 		DomainName:     aws.String("DomainName"),       // Required
@@ -319,7 +318,7 @@ func ExampleCloudSearch_DeleteIndexField() {
 }
 
 func ExampleCloudSearch_DeleteSuggester() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.DeleteSuggesterInput{
 		DomainName:    aws.String("DomainName"),   // Required
@@ -339,7 +338,7 @@ func ExampleCloudSearch_DeleteSuggester() {
 }
 
 func ExampleCloudSearch_DescribeAnalysisSchemes() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.DescribeAnalysisSchemesInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -363,7 +362,7 @@ func ExampleCloudSearch_DescribeAnalysisSchemes() {
 }
 
 func ExampleCloudSearch_DescribeAvailabilityOptions() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.DescribeAvailabilityOptionsInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -383,7 +382,7 @@ func ExampleCloudSearch_DescribeAvailabilityOptions() {
 }
 
 func ExampleCloudSearch_DescribeDomains() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.DescribeDomainsInput{
 		DomainNames: []*string{
@@ -405,7 +404,7 @@ func ExampleCloudSearch_DescribeDomains() {
 }
 
 func ExampleCloudSearch_DescribeExpressions() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.DescribeExpressionsInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -429,7 +428,7 @@ func ExampleCloudSearch_DescribeExpressions() {
 }
 
 func ExampleCloudSearch_DescribeIndexFields() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.DescribeIndexFieldsInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -453,7 +452,7 @@ func ExampleCloudSearch_DescribeIndexFields() {
 }
 
 func ExampleCloudSearch_DescribeScalingParameters() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.DescribeScalingParametersInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -472,7 +471,7 @@ func ExampleCloudSearch_DescribeScalingParameters() {
 }
 
 func ExampleCloudSearch_DescribeServiceAccessPolicies() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.DescribeServiceAccessPoliciesInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -492,7 +491,7 @@ func ExampleCloudSearch_DescribeServiceAccessPolicies() {
 }
 
 func ExampleCloudSearch_DescribeSuggesters() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.DescribeSuggestersInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -516,7 +515,7 @@ func ExampleCloudSearch_DescribeSuggesters() {
 }
 
 func ExampleCloudSearch_IndexDocuments() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.IndexDocumentsInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -535,7 +534,7 @@ func ExampleCloudSearch_IndexDocuments() {
 }
 
 func ExampleCloudSearch_ListDomainNames() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	var params *cloudsearch.ListDomainNamesInput
 	resp, err := svc.ListDomainNames(params)
@@ -552,7 +551,7 @@ func ExampleCloudSearch_ListDomainNames() {
 }
 
 func ExampleCloudSearch_UpdateAvailabilityOptions() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.UpdateAvailabilityOptionsInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -572,7 +571,7 @@ func ExampleCloudSearch_UpdateAvailabilityOptions() {
 }
 
 func ExampleCloudSearch_UpdateScalingParameters() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.UpdateScalingParametersInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -596,7 +595,7 @@ func ExampleCloudSearch_UpdateScalingParameters() {
 }
 
 func ExampleCloudSearch_UpdateServiceAccessPolicies() {
-	svc := cloudsearch.New(session.New())
+	svc := cloudsearch.New(nil)
 
 	params := &cloudsearch.UpdateServiceAccessPoliciesInput{
 		AccessPolicies: aws.String("PolicyDocument"), // Required

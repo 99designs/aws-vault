@@ -120,5 +120,3 @@ type SNSAPI interface {
 
 	Unsubscribe(*sns.UnsubscribeInput) (*sns.UnsubscribeOutput, error)
 }
-
-var _ SNSAPI = (*sns.SNS)(nil)

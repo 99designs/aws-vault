@@ -1,5 +1,3 @@
-// +build go1.5
-
 package main
 
 import (
@@ -12,7 +10,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/aws/aws-sdk-go/private/model/api"
+	"github.com/aws/aws-sdk-go/internal/model/api"
 )
 
 type pkg struct {
@@ -47,7 +45,7 @@ func generateRenames(w io.Writer) error {
 	}
 
 	out := bytes.NewBuffer(nil)
-	if err = tmpl.Execute(out, exportMap); err != nil {
+	if err := tmpl.Execute(out, exportMap); err != nil {
 		return err
 	}
 
@@ -129,6 +127,7 @@ func load(file string) *pkg {
 	p.oldAPI.Attach(file)
 	p.oldAPI.Setup()
 
+	p.newAPI.NoInflections = true
 	p.newAPI.Attach(file)
 	p.newAPI.Setup()
 

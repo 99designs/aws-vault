@@ -8,59 +8,14 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 )
 
 var _ time.Duration
 var _ bytes.Buffer
 
-func ExampleCloudWatchLogs_CancelExportTask() {
-	svc := cloudwatchlogs.New(session.New())
-
-	params := &cloudwatchlogs.CancelExportTaskInput{
-		TaskId: aws.String("ExportTaskId"), // Required
-	}
-	resp, err := svc.CancelExportTask(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
-func ExampleCloudWatchLogs_CreateExportTask() {
-	svc := cloudwatchlogs.New(session.New())
-
-	params := &cloudwatchlogs.CreateExportTaskInput{
-		Destination:         aws.String("ExportDestinationBucket"), // Required
-		From:                aws.Int64(1),                          // Required
-		LogGroupName:        aws.String("LogGroupName"),            // Required
-		To:                  aws.Int64(1),                          // Required
-		DestinationPrefix:   aws.String("ExportDestinationPrefix"),
-		LogStreamNamePrefix: aws.String("LogStreamName"),
-		TaskName:            aws.String("ExportTaskName"),
-	}
-	resp, err := svc.CreateExportTask(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
 func ExampleCloudWatchLogs_CreateLogGroup() {
-	svc := cloudwatchlogs.New(session.New())
+	svc := cloudwatchlogs.New(nil)
 
 	params := &cloudwatchlogs.CreateLogGroupInput{
 		LogGroupName: aws.String("LogGroupName"), // Required
@@ -79,7 +34,7 @@ func ExampleCloudWatchLogs_CreateLogGroup() {
 }
 
 func ExampleCloudWatchLogs_CreateLogStream() {
-	svc := cloudwatchlogs.New(session.New())
+	svc := cloudwatchlogs.New(nil)
 
 	params := &cloudwatchlogs.CreateLogStreamInput{
 		LogGroupName:  aws.String("LogGroupName"),  // Required
@@ -99,7 +54,7 @@ func ExampleCloudWatchLogs_CreateLogStream() {
 }
 
 func ExampleCloudWatchLogs_DeleteDestination() {
-	svc := cloudwatchlogs.New(session.New())
+	svc := cloudwatchlogs.New(nil)
 
 	params := &cloudwatchlogs.DeleteDestinationInput{
 		DestinationName: aws.String("DestinationName"), // Required
@@ -118,7 +73,7 @@ func ExampleCloudWatchLogs_DeleteDestination() {
 }
 
 func ExampleCloudWatchLogs_DeleteLogGroup() {
-	svc := cloudwatchlogs.New(session.New())
+	svc := cloudwatchlogs.New(nil)
 
 	params := &cloudwatchlogs.DeleteLogGroupInput{
 		LogGroupName: aws.String("LogGroupName"), // Required
@@ -137,7 +92,7 @@ func ExampleCloudWatchLogs_DeleteLogGroup() {
 }
 
 func ExampleCloudWatchLogs_DeleteLogStream() {
-	svc := cloudwatchlogs.New(session.New())
+	svc := cloudwatchlogs.New(nil)
 
 	params := &cloudwatchlogs.DeleteLogStreamInput{
 		LogGroupName:  aws.String("LogGroupName"),  // Required
@@ -157,7 +112,7 @@ func ExampleCloudWatchLogs_DeleteLogStream() {
 }
 
 func ExampleCloudWatchLogs_DeleteMetricFilter() {
-	svc := cloudwatchlogs.New(session.New())
+	svc := cloudwatchlogs.New(nil)
 
 	params := &cloudwatchlogs.DeleteMetricFilterInput{
 		FilterName:   aws.String("FilterName"),   // Required
@@ -177,7 +132,7 @@ func ExampleCloudWatchLogs_DeleteMetricFilter() {
 }
 
 func ExampleCloudWatchLogs_DeleteRetentionPolicy() {
-	svc := cloudwatchlogs.New(session.New())
+	svc := cloudwatchlogs.New(nil)
 
 	params := &cloudwatchlogs.DeleteRetentionPolicyInput{
 		LogGroupName: aws.String("LogGroupName"), // Required
@@ -196,7 +151,7 @@ func ExampleCloudWatchLogs_DeleteRetentionPolicy() {
 }
 
 func ExampleCloudWatchLogs_DeleteSubscriptionFilter() {
-	svc := cloudwatchlogs.New(session.New())
+	svc := cloudwatchlogs.New(nil)
 
 	params := &cloudwatchlogs.DeleteSubscriptionFilterInput{
 		FilterName:   aws.String("FilterName"),   // Required
@@ -216,7 +171,7 @@ func ExampleCloudWatchLogs_DeleteSubscriptionFilter() {
 }
 
 func ExampleCloudWatchLogs_DescribeDestinations() {
-	svc := cloudwatchlogs.New(session.New())
+	svc := cloudwatchlogs.New(nil)
 
 	params := &cloudwatchlogs.DescribeDestinationsInput{
 		DestinationNamePrefix: aws.String("DestinationName"),
@@ -236,30 +191,8 @@ func ExampleCloudWatchLogs_DescribeDestinations() {
 	fmt.Println(resp)
 }
 
-func ExampleCloudWatchLogs_DescribeExportTasks() {
-	svc := cloudwatchlogs.New(session.New())
-
-	params := &cloudwatchlogs.DescribeExportTasksInput{
-		Limit:      aws.Int64(1),
-		NextToken:  aws.String("NextToken"),
-		StatusCode: aws.String("ExportTaskStatusCode"),
-		TaskId:     aws.String("ExportTaskId"),
-	}
-	resp, err := svc.DescribeExportTasks(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
 func ExampleCloudWatchLogs_DescribeLogGroups() {
-	svc := cloudwatchlogs.New(session.New())
+	svc := cloudwatchlogs.New(nil)
 
 	params := &cloudwatchlogs.DescribeLogGroupsInput{
 		Limit:              aws.Int64(1),
@@ -280,7 +213,7 @@ func ExampleCloudWatchLogs_DescribeLogGroups() {
 }
 
 func ExampleCloudWatchLogs_DescribeLogStreams() {
-	svc := cloudwatchlogs.New(session.New())
+	svc := cloudwatchlogs.New(nil)
 
 	params := &cloudwatchlogs.DescribeLogStreamsInput{
 		LogGroupName:        aws.String("LogGroupName"), // Required
@@ -304,7 +237,7 @@ func ExampleCloudWatchLogs_DescribeLogStreams() {
 }
 
 func ExampleCloudWatchLogs_DescribeMetricFilters() {
-	svc := cloudwatchlogs.New(session.New())
+	svc := cloudwatchlogs.New(nil)
 
 	params := &cloudwatchlogs.DescribeMetricFiltersInput{
 		LogGroupName:     aws.String("LogGroupName"), // Required
@@ -326,7 +259,7 @@ func ExampleCloudWatchLogs_DescribeMetricFilters() {
 }
 
 func ExampleCloudWatchLogs_DescribeSubscriptionFilters() {
-	svc := cloudwatchlogs.New(session.New())
+	svc := cloudwatchlogs.New(nil)
 
 	params := &cloudwatchlogs.DescribeSubscriptionFiltersInput{
 		LogGroupName:     aws.String("LogGroupName"), // Required
@@ -348,7 +281,7 @@ func ExampleCloudWatchLogs_DescribeSubscriptionFilters() {
 }
 
 func ExampleCloudWatchLogs_FilterLogEvents() {
-	svc := cloudwatchlogs.New(session.New())
+	svc := cloudwatchlogs.New(nil)
 
 	params := &cloudwatchlogs.FilterLogEventsInput{
 		LogGroupName:  aws.String("LogGroupName"), // Required
@@ -377,7 +310,7 @@ func ExampleCloudWatchLogs_FilterLogEvents() {
 }
 
 func ExampleCloudWatchLogs_GetLogEvents() {
-	svc := cloudwatchlogs.New(session.New())
+	svc := cloudwatchlogs.New(nil)
 
 	params := &cloudwatchlogs.GetLogEventsInput{
 		LogGroupName:  aws.String("LogGroupName"),  // Required
@@ -402,7 +335,7 @@ func ExampleCloudWatchLogs_GetLogEvents() {
 }
 
 func ExampleCloudWatchLogs_PutDestination() {
-	svc := cloudwatchlogs.New(session.New())
+	svc := cloudwatchlogs.New(nil)
 
 	params := &cloudwatchlogs.PutDestinationInput{
 		DestinationName: aws.String("DestinationName"), // Required
@@ -423,7 +356,7 @@ func ExampleCloudWatchLogs_PutDestination() {
 }
 
 func ExampleCloudWatchLogs_PutDestinationPolicy() {
-	svc := cloudwatchlogs.New(session.New())
+	svc := cloudwatchlogs.New(nil)
 
 	params := &cloudwatchlogs.PutDestinationPolicyInput{
 		AccessPolicy:    aws.String("AccessPolicy"),    // Required
@@ -443,7 +376,7 @@ func ExampleCloudWatchLogs_PutDestinationPolicy() {
 }
 
 func ExampleCloudWatchLogs_PutLogEvents() {
-	svc := cloudwatchlogs.New(session.New())
+	svc := cloudwatchlogs.New(nil)
 
 	params := &cloudwatchlogs.PutLogEventsInput{
 		LogEvents: []*cloudwatchlogs.InputLogEvent{ // Required
@@ -471,7 +404,7 @@ func ExampleCloudWatchLogs_PutLogEvents() {
 }
 
 func ExampleCloudWatchLogs_PutMetricFilter() {
-	svc := cloudwatchlogs.New(session.New())
+	svc := cloudwatchlogs.New(nil)
 
 	params := &cloudwatchlogs.PutMetricFilterInput{
 		FilterName:    aws.String("FilterName"),    // Required
@@ -500,7 +433,7 @@ func ExampleCloudWatchLogs_PutMetricFilter() {
 }
 
 func ExampleCloudWatchLogs_PutRetentionPolicy() {
-	svc := cloudwatchlogs.New(session.New())
+	svc := cloudwatchlogs.New(nil)
 
 	params := &cloudwatchlogs.PutRetentionPolicyInput{
 		LogGroupName:    aws.String("LogGroupName"), // Required
@@ -520,7 +453,7 @@ func ExampleCloudWatchLogs_PutRetentionPolicy() {
 }
 
 func ExampleCloudWatchLogs_PutSubscriptionFilter() {
-	svc := cloudwatchlogs.New(session.New())
+	svc := cloudwatchlogs.New(nil)
 
 	params := &cloudwatchlogs.PutSubscriptionFilterInput{
 		DestinationArn: aws.String("DestinationArn"), // Required
@@ -543,7 +476,7 @@ func ExampleCloudWatchLogs_PutSubscriptionFilter() {
 }
 
 func ExampleCloudWatchLogs_TestMetricFilter() {
-	svc := cloudwatchlogs.New(session.New())
+	svc := cloudwatchlogs.New(nil)
 
 	params := &cloudwatchlogs.TestMetricFilterInput{
 		FilterPattern: aws.String("FilterPattern"), // Required

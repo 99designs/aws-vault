@@ -4,13 +4,10 @@
 package elasticbeanstalk
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/awsutil"
 	"github.com/aws/aws-sdk-go/aws/request"
-	"github.com/aws/aws-sdk-go/private/protocol"
-	"github.com/aws/aws-sdk-go/private/protocol/query"
 )
 
 const opAbortEnvironmentUpdate = "AbortEnvironmentUpdate"
@@ -28,8 +25,6 @@ func (c *ElasticBeanstalk) AbortEnvironmentUpdateRequest(input *AbortEnvironment
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &AbortEnvironmentUpdateOutput{}
 	req.Data = output
 	return
@@ -39,35 +34,6 @@ func (c *ElasticBeanstalk) AbortEnvironmentUpdateRequest(input *AbortEnvironment
 // deployment.
 func (c *ElasticBeanstalk) AbortEnvironmentUpdate(input *AbortEnvironmentUpdateInput) (*AbortEnvironmentUpdateOutput, error) {
 	req, out := c.AbortEnvironmentUpdateRequest(input)
-	err := req.Send()
-	return out, err
-}
-
-const opApplyEnvironmentManagedAction = "ApplyEnvironmentManagedAction"
-
-// ApplyEnvironmentManagedActionRequest generates a request for the ApplyEnvironmentManagedAction operation.
-func (c *ElasticBeanstalk) ApplyEnvironmentManagedActionRequest(input *ApplyEnvironmentManagedActionInput) (req *request.Request, output *ApplyEnvironmentManagedActionOutput) {
-	op := &request.Operation{
-		Name:       opApplyEnvironmentManagedAction,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &ApplyEnvironmentManagedActionInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &ApplyEnvironmentManagedActionOutput{}
-	req.Data = output
-	return
-}
-
-// Applies a scheduled managed action immediately. A managed action can be applied
-// only if its status is Scheduled. Get the status and action ID of a managed
-// action with DescribeEnvironmentManagedActions.
-func (c *ElasticBeanstalk) ApplyEnvironmentManagedAction(input *ApplyEnvironmentManagedActionInput) (*ApplyEnvironmentManagedActionOutput, error) {
-	req, out := c.ApplyEnvironmentManagedActionRequest(input)
 	err := req.Send()
 	return out, err
 }
@@ -95,39 +61,6 @@ func (c *ElasticBeanstalk) CheckDNSAvailabilityRequest(input *CheckDNSAvailabili
 // Checks if the specified CNAME is available.
 func (c *ElasticBeanstalk) CheckDNSAvailability(input *CheckDNSAvailabilityInput) (*CheckDNSAvailabilityOutput, error) {
 	req, out := c.CheckDNSAvailabilityRequest(input)
-	err := req.Send()
-	return out, err
-}
-
-const opComposeEnvironments = "ComposeEnvironments"
-
-// ComposeEnvironmentsRequest generates a request for the ComposeEnvironments operation.
-func (c *ElasticBeanstalk) ComposeEnvironmentsRequest(input *ComposeEnvironmentsInput) (req *request.Request, output *EnvironmentDescriptionsMessage) {
-	op := &request.Operation{
-		Name:       opComposeEnvironments,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &ComposeEnvironmentsInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &EnvironmentDescriptionsMessage{}
-	req.Data = output
-	return
-}
-
-// Create or update a group of environments that each run a separate component
-// of a single application. Takes a list of version labels that specify application
-// source bundles for each of the environments to create or update. The name
-// of each environment and other required information must be included in the
-// source bundles in an environment manifest named env.yaml. See Compose Environments
-// (http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/environment-mgmt-compose.html)
-// for details.
-func (c *ElasticBeanstalk) ComposeEnvironments(input *ComposeEnvironmentsInput) (*EnvironmentDescriptionsMessage, error) {
-	req, out := c.ComposeEnvironmentsRequest(input)
 	err := req.Send()
 	return out, err
 }
@@ -297,8 +230,6 @@ func (c *ElasticBeanstalk) DeleteApplicationRequest(input *DeleteApplicationInpu
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteApplicationOutput{}
 	req.Data = output
 	return
@@ -330,8 +261,6 @@ func (c *ElasticBeanstalk) DeleteApplicationVersionRequest(input *DeleteApplicat
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteApplicationVersionOutput{}
 	req.Data = output
 	return
@@ -362,8 +291,6 @@ func (c *ElasticBeanstalk) DeleteConfigurationTemplateRequest(input *DeleteConfi
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteConfigurationTemplateOutput{}
 	req.Data = output
 	return
@@ -395,8 +322,6 @@ func (c *ElasticBeanstalk) DeleteEnvironmentConfigurationRequest(input *DeleteEn
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteEnvironmentConfigurationOutput{}
 	req.Data = output
 	return
@@ -404,7 +329,7 @@ func (c *ElasticBeanstalk) DeleteEnvironmentConfigurationRequest(input *DeleteEn
 
 // Deletes the draft configuration associated with the running environment.
 //
-// Updating a running environment with any configuration changes creates a
+//  Updating a running environment with any configuration changes creates a
 // draft configuration set. You can get the draft configuration using DescribeConfigurationSettings
 // while the update is in progress or if the update fails. The DeploymentStatus
 // for the draft configuration indicates whether the deployment is in process
@@ -436,8 +361,7 @@ func (c *ElasticBeanstalk) DescribeApplicationVersionsRequest(input *DescribeApp
 	return
 }
 
-// Retrieve a list of application versions stored in your AWS Elastic Beanstalk
-// storage bucket.
+// Returns descriptions for existing application versions.
 func (c *ElasticBeanstalk) DescribeApplicationVersions(input *DescribeApplicationVersionsInput) (*DescribeApplicationVersionsOutput, error) {
 	req, out := c.DescribeApplicationVersionsRequest(input)
 	err := req.Send()
@@ -570,60 +494,6 @@ func (c *ElasticBeanstalk) DescribeEnvironmentHealth(input *DescribeEnvironmentH
 	return out, err
 }
 
-const opDescribeEnvironmentManagedActionHistory = "DescribeEnvironmentManagedActionHistory"
-
-// DescribeEnvironmentManagedActionHistoryRequest generates a request for the DescribeEnvironmentManagedActionHistory operation.
-func (c *ElasticBeanstalk) DescribeEnvironmentManagedActionHistoryRequest(input *DescribeEnvironmentManagedActionHistoryInput) (req *request.Request, output *DescribeEnvironmentManagedActionHistoryOutput) {
-	op := &request.Operation{
-		Name:       opDescribeEnvironmentManagedActionHistory,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &DescribeEnvironmentManagedActionHistoryInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &DescribeEnvironmentManagedActionHistoryOutput{}
-	req.Data = output
-	return
-}
-
-// Lists an environment's completed and failed managed actions.
-func (c *ElasticBeanstalk) DescribeEnvironmentManagedActionHistory(input *DescribeEnvironmentManagedActionHistoryInput) (*DescribeEnvironmentManagedActionHistoryOutput, error) {
-	req, out := c.DescribeEnvironmentManagedActionHistoryRequest(input)
-	err := req.Send()
-	return out, err
-}
-
-const opDescribeEnvironmentManagedActions = "DescribeEnvironmentManagedActions"
-
-// DescribeEnvironmentManagedActionsRequest generates a request for the DescribeEnvironmentManagedActions operation.
-func (c *ElasticBeanstalk) DescribeEnvironmentManagedActionsRequest(input *DescribeEnvironmentManagedActionsInput) (req *request.Request, output *DescribeEnvironmentManagedActionsOutput) {
-	op := &request.Operation{
-		Name:       opDescribeEnvironmentManagedActions,
-		HTTPMethod: "POST",
-		HTTPPath:   "/",
-	}
-
-	if input == nil {
-		input = &DescribeEnvironmentManagedActionsInput{}
-	}
-
-	req = c.newRequest(op, input, output)
-	output = &DescribeEnvironmentManagedActionsOutput{}
-	req.Data = output
-	return
-}
-
-// Lists an environment's upcoming and in-progress managed actions.
-func (c *ElasticBeanstalk) DescribeEnvironmentManagedActions(input *DescribeEnvironmentManagedActionsInput) (*DescribeEnvironmentManagedActionsOutput, error) {
-	req, out := c.DescribeEnvironmentManagedActionsRequest(input)
-	err := req.Send()
-	return out, err
-}
-
 const opDescribeEnvironmentResources = "DescribeEnvironmentResources"
 
 // DescribeEnvironmentResourcesRequest generates a request for the DescribeEnvironmentResources operation.
@@ -654,7 +524,7 @@ func (c *ElasticBeanstalk) DescribeEnvironmentResources(input *DescribeEnvironme
 const opDescribeEnvironments = "DescribeEnvironments"
 
 // DescribeEnvironmentsRequest generates a request for the DescribeEnvironments operation.
-func (c *ElasticBeanstalk) DescribeEnvironmentsRequest(input *DescribeEnvironmentsInput) (req *request.Request, output *EnvironmentDescriptionsMessage) {
+func (c *ElasticBeanstalk) DescribeEnvironmentsRequest(input *DescribeEnvironmentsInput) (req *request.Request, output *DescribeEnvironmentsOutput) {
 	op := &request.Operation{
 		Name:       opDescribeEnvironments,
 		HTTPMethod: "POST",
@@ -666,13 +536,13 @@ func (c *ElasticBeanstalk) DescribeEnvironmentsRequest(input *DescribeEnvironmen
 	}
 
 	req = c.newRequest(op, input, output)
-	output = &EnvironmentDescriptionsMessage{}
+	output = &DescribeEnvironmentsOutput{}
 	req.Data = output
 	return
 }
 
 // Returns descriptions for existing environments.
-func (c *ElasticBeanstalk) DescribeEnvironments(input *DescribeEnvironmentsInput) (*EnvironmentDescriptionsMessage, error) {
+func (c *ElasticBeanstalk) DescribeEnvironments(input *DescribeEnvironmentsInput) (*DescribeEnvironmentsOutput, error) {
 	req, out := c.DescribeEnvironmentsRequest(input)
 	err := req.Send()
 	return out, err
@@ -706,7 +576,7 @@ func (c *ElasticBeanstalk) DescribeEventsRequest(input *DescribeEventsInput) (re
 
 // Returns list of event descriptions matching criteria up to the last 6 weeks.
 //
-// This action returns the most recent 1,000 events from the specified NextToken.
+//  This action returns the most recent 1,000 events from the specified NextToken.
 func (c *ElasticBeanstalk) DescribeEvents(input *DescribeEventsInput) (*DescribeEventsOutput, error) {
 	req, out := c.DescribeEventsRequest(input)
 	err := req.Send()
@@ -715,7 +585,6 @@ func (c *ElasticBeanstalk) DescribeEvents(input *DescribeEventsInput) (*Describe
 
 func (c *ElasticBeanstalk) DescribeEventsPages(input *DescribeEventsInput, fn func(p *DescribeEventsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeEventsRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeEventsOutput), lastPage)
 	})
@@ -792,8 +661,6 @@ func (c *ElasticBeanstalk) RebuildEnvironmentRequest(input *RebuildEnvironmentIn
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &RebuildEnvironmentOutput{}
 	req.Data = output
 	return
@@ -822,8 +689,6 @@ func (c *ElasticBeanstalk) RequestEnvironmentInfoRequest(input *RequestEnvironme
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &RequestEnvironmentInfoOutput{}
 	req.Data = output
 	return
@@ -865,8 +730,6 @@ func (c *ElasticBeanstalk) RestartAppServerRequest(input *RestartAppServerInput)
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &RestartAppServerOutput{}
 	req.Data = output
 	return
@@ -926,8 +789,6 @@ func (c *ElasticBeanstalk) SwapEnvironmentCNAMEsRequest(input *SwapEnvironmentCN
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(query.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &SwapEnvironmentCNAMEsOutput{}
 	req.Data = output
 	return
@@ -1130,15 +991,19 @@ func (c *ElasticBeanstalk) ValidateConfigurationSettings(input *ValidateConfigur
 }
 
 type AbortEnvironmentUpdateInput struct {
-	_ struct{} `type:"structure"`
-
 	// This specifies the ID of the environment with the in-progress update that
 	// you want to cancel.
 	EnvironmentId *string `type:"string"`
 
 	// This specifies the name of the environment with the in-progress update that
 	// you want to cancel.
-	EnvironmentName *string `min:"4" type:"string"`
+	EnvironmentName *string `type:"string"`
+
+	metadataAbortEnvironmentUpdateInput `json:"-" xml:"-"`
+}
+
+type metadataAbortEnvironmentUpdateInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1151,21 +1016,12 @@ func (s AbortEnvironmentUpdateInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *AbortEnvironmentUpdateInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "AbortEnvironmentUpdateInput"}
-	if s.EnvironmentName != nil && len(*s.EnvironmentName) < 4 {
-		invalidParams.Add(request.NewErrParamMinLen("EnvironmentName", 4))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type AbortEnvironmentUpdateOutput struct {
+	metadataAbortEnvironmentUpdateOutput `json:"-" xml:"-"`
 }
 
-type AbortEnvironmentUpdateOutput struct {
-	_ struct{} `type:"structure"`
+type metadataAbortEnvironmentUpdateOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1180,10 +1036,8 @@ func (s AbortEnvironmentUpdateOutput) GoString() string {
 
 // Describes the properties of an application.
 type ApplicationDescription struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the application.
-	ApplicationName *string `min:"1" type:"string"`
+	ApplicationName *string `type:"string"`
 
 	// The names of the configuration templates associated with this application.
 	ConfigurationTemplates []*string `type:"list"`
@@ -1199,6 +1053,12 @@ type ApplicationDescription struct {
 
 	// The names of the versions for this application.
 	Versions []*string `type:"list"`
+
+	metadataApplicationDescription `json:"-" xml:"-"`
+}
+
+type metadataApplicationDescription struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1213,10 +1073,14 @@ func (s ApplicationDescription) GoString() string {
 
 // Result message containing a single description of an application.
 type ApplicationDescriptionMessage struct {
-	_ struct{} `type:"structure"`
-
 	// The ApplicationDescription of the application.
 	Application *ApplicationDescription `type:"structure"`
+
+	metadataApplicationDescriptionMessage `json:"-" xml:"-"`
+}
+
+type metadataApplicationDescriptionMessage struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1231,8 +1095,6 @@ func (s ApplicationDescriptionMessage) GoString() string {
 
 // Represents the application metrics for a specified environment.
 type ApplicationMetrics struct {
-	_ struct{} `type:"structure"`
-
 	// The amount of time that the metrics cover (usually 10 seconds). For example,
 	// you might have 5 requests (request_count) within the most recent time slice
 	// of 10 seconds (duration).
@@ -1249,6 +1111,12 @@ type ApplicationMetrics struct {
 	// Represents the percentage of requests over the last 10 seconds that resulted
 	// in each type of status code response.
 	StatusCodes *StatusCodes `type:"structure"`
+
+	metadataApplicationMetrics `json:"-" xml:"-"`
+}
+
+type metadataApplicationMetrics struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1263,10 +1131,8 @@ func (s ApplicationMetrics) GoString() string {
 
 // Describes the properties of an application version.
 type ApplicationVersionDescription struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the application associated with this release.
-	ApplicationName *string `min:"1" type:"string"`
+	ApplicationName *string `type:"string"`
 
 	// The creation date of the application version.
 	DateCreated *time.Time `type:"timestamp" timestampFormat:"iso8601"`
@@ -1280,11 +1146,14 @@ type ApplicationVersionDescription struct {
 	// The location where the source bundle is located for this version.
 	SourceBundle *S3Location `type:"structure"`
 
-	// The processing status of the application version.
-	Status *string `type:"string" enum:"ApplicationVersionStatus"`
-
 	// A label uniquely identifying the version for the associated application.
-	VersionLabel *string `min:"1" type:"string"`
+	VersionLabel *string `type:"string"`
+
+	metadataApplicationVersionDescription `json:"-" xml:"-"`
+}
+
+type metadataApplicationVersionDescription struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1299,10 +1168,14 @@ func (s ApplicationVersionDescription) GoString() string {
 
 // Result message wrapping a single description of an application version.
 type ApplicationVersionDescriptionMessage struct {
-	_ struct{} `type:"structure"`
-
 	// The ApplicationVersionDescription of the application version.
 	ApplicationVersion *ApplicationVersionDescription `type:"structure"`
+
+	metadataApplicationVersionDescriptionMessage `json:"-" xml:"-"`
+}
+
+type metadataApplicationVersionDescriptionMessage struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1315,76 +1188,16 @@ func (s ApplicationVersionDescriptionMessage) GoString() string {
 	return s.String()
 }
 
-// Request to execute a scheduled managed action immediately.
-type ApplyEnvironmentManagedActionInput struct {
-	_ struct{} `type:"structure"`
-
-	// The action ID of the scheduled managed action to execute.
-	ActionId *string `type:"string" required:"true"`
-
-	// The environment ID of the target environment.
-	EnvironmentId *string `type:"string"`
-
-	// The name of the target environment.
-	EnvironmentName *string `type:"string"`
-}
-
-// String returns the string representation
-func (s ApplyEnvironmentManagedActionInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s ApplyEnvironmentManagedActionInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ApplyEnvironmentManagedActionInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ApplyEnvironmentManagedActionInput"}
-	if s.ActionId == nil {
-		invalidParams.Add(request.NewErrParamRequired("ActionId"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// The result message containing information about the managed action.
-type ApplyEnvironmentManagedActionOutput struct {
-	_ struct{} `type:"structure"`
-
-	// A description of the managed action.
-	ActionDescription *string `type:"string"`
-
-	// The action ID of the managed action.
-	ActionId *string `type:"string"`
-
-	// The type of managed action.
-	ActionType *string `type:"string" enum:"ActionType"`
-
-	// The status of the managed action.
-	Status *string `type:"string"`
-}
-
-// String returns the string representation
-func (s ApplyEnvironmentManagedActionOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s ApplyEnvironmentManagedActionOutput) GoString() string {
-	return s.String()
-}
-
 // Describes an Auto Scaling launch configuration.
 type AutoScalingGroup struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the AutoScalingGroup .
 	Name *string `type:"string"`
+
+	metadataAutoScalingGroup `json:"-" xml:"-"`
+}
+
+type metadataAutoScalingGroup struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1401,8 +1214,6 @@ func (s AutoScalingGroup) GoString() string {
 // to the AWS Elastic Beanstalk environment. Use the instanceId property to
 // specify the application instance for which you'd like to return data.
 type CPUUtilization struct {
-	_ struct{} `type:"structure"`
-
 	// Percentage of time that the CPU has spent in the I/O Wait state over the
 	// last 10 seconds.
 	IOWait *float64 `type:"double"`
@@ -1430,6 +1241,12 @@ type CPUUtilization struct {
 	// Percentage of time that the CPU has spent in the User state over the last
 	// 10 seconds.
 	User *float64 `type:"double"`
+
+	metadataCPUUtilization `json:"-" xml:"-"`
+}
+
+type metadataCPUUtilization struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1444,10 +1261,14 @@ func (s CPUUtilization) GoString() string {
 
 // Results message indicating whether a CNAME is available.
 type CheckDNSAvailabilityInput struct {
-	_ struct{} `type:"structure"`
-
 	// The prefix used when this CNAME is reserved.
-	CNAMEPrefix *string `min:"4" type:"string" required:"true"`
+	CNAMEPrefix *string `type:"string" required:"true"`
+
+	metadataCheckDNSAvailabilityInput `json:"-" xml:"-"`
+}
+
+type metadataCheckDNSAvailabilityInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1460,34 +1281,26 @@ func (s CheckDNSAvailabilityInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CheckDNSAvailabilityInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CheckDNSAvailabilityInput"}
-	if s.CNAMEPrefix == nil {
-		invalidParams.Add(request.NewErrParamRequired("CNAMEPrefix"))
-	}
-	if s.CNAMEPrefix != nil && len(*s.CNAMEPrefix) < 4 {
-		invalidParams.Add(request.NewErrParamMinLen("CNAMEPrefix", 4))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Indicates if the specified CNAME is available.
 type CheckDNSAvailabilityOutput struct {
-	_ struct{} `type:"structure"`
-
 	// Indicates if the specified CNAME is available:
 	//
-	//   true : The CNAME is available.   false : The CNAME is not available.
+	//    true : The CNAME is available.
+	//
+	//    true : The CNAME is not available.
+	//
+	//      true : The CNAME is available.   false : The CNAME is not available.
 	Available *bool `type:"boolean"`
 
 	// The fully qualified CNAME to reserve when CreateEnvironment is called with
 	// the provided prefix.
-	FullyQualifiedCNAME *string `min:"1" type:"string"`
+	FullyQualifiedCNAME *string `type:"string"`
+
+	metadataCheckDNSAvailabilityOutput `json:"-" xml:"-"`
+}
+
+type metadataCheckDNSAvailabilityOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1500,62 +1313,23 @@ func (s CheckDNSAvailabilityOutput) GoString() string {
 	return s.String()
 }
 
-// Request to create or update a group of environments.
-type ComposeEnvironmentsInput struct {
-	_ struct{} `type:"structure"`
-
-	// The name of the application to which the specified source bundles belong.
-	ApplicationName *string `min:"1" type:"string"`
-
-	// The name of the group to which the target environments belong. Specify a
-	// group name only if the environment name defined in each target environment's
-	// manifest ends with a + (plus) character. See Environment Manifest (env.yaml)
-	// (http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/environment-cfg-manifest.html)
-	// for details.
-	GroupName *string `min:"1" type:"string"`
-
-	// A list of version labels, specifying one or more application source bundles
-	// that belong to the target application. Each source bundle must include an
-	// environment manifest that specifies the name of the environment and the name
-	// of the solution stack to use, and optionally can specify environment links
-	// to create.
-	VersionLabels []*string `type:"list"`
-}
-
-// String returns the string representation
-func (s ComposeEnvironmentsInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s ComposeEnvironmentsInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ComposeEnvironmentsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ComposeEnvironmentsInput"}
-	if s.ApplicationName != nil && len(*s.ApplicationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ApplicationName", 1))
-	}
-	if s.GroupName != nil && len(*s.GroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("GroupName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Describes the possible values for a configuration option.
 type ConfigurationOptionDescription struct {
-	_ struct{} `type:"structure"`
-
 	// An indication of which action is required if the value for this configuration
 	// option changes:
 	//
-	//   NoInterruption : There is no interruption to the environment or application
+	//    NoInterruption - There is no interruption to the environment or application
+	// availability.
+	//
+	//    RestartEnvironment - The environment is restarted, all AWS resources
+	// are deleted and recreated, and the environment is unavailable during the
+	// process.
+	//
+	//    RestartApplicationServer - The environment is available the entire time.
+	// However, a short application outage occurs when the application servers on
+	// the running Amazon EC2 instances are restarted.
+	//
+	//     NoInterruption : There is no interruption to the environment or application
 	// availability.   RestartEnvironment : The environment is entirely restarted,
 	// all AWS resources are deleted and recreated, and the environment is unavailable
 	// during the process.   RestartApplicationServer : The environment is available
@@ -1591,6 +1365,12 @@ type ConfigurationOptionDescription struct {
 	// An indication of whether the user defined this configuration option:
 	//
 	//    true : This configuration option was defined by the user. It is a valid
+	// choice for specifying this as an Option to Remove when updating configuration
+	// settings.
+	//
+	//    false : This configuration was not defined by the user.
+	//
+	//      true : This configuration option was defined by the user. It is a valid
 	// choice for specifying if this as an Option to Remove when updating configuration
 	// settings.
 	//
@@ -1607,12 +1387,29 @@ type ConfigurationOptionDescription struct {
 	// An indication of which type of values this option has and whether it is allowable
 	// to select one or more than one of the possible values:
 	//
-	//   Scalar : Values for this option are a single selection from the possible
+	//    Scalar : Values for this option are a single selection from the possible
+	// values, or a unformatted string or numeric value governed by the MIN/MAX/Regex
+	// constraints:
+	//
+	//    List : Values for this option are multiple selections of the possible
+	// values.
+	//
+	//    Boolean : Values for this option are either true or false .
+	//
+	//    Json : Values for this option are a JSON representation of a ConfigDocument.
+	//
+	//      Scalar : Values for this option are a single selection from the possible
 	// values, or an unformatted string, or numeric value governed by the MIN/MAX/Regex
 	// constraints.   List : Values for this option are multiple selections from
 	// the possible values.   Boolean : Values for this option are either true or
 	// false .   Json : Values for this option are a JSON representation of a ConfigDocument.
 	ValueType *string `type:"string" enum:"ConfigurationOptionValueType"`
+
+	metadataConfigurationOptionDescription `json:"-" xml:"-"`
+}
+
+type metadataConfigurationOptionDescription struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1630,8 +1427,6 @@ func (s ConfigurationOptionDescription) GoString() string {
 // (http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/command-options.html)
 // in the AWS Elastic Beanstalk Developer Guide.
 type ConfigurationOptionSetting struct {
-	_ struct{} `type:"structure"`
-
 	// A unique namespace identifying the option's associated AWS resource.
 	Namespace *string `type:"string"`
 
@@ -1639,10 +1434,16 @@ type ConfigurationOptionSetting struct {
 	OptionName *string `type:"string"`
 
 	// A unique resource name for a time-based scaling configuration option.
-	ResourceName *string `min:"1" type:"string"`
+	ResourceName *string `type:"string"`
 
 	// The current value for the configuration option.
 	Value *string `type:"string"`
+
+	metadataConfigurationOptionSetting `json:"-" xml:"-"`
+}
+
+type metadataConfigurationOptionSetting struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1655,25 +1456,10 @@ func (s ConfigurationOptionSetting) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ConfigurationOptionSetting) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ConfigurationOptionSetting"}
-	if s.ResourceName != nil && len(*s.ResourceName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ResourceName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Describes the settings for a configuration set.
 type ConfigurationSettingsDescription struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the application associated with this configuration set.
-	ApplicationName *string `min:"1" type:"string"`
+	ApplicationName *string `type:"string"`
 
 	// The date (in UTC time) when this configuration set was created.
 	DateCreated *time.Time `type:"timestamp" timestampFormat:"iso8601"`
@@ -1684,7 +1470,17 @@ type ConfigurationSettingsDescription struct {
 	// If this configuration set is associated with an environment, the DeploymentStatus
 	// parameter indicates the deployment status of this configuration set:
 	//
-	//   null: This configuration is not associated with a running environment.
+	//    null: This configuration is not associated with a running environment.
+	//
+	//    pending: This is a draft configuration that is not deployed to the associated
+	// environment but is in the process of deploying.
+	//
+	//    deployed: This is the configuration that is currently deployed to the
+	// associated running environment.
+	//
+	//    failed: This is a draft configuration, that failed to successfully deploy.
+	//
+	//     null: This configuration is not associated with a running environment.
 	//   pending: This is a draft configuration that is not deployed to the associated
 	// environment but is in the process of deploying.   deployed: This is the configuration
 	// that is currently deployed to the associated running environment.   failed:
@@ -1695,7 +1491,7 @@ type ConfigurationSettingsDescription struct {
 	Description *string `type:"string"`
 
 	// If not null, the name of the environment for this configuration set.
-	EnvironmentName *string `min:"4" type:"string"`
+	EnvironmentName *string `type:"string"`
 
 	// A list of the configuration options and their values in this configuration
 	// set.
@@ -1706,7 +1502,13 @@ type ConfigurationSettingsDescription struct {
 
 	// If not null, the name of the configuration template for this configuration
 	// set.
-	TemplateName *string `min:"1" type:"string"`
+	TemplateName *string `type:"string"`
+
+	metadataConfigurationSettingsDescription `json:"-" xml:"-"`
+}
+
+type metadataConfigurationSettingsDescription struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1719,18 +1521,22 @@ func (s ConfigurationSettingsDescription) GoString() string {
 	return s.String()
 }
 
-// Request to create an application.
+// This documentation target is not reported in the API reference.
 type CreateApplicationInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the application.
 	//
-	// Constraint: This name must be unique within your account. If the specified
+	//  Constraint: This name must be unique within your account. If the specified
 	// name already exists, the action returns an InvalidParameterValue error.
-	ApplicationName *string `min:"1" type:"string" required:"true"`
+	ApplicationName *string `type:"string" required:"true"`
 
 	// Describes the application.
 	Description *string `type:"string"`
+
+	metadataCreateApplicationInput `json:"-" xml:"-"`
+}
+
+type metadataCreateApplicationInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1743,33 +1549,21 @@ func (s CreateApplicationInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateApplicationInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateApplicationInput"}
-	if s.ApplicationName == nil {
-		invalidParams.Add(request.NewErrParamRequired("ApplicationName"))
-	}
-	if s.ApplicationName != nil && len(*s.ApplicationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ApplicationName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type CreateApplicationVersionInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the application. If no application is found with this name, and
 	// AutoCreateApplication is false, returns an InvalidParameterValue error.
-	ApplicationName *string `min:"1" type:"string" required:"true"`
+	ApplicationName *string `type:"string" required:"true"`
 
 	// Determines how the system behaves if the specified application for this version
 	// does not already exist:
 	//
-	//   true : Automatically creates the specified application for this release
+	//    true: Automatically creates the specified application for this version
+	// if it does not already exist.
+	//
+	//    false: Returns an InvalidParameterValue if the specified application
+	// for this version does not already exist.
+	//
+	//     true : Automatically creates the specified application for this release
 	// if it does not already exist.   false : Throws an InvalidParameterValue if
 	// the specified application for this release does not already exist.    Default:
 	// false
@@ -1779,11 +1573,6 @@ type CreateApplicationVersionInput struct {
 
 	// Describes this version.
 	Description *string `type:"string"`
-
-	// Preprocesses and validates the environment manifest and configuration files
-	// in the source bundle. Validating configuration files can identify issues
-	// prior to deploying the application version to an environment.
-	Process *bool `type:"boolean"`
 
 	// The Amazon S3 bucket and key that identify the location of the source bundle
 	// for this version.
@@ -1803,7 +1592,13 @@ type CreateApplicationVersionInput struct {
 	// Constraint: Must be unique per application. If an application version already
 	// exists with this label for the specified application, AWS Elastic Beanstalk
 	// returns an InvalidParameterValue error.
-	VersionLabel *string `min:"1" type:"string" required:"true"`
+	VersionLabel *string `type:"string" required:"true"`
+
+	metadataCreateApplicationVersionInput `json:"-" xml:"-"`
+}
+
+type metadataCreateApplicationVersionInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1816,36 +1611,12 @@ func (s CreateApplicationVersionInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateApplicationVersionInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateApplicationVersionInput"}
-	if s.ApplicationName == nil {
-		invalidParams.Add(request.NewErrParamRequired("ApplicationName"))
-	}
-	if s.ApplicationName != nil && len(*s.ApplicationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ApplicationName", 1))
-	}
-	if s.VersionLabel == nil {
-		invalidParams.Add(request.NewErrParamRequired("VersionLabel"))
-	}
-	if s.VersionLabel != nil && len(*s.VersionLabel) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("VersionLabel", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// Request to create a configuration template.
+// This documentation target is not reported in the API reference.
 type CreateConfigurationTemplateInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the application to associate with this configuration template.
 	// If no application is found with this name, AWS Elastic Beanstalk returns
 	// an InvalidParameterValue error.
-	ApplicationName *string `min:"1" type:"string" required:"true"`
+	ApplicationName *string `type:"string" required:"true"`
 
 	// Describes this configuration.
 	Description *string `type:"string"`
@@ -1895,7 +1666,13 @@ type CreateConfigurationTemplateInput struct {
 	//
 	// Default: If a configuration template already exists with this name, AWS
 	// Elastic Beanstalk returns an InvalidParameterValue error.
-	TemplateName *string `min:"1" type:"string" required:"true"`
+	TemplateName *string `type:"string" required:"true"`
+
+	metadataCreateConfigurationTemplateInput `json:"-" xml:"-"`
+}
+
+type metadataCreateConfigurationTemplateInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1908,77 +1685,31 @@ func (s CreateConfigurationTemplateInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateConfigurationTemplateInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateConfigurationTemplateInput"}
-	if s.ApplicationName == nil {
-		invalidParams.Add(request.NewErrParamRequired("ApplicationName"))
-	}
-	if s.ApplicationName != nil && len(*s.ApplicationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ApplicationName", 1))
-	}
-	if s.TemplateName == nil {
-		invalidParams.Add(request.NewErrParamRequired("TemplateName"))
-	}
-	if s.TemplateName != nil && len(*s.TemplateName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TemplateName", 1))
-	}
-	if s.OptionSettings != nil {
-		for i, v := range s.OptionSettings {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "OptionSettings", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-	if s.SourceConfiguration != nil {
-		if err := s.SourceConfiguration.Validate(); err != nil {
-			invalidParams.AddNested("SourceConfiguration", err.(request.ErrInvalidParams))
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type CreateEnvironmentInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the application that contains the version to be deployed.
 	//
 	//  If no application is found with this name, CreateEnvironment returns an
 	// InvalidParameterValue error.
-	ApplicationName *string `min:"1" type:"string" required:"true"`
+	ApplicationName *string `type:"string" required:"true"`
 
 	// If specified, the environment attempts to use this value as the prefix for
 	// the CNAME. If not specified, the CNAME is generated automatically by appending
 	// a random alphanumeric string to the environment name.
-	CNAMEPrefix *string `min:"4" type:"string"`
+	CNAMEPrefix *string `type:"string"`
 
 	// Describes this environment.
 	Description *string `type:"string"`
 
 	// A unique name for the deployment environment. Used in the application URL.
 	//
-	// Constraint: Must be from 4 to 40 characters in length. The name can contain
+	// Constraint: Must be from 4 to 23 characters in length. The name can contain
 	// only letters, numbers, and hyphens. It cannot start or end with a hyphen.
 	// This name must be unique in your account. If the specified name already exists,
 	// AWS Elastic Beanstalk returns an InvalidParameterValue error.
 	//
 	// Default: If the CNAME parameter is not specified, the environment name becomes
 	// part of the CNAME, and therefore part of the visible URL for your application.
-	EnvironmentName *string `min:"4" type:"string"`
-
-	// The name of the group to which the target environment belongs. Specify a
-	// group name only if the environment's name is specified in an environment
-	// manifest and not with the environment name parameter. See Environment Manifest
-	// (env.yaml) (http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/environment-cfg-manifest.html)
-	// for details.
-	GroupName *string `min:"1" type:"string"`
+	EnvironmentName *string `type:"string" required:"true"`
 
 	// If specified, AWS Elastic Beanstalk sets the specified configuration options
 	// to the requested value in the configuration set for the new environment.
@@ -1990,9 +1721,9 @@ type CreateEnvironmentInput struct {
 	// set for this new environment.
 	OptionsToRemove []*OptionSpecification `type:"list"`
 
-	// This is an alternative to specifying a template name. If specified, AWS Elastic
-	// Beanstalk sets the configuration values to the default values associated
-	// with the specified solution stack.
+	// This is an alternative to specifying a configuration name. If specified,
+	// AWS Elastic Beanstalk sets the configuration values to the default values
+	// associated with the specified solution stack.
 	//
 	//  Condition: You must specify either this or a TemplateName, but not both.
 	// If you specify both, AWS Elastic Beanstalk returns an InvalidParameterCombination
@@ -2011,7 +1742,7 @@ type CreateEnvironmentInput struct {
 	// but not both. If you specify both, AWS Elastic Beanstalk returns an InvalidParameterCombination
 	// error. If you do not specify either, AWS Elastic Beanstalk returns a MissingRequiredParameter
 	// error.
-	TemplateName *string `min:"1" type:"string"`
+	TemplateName *string `type:"string"`
 
 	// This specifies the tier to use for creating this environment.
 	Tier *EnvironmentTier `type:"structure"`
@@ -2023,7 +1754,13 @@ type CreateEnvironmentInput struct {
 	//
 	//  Default: If not specified, AWS Elastic Beanstalk attempts to launch the
 	// sample application in the container.
-	VersionLabel *string `min:"1" type:"string"`
+	VersionLabel *string `type:"string"`
+
+	metadataCreateEnvironmentInput `json:"-" xml:"-"`
+}
+
+type metadataCreateEnvironmentInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2036,69 +1773,12 @@ func (s CreateEnvironmentInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateEnvironmentInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateEnvironmentInput"}
-	if s.ApplicationName == nil {
-		invalidParams.Add(request.NewErrParamRequired("ApplicationName"))
-	}
-	if s.ApplicationName != nil && len(*s.ApplicationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ApplicationName", 1))
-	}
-	if s.CNAMEPrefix != nil && len(*s.CNAMEPrefix) < 4 {
-		invalidParams.Add(request.NewErrParamMinLen("CNAMEPrefix", 4))
-	}
-	if s.EnvironmentName != nil && len(*s.EnvironmentName) < 4 {
-		invalidParams.Add(request.NewErrParamMinLen("EnvironmentName", 4))
-	}
-	if s.GroupName != nil && len(*s.GroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("GroupName", 1))
-	}
-	if s.TemplateName != nil && len(*s.TemplateName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TemplateName", 1))
-	}
-	if s.VersionLabel != nil && len(*s.VersionLabel) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("VersionLabel", 1))
-	}
-	if s.OptionSettings != nil {
-		for i, v := range s.OptionSettings {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "OptionSettings", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-	if s.OptionsToRemove != nil {
-		for i, v := range s.OptionsToRemove {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "OptionsToRemove", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-	if s.Tags != nil {
-		for i, v := range s.Tags {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Tags", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type CreateStorageLocationInput struct {
+	metadataCreateStorageLocationInput `json:"-" xml:"-"`
 }
 
-type CreateStorageLocationInput struct {
-	_ struct{} `type:"structure"`
+type metadataCreateStorageLocationInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2113,10 +1793,14 @@ func (s CreateStorageLocationInput) GoString() string {
 
 // Results of a CreateStorageLocationResult call.
 type CreateStorageLocationOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the Amazon S3 bucket created.
 	S3Bucket *string `type:"string"`
+
+	metadataCreateStorageLocationOutput `json:"-" xml:"-"`
+}
+
+type metadataCreateStorageLocationOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2129,16 +1813,20 @@ func (s CreateStorageLocationOutput) GoString() string {
 	return s.String()
 }
 
-// Request to delete an application.
+// This documentation target is not reported in the API reference.
 type DeleteApplicationInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the application to delete.
-	ApplicationName *string `min:"1" type:"string" required:"true"`
+	ApplicationName *string `type:"string" required:"true"`
 
 	// When set to true, running environments will be terminated before deleting
 	// the application.
 	TerminateEnvByForce *bool `type:"boolean"`
+
+	metadataDeleteApplicationInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteApplicationInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2151,24 +1839,12 @@ func (s DeleteApplicationInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteApplicationInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteApplicationInput"}
-	if s.ApplicationName == nil {
-		invalidParams.Add(request.NewErrParamRequired("ApplicationName"))
-	}
-	if s.ApplicationName != nil && len(*s.ApplicationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ApplicationName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type DeleteApplicationOutput struct {
+	metadataDeleteApplicationOutput `json:"-" xml:"-"`
 }
 
-type DeleteApplicationOutput struct {
-	_ struct{} `type:"structure"`
+type metadataDeleteApplicationOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2181,12 +1857,10 @@ func (s DeleteApplicationOutput) GoString() string {
 	return s.String()
 }
 
-// Request to delete an application version.
+// This documentation target is not reported in the API reference.
 type DeleteApplicationVersionInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the application to delete releases from.
-	ApplicationName *string `min:"1" type:"string" required:"true"`
+	ApplicationName *string `type:"string" required:"true"`
 
 	// Indicates whether to delete the associated source bundle from Amazon S3:
 	//
@@ -2196,7 +1870,13 @@ type DeleteApplicationVersionInput struct {
 	DeleteSourceBundle *bool `type:"boolean"`
 
 	// The label of the version to delete.
-	VersionLabel *string `min:"1" type:"string" required:"true"`
+	VersionLabel *string `type:"string" required:"true"`
+
+	metadataDeleteApplicationVersionInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteApplicationVersionInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2209,30 +1889,12 @@ func (s DeleteApplicationVersionInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteApplicationVersionInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteApplicationVersionInput"}
-	if s.ApplicationName == nil {
-		invalidParams.Add(request.NewErrParamRequired("ApplicationName"))
-	}
-	if s.ApplicationName != nil && len(*s.ApplicationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ApplicationName", 1))
-	}
-	if s.VersionLabel == nil {
-		invalidParams.Add(request.NewErrParamRequired("VersionLabel"))
-	}
-	if s.VersionLabel != nil && len(*s.VersionLabel) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("VersionLabel", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type DeleteApplicationVersionOutput struct {
+	metadataDeleteApplicationVersionOutput `json:"-" xml:"-"`
 }
 
-type DeleteApplicationVersionOutput struct {
-	_ struct{} `type:"structure"`
+type metadataDeleteApplicationVersionOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2245,15 +1907,19 @@ func (s DeleteApplicationVersionOutput) GoString() string {
 	return s.String()
 }
 
-// Request to delete a configuration template.
+// This documentation target is not reported in the API reference.
 type DeleteConfigurationTemplateInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the application to delete the configuration template from.
-	ApplicationName *string `min:"1" type:"string" required:"true"`
+	ApplicationName *string `type:"string" required:"true"`
 
 	// The name of the configuration template to delete.
-	TemplateName *string `min:"1" type:"string" required:"true"`
+	TemplateName *string `type:"string" required:"true"`
+
+	metadataDeleteConfigurationTemplateInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteConfigurationTemplateInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2266,30 +1932,12 @@ func (s DeleteConfigurationTemplateInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteConfigurationTemplateInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteConfigurationTemplateInput"}
-	if s.ApplicationName == nil {
-		invalidParams.Add(request.NewErrParamRequired("ApplicationName"))
-	}
-	if s.ApplicationName != nil && len(*s.ApplicationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ApplicationName", 1))
-	}
-	if s.TemplateName == nil {
-		invalidParams.Add(request.NewErrParamRequired("TemplateName"))
-	}
-	if s.TemplateName != nil && len(*s.TemplateName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TemplateName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type DeleteConfigurationTemplateOutput struct {
+	metadataDeleteConfigurationTemplateOutput `json:"-" xml:"-"`
 }
 
-type DeleteConfigurationTemplateOutput struct {
-	_ struct{} `type:"structure"`
+type metadataDeleteConfigurationTemplateOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2302,15 +1950,19 @@ func (s DeleteConfigurationTemplateOutput) GoString() string {
 	return s.String()
 }
 
-// Request to delete a draft environment configuration.
+// This documentation target is not reported in the API reference.
 type DeleteEnvironmentConfigurationInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the application the environment is associated with.
-	ApplicationName *string `min:"1" type:"string" required:"true"`
+	ApplicationName *string `type:"string" required:"true"`
 
 	// The name of the environment to delete the draft configuration from.
-	EnvironmentName *string `min:"4" type:"string" required:"true"`
+	EnvironmentName *string `type:"string" required:"true"`
+
+	metadataDeleteEnvironmentConfigurationInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteEnvironmentConfigurationInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2323,30 +1975,12 @@ func (s DeleteEnvironmentConfigurationInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteEnvironmentConfigurationInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteEnvironmentConfigurationInput"}
-	if s.ApplicationName == nil {
-		invalidParams.Add(request.NewErrParamRequired("ApplicationName"))
-	}
-	if s.ApplicationName != nil && len(*s.ApplicationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ApplicationName", 1))
-	}
-	if s.EnvironmentName == nil {
-		invalidParams.Add(request.NewErrParamRequired("EnvironmentName"))
-	}
-	if s.EnvironmentName != nil && len(*s.EnvironmentName) < 4 {
-		invalidParams.Add(request.NewErrParamMinLen("EnvironmentName", 4))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type DeleteEnvironmentConfigurationOutput struct {
+	metadataDeleteEnvironmentConfigurationOutput `json:"-" xml:"-"`
 }
 
-type DeleteEnvironmentConfigurationOutput struct {
-	_ struct{} `type:"structure"`
+type metadataDeleteEnvironmentConfigurationOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2359,50 +1993,21 @@ func (s DeleteEnvironmentConfigurationOutput) GoString() string {
 	return s.String()
 }
 
-// Information about an application version deployment.
-type Deployment struct {
-	_ struct{} `type:"structure"`
-
-	// The ID of the deployment. This number increases by one each time that you
-	// deploy source code or change instance configuration settings.
-	DeploymentId *int64 `type:"long"`
-
-	// For in-progress deployments, the time that the deloyment started.
-	//
-	// For completed deployments, the time that the deployment ended.
-	DeploymentTime *time.Time `type:"timestamp" timestampFormat:"iso8601"`
-
-	// The status of the deployment:
-	//
-	//   In Progress : The deployment is in progress.  Deployed : The deployment
-	// succeeded.  Failed : The deployment failed.
-	Status *string `type:"string"`
-
-	// The version label of the application version in the deployment.
-	VersionLabel *string `type:"string"`
-}
-
-// String returns the string representation
-func (s Deployment) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s Deployment) GoString() string {
-	return s.String()
-}
-
 // Result message containing a list of configuration descriptions.
 type DescribeApplicationVersionsInput struct {
-	_ struct{} `type:"structure"`
-
 	// If specified, AWS Elastic Beanstalk restricts the returned descriptions to
 	// only include ones that are associated with the specified application.
-	ApplicationName *string `min:"1" type:"string"`
+	ApplicationName *string `type:"string"`
 
 	// If specified, restricts the returned descriptions to only include ones that
 	// have the specified version labels.
 	VersionLabels []*string `type:"list"`
+
+	metadataDescribeApplicationVersionsInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeApplicationVersionsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2415,25 +2020,16 @@ func (s DescribeApplicationVersionsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeApplicationVersionsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeApplicationVersionsInput"}
-	if s.ApplicationName != nil && len(*s.ApplicationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ApplicationName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Result message wrapping a list of application version descriptions.
 type DescribeApplicationVersionsOutput struct {
-	_ struct{} `type:"structure"`
-
-	// List of ApplicationVersionDescription objects sorted by order of creation.
+	// A list of ApplicationVersionDescription .
 	ApplicationVersions []*ApplicationVersionDescription `type:"list"`
+
+	metadataDescribeApplicationVersionsOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeApplicationVersionsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2446,13 +2042,17 @@ func (s DescribeApplicationVersionsOutput) GoString() string {
 	return s.String()
 }
 
-// Request to describe one or more applications.
+// This documentation target is not reported in the API reference.
 type DescribeApplicationsInput struct {
-	_ struct{} `type:"structure"`
-
 	// If specified, AWS Elastic Beanstalk restricts the returned descriptions to
 	// only include those with the specified names.
 	ApplicationNames []*string `type:"list"`
+
+	metadataDescribeApplicationsInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeApplicationsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2467,10 +2067,14 @@ func (s DescribeApplicationsInput) GoString() string {
 
 // Result message containing a list of application descriptions.
 type DescribeApplicationsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// This parameter contains a list of ApplicationDescription.
 	Applications []*ApplicationDescription `type:"list"`
+
+	metadataDescribeApplicationsOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeApplicationsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2485,15 +2089,13 @@ func (s DescribeApplicationsOutput) GoString() string {
 
 // Result message containig a list of application version descriptions.
 type DescribeConfigurationOptionsInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the application associated with the configuration template or
 	// environment. Only needed if you want to describe the configuration options
 	// associated with either the configuration template or environment.
-	ApplicationName *string `min:"1" type:"string"`
+	ApplicationName *string `type:"string"`
 
 	// The name of the environment whose configuration options you want to describe.
-	EnvironmentName *string `min:"4" type:"string"`
+	EnvironmentName *string `type:"string"`
 
 	// If specified, restricts the descriptions to only the specified options.
 	Options []*OptionSpecification `type:"list"`
@@ -2503,7 +2105,13 @@ type DescribeConfigurationOptionsInput struct {
 
 	// The name of the configuration template whose configuration options you want
 	// to describe.
-	TemplateName *string `min:"1" type:"string"`
+	TemplateName *string `type:"string"`
+
+	metadataDescribeConfigurationOptionsInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeConfigurationOptionsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2516,44 +2124,19 @@ func (s DescribeConfigurationOptionsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeConfigurationOptionsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeConfigurationOptionsInput"}
-	if s.ApplicationName != nil && len(*s.ApplicationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ApplicationName", 1))
-	}
-	if s.EnvironmentName != nil && len(*s.EnvironmentName) < 4 {
-		invalidParams.Add(request.NewErrParamMinLen("EnvironmentName", 4))
-	}
-	if s.TemplateName != nil && len(*s.TemplateName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TemplateName", 1))
-	}
-	if s.Options != nil {
-		for i, v := range s.Options {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Options", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Describes the settings for a specified configuration set.
 type DescribeConfigurationOptionsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// A list of ConfigurationOptionDescription.
 	Options []*ConfigurationOptionDescription `type:"list"`
 
 	// The name of the solution stack these configuration options belong to.
 	SolutionStackName *string `type:"string"`
+
+	metadataDescribeConfigurationOptionsOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeConfigurationOptionsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2569,10 +2152,8 @@ func (s DescribeConfigurationOptionsOutput) GoString() string {
 // Result message containing all of the configuration settings for a specified
 // solution stack or configuration template.
 type DescribeConfigurationSettingsInput struct {
-	_ struct{} `type:"structure"`
-
 	// The application for the environment or configuration template.
-	ApplicationName *string `min:"1" type:"string" required:"true"`
+	ApplicationName *string `type:"string" required:"true"`
 
 	// The name of the environment to describe.
 	//
@@ -2580,7 +2161,7 @@ type DescribeConfigurationSettingsInput struct {
 	// If you specify both, AWS Elastic Beanstalk returns an InvalidParameterCombination
 	// error. If you do not specify either, AWS Elastic Beanstalk returns MissingRequiredParameter
 	// error.
-	EnvironmentName *string `min:"4" type:"string"`
+	EnvironmentName *string `type:"string"`
 
 	// The name of the configuration template to describe.
 	//
@@ -2588,7 +2169,13 @@ type DescribeConfigurationSettingsInput struct {
 	// but not both. If you specify both, AWS Elastic Beanstalk returns an InvalidParameterCombination
 	// error. If you do not specify either, AWS Elastic Beanstalk returns a MissingRequiredParameter
 	// error.
-	TemplateName *string `min:"1" type:"string"`
+	TemplateName *string `type:"string"`
+
+	metadataDescribeConfigurationSettingsInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeConfigurationSettingsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2601,34 +2188,16 @@ func (s DescribeConfigurationSettingsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeConfigurationSettingsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeConfigurationSettingsInput"}
-	if s.ApplicationName == nil {
-		invalidParams.Add(request.NewErrParamRequired("ApplicationName"))
-	}
-	if s.ApplicationName != nil && len(*s.ApplicationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ApplicationName", 1))
-	}
-	if s.EnvironmentName != nil && len(*s.EnvironmentName) < 4 {
-		invalidParams.Add(request.NewErrParamMinLen("EnvironmentName", 4))
-	}
-	if s.TemplateName != nil && len(*s.TemplateName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TemplateName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The results from a request to change the configuration settings of an environment.
 type DescribeConfigurationSettingsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// A list of ConfigurationSettingsDescription.
 	ConfigurationSettings []*ConfigurationSettingsDescription `type:"list"`
+
+	metadataDescribeConfigurationSettingsOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeConfigurationSettingsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2643,25 +2212,21 @@ func (s DescribeConfigurationSettingsOutput) GoString() string {
 
 // See the example below to learn how to create a request body.
 type DescribeEnvironmentHealthInput struct {
-	_ struct{} `type:"structure"`
-
 	// Specifies the response elements you wish to receive. If no attribute names
-	// are specified, AWS Elastic Beanstalk only returns the name of the environment.
+	// are specified, AWS Elastic Beanstalk returns all response elements.
 	AttributeNames []*string `type:"list"`
 
 	// Specifies the AWS Elastic Beanstalk environment ID.
-	//
-	// Condition: You must specify either this or an EnvironmentName, or both.
-	// If you do not specify either, AWS Elastic Beanstalk returns MissingRequiredParameter
-	// error.
 	EnvironmentId *string `type:"string"`
 
 	// Specifies the AWS Elastic Beanstalk environment name.
-	//
-	// Condition: You must specify either this or an EnvironmentId, or both. If
-	// you do not specify either, AWS Elastic Beanstalk returns MissingRequiredParameter
-	// error.
-	EnvironmentName *string `min:"4" type:"string"`
+	EnvironmentName *string `type:"string"`
+
+	metadataDescribeEnvironmentHealthInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeEnvironmentHealthInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2674,23 +2239,8 @@ func (s DescribeEnvironmentHealthInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeEnvironmentHealthInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeEnvironmentHealthInput"}
-	if s.EnvironmentName != nil && len(*s.EnvironmentName) < 4 {
-		invalidParams.Add(request.NewErrParamMinLen("EnvironmentName", 4))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // See the example below for a sample response.
 type DescribeEnvironmentHealthOutput struct {
-	_ struct{} `type:"structure"`
-
 	// Represents the application metrics for a specified environment.
 	ApplicationMetrics *ApplicationMetrics `type:"structure"`
 
@@ -2702,7 +2252,7 @@ type DescribeEnvironmentHealthOutput struct {
 	Color *string `type:"string"`
 
 	// The AWS Elastic Beanstalk environment name.
-	EnvironmentName *string `min:"4" type:"string"`
+	EnvironmentName *string `type:"string"`
 
 	// Contains the response body with information about the health of the environment.
 	HealthStatus *string `type:"string"`
@@ -2717,6 +2267,12 @@ type DescribeEnvironmentHealthOutput struct {
 	// Returns the health status value of the environment. For more information,
 	// see Health Colors and Statuses (http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/health-enhanced-status.html).
 	Status *string `type:"string" enum:"EnvironmentHealth"`
+
+	metadataDescribeEnvironmentHealthOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeEnvironmentHealthOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2729,114 +2285,8 @@ func (s DescribeEnvironmentHealthOutput) GoString() string {
 	return s.String()
 }
 
-// Request to list completed and failed managed actions.
-type DescribeEnvironmentManagedActionHistoryInput struct {
-	_ struct{} `type:"structure"`
-
-	// The environment ID of the target environment.
-	EnvironmentId *string `type:"string"`
-
-	// The name of the target environment.
-	EnvironmentName *string `min:"4" type:"string"`
-
-	// The maximum number of items to return for a single request.
-	MaxItems *int64 `type:"integer"`
-
-	// The pagination token returned by a previous request.
-	NextToken *string `type:"string"`
-}
-
-// String returns the string representation
-func (s DescribeEnvironmentManagedActionHistoryInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s DescribeEnvironmentManagedActionHistoryInput) GoString() string {
-	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeEnvironmentManagedActionHistoryInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeEnvironmentManagedActionHistoryInput"}
-	if s.EnvironmentName != nil && len(*s.EnvironmentName) < 4 {
-		invalidParams.Add(request.NewErrParamMinLen("EnvironmentName", 4))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// A result message containing a list of completed and failed managed actions.
-type DescribeEnvironmentManagedActionHistoryOutput struct {
-	_ struct{} `type:"structure"`
-
-	// A list of completed and failed managed actions.
-	ManagedActionHistoryItems []*ManagedActionHistoryItem `min:"1" type:"list"`
-
-	// A pagination token that you pass to DescribeEnvironmentManagedActionHistory
-	// to get the next page of results.
-	NextToken *string `type:"string"`
-}
-
-// String returns the string representation
-func (s DescribeEnvironmentManagedActionHistoryOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s DescribeEnvironmentManagedActionHistoryOutput) GoString() string {
-	return s.String()
-}
-
-// Request to list an environment's upcoming and in-progress managed actions.
-type DescribeEnvironmentManagedActionsInput struct {
-	_ struct{} `type:"structure"`
-
-	// The environment ID of the target environment.
-	EnvironmentId *string `type:"string"`
-
-	// The name of the target environment.
-	EnvironmentName *string `type:"string"`
-
-	// To show only actions with a particular status, specify a status.
-	Status *string `type:"string" enum:"ActionStatus"`
-}
-
-// String returns the string representation
-func (s DescribeEnvironmentManagedActionsInput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s DescribeEnvironmentManagedActionsInput) GoString() string {
-	return s.String()
-}
-
-// The result message containing a list of managed actions.
-type DescribeEnvironmentManagedActionsOutput struct {
-	_ struct{} `type:"structure"`
-
-	// A list of upcoming and in-progress managed actions.
-	ManagedActions []*ManagedAction `min:"1" type:"list"`
-}
-
-// String returns the string representation
-func (s DescribeEnvironmentManagedActionsOutput) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s DescribeEnvironmentManagedActionsOutput) GoString() string {
-	return s.String()
-}
-
-// Request to describe the resources in an environment.
+// This documentation target is not reported in the API reference.
 type DescribeEnvironmentResourcesInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the environment to retrieve AWS resource usage data.
 	//
 	//  Condition: You must specify either this or an EnvironmentName, or both.
@@ -2849,7 +2299,13 @@ type DescribeEnvironmentResourcesInput struct {
 	//  Condition: You must specify either this or an EnvironmentId, or both. If
 	// you do not specify either, AWS Elastic Beanstalk returns MissingRequiredParameter
 	// error.
-	EnvironmentName *string `min:"4" type:"string"`
+	EnvironmentName *string `type:"string"`
+
+	metadataDescribeEnvironmentResourcesInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeEnvironmentResourcesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2862,25 +2318,16 @@ func (s DescribeEnvironmentResourcesInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeEnvironmentResourcesInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeEnvironmentResourcesInput"}
-	if s.EnvironmentName != nil && len(*s.EnvironmentName) < 4 {
-		invalidParams.Add(request.NewErrParamMinLen("EnvironmentName", 4))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Result message containing a list of environment resource descriptions.
 type DescribeEnvironmentResourcesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// A list of EnvironmentResourceDescription.
 	EnvironmentResources *EnvironmentResourceDescription `type:"structure"`
+
+	metadataDescribeEnvironmentResourcesOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeEnvironmentResourcesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2893,13 +2340,11 @@ func (s DescribeEnvironmentResourcesOutput) GoString() string {
 	return s.String()
 }
 
-// Request to describe one or more environments.
+// This documentation target is not reported in the API reference.
 type DescribeEnvironmentsInput struct {
-	_ struct{} `type:"structure"`
-
 	// If specified, AWS Elastic Beanstalk restricts the returned descriptions to
 	// include only those that are associated with this application.
-	ApplicationName *string `min:"1" type:"string"`
+	ApplicationName *string `type:"string"`
 
 	// If specified, AWS Elastic Beanstalk restricts the returned descriptions to
 	// include only those that have the specified IDs.
@@ -2923,7 +2368,13 @@ type DescribeEnvironmentsInput struct {
 
 	// If specified, AWS Elastic Beanstalk restricts the returned descriptions to
 	// include only those that are associated with this application version.
-	VersionLabel *string `min:"1" type:"string"`
+	VersionLabel *string `type:"string"`
+
+	metadataDescribeEnvironmentsInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeEnvironmentsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2936,29 +2387,33 @@ func (s DescribeEnvironmentsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeEnvironmentsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeEnvironmentsInput"}
-	if s.ApplicationName != nil && len(*s.ApplicationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ApplicationName", 1))
-	}
-	if s.VersionLabel != nil && len(*s.VersionLabel) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("VersionLabel", 1))
-	}
+// Result message containing a list of environment descriptions.
+type DescribeEnvironmentsOutput struct {
+	// Returns an EnvironmentDescription list.
+	Environments []*EnvironmentDescription `type:"list"`
 
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+	metadataDescribeEnvironmentsOutput `json:"-" xml:"-"`
 }
 
-// Request to retrieve a list of events for an environment.
-type DescribeEventsInput struct {
-	_ struct{} `type:"structure"`
+type metadataDescribeEnvironmentsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
+}
 
+// String returns the string representation
+func (s DescribeEnvironmentsOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DescribeEnvironmentsOutput) GoString() string {
+	return s.String()
+}
+
+// This documentation target is not reported in the API reference.
+type DescribeEventsInput struct {
 	// If specified, AWS Elastic Beanstalk restricts the returned descriptions to
 	// include only those associated with this application.
-	ApplicationName *string `min:"1" type:"string"`
+	ApplicationName *string `type:"string"`
 
 	// If specified, AWS Elastic Beanstalk restricts the returned descriptions to
 	// those that occur up to, but not including, the EndTime.
@@ -2970,11 +2425,11 @@ type DescribeEventsInput struct {
 
 	// If specified, AWS Elastic Beanstalk restricts the returned descriptions to
 	// those associated with this environment.
-	EnvironmentName *string `min:"4" type:"string"`
+	EnvironmentName *string `type:"string"`
 
 	// Specifies the maximum number of events that can be returned, beginning with
 	// the most recent event.
-	MaxRecords *int64 `min:"1" type:"integer"`
+	MaxRecords *int64 `type:"integer"`
 
 	// Pagination token. If specified, the events return the next batch of results.
 	NextToken *string `type:"string"`
@@ -2993,11 +2448,17 @@ type DescribeEventsInput struct {
 
 	// If specified, AWS Elastic Beanstalk restricts the returned descriptions to
 	// those that are associated with this environment configuration.
-	TemplateName *string `min:"1" type:"string"`
+	TemplateName *string `type:"string"`
 
 	// If specified, AWS Elastic Beanstalk restricts the returned descriptions to
 	// those associated with this application version.
-	VersionLabel *string `min:"1" type:"string"`
+	VersionLabel *string `type:"string"`
+
+	metadataDescribeEventsInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeEventsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3010,41 +2471,20 @@ func (s DescribeEventsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeEventsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeEventsInput"}
-	if s.ApplicationName != nil && len(*s.ApplicationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ApplicationName", 1))
-	}
-	if s.EnvironmentName != nil && len(*s.EnvironmentName) < 4 {
-		invalidParams.Add(request.NewErrParamMinLen("EnvironmentName", 4))
-	}
-	if s.MaxRecords != nil && *s.MaxRecords < 1 {
-		invalidParams.Add(request.NewErrParamMinValue("MaxRecords", 1))
-	}
-	if s.TemplateName != nil && len(*s.TemplateName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TemplateName", 1))
-	}
-	if s.VersionLabel != nil && len(*s.VersionLabel) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("VersionLabel", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Result message wrapping a list of event descriptions.
 type DescribeEventsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// A list of EventDescription.
 	Events []*EventDescription `type:"list"`
 
 	// If returned, this indicates that there are more results to obtain. Use this
 	// token in the next DescribeEvents call to get the next batch of events.
 	NextToken *string `type:"string"`
+
+	metadataDescribeEventsOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeEventsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3059,20 +2499,24 @@ func (s DescribeEventsOutput) GoString() string {
 
 // See the example below to learn how to create a request body.
 type DescribeInstancesHealthInput struct {
-	_ struct{} `type:"structure"`
-
 	// Specifies the response elements you wish to receive. If no attribute names
-	// are specified, AWS Elastic Beanstalk only returns a list of instances.
+	// are specified, AWS Elastic Beanstalk returns all response elements.
 	AttributeNames []*string `type:"list"`
 
 	// Specifies the AWS Elastic Beanstalk environment ID.
 	EnvironmentId *string `type:"string"`
 
 	// Specifies the AWS Elastic Beanstalk environment name.
-	EnvironmentName *string `min:"4" type:"string"`
+	EnvironmentName *string `type:"string"`
 
 	// Specifies the next token of the request.
-	NextToken *string `min:"1" type:"string"`
+	NextToken *string `type:"string"`
+
+	metadataDescribeInstancesHealthInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeInstancesHealthInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3085,34 +2529,22 @@ func (s DescribeInstancesHealthInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeInstancesHealthInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeInstancesHealthInput"}
-	if s.EnvironmentName != nil && len(*s.EnvironmentName) < 4 {
-		invalidParams.Add(request.NewErrParamMinLen("EnvironmentName", 4))
-	}
-	if s.NextToken != nil && len(*s.NextToken) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("NextToken", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // See the example below for a sample response.
 type DescribeInstancesHealthOutput struct {
-	_ struct{} `type:"structure"`
-
 	// Contains the response body with information about the health of the instance.
 	InstanceHealthList []*SingleInstanceHealth `type:"list"`
 
 	// The next token.
-	NextToken *string `min:"1" type:"string"`
+	NextToken *string `type:"string"`
 
 	// The date and time the information was last refreshed.
 	RefreshedAt *time.Time `type:"timestamp" timestampFormat:"iso8601"`
+
+	metadataDescribeInstancesHealthOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeInstancesHealthOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3127,8 +2559,6 @@ func (s DescribeInstancesHealthOutput) GoString() string {
 
 // Describes the properties of an environment.
 type EnvironmentDescription struct {
-	_ struct{} `type:"structure"`
-
 	// Indicates if there is an in-progress environment configuration update or
 	// application version deployment that you can cancel.
 	//
@@ -3138,10 +2568,10 @@ type EnvironmentDescription struct {
 	AbortableOperationInProgress *bool `type:"boolean"`
 
 	// The name of the application associated with this environment.
-	ApplicationName *string `min:"1" type:"string"`
+	ApplicationName *string `type:"string"`
 
 	// The URL to the CNAME for this environment.
-	CNAME *string `min:"1" type:"string"`
+	CNAME *string `type:"string"`
 
 	// The creation date for this environment.
 	DateCreated *time.Time `type:"timestamp" timestampFormat:"iso8601"`
@@ -3159,22 +2589,26 @@ type EnvironmentDescription struct {
 	// The ID of this environment.
 	EnvironmentId *string `type:"string"`
 
-	// A list of links to other environments in the same group.
-	EnvironmentLinks []*EnvironmentLink `type:"list"`
-
 	// The name of this environment.
-	EnvironmentName *string `min:"4" type:"string"`
+	EnvironmentName *string `type:"string"`
 
 	// Describes the health status of the environment. AWS Elastic Beanstalk indicates
 	// the failure levels for a running environment:
 	//
-	//   Red: Indicates the environment is not responsive. Occurs when three or
-	// more consecutive failures occur for an environment.   Yellow: Indicates that
-	// something is wrong. Occurs when two consecutive failures occur for an environment.
-	//   Green: Indicates the environment is healthy and fully functional.   Grey:
-	// Default health for a new environment. The environment is not fully launched
-	// and health checks have not started or health checks are suspended during
-	// an UpdateEnvironment or RestartEnvironement request.    Default: Grey
+	//    Red : Indicates the environment is not working.
+	//
+	//    Yellow: Indicates that something is wrong, the application might not
+	// be available, but the instances appear running.
+	//
+	//    Green: Indicates the environment is healthy and fully functional.
+	//
+	//     Red: Indicates the environment is not responsive. Occurs when three
+	// or more consecutive failures occur for an environment.   Yellow: Indicates
+	// that something is wrong. Occurs when two consecutive failures occur for an
+	// environment.   Green: Indicates the environment is healthy and fully functional.
+	//   Grey: Default health for a new environment. The environment is not fully
+	// launched and health checks have not started or health checks are suspended
+	// during an UpdateEnvironment or RestartEnvironement request.    Default: Grey
 	Health *string `type:"string" enum:"EnvironmentHealth"`
 
 	// Returns the health status of the application running in your environment.
@@ -3197,13 +2631,19 @@ type EnvironmentDescription struct {
 	Status *string `type:"string" enum:"EnvironmentStatus"`
 
 	// The name of the configuration template used to originally launch this environment.
-	TemplateName *string `min:"1" type:"string"`
+	TemplateName *string `type:"string"`
 
 	// Describes the current tier of this environment.
 	Tier *EnvironmentTier `type:"structure"`
 
 	// The application version deployed in this environment.
-	VersionLabel *string `min:"1" type:"string"`
+	VersionLabel *string `type:"string"`
+
+	metadataEnvironmentDescription `json:"-" xml:"-"`
+}
+
+type metadataEnvironmentDescription struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3216,28 +2656,8 @@ func (s EnvironmentDescription) GoString() string {
 	return s.String()
 }
 
-// Result message containing a list of environment descriptions.
-type EnvironmentDescriptionsMessage struct {
-	_ struct{} `type:"structure"`
-
-	// Returns an EnvironmentDescription list.
-	Environments []*EnvironmentDescription `type:"list"`
-}
-
-// String returns the string representation
-func (s EnvironmentDescriptionsMessage) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s EnvironmentDescriptionsMessage) GoString() string {
-	return s.String()
-}
-
 // The information retrieved from the Amazon EC2 instances.
 type EnvironmentInfoDescription struct {
-	_ struct{} `type:"structure"`
-
 	// The Amazon EC2 Instance ID for this information.
 	Ec2InstanceId *string `type:"string"`
 
@@ -3249,6 +2669,12 @@ type EnvironmentInfoDescription struct {
 
 	// The time stamp when this information was retrieved.
 	SampleTimestamp *time.Time `type:"timestamp" timestampFormat:"iso8601"`
+
+	metadataEnvironmentInfoDescription `json:"-" xml:"-"`
+}
+
+type metadataEnvironmentInfoDescription struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3261,40 +2687,13 @@ func (s EnvironmentInfoDescription) GoString() string {
 	return s.String()
 }
 
-// A link to another environment, defined in the environment's manifest. Links
-// provide connection information in system properties that can be used to connect
-// to another environment in the same group. See Environment Manifest (env.yaml)
-// (http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/environment-cfg-manifest.html)
-// for details.
-type EnvironmentLink struct {
-	_ struct{} `type:"structure"`
-
-	// The name of the linked environment (the dependency).
-	EnvironmentName *string `type:"string"`
-
-	// The name of the link.
-	LinkName *string `type:"string"`
-}
-
-// String returns the string representation
-func (s EnvironmentLink) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s EnvironmentLink) GoString() string {
-	return s.String()
-}
-
 // Describes the AWS resources in use by this environment. This data is live.
 type EnvironmentResourceDescription struct {
-	_ struct{} `type:"structure"`
-
 	// The AutoScalingGroups used by this environment.
 	AutoScalingGroups []*AutoScalingGroup `type:"list"`
 
 	// The name of the environment.
-	EnvironmentName *string `min:"4" type:"string"`
+	EnvironmentName *string `type:"string"`
 
 	// The Amazon EC2 instances used by this environment.
 	Instances []*Instance `type:"list"`
@@ -3310,6 +2709,12 @@ type EnvironmentResourceDescription struct {
 
 	// The AutoScaling triggers in use by this environment.
 	Triggers []*Trigger `type:"list"`
+
+	metadataEnvironmentResourceDescription `json:"-" xml:"-"`
+}
+
+type metadataEnvironmentResourceDescription struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3325,10 +2730,14 @@ func (s EnvironmentResourceDescription) GoString() string {
 // Describes the AWS resources in use by this environment. This data is not
 // live data.
 type EnvironmentResourcesDescription struct {
-	_ struct{} `type:"structure"`
-
 	// Describes the LoadBalancer.
 	LoadBalancer *LoadBalancerDescription `type:"structure"`
+
+	metadataEnvironmentResourcesDescription `json:"-" xml:"-"`
+}
+
+type metadataEnvironmentResourcesDescription struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3343,8 +2752,6 @@ func (s EnvironmentResourcesDescription) GoString() string {
 
 // Describes the properties of an environment tier
 type EnvironmentTier struct {
-	_ struct{} `type:"structure"`
-
 	// The name of this environment tier.
 	Name *string `type:"string"`
 
@@ -3353,6 +2760,12 @@ type EnvironmentTier struct {
 
 	// The version of this environment tier.
 	Version *string `type:"string"`
+
+	metadataEnvironmentTier `json:"-" xml:"-"`
+}
+
+type metadataEnvironmentTier struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3367,13 +2780,11 @@ func (s EnvironmentTier) GoString() string {
 
 // Describes an event.
 type EventDescription struct {
-	_ struct{} `type:"structure"`
-
 	// The application associated with the event.
-	ApplicationName *string `min:"1" type:"string"`
+	ApplicationName *string `type:"string"`
 
 	// The name of the environment associated with this event.
-	EnvironmentName *string `min:"4" type:"string"`
+	EnvironmentName *string `type:"string"`
 
 	// The date when the event occurred.
 	EventDate *time.Time `type:"timestamp" timestampFormat:"iso8601"`
@@ -3388,10 +2799,16 @@ type EventDescription struct {
 	Severity *string `type:"string" enum:"EventSeverity"`
 
 	// The name of the configuration associated with this event.
-	TemplateName *string `min:"1" type:"string"`
+	TemplateName *string `type:"string"`
 
 	// The release label for the application version associated with this event.
-	VersionLabel *string `min:"1" type:"string"`
+	VersionLabel *string `type:"string"`
+
+	metadataEventDescription `json:"-" xml:"-"`
+}
+
+type metadataEventDescription struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3406,10 +2823,14 @@ func (s EventDescription) GoString() string {
 
 // The description of an Amazon EC2 instance.
 type Instance struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the Amazon EC2 instance.
 	Id *string `type:"string"`
+
+	metadataInstance `json:"-" xml:"-"`
+}
+
+type metadataInstance struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3425,8 +2846,6 @@ func (s Instance) GoString() string {
 // Represents summary information about the health of an instance. For more
 // information, see Health Colors and Statuses (http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/health-enhanced-status.html).
 type InstanceHealthSummary struct {
-	_ struct{} `type:"structure"`
-
 	// Red. The health agent is reporting a high number of request failures or other
 	// issues for an instance or environment.
 	Degraded *int64 `type:"integer"`
@@ -3456,6 +2875,12 @@ type InstanceHealthSummary struct {
 	// Yellow. The health agent is reporting a moderate number of request failures
 	// or other issues for an instance or environment.
 	Warning *int64 `type:"integer"`
+
+	metadataInstanceHealthSummary `json:"-" xml:"-"`
+}
+
+type metadataInstanceHealthSummary struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3471,8 +2896,6 @@ func (s InstanceHealthSummary) GoString() string {
 // Represents the average latency for the slowest X percent of requests over
 // the last 10 seconds.
 type Latency struct {
-	_ struct{} `type:"structure"`
-
 	// The average latency for the slowest 90 percent of requests over the last
 	// 10 seconds.
 	P10 *float64 `type:"double"`
@@ -3504,6 +2927,12 @@ type Latency struct {
 	// The average latency for the slowest 0.1 percent of requests over the last
 	// 10 seconds.
 	P999 *float64 `type:"double"`
+
+	metadataLatency `json:"-" xml:"-"`
+}
+
+type metadataLatency struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3518,10 +2947,14 @@ func (s Latency) GoString() string {
 
 // Describes an Auto Scaling launch configuration.
 type LaunchConfiguration struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the launch configuration.
 	Name *string `type:"string"`
+
+	metadataLaunchConfiguration `json:"-" xml:"-"`
+}
+
+type metadataLaunchConfiguration struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3535,7 +2968,11 @@ func (s LaunchConfiguration) GoString() string {
 }
 
 type ListAvailableSolutionStacksInput struct {
-	_ struct{} `type:"structure"`
+	metadataListAvailableSolutionStacksInput `json:"-" xml:"-"`
+}
+
+type metadataListAvailableSolutionStacksInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3550,13 +2987,17 @@ func (s ListAvailableSolutionStacksInput) GoString() string {
 
 // A list of available AWS Elastic Beanstalk solution stacks.
 type ListAvailableSolutionStacksOutput struct {
-	_ struct{} `type:"structure"`
-
 	// A list of available solution stacks and their SolutionStackDescription.
 	SolutionStackDetails []*SolutionStackDescription `type:"list"`
 
 	// A list of available solution stacks.
 	SolutionStacks []*string `type:"list"`
+
+	metadataListAvailableSolutionStacksOutput `json:"-" xml:"-"`
+}
+
+type metadataListAvailableSolutionStacksOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3571,13 +3012,17 @@ func (s ListAvailableSolutionStacksOutput) GoString() string {
 
 // Describes the properties of a Listener for the LoadBalancer.
 type Listener struct {
-	_ struct{} `type:"structure"`
-
 	// The port that is used by the Listener.
 	Port *int64 `type:"integer"`
 
 	// The protocol that is used by the Listener.
 	Protocol *string `type:"string"`
+
+	metadataListener `json:"-" xml:"-"`
+}
+
+type metadataListener struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3592,10 +3037,14 @@ func (s Listener) GoString() string {
 
 // Describes a LoadBalancer.
 type LoadBalancer struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the LoadBalancer.
 	Name *string `type:"string"`
+
+	metadataLoadBalancer `json:"-" xml:"-"`
+}
+
+type metadataLoadBalancer struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3610,8 +3059,6 @@ func (s LoadBalancer) GoString() string {
 
 // Describes the details of a LoadBalancer.
 type LoadBalancerDescription struct {
-	_ struct{} `type:"structure"`
-
 	// The domain name of the LoadBalancer.
 	Domain *string `type:"string"`
 
@@ -3620,6 +3067,12 @@ type LoadBalancerDescription struct {
 
 	// The name of the LoadBalancer.
 	LoadBalancerName *string `type:"string"`
+
+	metadataLoadBalancerDescription `json:"-" xml:"-"`
+}
+
+type metadataLoadBalancerDescription struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3632,88 +3085,21 @@ func (s LoadBalancerDescription) GoString() string {
 	return s.String()
 }
 
-// The record of an upcoming or in-progress managed action.
-type ManagedAction struct {
-	_ struct{} `type:"structure"`
-
-	// A description of the managed action.
-	ActionDescription *string `type:"string"`
-
-	// A unique identifier for the managed action.
-	ActionId *string `type:"string"`
-
-	// The type of managed action.
-	ActionType *string `type:"string" enum:"ActionType"`
-
-	// The status of the managed action. If the action is Scheduled, you can apply
-	// it immediately with ApplyEnvironmentManagedAction.
-	Status *string `type:"string" enum:"ActionStatus"`
-
-	// The start time of the maintenance window in which the managed action will
-	// execute.
-	WindowStartTime *time.Time `type:"timestamp" timestampFormat:"iso8601"`
-}
-
-// String returns the string representation
-func (s ManagedAction) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s ManagedAction) GoString() string {
-	return s.String()
-}
-
-// The record of a completed or failed managed action.
-type ManagedActionHistoryItem struct {
-	_ struct{} `type:"structure"`
-
-	// A description of the managed action.
-	ActionDescription *string `type:"string"`
-
-	// A unique identifier for the managed action.
-	ActionId *string `type:"string"`
-
-	// The type of the managed action.
-	ActionType *string `type:"string" enum:"ActionType"`
-
-	// The date and time that the action started executing.
-	ExecutedTime *time.Time `type:"timestamp" timestampFormat:"iso8601"`
-
-	// If the action failed, a description of the failure.
-	FailureDescription *string `type:"string"`
-
-	// If the action failed, the type of failure.
-	FailureType *string `type:"string" enum:"FailureType"`
-
-	// The date and time that the action finished executing.
-	FinishedTime *time.Time `type:"timestamp" timestampFormat:"iso8601"`
-
-	// The status of the action.
-	Status *string `type:"string" enum:"ActionHistoryStatus"`
-}
-
-// String returns the string representation
-func (s ManagedActionHistoryItem) String() string {
-	return awsutil.Prettify(s)
-}
-
-// GoString returns the string representation
-func (s ManagedActionHistoryItem) GoString() string {
-	return s.String()
-}
-
 // A regular expression representing a restriction on a string configuration
 // option value.
 type OptionRestrictionRegex struct {
-	_ struct{} `type:"structure"`
-
 	// A unique name representing this regular expression.
 	Label *string `type:"string"`
 
 	// The regular expression pattern that a string configuration option value with
 	// this restriction must match.
 	Pattern *string `type:"string"`
+
+	metadataOptionRestrictionRegex `json:"-" xml:"-"`
+}
+
+type metadataOptionRestrictionRegex struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3728,8 +3114,6 @@ func (s OptionRestrictionRegex) GoString() string {
 
 // A specification identifying an individual configuration option.
 type OptionSpecification struct {
-	_ struct{} `type:"structure"`
-
 	// A unique namespace identifying the option's associated AWS resource.
 	Namespace *string `type:"string"`
 
@@ -3737,7 +3121,13 @@ type OptionSpecification struct {
 	OptionName *string `type:"string"`
 
 	// A unique resource name for a time-based scaling configuration option.
-	ResourceName *string `min:"1" type:"string"`
+	ResourceName *string `type:"string"`
+
+	metadataOptionSpecification `json:"-" xml:"-"`
+}
+
+type metadataOptionSpecification struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3750,28 +3140,19 @@ func (s OptionSpecification) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *OptionSpecification) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "OptionSpecification"}
-	if s.ResourceName != nil && len(*s.ResourceName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ResourceName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Describes a queue.
 type Queue struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the queue.
 	Name *string `type:"string"`
 
 	// The URL of the queue.
 	URL *string `type:"string"`
+
+	metadataQueue `json:"-" xml:"-"`
+}
+
+type metadataQueue struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3785,8 +3166,6 @@ func (s Queue) GoString() string {
 }
 
 type RebuildEnvironmentInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the environment to rebuild.
 	//
 	//  Condition: You must specify either this or an EnvironmentName, or both.
@@ -3799,7 +3178,13 @@ type RebuildEnvironmentInput struct {
 	//  Condition: You must specify either this or an EnvironmentId, or both. If
 	// you do not specify either, AWS Elastic Beanstalk returns MissingRequiredParameter
 	// error.
-	EnvironmentName *string `min:"4" type:"string"`
+	EnvironmentName *string `type:"string"`
+
+	metadataRebuildEnvironmentInput `json:"-" xml:"-"`
+}
+
+type metadataRebuildEnvironmentInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3812,21 +3197,12 @@ func (s RebuildEnvironmentInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *RebuildEnvironmentInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "RebuildEnvironmentInput"}
-	if s.EnvironmentName != nil && len(*s.EnvironmentName) < 4 {
-		invalidParams.Add(request.NewErrParamMinLen("EnvironmentName", 4))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type RebuildEnvironmentOutput struct {
+	metadataRebuildEnvironmentOutput `json:"-" xml:"-"`
 }
 
-type RebuildEnvironmentOutput struct {
-	_ struct{} `type:"structure"`
+type metadataRebuildEnvironmentOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3839,33 +3215,36 @@ func (s RebuildEnvironmentOutput) GoString() string {
 	return s.String()
 }
 
-// Request to retrieve logs from an environment and store them in your Elastic
-// Beanstalk storage bucket.
+// This documentation target is not reported in the API reference.
 type RequestEnvironmentInfoInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the environment of the requested data.
 	//
-	// If no such environment is found, RequestEnvironmentInfo returns an InvalidParameterValue
+	//  If no such environment is found, RequestEnvironmentInfo returns an InvalidParameterValue
 	// error.
 	//
-	// Condition: You must specify either this or an EnvironmentName, or both.
+	//  Condition: You must specify either this or an EnvironmentName, or both.
 	// If you do not specify either, AWS Elastic Beanstalk returns MissingRequiredParameter
 	// error.
 	EnvironmentId *string `type:"string"`
 
 	// The name of the environment of the requested data.
 	//
-	// If no such environment is found, RequestEnvironmentInfo returns an InvalidParameterValue
+	//  If no such environment is found, RequestEnvironmentInfo returns an InvalidParameterValue
 	// error.
 	//
-	// Condition: You must specify either this or an EnvironmentId, or both. If
+	//  Condition: You must specify either this or an EnvironmentId, or both. If
 	// you do not specify either, AWS Elastic Beanstalk returns MissingRequiredParameter
 	// error.
-	EnvironmentName *string `min:"4" type:"string"`
+	EnvironmentName *string `type:"string"`
 
 	// The type of information to request.
 	InfoType *string `type:"string" required:"true" enum:"EnvironmentInfoType"`
+
+	metadataRequestEnvironmentInfoInput `json:"-" xml:"-"`
+}
+
+type metadataRequestEnvironmentInfoInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3878,24 +3257,12 @@ func (s RequestEnvironmentInfoInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *RequestEnvironmentInfoInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "RequestEnvironmentInfoInput"}
-	if s.EnvironmentName != nil && len(*s.EnvironmentName) < 4 {
-		invalidParams.Add(request.NewErrParamMinLen("EnvironmentName", 4))
-	}
-	if s.InfoType == nil {
-		invalidParams.Add(request.NewErrParamRequired("InfoType"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type RequestEnvironmentInfoOutput struct {
+	metadataRequestEnvironmentInfoOutput `json:"-" xml:"-"`
 }
 
-type RequestEnvironmentInfoOutput struct {
-	_ struct{} `type:"structure"`
+type metadataRequestEnvironmentInfoOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3909,8 +3276,6 @@ func (s RequestEnvironmentInfoOutput) GoString() string {
 }
 
 type RestartAppServerInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the environment to restart the server for.
 	//
 	//  Condition: You must specify either this or an EnvironmentName, or both.
@@ -3923,7 +3288,13 @@ type RestartAppServerInput struct {
 	//  Condition: You must specify either this or an EnvironmentId, or both. If
 	// you do not specify either, AWS Elastic Beanstalk returns MissingRequiredParameter
 	// error.
-	EnvironmentName *string `min:"4" type:"string"`
+	EnvironmentName *string `type:"string"`
+
+	metadataRestartAppServerInput `json:"-" xml:"-"`
+}
+
+type metadataRestartAppServerInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3936,21 +3307,12 @@ func (s RestartAppServerInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *RestartAppServerInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "RestartAppServerInput"}
-	if s.EnvironmentName != nil && len(*s.EnvironmentName) < 4 {
-		invalidParams.Add(request.NewErrParamMinLen("EnvironmentName", 4))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type RestartAppServerOutput struct {
+	metadataRestartAppServerOutput `json:"-" xml:"-"`
 }
 
-type RestartAppServerOutput struct {
-	_ struct{} `type:"structure"`
+type metadataRestartAppServerOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3963,15 +3325,13 @@ func (s RestartAppServerOutput) GoString() string {
 	return s.String()
 }
 
-// Request to download logs retrieved with RequestEnvironmentInfo.
+// This documentation target is not reported in the API reference.
 type RetrieveEnvironmentInfoInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the data's environment.
 	//
-	// If no such environment is found, returns an InvalidParameterValue error.
+	//  If no such environment is found, returns an InvalidParameterValue error.
 	//
-	// Condition: You must specify either this or an EnvironmentName, or both.
+	//  Condition: You must specify either this or an EnvironmentName, or both.
 	// If you do not specify either, AWS Elastic Beanstalk returns MissingRequiredParameter
 	// error.
 	EnvironmentId *string `type:"string"`
@@ -3983,10 +3343,16 @@ type RetrieveEnvironmentInfoInput struct {
 	//  Condition: You must specify either this or an EnvironmentId, or both. If
 	// you do not specify either, AWS Elastic Beanstalk returns MissingRequiredParameter
 	// error.
-	EnvironmentName *string `min:"4" type:"string"`
+	EnvironmentName *string `type:"string"`
 
 	// The type of information to retrieve.
 	InfoType *string `type:"string" required:"true" enum:"EnvironmentInfoType"`
+
+	metadataRetrieveEnvironmentInfoInput `json:"-" xml:"-"`
+}
+
+type metadataRetrieveEnvironmentInfoInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3999,28 +3365,16 @@ func (s RetrieveEnvironmentInfoInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *RetrieveEnvironmentInfoInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "RetrieveEnvironmentInfoInput"}
-	if s.EnvironmentName != nil && len(*s.EnvironmentName) < 4 {
-		invalidParams.Add(request.NewErrParamMinLen("EnvironmentName", 4))
-	}
-	if s.InfoType == nil {
-		invalidParams.Add(request.NewErrParamRequired("InfoType"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Result message containing a description of the requested environment info.
 type RetrieveEnvironmentInfoOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The EnvironmentInfoDescription of the environment.
 	EnvironmentInfo []*EnvironmentInfoDescription `type:"list"`
+
+	metadataRetrieveEnvironmentInfoOutput `json:"-" xml:"-"`
+}
+
+type metadataRetrieveEnvironmentInfoOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4035,13 +3389,17 @@ func (s RetrieveEnvironmentInfoOutput) GoString() string {
 
 // A specification of a location in Amazon S3.
 type S3Location struct {
-	_ struct{} `type:"structure"`
-
 	// The Amazon S3 bucket where the data is located.
 	S3Bucket *string `type:"string"`
 
 	// The Amazon S3 key where the data is located.
 	S3Key *string `type:"string"`
+
+	metadataS3Location `json:"-" xml:"-"`
+}
+
+type metadataS3Location struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4058,13 +3416,8 @@ func (s S3Location) GoString() string {
 // the AWS Elastic Beanstalk environment. Use the InstanceId property to specify
 // the application instance for which you'd like to return data.
 type SingleInstanceHealth struct {
-	_ struct{} `type:"structure"`
-
 	// Represents the application metrics for a specified environment.
 	ApplicationMetrics *ApplicationMetrics `type:"structure"`
-
-	// The availability zone in which the instance runs.
-	AvailabilityZone *string `type:"string"`
 
 	// Represents the causes, which provide more information about the current health
 	// status.
@@ -4075,18 +3428,12 @@ type SingleInstanceHealth struct {
 	// (http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/health-enhanced-status.html).
 	Color *string `type:"string"`
 
-	// Information about the most recent deployment to an instance.
-	Deployment *Deployment `type:"structure"`
-
 	// Returns the health status of the specified instance. For more information,
-	// see Health Colors and Statuses (http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/health-enhanced-status.html).
+	// see .
 	HealthStatus *string `type:"string"`
 
 	// The ID of the Amazon EC2 instance.
-	InstanceId *string `min:"1" type:"string"`
-
-	// The instance's type.
-	InstanceType *string `type:"string"`
+	InstanceId *string `type:"string"`
 
 	// The time at which the EC2 instance was launched.
 	LaunchedAt *time.Time `type:"timestamp" timestampFormat:"iso8601"`
@@ -4094,6 +3441,12 @@ type SingleInstanceHealth struct {
 	// Represents CPU utilization and load average information for applications
 	// running in the specified environment.
 	System *SystemStatus `type:"structure"`
+
+	metadataSingleInstanceHealth `json:"-" xml:"-"`
+}
+
+type metadataSingleInstanceHealth struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4108,13 +3461,17 @@ func (s SingleInstanceHealth) GoString() string {
 
 // Describes the solution stack.
 type SolutionStackDescription struct {
-	_ struct{} `type:"structure"`
-
 	// The permitted file types allowed for a solution stack.
 	PermittedFileTypes []*string `type:"list"`
 
 	// The name of the solution stack.
 	SolutionStackName *string `type:"string"`
+
+	metadataSolutionStackDescription `json:"-" xml:"-"`
+}
+
+type metadataSolutionStackDescription struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4129,13 +3486,17 @@ func (s SolutionStackDescription) GoString() string {
 
 // A specification for an environment configuration
 type SourceConfiguration struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the application associated with the configuration.
-	ApplicationName *string `min:"1" type:"string"`
+	ApplicationName *string `type:"string"`
 
 	// The name of the configuration template.
-	TemplateName *string `min:"1" type:"string"`
+	TemplateName *string `type:"string"`
+
+	metadataSourceConfiguration `json:"-" xml:"-"`
+}
+
+type metadataSourceConfiguration struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4148,28 +3509,10 @@ func (s SourceConfiguration) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *SourceConfiguration) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "SourceConfiguration"}
-	if s.ApplicationName != nil && len(*s.ApplicationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ApplicationName", 1))
-	}
-	if s.TemplateName != nil && len(*s.TemplateName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TemplateName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the percentage of requests over the last 10 seconds that resulted
 // in each type of status code response. For more information, see Status Code
 // Definitions (http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html).
 type StatusCodes struct {
-	_ struct{} `type:"structure"`
-
 	// The percentage of requests over the last 10 seconds that resulted in a 2xx
 	// (200, 201, etc.) status code.
 	Status2xx *int64 `type:"integer"`
@@ -4185,6 +3528,12 @@ type StatusCodes struct {
 	// The percentage of requests over the last 10 seconds that resulted in a 5xx
 	// (500, 501, etc.) status code.
 	Status5xx *int64 `type:"integer"`
+
+	metadataStatusCodes `json:"-" xml:"-"`
+}
+
+type metadataStatusCodes struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4199,8 +3548,6 @@ func (s StatusCodes) GoString() string {
 
 // Swaps the CNAMEs of two environments.
 type SwapEnvironmentCNAMEsInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the destination environment.
 	//
 	//  Condition: You must specify at least the DestinationEnvironmentID or the
@@ -4213,7 +3560,7 @@ type SwapEnvironmentCNAMEsInput struct {
 	//  Condition: You must specify at least the DestinationEnvironmentID or the
 	// DestinationEnvironmentName. You may also specify both. You must specify the
 	// SourceEnvironmentName with the DestinationEnvironmentName.
-	DestinationEnvironmentName *string `min:"4" type:"string"`
+	DestinationEnvironmentName *string `type:"string"`
 
 	// The ID of the source environment.
 	//
@@ -4227,7 +3574,13 @@ type SwapEnvironmentCNAMEsInput struct {
 	//  Condition: You must specify at least the SourceEnvironmentID or the SourceEnvironmentName.
 	// You may also specify both. If you specify the SourceEnvironmentName, you
 	// must specify the DestinationEnvironmentName.
-	SourceEnvironmentName *string `min:"4" type:"string"`
+	SourceEnvironmentName *string `type:"string"`
+
+	metadataSwapEnvironmentCNAMEsInput `json:"-" xml:"-"`
+}
+
+type metadataSwapEnvironmentCNAMEsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4240,24 +3593,12 @@ func (s SwapEnvironmentCNAMEsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *SwapEnvironmentCNAMEsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "SwapEnvironmentCNAMEsInput"}
-	if s.DestinationEnvironmentName != nil && len(*s.DestinationEnvironmentName) < 4 {
-		invalidParams.Add(request.NewErrParamMinLen("DestinationEnvironmentName", 4))
-	}
-	if s.SourceEnvironmentName != nil && len(*s.SourceEnvironmentName) < 4 {
-		invalidParams.Add(request.NewErrParamMinLen("SourceEnvironmentName", 4))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type SwapEnvironmentCNAMEsOutput struct {
+	metadataSwapEnvironmentCNAMEsOutput `json:"-" xml:"-"`
 }
 
-type SwapEnvironmentCNAMEsOutput struct {
-	_ struct{} `type:"structure"`
+type metadataSwapEnvironmentCNAMEsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4273,8 +3614,6 @@ func (s SwapEnvironmentCNAMEsOutput) GoString() string {
 // Represents CPU utilization and load average information for applications
 // running in the specified environment.
 type SystemStatus struct {
-	_ struct{} `type:"structure"`
-
 	// Represents CPU utilization information from the specified instance that belongs
 	// to the AWS Elastic Beanstalk environment. Use the instanceId property to
 	// specify the application instance for which you'd like to return data.
@@ -4283,6 +3622,12 @@ type SystemStatus struct {
 	// Load average in the last 1-minute and 5-minute periods. For more information,
 	// see Operating System Metrics (http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/health-enhanced-metrics.html#health-enhanced-metrics-os).
 	LoadAverage []*float64 `type:"list"`
+
+	metadataSystemStatus `json:"-" xml:"-"`
+}
+
+type metadataSystemStatus struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4297,13 +3642,17 @@ func (s SystemStatus) GoString() string {
 
 // Describes a tag applied to a resource in an environment.
 type Tag struct {
-	_ struct{} `type:"structure"`
-
 	// The key of the tag.
-	Key *string `min:"1" type:"string"`
+	Key *string `type:"string"`
 
 	// The value of the tag.
-	Value *string `min:"1" type:"string"`
+	Value *string `type:"string"`
+
+	metadataTag `json:"-" xml:"-"`
+}
+
+type metadataTag struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4316,26 +3665,8 @@ func (s Tag) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *Tag) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "Tag"}
-	if s.Key != nil && len(*s.Key) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("Key", 1))
-	}
-	if s.Value != nil && len(*s.Value) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("Value", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// Request to terminate an environment.
+// This documentation target is not reported in the API reference.
 type TerminateEnvironmentInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the environment to terminate.
 	//
 	//  Condition: You must specify either this or an EnvironmentName, or both.
@@ -4348,16 +3679,18 @@ type TerminateEnvironmentInput struct {
 	//  Condition: You must specify either this or an EnvironmentId, or both. If
 	// you do not specify either, AWS Elastic Beanstalk returns MissingRequiredParameter
 	// error.
-	EnvironmentName *string `min:"4" type:"string"`
-
-	// Terminates the target environment even if another environment in the same
-	// group is dependent on it.
-	ForceTerminate *bool `type:"boolean"`
+	EnvironmentName *string `type:"string"`
 
 	// Indicates whether the associated AWS resources should shut down when the
 	// environment is terminated:
 	//
-	//   true: The specified environment as well as the associated AWS resources,
+	//    true: (default) The user AWS resources (for example, the Auto Scaling
+	// group, LoadBalancer, etc.) are terminated along with the environment.
+	//
+	//    false: The environment is removed from the AWS Elastic Beanstalk but
+	// the AWS resources continue to operate.
+	//
+	//     true: The specified environment as well as the associated AWS resources,
 	// such as Auto Scaling group and LoadBalancer, are terminated.   false: AWS
 	// Elastic Beanstalk resource management is removed from the environment, but
 	// the AWS resources continue to operate.    For more information, see the
@@ -4367,6 +3700,12 @@ type TerminateEnvironmentInput struct {
 	//
 	//  Valid Values: true | false
 	TerminateResources *bool `type:"boolean"`
+
+	metadataTerminateEnvironmentInput `json:"-" xml:"-"`
+}
+
+type metadataTerminateEnvironmentInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4379,25 +3718,16 @@ func (s TerminateEnvironmentInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *TerminateEnvironmentInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "TerminateEnvironmentInput"}
-	if s.EnvironmentName != nil && len(*s.EnvironmentName) < 4 {
-		invalidParams.Add(request.NewErrParamMinLen("EnvironmentName", 4))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Describes a trigger.
 type Trigger struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the trigger.
 	Name *string `type:"string"`
+
+	metadataTrigger `json:"-" xml:"-"`
+}
+
+type metadataTrigger struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4410,18 +3740,22 @@ func (s Trigger) GoString() string {
 	return s.String()
 }
 
-// Request to update an application.
+// This documentation target is not reported in the API reference.
 type UpdateApplicationInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the application to update. If no such application is found, UpdateApplication
 	// returns an InvalidParameterValue error.
-	ApplicationName *string `min:"1" type:"string" required:"true"`
+	ApplicationName *string `type:"string" required:"true"`
 
 	// A new description for the application.
 	//
 	// Default: If not specified, AWS Elastic Beanstalk does not update the description.
 	Description *string `type:"string"`
+
+	metadataUpdateApplicationInput `json:"-" xml:"-"`
+}
+
+type metadataUpdateApplicationInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4434,30 +3768,12 @@ func (s UpdateApplicationInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *UpdateApplicationInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "UpdateApplicationInput"}
-	if s.ApplicationName == nil {
-		invalidParams.Add(request.NewErrParamRequired("ApplicationName"))
-	}
-	if s.ApplicationName != nil && len(*s.ApplicationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ApplicationName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type UpdateApplicationVersionInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the application associated with this version.
 	//
 	//  If no application is found with this name, UpdateApplication returns an
 	// InvalidParameterValue error.
-	ApplicationName *string `min:"1" type:"string" required:"true"`
+	ApplicationName *string `type:"string" required:"true"`
 
 	// A new description for this release.
 	Description *string `type:"string"`
@@ -4466,7 +3782,13 @@ type UpdateApplicationVersionInput struct {
 	//
 	//  If no application version is found with this label, UpdateApplication returns
 	// an InvalidParameterValue error.
-	VersionLabel *string `min:"1" type:"string" required:"true"`
+	VersionLabel *string `type:"string" required:"true"`
+
+	metadataUpdateApplicationVersionInput `json:"-" xml:"-"`
+}
+
+type metadataUpdateApplicationVersionInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4479,38 +3801,14 @@ func (s UpdateApplicationVersionInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *UpdateApplicationVersionInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "UpdateApplicationVersionInput"}
-	if s.ApplicationName == nil {
-		invalidParams.Add(request.NewErrParamRequired("ApplicationName"))
-	}
-	if s.ApplicationName != nil && len(*s.ApplicationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ApplicationName", 1))
-	}
-	if s.VersionLabel == nil {
-		invalidParams.Add(request.NewErrParamRequired("VersionLabel"))
-	}
-	if s.VersionLabel != nil && len(*s.VersionLabel) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("VersionLabel", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The result message containing the options for the specified solution stack.
 type UpdateConfigurationTemplateInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the application associated with the configuration template to
 	// update.
 	//
 	//  If no application is found with this name, UpdateConfigurationTemplate
 	// returns an InvalidParameterValue error.
-	ApplicationName *string `min:"1" type:"string" required:"true"`
+	ApplicationName *string `type:"string" required:"true"`
 
 	// A new description for the configuration.
 	Description *string `type:"string"`
@@ -4528,7 +3826,13 @@ type UpdateConfigurationTemplateInput struct {
 	//
 	//  If no configuration template is found with this name, UpdateConfigurationTemplate
 	// returns an InvalidParameterValue error.
-	TemplateName *string `min:"1" type:"string" required:"true"`
+	TemplateName *string `type:"string" required:"true"`
+
+	metadataUpdateConfigurationTemplateInput `json:"-" xml:"-"`
+}
+
+type metadataUpdateConfigurationTemplateInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4541,65 +3845,18 @@ func (s UpdateConfigurationTemplateInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *UpdateConfigurationTemplateInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "UpdateConfigurationTemplateInput"}
-	if s.ApplicationName == nil {
-		invalidParams.Add(request.NewErrParamRequired("ApplicationName"))
-	}
-	if s.ApplicationName != nil && len(*s.ApplicationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ApplicationName", 1))
-	}
-	if s.TemplateName == nil {
-		invalidParams.Add(request.NewErrParamRequired("TemplateName"))
-	}
-	if s.TemplateName != nil && len(*s.TemplateName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TemplateName", 1))
-	}
-	if s.OptionSettings != nil {
-		for i, v := range s.OptionSettings {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "OptionSettings", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-	if s.OptionsToRemove != nil {
-		for i, v := range s.OptionsToRemove {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "OptionsToRemove", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
-// Request to update an environment.
+// This documentation target is not reported in the API reference.
 type UpdateEnvironmentInput struct {
-	_ struct{} `type:"structure"`
-
-	// The name of the application with which the environment is associated.
-	ApplicationName *string `min:"1" type:"string"`
-
 	// If this parameter is specified, AWS Elastic Beanstalk updates the description
 	// of this environment.
 	Description *string `type:"string"`
 
 	// The ID of the environment to update.
 	//
-	// If no environment with this ID exists, AWS Elastic Beanstalk returns an
+	//  If no environment with this ID exists, AWS Elastic Beanstalk returns an
 	// InvalidParameterValue error.
 	//
-	// Condition: You must specify either this or an EnvironmentName, or both.
+	//  Condition: You must specify either this or an EnvironmentName, or both.
 	// If you do not specify either, AWS Elastic Beanstalk returns MissingRequiredParameter
 	// error.
 	EnvironmentId *string `type:"string"`
@@ -4607,17 +3864,10 @@ type UpdateEnvironmentInput struct {
 	// The name of the environment to update. If no environment with this name exists,
 	// AWS Elastic Beanstalk returns an InvalidParameterValue error.
 	//
-	// Condition: You must specify either this or an EnvironmentId, or both. If
+	//  Condition: You must specify either this or an EnvironmentId, or both. If
 	// you do not specify either, AWS Elastic Beanstalk returns MissingRequiredParameter
 	// error.
-	EnvironmentName *string `min:"4" type:"string"`
-
-	// The name of the group to which the target environment belongs. Specify a
-	// group name only if the environment's name is specified in an environment
-	// manifest and not with the environment name or environment ID parameters.
-	// See Environment Manifest (env.yaml) (http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/environment-cfg-manifest.html)
-	// for details.
-	GroupName *string `min:"1" type:"string"`
+	EnvironmentName *string `type:"string"`
 
 	// If specified, AWS Elastic Beanstalk updates the configuration set associated
 	// with the running environment and sets the specified configuration options
@@ -4635,18 +3885,24 @@ type UpdateEnvironmentInput struct {
 	// If this parameter is specified, AWS Elastic Beanstalk deploys this configuration
 	// template to the environment. If no such configuration template is found,
 	// AWS Elastic Beanstalk returns an InvalidParameterValue error.
-	TemplateName *string `min:"1" type:"string"`
+	TemplateName *string `type:"string"`
 
 	// This specifies the tier to use to update the environment.
 	//
-	// Condition: At this time, if you change the tier version, name, or type,
+	//  Condition: At this time, if you change the tier version, name, or type,
 	// AWS Elastic Beanstalk returns InvalidParameterValue error.
 	Tier *EnvironmentTier `type:"structure"`
 
 	// If this parameter is specified, AWS Elastic Beanstalk deploys the named application
 	// version to the environment. If no such application version is found, returns
 	// an InvalidParameterValue error.
-	VersionLabel *string `min:"1" type:"string"`
+	VersionLabel *string `type:"string"`
+
+	metadataUpdateEnvironmentInput `json:"-" xml:"-"`
+}
+
+type metadataUpdateEnvironmentInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4659,63 +3915,16 @@ func (s UpdateEnvironmentInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *UpdateEnvironmentInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "UpdateEnvironmentInput"}
-	if s.ApplicationName != nil && len(*s.ApplicationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ApplicationName", 1))
-	}
-	if s.EnvironmentName != nil && len(*s.EnvironmentName) < 4 {
-		invalidParams.Add(request.NewErrParamMinLen("EnvironmentName", 4))
-	}
-	if s.GroupName != nil && len(*s.GroupName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("GroupName", 1))
-	}
-	if s.TemplateName != nil && len(*s.TemplateName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TemplateName", 1))
-	}
-	if s.VersionLabel != nil && len(*s.VersionLabel) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("VersionLabel", 1))
-	}
-	if s.OptionSettings != nil {
-		for i, v := range s.OptionSettings {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "OptionSettings", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-	if s.OptionsToRemove != nil {
-		for i, v := range s.OptionsToRemove {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "OptionsToRemove", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // A list of validation messages for a specified configuration template.
 type ValidateConfigurationSettingsInput struct {
-	_ struct{} `type:"structure"`
-
 	// The name of the application that the configuration template or environment
 	// belongs to.
-	ApplicationName *string `min:"1" type:"string" required:"true"`
+	ApplicationName *string `type:"string" required:"true"`
 
 	// The name of the environment to validate the settings against.
 	//
 	//  Condition: You cannot specify both this and a configuration template name.
-	EnvironmentName *string `min:"4" type:"string"`
+	EnvironmentName *string `type:"string"`
 
 	// A list of the options and desired values to evaluate.
 	OptionSettings []*ConfigurationOptionSetting `type:"list" required:"true"`
@@ -4723,7 +3932,13 @@ type ValidateConfigurationSettingsInput struct {
 	// The name of the configuration template to validate the settings against.
 	//
 	//  Condition: You cannot specify both this and an environment name.
-	TemplateName *string `min:"1" type:"string"`
+	TemplateName *string `type:"string"`
+
+	metadataValidateConfigurationSettingsInput `json:"-" xml:"-"`
+}
+
+type metadataValidateConfigurationSettingsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4736,47 +3951,16 @@ func (s ValidateConfigurationSettingsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ValidateConfigurationSettingsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ValidateConfigurationSettingsInput"}
-	if s.ApplicationName == nil {
-		invalidParams.Add(request.NewErrParamRequired("ApplicationName"))
-	}
-	if s.ApplicationName != nil && len(*s.ApplicationName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ApplicationName", 1))
-	}
-	if s.EnvironmentName != nil && len(*s.EnvironmentName) < 4 {
-		invalidParams.Add(request.NewErrParamMinLen("EnvironmentName", 4))
-	}
-	if s.OptionSettings == nil {
-		invalidParams.Add(request.NewErrParamRequired("OptionSettings"))
-	}
-	if s.TemplateName != nil && len(*s.TemplateName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TemplateName", 1))
-	}
-	if s.OptionSettings != nil {
-		for i, v := range s.OptionSettings {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "OptionSettings", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Provides a list of validation messages.
 type ValidateConfigurationSettingsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// A list of ValidationMessage.
 	Messages []*ValidationMessage `type:"list"`
+
+	metadataValidateConfigurationSettingsOutput `json:"-" xml:"-"`
+}
+
+type metadataValidateConfigurationSettingsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4791,8 +3975,6 @@ func (s ValidateConfigurationSettingsOutput) GoString() string {
 
 // An error or warning for a desired configuration option value.
 type ValidationMessage struct {
-	_ struct{} `type:"structure"`
-
 	// A message describing the error or warning.
 	Message *string `type:"string"`
 
@@ -4802,10 +3984,21 @@ type ValidationMessage struct {
 
 	// An indication of the severity of this message:
 	//
-	//   error: This message indicates that this is not a valid setting for an
+	//    error: This message indicates that this is not a valid setting for an
+	// option.
+	//
+	//    warning: This message is providing information you should take into account.
+	//
+	//     error: This message indicates that this is not a valid setting for an
 	// option.   warning: This message is providing information you should take
 	// into account.
 	Severity *string `type:"string" enum:"ValidationSeverity"`
+
+	metadataValidationMessage `json:"-" xml:"-"`
+}
+
+type metadataValidationMessage struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4817,46 +4010,6 @@ func (s ValidationMessage) String() string {
 func (s ValidationMessage) GoString() string {
 	return s.String()
 }
-
-const (
-	// @enum ActionHistoryStatus
-	ActionHistoryStatusCompleted = "Completed"
-	// @enum ActionHistoryStatus
-	ActionHistoryStatusFailed = "Failed"
-	// @enum ActionHistoryStatus
-	ActionHistoryStatusUnknown = "Unknown"
-)
-
-const (
-	// @enum ActionStatus
-	ActionStatusScheduled = "Scheduled"
-	// @enum ActionStatus
-	ActionStatusPending = "Pending"
-	// @enum ActionStatus
-	ActionStatusRunning = "Running"
-	// @enum ActionStatus
-	ActionStatusUnknown = "Unknown"
-)
-
-const (
-	// @enum ActionType
-	ActionTypeInstanceRefresh = "InstanceRefresh"
-	// @enum ActionType
-	ActionTypePlatformUpdate = "PlatformUpdate"
-	// @enum ActionType
-	ActionTypeUnknown = "Unknown"
-)
-
-const (
-	// @enum ApplicationVersionStatus
-	ApplicationVersionStatusProcessed = "Processed"
-	// @enum ApplicationVersionStatus
-	ApplicationVersionStatusUnprocessed = "Unprocessed"
-	// @enum ApplicationVersionStatus
-	ApplicationVersionStatusFailed = "Failed"
-	// @enum ApplicationVersionStatus
-	ApplicationVersionStatusProcessing = "Processing"
-)
 
 const (
 	// @enum ConfigurationDeploymentStatus
@@ -4959,23 +4112,6 @@ const (
 )
 
 const (
-	// @enum FailureType
-	FailureTypeUpdateCancelled = "UpdateCancelled"
-	// @enum FailureType
-	FailureTypeCancellationFailed = "CancellationFailed"
-	// @enum FailureType
-	FailureTypeRollbackFailed = "RollbackFailed"
-	// @enum FailureType
-	FailureTypeRollbackSuccessful = "RollbackSuccessful"
-	// @enum FailureType
-	FailureTypeInternalFailure = "InternalFailure"
-	// @enum FailureType
-	FailureTypeInvalidEnvironmentState = "InvalidEnvironmentState"
-	// @enum FailureType
-	FailureTypePermissionsError = "PermissionsError"
-)
-
-const (
 	// @enum InstancesHealthAttribute
 	InstancesHealthAttributeHealthStatus = "HealthStatus"
 	// @enum InstancesHealthAttribute
@@ -4990,12 +4126,6 @@ const (
 	InstancesHealthAttributeLaunchedAt = "LaunchedAt"
 	// @enum InstancesHealthAttribute
 	InstancesHealthAttributeSystem = "System"
-	// @enum InstancesHealthAttribute
-	InstancesHealthAttributeDeployment = "Deployment"
-	// @enum InstancesHealthAttribute
-	InstancesHealthAttributeAvailabilityZone = "AvailabilityZone"
-	// @enum InstancesHealthAttribute
-	InstancesHealthAttributeInstanceType = "InstanceType"
 	// @enum InstancesHealthAttribute
 	InstancesHealthAttributeAll = "All"
 )

@@ -88,5 +88,3 @@ type EMRAPI interface {
 
 	TerminateJobFlows(*emr.TerminateJobFlowsInput) (*emr.TerminateJobFlowsOutput, error)
 }
-
-var _ EMRAPI = (*emr.EMR)(nil)

@@ -57,13 +57,16 @@ func rcopy(dst, src reflect.Value, root bool) {
 			}
 		}
 	case reflect.Struct:
+		if !root {
+			dst.Set(reflect.New(src.Type()).Elem())
+		}
+
 		t := dst.Type()
 		for i := 0; i < t.NumField(); i++ {
 			name := t.Field(i).Name
-			srcVal := src.FieldByName(name)
-			dstVal := dst.FieldByName(name)
-			if srcVal.IsValid() && dstVal.CanSet() {
-				rcopy(dstVal, srcVal, false)
+			srcval := src.FieldByName(name)
+			if srcval.IsValid() {
+				rcopy(dst.FieldByName(name), srcval, false)
 			}
 		}
 	case reflect.Slice:

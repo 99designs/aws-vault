@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/route53domains"
 )
 
@@ -16,7 +15,7 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleRoute53Domains_CheckDomainAvailability() {
-	svc := route53domains.New(session.New())
+	svc := route53domains.New(nil)
 
 	params := &route53domains.CheckDomainAvailabilityInput{
 		DomainName:  aws.String("DomainName"), // Required
@@ -36,7 +35,7 @@ func ExampleRoute53Domains_CheckDomainAvailability() {
 }
 
 func ExampleRoute53Domains_DeleteTagsForDomain() {
-	svc := route53domains.New(session.New())
+	svc := route53domains.New(nil)
 
 	params := &route53domains.DeleteTagsForDomainInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -59,7 +58,7 @@ func ExampleRoute53Domains_DeleteTagsForDomain() {
 }
 
 func ExampleRoute53Domains_DisableDomainAutoRenew() {
-	svc := route53domains.New(session.New())
+	svc := route53domains.New(nil)
 
 	params := &route53domains.DisableDomainAutoRenewInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -78,7 +77,7 @@ func ExampleRoute53Domains_DisableDomainAutoRenew() {
 }
 
 func ExampleRoute53Domains_DisableDomainTransferLock() {
-	svc := route53domains.New(session.New())
+	svc := route53domains.New(nil)
 
 	params := &route53domains.DisableDomainTransferLockInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -97,7 +96,7 @@ func ExampleRoute53Domains_DisableDomainTransferLock() {
 }
 
 func ExampleRoute53Domains_EnableDomainAutoRenew() {
-	svc := route53domains.New(session.New())
+	svc := route53domains.New(nil)
 
 	params := &route53domains.EnableDomainAutoRenewInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -116,7 +115,7 @@ func ExampleRoute53Domains_EnableDomainAutoRenew() {
 }
 
 func ExampleRoute53Domains_EnableDomainTransferLock() {
-	svc := route53domains.New(session.New())
+	svc := route53domains.New(nil)
 
 	params := &route53domains.EnableDomainTransferLockInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -134,27 +133,8 @@ func ExampleRoute53Domains_EnableDomainTransferLock() {
 	fmt.Println(resp)
 }
 
-func ExampleRoute53Domains_GetContactReachabilityStatus() {
-	svc := route53domains.New(session.New())
-
-	params := &route53domains.GetContactReachabilityStatusInput{
-		DomainName: aws.String("DomainName"),
-	}
-	resp, err := svc.GetContactReachabilityStatus(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
 func ExampleRoute53Domains_GetDomainDetail() {
-	svc := route53domains.New(session.New())
+	svc := route53domains.New(nil)
 
 	params := &route53domains.GetDomainDetailInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -173,7 +153,7 @@ func ExampleRoute53Domains_GetDomainDetail() {
 }
 
 func ExampleRoute53Domains_GetOperationDetail() {
-	svc := route53domains.New(session.New())
+	svc := route53domains.New(nil)
 
 	params := &route53domains.GetOperationDetailInput{
 		OperationId: aws.String("OperationId"), // Required
@@ -192,7 +172,7 @@ func ExampleRoute53Domains_GetOperationDetail() {
 }
 
 func ExampleRoute53Domains_ListDomains() {
-	svc := route53domains.New(session.New())
+	svc := route53domains.New(nil)
 
 	params := &route53domains.ListDomainsInput{
 		Marker:   aws.String("PageMarker"),
@@ -212,7 +192,7 @@ func ExampleRoute53Domains_ListDomains() {
 }
 
 func ExampleRoute53Domains_ListOperations() {
-	svc := route53domains.New(session.New())
+	svc := route53domains.New(nil)
 
 	params := &route53domains.ListOperationsInput{
 		Marker:   aws.String("PageMarker"),
@@ -232,7 +212,7 @@ func ExampleRoute53Domains_ListOperations() {
 }
 
 func ExampleRoute53Domains_ListTagsForDomain() {
-	svc := route53domains.New(session.New())
+	svc := route53domains.New(nil)
 
 	params := &route53domains.ListTagsForDomainInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -251,7 +231,7 @@ func ExampleRoute53Domains_ListTagsForDomain() {
 }
 
 func ExampleRoute53Domains_RegisterDomain() {
-	svc := route53domains.New(session.New())
+	svc := route53domains.New(nil)
 
 	params := &route53domains.RegisterDomainInput{
 		AdminContact: &route53domains.ContactDetail{ // Required
@@ -341,27 +321,8 @@ func ExampleRoute53Domains_RegisterDomain() {
 	fmt.Println(resp)
 }
 
-func ExampleRoute53Domains_ResendContactReachabilityEmail() {
-	svc := route53domains.New(session.New())
-
-	params := &route53domains.ResendContactReachabilityEmailInput{
-		DomainName: aws.String("DomainName"),
-	}
-	resp, err := svc.ResendContactReachabilityEmail(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
 func ExampleRoute53Domains_RetrieveDomainAuthCode() {
-	svc := route53domains.New(session.New())
+	svc := route53domains.New(nil)
 
 	params := &route53domains.RetrieveDomainAuthCodeInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -380,7 +341,7 @@ func ExampleRoute53Domains_RetrieveDomainAuthCode() {
 }
 
 func ExampleRoute53Domains_TransferDomain() {
-	svc := route53domains.New(session.New())
+	svc := route53domains.New(nil)
 
 	params := &route53domains.TransferDomainInput{
 		AdminContact: &route53domains.ContactDetail{ // Required
@@ -482,7 +443,7 @@ func ExampleRoute53Domains_TransferDomain() {
 }
 
 func ExampleRoute53Domains_UpdateDomainContact() {
-	svc := route53domains.New(session.New())
+	svc := route53domains.New(nil)
 
 	params := &route53domains.UpdateDomainContactInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -567,7 +528,7 @@ func ExampleRoute53Domains_UpdateDomainContact() {
 }
 
 func ExampleRoute53Domains_UpdateDomainContactPrivacy() {
-	svc := route53domains.New(session.New())
+	svc := route53domains.New(nil)
 
 	params := &route53domains.UpdateDomainContactPrivacyInput{
 		DomainName:        aws.String("DomainName"), // Required
@@ -589,7 +550,7 @@ func ExampleRoute53Domains_UpdateDomainContactPrivacy() {
 }
 
 func ExampleRoute53Domains_UpdateDomainNameservers() {
-	svc := route53domains.New(session.New())
+	svc := route53domains.New(nil)
 
 	params := &route53domains.UpdateDomainNameserversInput{
 		DomainName: aws.String("DomainName"), // Required
@@ -619,7 +580,7 @@ func ExampleRoute53Domains_UpdateDomainNameservers() {
 }
 
 func ExampleRoute53Domains_UpdateTagsForDomain() {
-	svc := route53domains.New(session.New())
+	svc := route53domains.New(nil)
 
 	params := &route53domains.UpdateTagsForDomainInput{
 		DomainName: aws.String("DomainName"), // Required

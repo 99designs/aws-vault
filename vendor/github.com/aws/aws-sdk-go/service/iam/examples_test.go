@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/iam"
 )
 
@@ -16,7 +15,7 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleIAM_AddClientIDToOpenIDConnectProvider() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.AddClientIDToOpenIDConnectProviderInput{
 		ClientID:                 aws.String("clientIDType"), // Required
@@ -36,7 +35,7 @@ func ExampleIAM_AddClientIDToOpenIDConnectProvider() {
 }
 
 func ExampleIAM_AddRoleToInstanceProfile() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.AddRoleToInstanceProfileInput{
 		InstanceProfileName: aws.String("instanceProfileNameType"), // Required
@@ -56,7 +55,7 @@ func ExampleIAM_AddRoleToInstanceProfile() {
 }
 
 func ExampleIAM_AddUserToGroup() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.AddUserToGroupInput{
 		GroupName: aws.String("groupNameType"),        // Required
@@ -76,7 +75,7 @@ func ExampleIAM_AddUserToGroup() {
 }
 
 func ExampleIAM_AttachGroupPolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.AttachGroupPolicyInput{
 		GroupName: aws.String("groupNameType"), // Required
@@ -96,7 +95,7 @@ func ExampleIAM_AttachGroupPolicy() {
 }
 
 func ExampleIAM_AttachRolePolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.AttachRolePolicyInput{
 		PolicyArn: aws.String("arnType"),      // Required
@@ -116,7 +115,7 @@ func ExampleIAM_AttachRolePolicy() {
 }
 
 func ExampleIAM_AttachUserPolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.AttachUserPolicyInput{
 		PolicyArn: aws.String("arnType"),      // Required
@@ -136,7 +135,7 @@ func ExampleIAM_AttachUserPolicy() {
 }
 
 func ExampleIAM_ChangePassword() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ChangePasswordInput{
 		NewPassword: aws.String("passwordType"), // Required
@@ -156,7 +155,7 @@ func ExampleIAM_ChangePassword() {
 }
 
 func ExampleIAM_CreateAccessKey() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.CreateAccessKeyInput{
 		UserName: aws.String("existingUserNameType"),
@@ -175,7 +174,7 @@ func ExampleIAM_CreateAccessKey() {
 }
 
 func ExampleIAM_CreateAccountAlias() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.CreateAccountAliasInput{
 		AccountAlias: aws.String("accountAliasType"), // Required
@@ -194,7 +193,7 @@ func ExampleIAM_CreateAccountAlias() {
 }
 
 func ExampleIAM_CreateGroup() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.CreateGroupInput{
 		GroupName: aws.String("groupNameType"), // Required
@@ -214,7 +213,7 @@ func ExampleIAM_CreateGroup() {
 }
 
 func ExampleIAM_CreateInstanceProfile() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.CreateInstanceProfileInput{
 		InstanceProfileName: aws.String("instanceProfileNameType"), // Required
@@ -234,7 +233,7 @@ func ExampleIAM_CreateInstanceProfile() {
 }
 
 func ExampleIAM_CreateLoginProfile() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.CreateLoginProfileInput{
 		Password:              aws.String("passwordType"), // Required
@@ -255,7 +254,7 @@ func ExampleIAM_CreateLoginProfile() {
 }
 
 func ExampleIAM_CreateOpenIDConnectProvider() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.CreateOpenIDConnectProviderInput{
 		ThumbprintList: []*string{ // Required
@@ -282,7 +281,7 @@ func ExampleIAM_CreateOpenIDConnectProvider() {
 }
 
 func ExampleIAM_CreatePolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.CreatePolicyInput{
 		PolicyDocument: aws.String("policyDocumentType"), // Required
@@ -304,7 +303,7 @@ func ExampleIAM_CreatePolicy() {
 }
 
 func ExampleIAM_CreatePolicyVersion() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.CreatePolicyVersionInput{
 		PolicyArn:      aws.String("arnType"),            // Required
@@ -325,7 +324,7 @@ func ExampleIAM_CreatePolicyVersion() {
 }
 
 func ExampleIAM_CreateRole() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.CreateRoleInput{
 		AssumeRolePolicyDocument: aws.String("policyDocumentType"), // Required
@@ -346,7 +345,7 @@ func ExampleIAM_CreateRole() {
 }
 
 func ExampleIAM_CreateSAMLProvider() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.CreateSAMLProviderInput{
 		Name:                 aws.String("SAMLProviderNameType"),     // Required
@@ -366,7 +365,7 @@ func ExampleIAM_CreateSAMLProvider() {
 }
 
 func ExampleIAM_CreateUser() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.CreateUserInput{
 		UserName: aws.String("userNameType"), // Required
@@ -386,7 +385,7 @@ func ExampleIAM_CreateUser() {
 }
 
 func ExampleIAM_CreateVirtualMFADevice() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.CreateVirtualMFADeviceInput{
 		VirtualMFADeviceName: aws.String("virtualMFADeviceName"), // Required
@@ -406,7 +405,7 @@ func ExampleIAM_CreateVirtualMFADevice() {
 }
 
 func ExampleIAM_DeactivateMFADevice() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.DeactivateMFADeviceInput{
 		SerialNumber: aws.String("serialNumberType"),     // Required
@@ -426,7 +425,7 @@ func ExampleIAM_DeactivateMFADevice() {
 }
 
 func ExampleIAM_DeleteAccessKey() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.DeleteAccessKeyInput{
 		AccessKeyId: aws.String("accessKeyIdType"), // Required
@@ -446,7 +445,7 @@ func ExampleIAM_DeleteAccessKey() {
 }
 
 func ExampleIAM_DeleteAccountAlias() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.DeleteAccountAliasInput{
 		AccountAlias: aws.String("accountAliasType"), // Required
@@ -465,7 +464,7 @@ func ExampleIAM_DeleteAccountAlias() {
 }
 
 func ExampleIAM_DeleteAccountPasswordPolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	var params *iam.DeleteAccountPasswordPolicyInput
 	resp, err := svc.DeleteAccountPasswordPolicy(params)
@@ -482,7 +481,7 @@ func ExampleIAM_DeleteAccountPasswordPolicy() {
 }
 
 func ExampleIAM_DeleteGroup() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.DeleteGroupInput{
 		GroupName: aws.String("groupNameType"), // Required
@@ -501,7 +500,7 @@ func ExampleIAM_DeleteGroup() {
 }
 
 func ExampleIAM_DeleteGroupPolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.DeleteGroupPolicyInput{
 		GroupName:  aws.String("groupNameType"),  // Required
@@ -521,7 +520,7 @@ func ExampleIAM_DeleteGroupPolicy() {
 }
 
 func ExampleIAM_DeleteInstanceProfile() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.DeleteInstanceProfileInput{
 		InstanceProfileName: aws.String("instanceProfileNameType"), // Required
@@ -540,7 +539,7 @@ func ExampleIAM_DeleteInstanceProfile() {
 }
 
 func ExampleIAM_DeleteLoginProfile() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.DeleteLoginProfileInput{
 		UserName: aws.String("userNameType"), // Required
@@ -559,7 +558,7 @@ func ExampleIAM_DeleteLoginProfile() {
 }
 
 func ExampleIAM_DeleteOpenIDConnectProvider() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.DeleteOpenIDConnectProviderInput{
 		OpenIDConnectProviderArn: aws.String("arnType"), // Required
@@ -578,7 +577,7 @@ func ExampleIAM_DeleteOpenIDConnectProvider() {
 }
 
 func ExampleIAM_DeletePolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.DeletePolicyInput{
 		PolicyArn: aws.String("arnType"), // Required
@@ -597,7 +596,7 @@ func ExampleIAM_DeletePolicy() {
 }
 
 func ExampleIAM_DeletePolicyVersion() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.DeletePolicyVersionInput{
 		PolicyArn: aws.String("arnType"),             // Required
@@ -617,7 +616,7 @@ func ExampleIAM_DeletePolicyVersion() {
 }
 
 func ExampleIAM_DeleteRole() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.DeleteRoleInput{
 		RoleName: aws.String("roleNameType"), // Required
@@ -636,7 +635,7 @@ func ExampleIAM_DeleteRole() {
 }
 
 func ExampleIAM_DeleteRolePolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.DeleteRolePolicyInput{
 		PolicyName: aws.String("policyNameType"), // Required
@@ -656,7 +655,7 @@ func ExampleIAM_DeleteRolePolicy() {
 }
 
 func ExampleIAM_DeleteSAMLProvider() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.DeleteSAMLProviderInput{
 		SAMLProviderArn: aws.String("arnType"), // Required
@@ -675,7 +674,7 @@ func ExampleIAM_DeleteSAMLProvider() {
 }
 
 func ExampleIAM_DeleteSSHPublicKey() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.DeleteSSHPublicKeyInput{
 		SSHPublicKeyId: aws.String("publicKeyIdType"), // Required
@@ -695,7 +694,7 @@ func ExampleIAM_DeleteSSHPublicKey() {
 }
 
 func ExampleIAM_DeleteServerCertificate() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.DeleteServerCertificateInput{
 		ServerCertificateName: aws.String("serverCertificateNameType"), // Required
@@ -714,7 +713,7 @@ func ExampleIAM_DeleteServerCertificate() {
 }
 
 func ExampleIAM_DeleteSigningCertificate() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.DeleteSigningCertificateInput{
 		CertificateId: aws.String("certificateIdType"), // Required
@@ -734,7 +733,7 @@ func ExampleIAM_DeleteSigningCertificate() {
 }
 
 func ExampleIAM_DeleteUser() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.DeleteUserInput{
 		UserName: aws.String("existingUserNameType"), // Required
@@ -753,7 +752,7 @@ func ExampleIAM_DeleteUser() {
 }
 
 func ExampleIAM_DeleteUserPolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.DeleteUserPolicyInput{
 		PolicyName: aws.String("policyNameType"),       // Required
@@ -773,7 +772,7 @@ func ExampleIAM_DeleteUserPolicy() {
 }
 
 func ExampleIAM_DeleteVirtualMFADevice() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.DeleteVirtualMFADeviceInput{
 		SerialNumber: aws.String("serialNumberType"), // Required
@@ -792,7 +791,7 @@ func ExampleIAM_DeleteVirtualMFADevice() {
 }
 
 func ExampleIAM_DetachGroupPolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.DetachGroupPolicyInput{
 		GroupName: aws.String("groupNameType"), // Required
@@ -812,7 +811,7 @@ func ExampleIAM_DetachGroupPolicy() {
 }
 
 func ExampleIAM_DetachRolePolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.DetachRolePolicyInput{
 		PolicyArn: aws.String("arnType"),      // Required
@@ -832,7 +831,7 @@ func ExampleIAM_DetachRolePolicy() {
 }
 
 func ExampleIAM_DetachUserPolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.DetachUserPolicyInput{
 		PolicyArn: aws.String("arnType"),      // Required
@@ -852,7 +851,7 @@ func ExampleIAM_DetachUserPolicy() {
 }
 
 func ExampleIAM_EnableMFADevice() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.EnableMFADeviceInput{
 		AuthenticationCode1: aws.String("authenticationCodeType"), // Required
@@ -874,7 +873,7 @@ func ExampleIAM_EnableMFADevice() {
 }
 
 func ExampleIAM_GenerateCredentialReport() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	var params *iam.GenerateCredentialReportInput
 	resp, err := svc.GenerateCredentialReport(params)
@@ -891,7 +890,7 @@ func ExampleIAM_GenerateCredentialReport() {
 }
 
 func ExampleIAM_GetAccessKeyLastUsed() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.GetAccessKeyLastUsedInput{
 		AccessKeyId: aws.String("accessKeyIdType"), // Required
@@ -910,7 +909,7 @@ func ExampleIAM_GetAccessKeyLastUsed() {
 }
 
 func ExampleIAM_GetAccountAuthorizationDetails() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.GetAccountAuthorizationDetailsInput{
 		Filter: []*string{
@@ -934,7 +933,7 @@ func ExampleIAM_GetAccountAuthorizationDetails() {
 }
 
 func ExampleIAM_GetAccountPasswordPolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	var params *iam.GetAccountPasswordPolicyInput
 	resp, err := svc.GetAccountPasswordPolicy(params)
@@ -951,7 +950,7 @@ func ExampleIAM_GetAccountPasswordPolicy() {
 }
 
 func ExampleIAM_GetAccountSummary() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	var params *iam.GetAccountSummaryInput
 	resp, err := svc.GetAccountSummary(params)
@@ -967,53 +966,8 @@ func ExampleIAM_GetAccountSummary() {
 	fmt.Println(resp)
 }
 
-func ExampleIAM_GetContextKeysForCustomPolicy() {
-	svc := iam.New(session.New())
-
-	params := &iam.GetContextKeysForCustomPolicyInput{
-		PolicyInputList: []*string{ // Required
-			aws.String("policyDocumentType"), // Required
-			// More values...
-		},
-	}
-	resp, err := svc.GetContextKeysForCustomPolicy(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
-func ExampleIAM_GetContextKeysForPrincipalPolicy() {
-	svc := iam.New(session.New())
-
-	params := &iam.GetContextKeysForPrincipalPolicyInput{
-		PolicySourceArn: aws.String("arnType"), // Required
-		PolicyInputList: []*string{
-			aws.String("policyDocumentType"), // Required
-			// More values...
-		},
-	}
-	resp, err := svc.GetContextKeysForPrincipalPolicy(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
 func ExampleIAM_GetCredentialReport() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	var params *iam.GetCredentialReportInput
 	resp, err := svc.GetCredentialReport(params)
@@ -1030,7 +984,7 @@ func ExampleIAM_GetCredentialReport() {
 }
 
 func ExampleIAM_GetGroup() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.GetGroupInput{
 		GroupName: aws.String("groupNameType"), // Required
@@ -1051,7 +1005,7 @@ func ExampleIAM_GetGroup() {
 }
 
 func ExampleIAM_GetGroupPolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.GetGroupPolicyInput{
 		GroupName:  aws.String("groupNameType"),  // Required
@@ -1071,7 +1025,7 @@ func ExampleIAM_GetGroupPolicy() {
 }
 
 func ExampleIAM_GetInstanceProfile() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.GetInstanceProfileInput{
 		InstanceProfileName: aws.String("instanceProfileNameType"), // Required
@@ -1090,7 +1044,7 @@ func ExampleIAM_GetInstanceProfile() {
 }
 
 func ExampleIAM_GetLoginProfile() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.GetLoginProfileInput{
 		UserName: aws.String("userNameType"), // Required
@@ -1109,7 +1063,7 @@ func ExampleIAM_GetLoginProfile() {
 }
 
 func ExampleIAM_GetOpenIDConnectProvider() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.GetOpenIDConnectProviderInput{
 		OpenIDConnectProviderArn: aws.String("arnType"), // Required
@@ -1128,7 +1082,7 @@ func ExampleIAM_GetOpenIDConnectProvider() {
 }
 
 func ExampleIAM_GetPolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.GetPolicyInput{
 		PolicyArn: aws.String("arnType"), // Required
@@ -1147,7 +1101,7 @@ func ExampleIAM_GetPolicy() {
 }
 
 func ExampleIAM_GetPolicyVersion() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.GetPolicyVersionInput{
 		PolicyArn: aws.String("arnType"),             // Required
@@ -1167,7 +1121,7 @@ func ExampleIAM_GetPolicyVersion() {
 }
 
 func ExampleIAM_GetRole() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.GetRoleInput{
 		RoleName: aws.String("roleNameType"), // Required
@@ -1186,7 +1140,7 @@ func ExampleIAM_GetRole() {
 }
 
 func ExampleIAM_GetRolePolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.GetRolePolicyInput{
 		PolicyName: aws.String("policyNameType"), // Required
@@ -1206,7 +1160,7 @@ func ExampleIAM_GetRolePolicy() {
 }
 
 func ExampleIAM_GetSAMLProvider() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.GetSAMLProviderInput{
 		SAMLProviderArn: aws.String("arnType"), // Required
@@ -1225,7 +1179,7 @@ func ExampleIAM_GetSAMLProvider() {
 }
 
 func ExampleIAM_GetSSHPublicKey() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.GetSSHPublicKeyInput{
 		Encoding:       aws.String("encodingType"),    // Required
@@ -1246,7 +1200,7 @@ func ExampleIAM_GetSSHPublicKey() {
 }
 
 func ExampleIAM_GetServerCertificate() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.GetServerCertificateInput{
 		ServerCertificateName: aws.String("serverCertificateNameType"), // Required
@@ -1265,7 +1219,7 @@ func ExampleIAM_GetServerCertificate() {
 }
 
 func ExampleIAM_GetUser() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.GetUserInput{
 		UserName: aws.String("existingUserNameType"),
@@ -1284,7 +1238,7 @@ func ExampleIAM_GetUser() {
 }
 
 func ExampleIAM_GetUserPolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.GetUserPolicyInput{
 		PolicyName: aws.String("policyNameType"),       // Required
@@ -1304,7 +1258,7 @@ func ExampleIAM_GetUserPolicy() {
 }
 
 func ExampleIAM_ListAccessKeys() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ListAccessKeysInput{
 		Marker:   aws.String("markerType"),
@@ -1325,7 +1279,7 @@ func ExampleIAM_ListAccessKeys() {
 }
 
 func ExampleIAM_ListAccountAliases() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ListAccountAliasesInput{
 		Marker:   aws.String("markerType"),
@@ -1345,7 +1299,7 @@ func ExampleIAM_ListAccountAliases() {
 }
 
 func ExampleIAM_ListAttachedGroupPolicies() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ListAttachedGroupPoliciesInput{
 		GroupName:  aws.String("groupNameType"), // Required
@@ -1367,7 +1321,7 @@ func ExampleIAM_ListAttachedGroupPolicies() {
 }
 
 func ExampleIAM_ListAttachedRolePolicies() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ListAttachedRolePoliciesInput{
 		RoleName:   aws.String("roleNameType"), // Required
@@ -1389,7 +1343,7 @@ func ExampleIAM_ListAttachedRolePolicies() {
 }
 
 func ExampleIAM_ListAttachedUserPolicies() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ListAttachedUserPoliciesInput{
 		UserName:   aws.String("userNameType"), // Required
@@ -1411,7 +1365,7 @@ func ExampleIAM_ListAttachedUserPolicies() {
 }
 
 func ExampleIAM_ListEntitiesForPolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ListEntitiesForPolicyInput{
 		PolicyArn:    aws.String("arnType"), // Required
@@ -1434,7 +1388,7 @@ func ExampleIAM_ListEntitiesForPolicy() {
 }
 
 func ExampleIAM_ListGroupPolicies() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ListGroupPoliciesInput{
 		GroupName: aws.String("groupNameType"), // Required
@@ -1455,7 +1409,7 @@ func ExampleIAM_ListGroupPolicies() {
 }
 
 func ExampleIAM_ListGroups() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ListGroupsInput{
 		Marker:     aws.String("markerType"),
@@ -1476,7 +1430,7 @@ func ExampleIAM_ListGroups() {
 }
 
 func ExampleIAM_ListGroupsForUser() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ListGroupsForUserInput{
 		UserName: aws.String("existingUserNameType"), // Required
@@ -1497,7 +1451,7 @@ func ExampleIAM_ListGroupsForUser() {
 }
 
 func ExampleIAM_ListInstanceProfiles() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ListInstanceProfilesInput{
 		Marker:     aws.String("markerType"),
@@ -1518,7 +1472,7 @@ func ExampleIAM_ListInstanceProfiles() {
 }
 
 func ExampleIAM_ListInstanceProfilesForRole() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ListInstanceProfilesForRoleInput{
 		RoleName: aws.String("roleNameType"), // Required
@@ -1539,7 +1493,7 @@ func ExampleIAM_ListInstanceProfilesForRole() {
 }
 
 func ExampleIAM_ListMFADevices() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ListMFADevicesInput{
 		Marker:   aws.String("markerType"),
@@ -1560,7 +1514,7 @@ func ExampleIAM_ListMFADevices() {
 }
 
 func ExampleIAM_ListOpenIDConnectProviders() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	var params *iam.ListOpenIDConnectProvidersInput
 	resp, err := svc.ListOpenIDConnectProviders(params)
@@ -1577,7 +1531,7 @@ func ExampleIAM_ListOpenIDConnectProviders() {
 }
 
 func ExampleIAM_ListPolicies() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ListPoliciesInput{
 		Marker:       aws.String("markerType"),
@@ -1600,7 +1554,7 @@ func ExampleIAM_ListPolicies() {
 }
 
 func ExampleIAM_ListPolicyVersions() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ListPolicyVersionsInput{
 		PolicyArn: aws.String("arnType"), // Required
@@ -1621,7 +1575,7 @@ func ExampleIAM_ListPolicyVersions() {
 }
 
 func ExampleIAM_ListRolePolicies() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ListRolePoliciesInput{
 		RoleName: aws.String("roleNameType"), // Required
@@ -1642,7 +1596,7 @@ func ExampleIAM_ListRolePolicies() {
 }
 
 func ExampleIAM_ListRoles() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ListRolesInput{
 		Marker:     aws.String("markerType"),
@@ -1663,7 +1617,7 @@ func ExampleIAM_ListRoles() {
 }
 
 func ExampleIAM_ListSAMLProviders() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	var params *iam.ListSAMLProvidersInput
 	resp, err := svc.ListSAMLProviders(params)
@@ -1680,7 +1634,7 @@ func ExampleIAM_ListSAMLProviders() {
 }
 
 func ExampleIAM_ListSSHPublicKeys() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ListSSHPublicKeysInput{
 		Marker:   aws.String("markerType"),
@@ -1701,7 +1655,7 @@ func ExampleIAM_ListSSHPublicKeys() {
 }
 
 func ExampleIAM_ListServerCertificates() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ListServerCertificatesInput{
 		Marker:     aws.String("markerType"),
@@ -1722,7 +1676,7 @@ func ExampleIAM_ListServerCertificates() {
 }
 
 func ExampleIAM_ListSigningCertificates() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ListSigningCertificatesInput{
 		Marker:   aws.String("markerType"),
@@ -1743,7 +1697,7 @@ func ExampleIAM_ListSigningCertificates() {
 }
 
 func ExampleIAM_ListUserPolicies() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ListUserPoliciesInput{
 		UserName: aws.String("existingUserNameType"), // Required
@@ -1764,7 +1718,7 @@ func ExampleIAM_ListUserPolicies() {
 }
 
 func ExampleIAM_ListUsers() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ListUsersInput{
 		Marker:     aws.String("markerType"),
@@ -1785,7 +1739,7 @@ func ExampleIAM_ListUsers() {
 }
 
 func ExampleIAM_ListVirtualMFADevices() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ListVirtualMFADevicesInput{
 		AssignmentStatus: aws.String("assignmentStatusType"),
@@ -1806,7 +1760,7 @@ func ExampleIAM_ListVirtualMFADevices() {
 }
 
 func ExampleIAM_PutGroupPolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.PutGroupPolicyInput{
 		GroupName:      aws.String("groupNameType"),      // Required
@@ -1827,7 +1781,7 @@ func ExampleIAM_PutGroupPolicy() {
 }
 
 func ExampleIAM_PutRolePolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.PutRolePolicyInput{
 		PolicyDocument: aws.String("policyDocumentType"), // Required
@@ -1848,7 +1802,7 @@ func ExampleIAM_PutRolePolicy() {
 }
 
 func ExampleIAM_PutUserPolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.PutUserPolicyInput{
 		PolicyDocument: aws.String("policyDocumentType"),   // Required
@@ -1869,7 +1823,7 @@ func ExampleIAM_PutUserPolicy() {
 }
 
 func ExampleIAM_RemoveClientIDFromOpenIDConnectProvider() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.RemoveClientIDFromOpenIDConnectProviderInput{
 		ClientID:                 aws.String("clientIDType"), // Required
@@ -1889,7 +1843,7 @@ func ExampleIAM_RemoveClientIDFromOpenIDConnectProvider() {
 }
 
 func ExampleIAM_RemoveRoleFromInstanceProfile() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.RemoveRoleFromInstanceProfileInput{
 		InstanceProfileName: aws.String("instanceProfileNameType"), // Required
@@ -1909,7 +1863,7 @@ func ExampleIAM_RemoveRoleFromInstanceProfile() {
 }
 
 func ExampleIAM_RemoveUserFromGroup() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.RemoveUserFromGroupInput{
 		GroupName: aws.String("groupNameType"),        // Required
@@ -1929,7 +1883,7 @@ func ExampleIAM_RemoveUserFromGroup() {
 }
 
 func ExampleIAM_ResyncMFADevice() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.ResyncMFADeviceInput{
 		AuthenticationCode1: aws.String("authenticationCodeType"), // Required
@@ -1951,7 +1905,7 @@ func ExampleIAM_ResyncMFADevice() {
 }
 
 func ExampleIAM_SetDefaultPolicyVersion() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.SetDefaultPolicyVersionInput{
 		PolicyArn: aws.String("arnType"),             // Required
@@ -1970,103 +1924,8 @@ func ExampleIAM_SetDefaultPolicyVersion() {
 	fmt.Println(resp)
 }
 
-func ExampleIAM_SimulateCustomPolicy() {
-	svc := iam.New(session.New())
-
-	params := &iam.SimulateCustomPolicyInput{
-		ActionNames: []*string{ // Required
-			aws.String("ActionNameType"), // Required
-			// More values...
-		},
-		PolicyInputList: []*string{ // Required
-			aws.String("policyDocumentType"), // Required
-			// More values...
-		},
-		CallerArn: aws.String("ResourceNameType"),
-		ContextEntries: []*iam.ContextEntry{
-			{ // Required
-				ContextKeyName: aws.String("ContextKeyNameType"),
-				ContextKeyType: aws.String("ContextKeyTypeEnum"),
-				ContextKeyValues: []*string{
-					aws.String("ContextKeyValueType"), // Required
-					// More values...
-				},
-			},
-			// More values...
-		},
-		Marker:   aws.String("markerType"),
-		MaxItems: aws.Int64(1),
-		ResourceArns: []*string{
-			aws.String("ResourceNameType"), // Required
-			// More values...
-		},
-		ResourceHandlingOption: aws.String("ResourceHandlingOptionType"),
-		ResourceOwner:          aws.String("ResourceNameType"),
-		ResourcePolicy:         aws.String("policyDocumentType"),
-	}
-	resp, err := svc.SimulateCustomPolicy(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
-func ExampleIAM_SimulatePrincipalPolicy() {
-	svc := iam.New(session.New())
-
-	params := &iam.SimulatePrincipalPolicyInput{
-		ActionNames: []*string{ // Required
-			aws.String("ActionNameType"), // Required
-			// More values...
-		},
-		PolicySourceArn: aws.String("arnType"), // Required
-		CallerArn:       aws.String("ResourceNameType"),
-		ContextEntries: []*iam.ContextEntry{
-			{ // Required
-				ContextKeyName: aws.String("ContextKeyNameType"),
-				ContextKeyType: aws.String("ContextKeyTypeEnum"),
-				ContextKeyValues: []*string{
-					aws.String("ContextKeyValueType"), // Required
-					// More values...
-				},
-			},
-			// More values...
-		},
-		Marker:   aws.String("markerType"),
-		MaxItems: aws.Int64(1),
-		PolicyInputList: []*string{
-			aws.String("policyDocumentType"), // Required
-			// More values...
-		},
-		ResourceArns: []*string{
-			aws.String("ResourceNameType"), // Required
-			// More values...
-		},
-		ResourceHandlingOption: aws.String("ResourceHandlingOptionType"),
-		ResourceOwner:          aws.String("ResourceNameType"),
-		ResourcePolicy:         aws.String("policyDocumentType"),
-	}
-	resp, err := svc.SimulatePrincipalPolicy(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
 func ExampleIAM_UpdateAccessKey() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.UpdateAccessKeyInput{
 		AccessKeyId: aws.String("accessKeyIdType"), // Required
@@ -2087,7 +1946,7 @@ func ExampleIAM_UpdateAccessKey() {
 }
 
 func ExampleIAM_UpdateAccountPasswordPolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.UpdateAccountPasswordPolicyInput{
 		AllowUsersToChangePassword: aws.Bool(true),
@@ -2114,7 +1973,7 @@ func ExampleIAM_UpdateAccountPasswordPolicy() {
 }
 
 func ExampleIAM_UpdateAssumeRolePolicy() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.UpdateAssumeRolePolicyInput{
 		PolicyDocument: aws.String("policyDocumentType"), // Required
@@ -2134,7 +1993,7 @@ func ExampleIAM_UpdateAssumeRolePolicy() {
 }
 
 func ExampleIAM_UpdateGroup() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.UpdateGroupInput{
 		GroupName:    aws.String("groupNameType"), // Required
@@ -2155,7 +2014,7 @@ func ExampleIAM_UpdateGroup() {
 }
 
 func ExampleIAM_UpdateLoginProfile() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.UpdateLoginProfileInput{
 		UserName:              aws.String("userNameType"), // Required
@@ -2176,7 +2035,7 @@ func ExampleIAM_UpdateLoginProfile() {
 }
 
 func ExampleIAM_UpdateOpenIDConnectProviderThumbprint() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.UpdateOpenIDConnectProviderThumbprintInput{
 		OpenIDConnectProviderArn: aws.String("arnType"), // Required
@@ -2199,7 +2058,7 @@ func ExampleIAM_UpdateOpenIDConnectProviderThumbprint() {
 }
 
 func ExampleIAM_UpdateSAMLProvider() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.UpdateSAMLProviderInput{
 		SAMLMetadataDocument: aws.String("SAMLMetadataDocumentType"), // Required
@@ -2219,7 +2078,7 @@ func ExampleIAM_UpdateSAMLProvider() {
 }
 
 func ExampleIAM_UpdateSSHPublicKey() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.UpdateSSHPublicKeyInput{
 		SSHPublicKeyId: aws.String("publicKeyIdType"), // Required
@@ -2240,7 +2099,7 @@ func ExampleIAM_UpdateSSHPublicKey() {
 }
 
 func ExampleIAM_UpdateServerCertificate() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.UpdateServerCertificateInput{
 		ServerCertificateName:    aws.String("serverCertificateNameType"), // Required
@@ -2261,7 +2120,7 @@ func ExampleIAM_UpdateServerCertificate() {
 }
 
 func ExampleIAM_UpdateSigningCertificate() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.UpdateSigningCertificateInput{
 		CertificateId: aws.String("certificateIdType"), // Required
@@ -2282,7 +2141,7 @@ func ExampleIAM_UpdateSigningCertificate() {
 }
 
 func ExampleIAM_UpdateUser() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.UpdateUserInput{
 		UserName:    aws.String("existingUserNameType"), // Required
@@ -2303,7 +2162,7 @@ func ExampleIAM_UpdateUser() {
 }
 
 func ExampleIAM_UploadSSHPublicKey() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.UploadSSHPublicKeyInput{
 		SSHPublicKeyBody: aws.String("publicKeyMaterialType"), // Required
@@ -2323,7 +2182,7 @@ func ExampleIAM_UploadSSHPublicKey() {
 }
 
 func ExampleIAM_UploadServerCertificate() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.UploadServerCertificateInput{
 		CertificateBody:       aws.String("certificateBodyType"),       // Required
@@ -2346,7 +2205,7 @@ func ExampleIAM_UploadServerCertificate() {
 }
 
 func ExampleIAM_UploadSigningCertificate() {
-	svc := iam.New(session.New())
+	svc := iam.New(nil)
 
 	params := &iam.UploadSigningCertificateInput{
 		CertificateBody: aws.String("certificateBodyType"), // Required

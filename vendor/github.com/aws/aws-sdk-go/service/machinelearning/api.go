@@ -341,7 +341,7 @@ func (c *MachineLearning) DeleteBatchPredictionRequest(input *DeleteBatchPredict
 // After using the DeleteBatchPrediction operation, you can use the GetBatchPrediction
 // operation to verify that the status of the BatchPrediction changed to DELETED.
 //
-// Caution: The result of the DeleteBatchPrediction operation is irreversible.
+// Caution The result of the DeleteBatchPrediction operation is irreversible.
 func (c *MachineLearning) DeleteBatchPrediction(input *DeleteBatchPredictionInput) (*DeleteBatchPredictionOutput, error) {
 	req, out := c.DeleteBatchPredictionRequest(input)
 	err := req.Send()
@@ -373,7 +373,7 @@ func (c *MachineLearning) DeleteDataSourceRequest(input *DeleteDataSourceInput) 
 // After using the DeleteDataSource operation, you can use the GetDataSource
 // operation to verify that the status of the DataSource changed to DELETED.
 //
-// Caution: The results of the DeleteDataSource operation are irreversible.
+// Caution The results of the DeleteDataSource operation are irreversible.
 func (c *MachineLearning) DeleteDataSource(input *DeleteDataSourceInput) (*DeleteDataSourceOutput, error) {
 	req, out := c.DeleteDataSourceRequest(input)
 	err := req.Send()
@@ -405,7 +405,7 @@ func (c *MachineLearning) DeleteEvaluationRequest(input *DeleteEvaluationInput) 
 // After invoking the DeleteEvaluation operation, you can use the GetEvaluation
 // operation to verify that the status of the Evaluation changed to DELETED.
 //
-// Caution: The results of the DeleteEvaluation operation are irreversible.
+// Caution The results of the DeleteEvaluation operation are irreversible.
 func (c *MachineLearning) DeleteEvaluation(input *DeleteEvaluationInput) (*DeleteEvaluationOutput, error) {
 	req, out := c.DeleteEvaluationRequest(input)
 	err := req.Send()
@@ -437,7 +437,7 @@ func (c *MachineLearning) DeleteMLModelRequest(input *DeleteMLModelInput) (req *
 // After using the DeleteMLModel operation, you can use the GetMLModel operation
 // to verify that the status of the MLModel changed to DELETED.
 //
-// Caution: The result of the DeleteMLModel operation is irreversible.
+// Caution The result of the DeleteMLModel operation is irreversible.
 func (c *MachineLearning) DeleteMLModel(input *DeleteMLModelInput) (*DeleteMLModelOutput, error) {
 	req, out := c.DeleteMLModelRequest(input)
 	err := req.Send()
@@ -507,7 +507,6 @@ func (c *MachineLearning) DescribeBatchPredictions(input *DescribeBatchPredictio
 
 func (c *MachineLearning) DescribeBatchPredictionsPages(input *DescribeBatchPredictionsInput, fn func(p *DescribeBatchPredictionsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeBatchPredictionsRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeBatchPredictionsOutput), lastPage)
 	})
@@ -548,7 +547,6 @@ func (c *MachineLearning) DescribeDataSources(input *DescribeDataSourcesInput) (
 
 func (c *MachineLearning) DescribeDataSourcesPages(input *DescribeDataSourcesInput, fn func(p *DescribeDataSourcesOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeDataSourcesRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeDataSourcesOutput), lastPage)
 	})
@@ -590,7 +588,6 @@ func (c *MachineLearning) DescribeEvaluations(input *DescribeEvaluationsInput) (
 
 func (c *MachineLearning) DescribeEvaluationsPages(input *DescribeEvaluationsInput, fn func(p *DescribeEvaluationsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeEvaluationsRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeEvaluationsOutput), lastPage)
 	})
@@ -631,7 +628,6 @@ func (c *MachineLearning) DescribeMLModels(input *DescribeMLModelsInput) (*Descr
 
 func (c *MachineLearning) DescribeMLModelsPages(input *DescribeMLModelsInput, fn func(p *DescribeMLModelsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeMLModelsRequest(input)
-	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeMLModelsOutput), lastPage)
 	})
@@ -775,10 +771,10 @@ func (c *MachineLearning) PredictRequest(input *PredictInput) (req *request.Requ
 	return
 }
 
-// Generates a prediction for the observation using the specified ML Model.
+// Generates a prediction for the observation using the specified MLModel.
 //
-// Note Not all response parameters will be populated. Whether a response parameter
-// is populated depends on the type of model requested.
+// Note Not all response parameters will be populated because this is dependent
+// on the type of requested model.
 func (c *MachineLearning) Predict(input *PredictInput) (*PredictOutput, error) {
 	req, out := c.PredictRequest(input)
 	err := req.Send()
@@ -910,14 +906,12 @@ func (c *MachineLearning) UpdateMLModel(input *UpdateMLModelInput) (*UpdateMLMod
 //  The content consists of the detailed metadata, the status, and the data
 // file information of a Batch Prediction.
 type BatchPrediction struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the DataSource that points to the group of observations to predict.
-	BatchPredictionDataSourceId *string `min:"1" type:"string"`
+	BatchPredictionDataSourceId *string `type:"string"`
 
 	// The ID assigned to the BatchPrediction at creation. This value should be
 	// identical to the value of the BatchPredictionID in the request.
-	BatchPredictionId *string `min:"1" type:"string"`
+	BatchPredictionId *string `type:"string"`
 
 	// The time that the BatchPrediction was created. The time is expressed in epoch
 	// time.
@@ -938,7 +932,7 @@ type BatchPrediction struct {
 
 	// The ID of the MLModel that generated predictions for the BatchPrediction
 	// request.
-	MLModelId *string `min:"1" type:"string"`
+	MLModelId *string `type:"string"`
 
 	// A description of the most recent details about processing the batch prediction
 	// request.
@@ -961,6 +955,12 @@ type BatchPrediction struct {
 	// It is not usable.  COMPLETED - The batch prediction process completed successfully.
 	//  DELETED - The BatchPrediction is marked as deleted. It is not usable.
 	Status *string `type:"string" enum:"EntityStatus"`
+
+	metadataBatchPrediction `json:"-" xml:"-"`
+}
+
+type metadataBatchPrediction struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -974,20 +974,18 @@ func (s BatchPrediction) GoString() string {
 }
 
 type CreateBatchPredictionInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the DataSource that points to the group of observations to predict.
-	BatchPredictionDataSourceId *string `min:"1" type:"string" required:"true"`
+	BatchPredictionDataSourceId *string `type:"string" required:"true"`
 
 	// A user-supplied ID that uniquely identifies the BatchPrediction.
-	BatchPredictionId *string `min:"1" type:"string" required:"true"`
+	BatchPredictionId *string `type:"string" required:"true"`
 
 	// A user-supplied name or description of the BatchPrediction. BatchPredictionName
 	// can only use the UTF-8 character set.
 	BatchPredictionName *string `type:"string"`
 
 	// The ID of the MLModel that will generate predictions for the group of observations.
-	MLModelId *string `min:"1" type:"string" required:"true"`
+	MLModelId *string `type:"string" required:"true"`
 
 	// The location of an Amazon Simple Storage Service (Amazon S3) bucket or directory
 	// to store the batch prediction results. The following substrings are not allowed
@@ -997,6 +995,12 @@ type CreateBatchPredictionInput struct {
 	// For information about how to set permissions, see the Amazon Machine Learning
 	// Developer Guide (http://docs.aws.amazon.com/machine-learning/latest/dg).
 	OutputUri *string `type:"string" required:"true"`
+
+	metadataCreateBatchPredictionInput `json:"-" xml:"-"`
+}
+
+type metadataCreateBatchPredictionInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1009,37 +1013,6 @@ func (s CreateBatchPredictionInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateBatchPredictionInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateBatchPredictionInput"}
-	if s.BatchPredictionDataSourceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("BatchPredictionDataSourceId"))
-	}
-	if s.BatchPredictionDataSourceId != nil && len(*s.BatchPredictionDataSourceId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("BatchPredictionDataSourceId", 1))
-	}
-	if s.BatchPredictionId == nil {
-		invalidParams.Add(request.NewErrParamRequired("BatchPredictionId"))
-	}
-	if s.BatchPredictionId != nil && len(*s.BatchPredictionId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("BatchPredictionId", 1))
-	}
-	if s.MLModelId == nil {
-		invalidParams.Add(request.NewErrParamRequired("MLModelId"))
-	}
-	if s.MLModelId != nil && len(*s.MLModelId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("MLModelId", 1))
-	}
-	if s.OutputUri == nil {
-		invalidParams.Add(request.NewErrParamRequired("OutputUri"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of a CreateBatchPrediction operation, and is an acknowledgement
 // that Amazon ML received the request.
 //
@@ -1047,11 +1020,15 @@ func (s *CreateBatchPredictionInput) Validate() error {
 // updates by using the GetBatchPrediction operation and checking the Status
 // parameter of the result.
 type CreateBatchPredictionOutput struct {
-	_ struct{} `type:"structure"`
-
 	// A user-supplied ID that uniquely identifies the BatchPrediction. This value
 	// is identical to the value of the BatchPredictionId in the request.
-	BatchPredictionId *string `min:"1" type:"string"`
+	BatchPredictionId *string `type:"string"`
+
+	metadataCreateBatchPredictionOutput `json:"-" xml:"-"`
+}
+
+type metadataCreateBatchPredictionOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1065,8 +1042,6 @@ func (s CreateBatchPredictionOutput) GoString() string {
 }
 
 type CreateDataSourceFromRDSInput struct {
-	_ struct{} `type:"structure"`
-
 	// The compute statistics for a DataSource. The statistics are generated from
 	// the observation data referenced by a DataSource. Amazon ML uses the statistics
 	// internally during an MLModel training. This parameter must be set to true
@@ -1075,7 +1050,7 @@ type CreateDataSourceFromRDSInput struct {
 
 	// A user-supplied ID that uniquely identifies the DataSource. Typically, an
 	// Amazon Resource Number (ARN) becomes the ID for a DataSource.
-	DataSourceId *string `min:"1" type:"string" required:"true"`
+	DataSourceId *string `type:"string" required:"true"`
 
 	// A user-supplied name or description of the DataSource.
 	DataSourceName *string `type:"string"`
@@ -1118,13 +1093,19 @@ type CreateDataSourceFromRDSInput struct {
 	//  DataRearrangement - A JSON string representing the splitting requirement
 	// of a Datasource.
 	//
-	//   Sample -  "{\"splitting\":{\"percentBegin\":10,\"percentEnd\":60}}"
+	//   Sample -  "{\"randomSeed\":\"some-random-seed\", \"splitting\":{\"percentBegin\":10,\"percentEnd\":60}}"
 	RDSData *RDSDataSpec `type:"structure" required:"true"`
 
 	// The role that Amazon ML assumes on behalf of the user to create and activate
 	// a data pipeline in the user’s account and copy data (using the SelectSqlQuery)
 	// query from Amazon RDS to Amazon S3.
-	RoleARN *string `min:"1" type:"string" required:"true"`
+	RoleARN *string `type:"string" required:"true"`
+
+	metadataCreateDataSourceFromRDSInput `json:"-" xml:"-"`
+}
+
+type metadataCreateDataSourceFromRDSInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1137,36 +1118,6 @@ func (s CreateDataSourceFromRDSInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateDataSourceFromRDSInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateDataSourceFromRDSInput"}
-	if s.DataSourceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("DataSourceId"))
-	}
-	if s.DataSourceId != nil && len(*s.DataSourceId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("DataSourceId", 1))
-	}
-	if s.RDSData == nil {
-		invalidParams.Add(request.NewErrParamRequired("RDSData"))
-	}
-	if s.RoleARN == nil {
-		invalidParams.Add(request.NewErrParamRequired("RoleARN"))
-	}
-	if s.RoleARN != nil && len(*s.RoleARN) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("RoleARN", 1))
-	}
-	if s.RDSData != nil {
-		if err := s.RDSData.Validate(); err != nil {
-			invalidParams.AddNested("RDSData", err.(request.ErrInvalidParams))
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of a CreateDataSourceFromRDS operation, and is an acknowledgement
 // that Amazon ML received the request.
 //
@@ -1177,11 +1128,15 @@ func (s *CreateDataSourceFromRDSInput) Validate() error {
 // console and looking up the pipeline using the pipelineId from the describe
 // call.
 type CreateDataSourceFromRDSOutput struct {
-	_ struct{} `type:"structure"`
-
 	// A user-supplied ID that uniquely identifies the datasource. This value should
 	// be identical to the value of the DataSourceID in the request.
-	DataSourceId *string `min:"1" type:"string"`
+	DataSourceId *string `type:"string"`
+
+	metadataCreateDataSourceFromRDSOutput `json:"-" xml:"-"`
+}
+
+type metadataCreateDataSourceFromRDSOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1195,8 +1150,6 @@ func (s CreateDataSourceFromRDSOutput) GoString() string {
 }
 
 type CreateDataSourceFromRedshiftInput struct {
-	_ struct{} `type:"structure"`
-
 	// The compute statistics for a DataSource. The statistics are generated from
 	// the observation data referenced by a DataSource. Amazon ML uses the statistics
 	// internally during MLModel training. This parameter must be set to true if
@@ -1204,7 +1157,7 @@ type CreateDataSourceFromRedshiftInput struct {
 	ComputeStatistics *bool `type:"boolean"`
 
 	// A user-supplied ID that uniquely identifies the DataSource.
-	DataSourceId *string `min:"1" type:"string" required:"true"`
+	DataSourceId *string `type:"string" required:"true"`
 
 	// A user-supplied name or description of the DataSource.
 	DataSourceName *string `type:"string"`
@@ -1232,7 +1185,7 @@ type CreateDataSourceFromRedshiftInput struct {
 	//  DataRearrangement - A JSON string representing the splitting requirement
 	// of a Datasource.
 	//
-	//   Sample -  "{\"splitting\":{\"percentBegin\":10,\"percentEnd\":60}}"
+	//   Sample -  "{\"randomSeed\":\"some-random-seed\", \"splitting\":{\"percentBegin\":10,\"percentEnd\":60}}"
 	DataSpec *RedshiftDataSpec `type:"structure" required:"true"`
 
 	// A fully specified role Amazon Resource Name (ARN). Amazon ML assumes the
@@ -1243,7 +1196,13 @@ type CreateDataSourceFromRedshiftInput struct {
 	//
 	// An Amazon S3 bucket policy to grant Amazon ML read/write permissions on
 	// the S3StagingLocation
-	RoleARN *string `min:"1" type:"string" required:"true"`
+	RoleARN *string `type:"string" required:"true"`
+
+	metadataCreateDataSourceFromRedshiftInput `json:"-" xml:"-"`
+}
+
+type metadataCreateDataSourceFromRedshiftInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1256,36 +1215,6 @@ func (s CreateDataSourceFromRedshiftInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateDataSourceFromRedshiftInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateDataSourceFromRedshiftInput"}
-	if s.DataSourceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("DataSourceId"))
-	}
-	if s.DataSourceId != nil && len(*s.DataSourceId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("DataSourceId", 1))
-	}
-	if s.DataSpec == nil {
-		invalidParams.Add(request.NewErrParamRequired("DataSpec"))
-	}
-	if s.RoleARN == nil {
-		invalidParams.Add(request.NewErrParamRequired("RoleARN"))
-	}
-	if s.RoleARN != nil && len(*s.RoleARN) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("RoleARN", 1))
-	}
-	if s.DataSpec != nil {
-		if err := s.DataSpec.Validate(); err != nil {
-			invalidParams.AddNested("DataSpec", err.(request.ErrInvalidParams))
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of a CreateDataSourceFromRedshift operation, and is
 // an acknowledgement that Amazon ML received the request.
 //
@@ -1293,11 +1222,15 @@ func (s *CreateDataSourceFromRedshiftInput) Validate() error {
 // for updates by using the GetBatchPrediction operation and checking the Status
 // parameter.
 type CreateDataSourceFromRedshiftOutput struct {
-	_ struct{} `type:"structure"`
-
 	// A user-supplied ID that uniquely identifies the datasource. This value should
 	// be identical to the value of the DataSourceID in the request.
-	DataSourceId *string `min:"1" type:"string"`
+	DataSourceId *string `type:"string"`
+
+	metadataCreateDataSourceFromRedshiftOutput `json:"-" xml:"-"`
+}
+
+type metadataCreateDataSourceFromRedshiftOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1311,8 +1244,6 @@ func (s CreateDataSourceFromRedshiftOutput) GoString() string {
 }
 
 type CreateDataSourceFromS3Input struct {
-	_ struct{} `type:"structure"`
-
 	// The compute statistics for a DataSource. The statistics are generated from
 	// the observation data referenced by a DataSource. Amazon ML uses the statistics
 	// internally during an MLModel training. This parameter must be set to true
@@ -1320,7 +1251,7 @@ type CreateDataSourceFromS3Input struct {
 	ComputeStatistics *bool `type:"boolean"`
 
 	// A user-supplied identifier that uniquely identifies the DataSource.
-	DataSourceId *string `min:"1" type:"string" required:"true"`
+	DataSourceId *string `type:"string" required:"true"`
 
 	// A user-supplied name or description of the DataSource.
 	DataSourceName *string `type:"string"`
@@ -1338,8 +1269,14 @@ type CreateDataSourceFromS3Input struct {
 	//  DataRearrangement - A JSON string representing the splitting requirement
 	// of a Datasource.
 	//
-	//   Sample -  "{\"splitting\":{\"percentBegin\":10,\"percentEnd\":60}}"
+	//   Sample -  "{\"randomSeed\":\"some-random-seed\", \"splitting\":{\"percentBegin\":10,\"percentEnd\":60}}"
 	DataSpec *S3DataSpec `type:"structure" required:"true"`
+
+	metadataCreateDataSourceFromS3Input `json:"-" xml:"-"`
+}
+
+type metadataCreateDataSourceFromS3Input struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1352,41 +1289,21 @@ func (s CreateDataSourceFromS3Input) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateDataSourceFromS3Input) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateDataSourceFromS3Input"}
-	if s.DataSourceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("DataSourceId"))
-	}
-	if s.DataSourceId != nil && len(*s.DataSourceId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("DataSourceId", 1))
-	}
-	if s.DataSpec == nil {
-		invalidParams.Add(request.NewErrParamRequired("DataSpec"))
-	}
-	if s.DataSpec != nil {
-		if err := s.DataSpec.Validate(); err != nil {
-			invalidParams.AddNested("DataSpec", err.(request.ErrInvalidParams))
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of a CreateDataSourceFromS3 operation, and is an acknowledgement
 // that Amazon ML received the request.
 //
 // The CreateDataSourceFromS3 operation is asynchronous. You can poll for updates
 // by using the GetBatchPrediction operation and checking the Status parameter.
 type CreateDataSourceFromS3Output struct {
-	_ struct{} `type:"structure"`
-
 	// A user-supplied ID that uniquely identifies the datasource. This value should
 	// be identical to the value of the DataSourceID in the request.
-	DataSourceId *string `min:"1" type:"string"`
+	DataSourceId *string `type:"string"`
+
+	metadataCreateDataSourceFromS3Output `json:"-" xml:"-"`
+}
+
+type metadataCreateDataSourceFromS3Output struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1400,14 +1317,12 @@ func (s CreateDataSourceFromS3Output) GoString() string {
 }
 
 type CreateEvaluationInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the DataSource for the evaluation. The schema of the DataSource
 	// must match the schema used to create the MLModel.
-	EvaluationDataSourceId *string `min:"1" type:"string" required:"true"`
+	EvaluationDataSourceId *string `type:"string" required:"true"`
 
 	// A user-supplied ID that uniquely identifies the Evaluation.
-	EvaluationId *string `min:"1" type:"string" required:"true"`
+	EvaluationId *string `type:"string" required:"true"`
 
 	// A user-supplied name or description of the Evaluation.
 	EvaluationName *string `type:"string"`
@@ -1416,7 +1331,13 @@ type CreateEvaluationInput struct {
 	//
 	// The schema used in creating the MLModel must match the schema of the DataSource
 	// used in the Evaluation.
-	MLModelId *string `min:"1" type:"string" required:"true"`
+	MLModelId *string `type:"string" required:"true"`
+
+	metadataCreateEvaluationInput `json:"-" xml:"-"`
+}
+
+type metadataCreateEvaluationInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1429,45 +1350,21 @@ func (s CreateEvaluationInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateEvaluationInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateEvaluationInput"}
-	if s.EvaluationDataSourceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("EvaluationDataSourceId"))
-	}
-	if s.EvaluationDataSourceId != nil && len(*s.EvaluationDataSourceId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("EvaluationDataSourceId", 1))
-	}
-	if s.EvaluationId == nil {
-		invalidParams.Add(request.NewErrParamRequired("EvaluationId"))
-	}
-	if s.EvaluationId != nil && len(*s.EvaluationId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("EvaluationId", 1))
-	}
-	if s.MLModelId == nil {
-		invalidParams.Add(request.NewErrParamRequired("MLModelId"))
-	}
-	if s.MLModelId != nil && len(*s.MLModelId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("MLModelId", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of a CreateEvaluation operation, and is an acknowledgement
 // that Amazon ML received the request.
 //
 // CreateEvaluation operation is asynchronous. You can poll for status updates
 // by using the GetEvaluation operation and checking the Status parameter.
 type CreateEvaluationOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The user-supplied ID that uniquely identifies the Evaluation. This value
 	// should be identical to the value of the EvaluationId in the request.
-	EvaluationId *string `min:"1" type:"string"`
+	EvaluationId *string `type:"string"`
+
+	metadataCreateEvaluationOutput `json:"-" xml:"-"`
+}
+
+type metadataCreateEvaluationOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1481,10 +1378,8 @@ func (s CreateEvaluationOutput) GoString() string {
 }
 
 type CreateMLModelInput struct {
-	_ struct{} `type:"structure"`
-
 	// A user-supplied ID that uniquely identifies the MLModel.
-	MLModelId *string `min:"1" type:"string" required:"true"`
+	MLModelId *string `type:"string" required:"true"`
 
 	// A user-supplied name or description of the MLModel.
 	MLModelName *string `type:"string"`
@@ -1543,7 +1438,13 @@ type CreateMLModelInput struct {
 	RecipeUri *string `type:"string"`
 
 	// The DataSource that points to the training data.
-	TrainingDataSourceId *string `min:"1" type:"string" required:"true"`
+	TrainingDataSourceId *string `type:"string" required:"true"`
+
+	metadataCreateMLModelInput `json:"-" xml:"-"`
+}
+
+type metadataCreateMLModelInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1556,42 +1457,21 @@ func (s CreateMLModelInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateMLModelInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateMLModelInput"}
-	if s.MLModelId == nil {
-		invalidParams.Add(request.NewErrParamRequired("MLModelId"))
-	}
-	if s.MLModelId != nil && len(*s.MLModelId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("MLModelId", 1))
-	}
-	if s.MLModelType == nil {
-		invalidParams.Add(request.NewErrParamRequired("MLModelType"))
-	}
-	if s.TrainingDataSourceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("TrainingDataSourceId"))
-	}
-	if s.TrainingDataSourceId != nil && len(*s.TrainingDataSourceId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("TrainingDataSourceId", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of a CreateMLModel operation, and is an acknowledgement
 // that Amazon ML received the request.
 //
 // The CreateMLModel operation is asynchronous. You can poll for status updates
 // by using the GetMLModel operation and checking the Status parameter.
 type CreateMLModelOutput struct {
-	_ struct{} `type:"structure"`
-
 	// A user-supplied ID that uniquely identifies the MLModel. This value should
 	// be identical to the value of the MLModelId in the request.
-	MLModelId *string `min:"1" type:"string"`
+	MLModelId *string `type:"string"`
+
+	metadataCreateMLModelOutput `json:"-" xml:"-"`
+}
+
+type metadataCreateMLModelOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1605,10 +1485,14 @@ func (s CreateMLModelOutput) GoString() string {
 }
 
 type CreateRealtimeEndpointInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID assigned to the MLModel during creation.
-	MLModelId *string `min:"1" type:"string" required:"true"`
+	MLModelId *string `type:"string" required:"true"`
+
+	metadataCreateRealtimeEndpointInput `json:"-" xml:"-"`
+}
+
+type metadataCreateRealtimeEndpointInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1621,22 +1505,6 @@ func (s CreateRealtimeEndpointInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateRealtimeEndpointInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateRealtimeEndpointInput"}
-	if s.MLModelId == nil {
-		invalidParams.Add(request.NewErrParamRequired("MLModelId"))
-	}
-	if s.MLModelId != nil && len(*s.MLModelId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("MLModelId", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of an CreateRealtimeEndpoint operation.
 //
 // The result contains the MLModelId and the endpoint information for the MLModel.
@@ -1644,14 +1512,18 @@ func (s *CreateRealtimeEndpointInput) Validate() error {
 //  The endpoint information includes the URI of the MLModel; that is, the
 // location to send online prediction requests for the specified MLModel.
 type CreateRealtimeEndpointOutput struct {
-	_ struct{} `type:"structure"`
-
 	// A user-supplied ID that uniquely identifies the MLModel. This value should
 	// be identical to the value of the MLModelId in the request.
-	MLModelId *string `min:"1" type:"string"`
+	MLModelId *string `type:"string"`
 
 	// The endpoint information of the MLModel
 	RealtimeEndpointInfo *RealtimeEndpointInfo `type:"structure"`
+
+	metadataCreateRealtimeEndpointOutput `json:"-" xml:"-"`
+}
+
+type metadataCreateRealtimeEndpointOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1669,8 +1541,6 @@ func (s CreateRealtimeEndpointOutput) GoString() string {
 //  The content consists of the detailed metadata and data file information
 // and the current status of the DataSource.
 type DataSource struct {
-	_ struct{} `type:"structure"`
-
 	// The parameter is true if statistics need to be generated from the observation
 	// data.
 	ComputeStatistics *bool `type:"boolean"`
@@ -1696,7 +1566,7 @@ type DataSource struct {
 	DataSizeInBytes *int64 `type:"long"`
 
 	// The ID that is assigned to the DataSource during creation.
-	DataSourceId *string `min:"1" type:"string"`
+	DataSourceId *string `type:"string"`
 
 	// The time of the most recent edit to the BatchPrediction. The time is expressed
 	// in epoch time.
@@ -1719,7 +1589,7 @@ type DataSource struct {
 
 	// The Amazon Resource Name (ARN) of an AWS IAM Role (http://docs.aws.amazon.com/IAM/latest/UserGuide/roles-toplevel.html#roles-about-termsandconcepts)
 	// such as the following: arn:aws:iam::account:role/rolename.
-	RoleARN *string `min:"1" type:"string"`
+	RoleARN *string `type:"string"`
 
 	// The current status of the DataSource. This element can have one of the following
 	// values:
@@ -1730,6 +1600,12 @@ type DataSource struct {
 	// COMPLETED - The creation process completed successfully. DELETED - The DataSource
 	// is marked as deleted. It is not usable.
 	Status *string `type:"string" enum:"EntityStatus"`
+
+	metadataDataSource `json:"-" xml:"-"`
+}
+
+type metadataDataSource struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1743,10 +1619,14 @@ func (s DataSource) GoString() string {
 }
 
 type DeleteBatchPredictionInput struct {
-	_ struct{} `type:"structure"`
-
 	// A user-supplied ID that uniquely identifies the BatchPrediction.
-	BatchPredictionId *string `min:"1" type:"string" required:"true"`
+	BatchPredictionId *string `type:"string" required:"true"`
+
+	metadataDeleteBatchPredictionInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteBatchPredictionInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1759,32 +1639,20 @@ func (s DeleteBatchPredictionInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteBatchPredictionInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteBatchPredictionInput"}
-	if s.BatchPredictionId == nil {
-		invalidParams.Add(request.NewErrParamRequired("BatchPredictionId"))
-	}
-	if s.BatchPredictionId != nil && len(*s.BatchPredictionId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("BatchPredictionId", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of a DeleteBatchPrediction operation.
 //
 // You can use the GetBatchPrediction operation and check the value of the
 // Status parameter to see whether a BatchPrediction is marked as DELETED.
 type DeleteBatchPredictionOutput struct {
-	_ struct{} `type:"structure"`
-
 	// A user-supplied ID that uniquely identifies the BatchPrediction. This value
 	// should be identical to the value of the BatchPredictionID in the request.
-	BatchPredictionId *string `min:"1" type:"string"`
+	BatchPredictionId *string `type:"string"`
+
+	metadataDeleteBatchPredictionOutput `json:"-" xml:"-"`
+}
+
+type metadataDeleteBatchPredictionOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1798,10 +1666,14 @@ func (s DeleteBatchPredictionOutput) GoString() string {
 }
 
 type DeleteDataSourceInput struct {
-	_ struct{} `type:"structure"`
-
 	// A user-supplied ID that uniquely identifies the DataSource.
-	DataSourceId *string `min:"1" type:"string" required:"true"`
+	DataSourceId *string `type:"string" required:"true"`
+
+	metadataDeleteDataSourceInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteDataSourceInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1814,29 +1686,17 @@ func (s DeleteDataSourceInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteDataSourceInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteDataSourceInput"}
-	if s.DataSourceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("DataSourceId"))
-	}
-	if s.DataSourceId != nil && len(*s.DataSourceId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("DataSourceId", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of a DeleteDataSource operation.
 type DeleteDataSourceOutput struct {
-	_ struct{} `type:"structure"`
-
 	// A user-supplied ID that uniquely identifies the DataSource. This value should
 	// be identical to the value of the DataSourceID in the request.
-	DataSourceId *string `min:"1" type:"string"`
+	DataSourceId *string `type:"string"`
+
+	metadataDeleteDataSourceOutput `json:"-" xml:"-"`
+}
+
+type metadataDeleteDataSourceOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1850,10 +1710,14 @@ func (s DeleteDataSourceOutput) GoString() string {
 }
 
 type DeleteEvaluationInput struct {
-	_ struct{} `type:"structure"`
-
 	// A user-supplied ID that uniquely identifies the Evaluation to delete.
-	EvaluationId *string `min:"1" type:"string" required:"true"`
+	EvaluationId *string `type:"string" required:"true"`
+
+	metadataDeleteEvaluationInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteEvaluationInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1866,33 +1730,21 @@ func (s DeleteEvaluationInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteEvaluationInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteEvaluationInput"}
-	if s.EvaluationId == nil {
-		invalidParams.Add(request.NewErrParamRequired("EvaluationId"))
-	}
-	if s.EvaluationId != nil && len(*s.EvaluationId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("EvaluationId", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of a DeleteEvaluation operation. The output indicates
 // that Amazon Machine Learning (Amazon ML) received the request.
 //
 // You can use the GetEvaluation operation and check the value of the Status
 // parameter to see whether an Evaluation is marked as DELETED.
 type DeleteEvaluationOutput struct {
-	_ struct{} `type:"structure"`
-
 	// A user-supplied ID that uniquely identifies the Evaluation. This value should
 	// be identical to the value of the EvaluationId in the request.
-	EvaluationId *string `min:"1" type:"string"`
+	EvaluationId *string `type:"string"`
+
+	metadataDeleteEvaluationOutput `json:"-" xml:"-"`
+}
+
+type metadataDeleteEvaluationOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1906,10 +1758,14 @@ func (s DeleteEvaluationOutput) GoString() string {
 }
 
 type DeleteMLModelInput struct {
-	_ struct{} `type:"structure"`
-
 	// A user-supplied ID that uniquely identifies the MLModel.
-	MLModelId *string `min:"1" type:"string" required:"true"`
+	MLModelId *string `type:"string" required:"true"`
+
+	metadataDeleteMLModelInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteMLModelInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1922,32 +1778,20 @@ func (s DeleteMLModelInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteMLModelInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteMLModelInput"}
-	if s.MLModelId == nil {
-		invalidParams.Add(request.NewErrParamRequired("MLModelId"))
-	}
-	if s.MLModelId != nil && len(*s.MLModelId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("MLModelId", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of a DeleteMLModel operation.
 //
 // You can use the GetMLModel operation and check the value of the Status parameter
 // to see whether an MLModel is marked as DELETED.
 type DeleteMLModelOutput struct {
-	_ struct{} `type:"structure"`
-
 	// A user-supplied ID that uniquely identifies the MLModel. This value should
 	// be identical to the value of the MLModelID in the request.
-	MLModelId *string `min:"1" type:"string"`
+	MLModelId *string `type:"string"`
+
+	metadataDeleteMLModelOutput `json:"-" xml:"-"`
+}
+
+type metadataDeleteMLModelOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1961,10 +1805,14 @@ func (s DeleteMLModelOutput) GoString() string {
 }
 
 type DeleteRealtimeEndpointInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID assigned to the MLModel during creation.
-	MLModelId *string `min:"1" type:"string" required:"true"`
+	MLModelId *string `type:"string" required:"true"`
+
+	metadataDeleteRealtimeEndpointInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteRealtimeEndpointInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1977,34 +1825,22 @@ func (s DeleteRealtimeEndpointInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteRealtimeEndpointInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteRealtimeEndpointInput"}
-	if s.MLModelId == nil {
-		invalidParams.Add(request.NewErrParamRequired("MLModelId"))
-	}
-	if s.MLModelId != nil && len(*s.MLModelId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("MLModelId", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of an DeleteRealtimeEndpoint operation.
 //
 // The result contains the MLModelId and the endpoint information for the MLModel.
 type DeleteRealtimeEndpointOutput struct {
-	_ struct{} `type:"structure"`
-
 	// A user-supplied ID that uniquely identifies the MLModel. This value should
 	// be identical to the value of the MLModelId in the request.
-	MLModelId *string `min:"1" type:"string"`
+	MLModelId *string `type:"string"`
 
 	// The endpoint information of the MLModel
 	RealtimeEndpointInfo *RealtimeEndpointInfo `type:"structure"`
+
+	metadataDeleteRealtimeEndpointOutput `json:"-" xml:"-"`
+}
+
+type metadataDeleteRealtimeEndpointOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2018,8 +1854,6 @@ func (s DeleteRealtimeEndpointOutput) GoString() string {
 }
 
 type DescribeBatchPredictionsInput struct {
-	_ struct{} `type:"structure"`
-
 	// The equal to operator. The BatchPrediction results will have FilterVariable
 	// values that exactly match the value specified with EQ.
 	EQ *string `type:"string"`
@@ -2057,7 +1891,7 @@ type DescribeBatchPredictionsInput struct {
 
 	// The number of pages of information to include in the result. The range of
 	// acceptable values is 1 through 100. The default value is 100.
-	Limit *int64 `min:"1" type:"integer"`
+	Limit *int64 `type:"integer"`
 
 	// The not equal to operator. The BatchPrediction results will have FilterVariable
 	// values not equal to the value specified with NE.
@@ -2085,6 +1919,12 @@ type DescribeBatchPredictionsInput struct {
 	//   asc - Arranges the list in ascending order (A-Z, 0-9).  dsc - Arranges
 	// the list in descending order (Z-A, 9-0).  Results are sorted by FilterVariable.
 	SortOrder *string `type:"string" enum:"SortOrder"`
+
+	metadataDescribeBatchPredictionsInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeBatchPredictionsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2097,30 +1937,21 @@ func (s DescribeBatchPredictionsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeBatchPredictionsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeBatchPredictionsInput"}
-	if s.Limit != nil && *s.Limit < 1 {
-		invalidParams.Add(request.NewErrParamMinValue("Limit", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of a DescribeBatchPredictions operation. The content
 // is essentially a list of BatchPredictions.
 type DescribeBatchPredictionsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the next page in the paginated results that indicates at least
 	// one more page follows.
 	NextToken *string `type:"string"`
 
 	// A list of BatchPrediction objects that meet the search criteria.
 	Results []*BatchPrediction `type:"list"`
+
+	metadataDescribeBatchPredictionsOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeBatchPredictionsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2134,8 +1965,6 @@ func (s DescribeBatchPredictionsOutput) GoString() string {
 }
 
 type DescribeDataSourcesInput struct {
-	_ struct{} `type:"structure"`
-
 	// The equal to operator. The DataSource results will have FilterVariable values
 	// that exactly match the value specified with EQ.
 	EQ *string `type:"string"`
@@ -2168,7 +1997,7 @@ type DescribeDataSourcesInput struct {
 	LT *string `type:"string"`
 
 	// The maximum number of DataSource to include in the result.
-	Limit *int64 `min:"1" type:"integer"`
+	Limit *int64 `type:"integer"`
 
 	// The not equal to operator. The DataSource results will have FilterVariable
 	// values not equal to the value specified with NE.
@@ -2196,6 +2025,12 @@ type DescribeDataSourcesInput struct {
 	//   asc - Arranges the list in ascending order (A-Z, 0-9).  dsc - Arranges
 	// the list in descending order (Z-A, 9-0).  Results are sorted by FilterVariable.
 	SortOrder *string `type:"string" enum:"SortOrder"`
+
+	metadataDescribeDataSourcesInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeDataSourcesInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2208,30 +2043,21 @@ func (s DescribeDataSourcesInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeDataSourcesInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeDataSourcesInput"}
-	if s.Limit != nil && *s.Limit < 1 {
-		invalidParams.Add(request.NewErrParamMinValue("Limit", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the query results from a DescribeDataSources operation. The content
 // is essentially a list of DataSource.
 type DescribeDataSourcesOutput struct {
-	_ struct{} `type:"structure"`
-
 	// An ID of the next page in the paginated results that indicates at least one
 	// more page follows.
 	NextToken *string `type:"string"`
 
 	// A list of DataSource that meet the search criteria.
 	Results []*DataSource `type:"list"`
+
+	metadataDescribeDataSourcesOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeDataSourcesOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2245,8 +2071,6 @@ func (s DescribeDataSourcesOutput) GoString() string {
 }
 
 type DescribeEvaluationsInput struct {
-	_ struct{} `type:"structure"`
-
 	// The equal to operator. The Evaluation results will have FilterVariable values
 	// that exactly match the value specified with EQ.
 	EQ *string `type:"string"`
@@ -2281,7 +2105,7 @@ type DescribeEvaluationsInput struct {
 	LT *string `type:"string"`
 
 	// The maximum number of Evaluation to include in the result.
-	Limit *int64 `min:"1" type:"integer"`
+	Limit *int64 `type:"integer"`
 
 	// The not equal to operator. The Evaluation results will have FilterVariable
 	// values not equal to the value specified with NE.
@@ -2309,6 +2133,12 @@ type DescribeEvaluationsInput struct {
 	//   asc - Arranges the list in ascending order (A-Z, 0-9).  dsc - Arranges
 	// the list in descending order (Z-A, 9-0).  Results are sorted by FilterVariable.
 	SortOrder *string `type:"string" enum:"SortOrder"`
+
+	metadataDescribeEvaluationsInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeEvaluationsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2321,30 +2151,21 @@ func (s DescribeEvaluationsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeEvaluationsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeEvaluationsInput"}
-	if s.Limit != nil && *s.Limit < 1 {
-		invalidParams.Add(request.NewErrParamMinValue("Limit", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the query results from a DescribeEvaluations operation. The content
 // is essentially a list of Evaluation.
 type DescribeEvaluationsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the next page in the paginated results that indicates at least
 	// one more page follows.
 	NextToken *string `type:"string"`
 
 	// A list of Evaluation that meet the search criteria.
 	Results []*Evaluation `type:"list"`
+
+	metadataDescribeEvaluationsOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeEvaluationsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2358,8 +2179,6 @@ func (s DescribeEvaluationsOutput) GoString() string {
 }
 
 type DescribeMLModelsInput struct {
-	_ struct{} `type:"structure"`
-
 	// The equal to operator. The MLModel results will have FilterVariable values
 	// that exactly match the value specified with EQ.
 	EQ *string `type:"string"`
@@ -2397,7 +2216,7 @@ type DescribeMLModelsInput struct {
 
 	// The number of pages of information to include in the result. The range of
 	// acceptable values is 1 through 100. The default value is 100.
-	Limit *int64 `min:"1" type:"integer"`
+	Limit *int64 `type:"integer"`
 
 	// The not equal to operator. The MLModel results will have FilterVariable values
 	// not equal to the value specified with NE.
@@ -2425,6 +2244,12 @@ type DescribeMLModelsInput struct {
 	//   asc - Arranges the list in ascending order (A-Z, 0-9).  dsc - Arranges
 	// the list in descending order (Z-A, 9-0).  Results are sorted by FilterVariable.
 	SortOrder *string `type:"string" enum:"SortOrder"`
+
+	metadataDescribeMLModelsInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeMLModelsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2437,30 +2262,21 @@ func (s DescribeMLModelsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeMLModelsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeMLModelsInput"}
-	if s.Limit != nil && *s.Limit < 1 {
-		invalidParams.Add(request.NewErrParamMinValue("Limit", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of a DescribeMLModels operation. The content is essentially
 // a list of MLModel.
 type DescribeMLModelsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the next page in the paginated results that indicates at least
 	// one more page follows.
 	NextToken *string `type:"string"`
 
 	// A list of MLModel that meet the search criteria.
 	Results []*MLModel `type:"list"`
+
+	metadataDescribeMLModelsOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeMLModelsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2478,8 +2294,6 @@ func (s DescribeMLModelsOutput) GoString() string {
 // The content consists of the detailed metadata and data file information
 // and the current status of the Evaluation.
 type Evaluation struct {
-	_ struct{} `type:"structure"`
-
 	// The time that the Evaluation was created. The time is expressed in epoch
 	// time.
 	CreatedAt *time.Time `type:"timestamp" timestampFormat:"unix"`
@@ -2490,10 +2304,10 @@ type Evaluation struct {
 	CreatedByIamUser *string `type:"string"`
 
 	// The ID of the DataSource that is used to evaluate the MLModel.
-	EvaluationDataSourceId *string `min:"1" type:"string"`
+	EvaluationDataSourceId *string `type:"string"`
 
 	// The ID that is assigned to the Evaluation at creation.
-	EvaluationId *string `min:"1" type:"string"`
+	EvaluationId *string `type:"string"`
 
 	// The location and name of the data in Amazon Simple Storage Server (Amazon
 	// S3) that is used in the evaluation.
@@ -2504,7 +2318,7 @@ type Evaluation struct {
 	LastUpdatedAt *time.Time `type:"timestamp" timestampFormat:"unix"`
 
 	// The ID of the MLModel that is the focus of the evaluation.
-	MLModelId *string `min:"1" type:"string"`
+	MLModelId *string `type:"string"`
 
 	// A description of the most recent details about evaluating the MLModel.
 	Message *string `type:"string"`
@@ -2539,6 +2353,12 @@ type Evaluation struct {
 	// - The evaluation process completed successfully.  DELETED - The Evaluation
 	// is marked as deleted. It is not usable.
 	Status *string `type:"string" enum:"EntityStatus"`
+
+	metadataEvaluation `json:"-" xml:"-"`
+}
+
+type metadataEvaluation struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2552,10 +2372,14 @@ func (s Evaluation) GoString() string {
 }
 
 type GetBatchPredictionInput struct {
-	_ struct{} `type:"structure"`
-
 	// An ID assigned to the BatchPrediction at creation.
-	BatchPredictionId *string `min:"1" type:"string" required:"true"`
+	BatchPredictionId *string `type:"string" required:"true"`
+
+	metadataGetBatchPredictionInput `json:"-" xml:"-"`
+}
+
+type metadataGetBatchPredictionInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2568,32 +2392,14 @@ func (s GetBatchPredictionInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *GetBatchPredictionInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "GetBatchPredictionInput"}
-	if s.BatchPredictionId == nil {
-		invalidParams.Add(request.NewErrParamRequired("BatchPredictionId"))
-	}
-	if s.BatchPredictionId != nil && len(*s.BatchPredictionId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("BatchPredictionId", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of a GetBatchPrediction operation and describes a BatchPrediction.
 type GetBatchPredictionOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the DataSource that was used to create the BatchPrediction.
-	BatchPredictionDataSourceId *string `min:"1" type:"string"`
+	BatchPredictionDataSourceId *string `type:"string"`
 
 	// An ID assigned to the BatchPrediction at creation. This value should be identical
 	// to the value of the BatchPredictionID in the request.
-	BatchPredictionId *string `min:"1" type:"string"`
+	BatchPredictionId *string `type:"string"`
 
 	// The time when the BatchPrediction was created. The time is expressed in epoch
 	// time.
@@ -2617,7 +2423,7 @@ type GetBatchPredictionOutput struct {
 
 	// The ID of the MLModel that generated predictions for the BatchPrediction
 	// request.
-	MLModelId *string `min:"1" type:"string"`
+	MLModelId *string `type:"string"`
 
 	// A description of the most recent details about processing the batch prediction
 	// request.
@@ -2638,6 +2444,12 @@ type GetBatchPredictionOutput struct {
 	// It is not usable.  COMPLETED - The batch prediction process completed successfully.
 	//  DELETED - The BatchPrediction is marked as deleted. It is not usable.
 	Status *string `type:"string" enum:"EntityStatus"`
+
+	metadataGetBatchPredictionOutput `json:"-" xml:"-"`
+}
+
+type metadataGetBatchPredictionOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2651,10 +2463,8 @@ func (s GetBatchPredictionOutput) GoString() string {
 }
 
 type GetDataSourceInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID assigned to the DataSource at creation.
-	DataSourceId *string `min:"1" type:"string" required:"true"`
+	DataSourceId *string `type:"string" required:"true"`
 
 	// Specifies whether the GetDataSource operation should return DataSourceSchema.
 	//
@@ -2662,6 +2472,12 @@ type GetDataSourceInput struct {
 	//
 	// If false, DataSourceSchema is not returned.
 	Verbose *bool `type:"boolean"`
+
+	metadataGetDataSourceInput `json:"-" xml:"-"`
+}
+
+type metadataGetDataSourceInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2674,26 +2490,8 @@ func (s GetDataSourceInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *GetDataSourceInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "GetDataSourceInput"}
-	if s.DataSourceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("DataSourceId"))
-	}
-	if s.DataSourceId != nil && len(*s.DataSourceId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("DataSourceId", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of a GetDataSource operation and describes a DataSource.
 type GetDataSourceOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The parameter is true if statistics need to be generated from the observation
 	// data.
 	ComputeStatistics *bool `type:"boolean"`
@@ -2720,7 +2518,7 @@ type GetDataSourceOutput struct {
 
 	// The ID assigned to the DataSource at creation. This value should be identical
 	// to the value of the DataSourceId in the request.
-	DataSourceId *string `min:"1" type:"string"`
+	DataSourceId *string `type:"string"`
 
 	// The schema used by all of the data files of this DataSource.
 	//
@@ -2751,7 +2549,7 @@ type GetDataSourceOutput struct {
 
 	// The Amazon Resource Name (ARN) of an AWS IAM Role (http://docs.aws.amazon.com/IAM/latest/UserGuide/roles-toplevel.html#roles-about-termsandconcepts)
 	// such as the following: arn:aws:iam::account:role/rolename.
-	RoleARN *string `min:"1" type:"string"`
+	RoleARN *string `type:"string"`
 
 	// The current status of the DataSource. This element can have one of the following
 	// values:
@@ -2762,6 +2560,12 @@ type GetDataSourceOutput struct {
 	//  COMPLETED - The creation process completed successfully.  DELETED - The
 	// DataSource is marked as deleted. It is not usable.
 	Status *string `type:"string" enum:"EntityStatus"`
+
+	metadataGetDataSourceOutput `json:"-" xml:"-"`
+}
+
+type metadataGetDataSourceOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2775,11 +2579,15 @@ func (s GetDataSourceOutput) GoString() string {
 }
 
 type GetEvaluationInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the Evaluation to retrieve. The evaluation of each MLModel is recorded
 	// and cataloged. The ID provides the means to access the information.
-	EvaluationId *string `min:"1" type:"string" required:"true"`
+	EvaluationId *string `type:"string" required:"true"`
+
+	metadataGetEvaluationInput `json:"-" xml:"-"`
+}
+
+type metadataGetEvaluationInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2792,26 +2600,8 @@ func (s GetEvaluationInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *GetEvaluationInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "GetEvaluationInput"}
-	if s.EvaluationId == nil {
-		invalidParams.Add(request.NewErrParamRequired("EvaluationId"))
-	}
-	if s.EvaluationId != nil && len(*s.EvaluationId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("EvaluationId", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of a GetEvaluation operation and describes an Evaluation.
 type GetEvaluationOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The time that the Evaluation was created. The time is expressed in epoch
 	// time.
 	CreatedAt *time.Time `type:"timestamp" timestampFormat:"unix"`
@@ -2822,10 +2612,10 @@ type GetEvaluationOutput struct {
 	CreatedByIamUser *string `type:"string"`
 
 	// The DataSource used for this evaluation.
-	EvaluationDataSourceId *string `min:"1" type:"string"`
+	EvaluationDataSourceId *string `type:"string"`
 
 	// The evaluation ID which is same as the EvaluationId in the request.
-	EvaluationId *string `min:"1" type:"string"`
+	EvaluationId *string `type:"string"`
 
 	// The location of the data file or directory in Amazon Simple Storage Service
 	// (Amazon S3).
@@ -2839,7 +2629,7 @@ type GetEvaluationOutput struct {
 	LogUri *string `type:"string"`
 
 	// The ID of the MLModel that was the focus of the evaluation.
-	MLModelId *string `min:"1" type:"string"`
+	MLModelId *string `type:"string"`
 
 	// A description of the most recent details about evaluating the MLModel.
 	Message *string `type:"string"`
@@ -2874,6 +2664,12 @@ type GetEvaluationOutput struct {
 	// - The evaluation process completed successfully.  DELETED - The Evaluation
 	// is marked as deleted. It is not usable.
 	Status *string `type:"string" enum:"EntityStatus"`
+
+	metadataGetEvaluationOutput `json:"-" xml:"-"`
+}
+
+type metadataGetEvaluationOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2887,10 +2683,8 @@ func (s GetEvaluationOutput) GoString() string {
 }
 
 type GetMLModelInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID assigned to the MLModel at creation.
-	MLModelId *string `min:"1" type:"string" required:"true"`
+	MLModelId *string `type:"string" required:"true"`
 
 	// Specifies whether the GetMLModel operation should return Recipe.
 	//
@@ -2898,6 +2692,12 @@ type GetMLModelInput struct {
 	//
 	// If false, Recipe is not returned.
 	Verbose *bool `type:"boolean"`
+
+	metadataGetMLModelInput `json:"-" xml:"-"`
+}
+
+type metadataGetMLModelInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2910,27 +2710,9 @@ func (s GetMLModelInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *GetMLModelInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "GetMLModelInput"}
-	if s.MLModelId == nil {
-		invalidParams.Add(request.NewErrParamRequired("MLModelId"))
-	}
-	if s.MLModelId != nil && len(*s.MLModelId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("MLModelId", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of a GetMLModel operation, and provides detailed information
 // about a MLModel.
 type GetMLModelOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The time that the MLModel was created. The time is expressed in epoch time.
 	CreatedAt *time.Time `type:"timestamp" timestampFormat:"unix"`
 
@@ -2954,7 +2736,7 @@ type GetMLModelOutput struct {
 	LogUri *string `type:"string"`
 
 	// The MLModel ID which is same as the MLModelId in the request.
-	MLModelId *string `min:"1" type:"string"`
+	MLModelId *string `type:"string"`
 
 	// Identifies the MLModel category. The following are the available types:
 	//
@@ -3007,7 +2789,7 @@ type GetMLModelOutput struct {
 	Status *string `type:"string" enum:"EntityStatus"`
 
 	// The ID of the training DataSource.
-	TrainingDataSourceId *string `min:"1" type:"string"`
+	TrainingDataSourceId *string `type:"string"`
 
 	// A list of the training parameters in the MLModel. The list is implemented
 	// as a map of key/value pairs.
@@ -3042,6 +2824,12 @@ type GetMLModelOutput struct {
 	//  The value is an integer that ranges from 100000 to 2147483648. The default
 	// value is 33554432.
 	TrainingParameters map[string]*string `type:"map"`
+
+	metadataGetMLModelOutput `json:"-" xml:"-"`
+}
+
+type metadataGetMLModelOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3059,8 +2847,6 @@ func (s GetMLModelOutput) GoString() string {
 // The content consists of the detailed metadata and the current status of
 // the MLModel.
 type MLModel struct {
-	_ struct{} `type:"structure"`
-
 	// The algorithm used to train the MLModel. The following algorithm is supported:
 	//
 	//  SGD -- Stochastic gradient descent. The goal of SGD is to minimize the
@@ -3087,7 +2873,7 @@ type MLModel struct {
 	LastUpdatedAt *time.Time `type:"timestamp" timestampFormat:"unix"`
 
 	// The ID assigned to the MLModel at creation.
-	MLModelId *string `min:"1" type:"string"`
+	MLModelId *string `type:"string"`
 
 	// Identifies the MLModel category. The following are the available types:
 	//
@@ -3124,7 +2910,7 @@ type MLModel struct {
 	Status *string `type:"string" enum:"EntityStatus"`
 
 	// The ID of the training DataSource. The CreateMLModel operation uses the TrainingDataSourceId.
-	TrainingDataSourceId *string `min:"1" type:"string"`
+	TrainingDataSourceId *string `type:"string"`
 
 	// A list of the training parameters in the MLModel. The list is implemented
 	// as a map of key/value pairs.
@@ -3159,6 +2945,12 @@ type MLModel struct {
 	//  The value is an integer that ranges from 100000 to 2147483648. The default
 	// value is 33554432.
 	TrainingParameters map[string]*string `type:"map"`
+
+	metadataMLModel `json:"-" xml:"-"`
+}
+
+type metadataMLModel struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3187,9 +2979,13 @@ func (s MLModel) GoString() string {
 //    For more information about performance metrics, please see the Amazon
 // Machine Learning Developer Guide (http://docs.aws.amazon.com/machine-learning/latest/dg).
 type PerformanceMetrics struct {
-	_ struct{} `type:"structure"`
-
 	Properties map[string]*string `type:"map"`
+
+	metadataPerformanceMetrics `json:"-" xml:"-"`
+}
+
+type metadataPerformanceMetrics struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3203,15 +2999,19 @@ func (s PerformanceMetrics) GoString() string {
 }
 
 type PredictInput struct {
-	_ struct{} `type:"structure"`
-
 	// A unique identifier of the MLModel.
-	MLModelId *string `min:"1" type:"string" required:"true"`
+	MLModelId *string `type:"string" required:"true"`
 
 	PredictEndpoint *string `type:"string" required:"true"`
 
 	// A map of variable name-value pairs that represent an observation.
 	Record map[string]*string `type:"map" required:"true"`
+
+	metadataPredictInput `json:"-" xml:"-"`
+}
+
+type metadataPredictInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3224,31 +3024,7 @@ func (s PredictInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *PredictInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "PredictInput"}
-	if s.MLModelId == nil {
-		invalidParams.Add(request.NewErrParamRequired("MLModelId"))
-	}
-	if s.MLModelId != nil && len(*s.MLModelId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("MLModelId", 1))
-	}
-	if s.PredictEndpoint == nil {
-		invalidParams.Add(request.NewErrParamRequired("PredictEndpoint"))
-	}
-	if s.Record == nil {
-		invalidParams.Add(request.NewErrParamRequired("Record"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type PredictOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The output from a Predict operation:
 	//
 	//    Details - Contains the following attributes: DetailsAttributes.PREDICTIVE_MODEL_TYPE
@@ -3261,6 +3037,12 @@ type PredictOutput struct {
 	//
 	//    PredictedValue - Present for a REGRESSION MLModel request.
 	Prediction *Prediction `type:"structure"`
+
+	metadataPredictOutput `json:"-" xml:"-"`
+}
+
+type metadataPredictOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3285,19 +3067,23 @@ func (s PredictOutput) GoString() string {
 //
 //    PredictedValue - Present for a REGRESSION MLModel request.
 type Prediction struct {
-	_ struct{} `type:"structure"`
-
 	// Provides any additional details regarding the prediction.
 	Details map[string]*string `locationName:"details" type:"map"`
 
 	// The prediction label for either a BINARY or MULTICLASS MLModel.
-	PredictedLabel *string `locationName:"predictedLabel" min:"1" type:"string"`
+	PredictedLabel *string `locationName:"predictedLabel" type:"string"`
 
 	// Provides the raw classification score corresponding to each label.
 	PredictedScores map[string]*float64 `locationName:"predictedScores" type:"map"`
 
 	// The prediction value for REGRESSION MLModel.
 	PredictedValue *float64 `locationName:"predictedValue" type:"float"`
+
+	metadataPrediction `json:"-" xml:"-"`
+}
+
+type metadataPrediction struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3313,46 +3099,14 @@ func (s Prediction) GoString() string {
 // The data specification of an Amazon Relational Database Service (Amazon RDS)
 // DataSource.
 type RDSDataSpec struct {
-	_ struct{} `type:"structure"`
-
 	// DataRearrangement - A JSON string that represents the splitting requirement
 	// of a DataSource.
 	//
-	//   Sample -  "{\"splitting\":{\"percentBegin\":10,\"percentEnd\":60}}"
+	//   Sample -  "{\"randomSeed\":\"some-random-seed\", \"splitting\":{\"percentBegin\":10,\"percentEnd\":60}}"
 	DataRearrangement *string `type:"string"`
 
-	// A JSON string that represents the schema for an Amazon RDS DataSource. The
-	// DataSchema defines the structure of the observation data in the data file(s)
-	// referenced in the DataSource.
-	//
-	// A DataSchema is not required if you specify a DataSchemaUri
-	//
-	// Define your DataSchema as a series of key-value pairs. attributes and excludedVariableNames
-	// have an array of key-value pairs for their value. Use the following format
-	// to define your DataSchema.
-	//
-	// { "version": "1.0",
-	//
-	//  "recordAnnotationFieldName": "F1",
-	//
-	//  "recordWeightFieldName": "F2",
-	//
-	//  "targetFieldName": "F3",
-	//
-	//  "dataFormat": "CSV",
-	//
-	//  "dataFileContainsHeader": true,
-	//
-	//  "attributes": [
-	//
-	//  { "fieldName": "F1", "fieldType": "TEXT" }, { "fieldName": "F2", "fieldType":
-	// "NUMERIC" }, { "fieldName": "F3", "fieldType": "CATEGORICAL" }, { "fieldName":
-	// "F4", "fieldType": "NUMERIC" }, { "fieldName": "F5", "fieldType": "CATEGORICAL"
-	// }, { "fieldName": "F6", "fieldType": "TEXT" }, { "fieldName": "F7", "fieldType":
-	// "WEIGHTED_INT_SEQUENCE" }, { "fieldName": "F8", "fieldType": "WEIGHTED_STRING_SEQUENCE"
-	// } ],
-	//
-	//  "excludedVariableNames": [ "F6" ] }
+	// A JSON string that represents the schema. This is not required if DataSchemaUri
+	// is specified.
 	DataSchema *string `type:"string"`
 
 	// The Amazon S3 location of the DataSchema.
@@ -3369,7 +3123,7 @@ type RDSDataSpec struct {
 	// Cloud (Amazon EC2) instance to carry out the copy operation from Amazon RDS
 	// to an Amazon S3 task. For more information, see Role templates (http://docs.aws.amazon.com/datapipeline/latest/DeveloperGuide/dp-iam-roles.html)
 	// for data pipelines.
-	ResourceRole *string `min:"1" type:"string" required:"true"`
+	ResourceRole *string `type:"string" required:"true"`
 
 	// The Amazon S3 location for staging Amazon RDS data. The data retrieved from
 	// Amazon RDS using SelectSqlQuery is stored in this location.
@@ -3382,18 +3136,24 @@ type RDSDataSpec struct {
 	SecurityGroupIds []*string `type:"list" required:"true"`
 
 	// The query that is used to retrieve the observation data for the DataSource.
-	SelectSqlQuery *string `min:"1" type:"string" required:"true"`
+	SelectSqlQuery *string `type:"string" required:"true"`
 
 	// The role (DataPipelineDefaultRole) assumed by AWS Data Pipeline service to
 	// monitor the progress of the copy task from Amazon RDS to Amazon S3. For more
 	// information, see Role templates (http://docs.aws.amazon.com/datapipeline/latest/DeveloperGuide/dp-iam-roles.html)
 	// for data pipelines.
-	ServiceRole *string `min:"1" type:"string" required:"true"`
+	ServiceRole *string `type:"string" required:"true"`
 
 	// The subnet ID to be used to access a VPC-based RDS DB instance. This attribute
 	// is used by Data Pipeline to carry out the copy task from Amazon RDS to Amazon
 	// S3.
-	SubnetId *string `min:"1" type:"string" required:"true"`
+	SubnetId *string `type:"string" required:"true"`
+
+	metadataRDSDataSpec `json:"-" xml:"-"`
+}
+
+type metadataRDSDataSpec struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3406,71 +3166,19 @@ func (s RDSDataSpec) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *RDSDataSpec) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "RDSDataSpec"}
-	if s.DatabaseCredentials == nil {
-		invalidParams.Add(request.NewErrParamRequired("DatabaseCredentials"))
-	}
-	if s.DatabaseInformation == nil {
-		invalidParams.Add(request.NewErrParamRequired("DatabaseInformation"))
-	}
-	if s.ResourceRole == nil {
-		invalidParams.Add(request.NewErrParamRequired("ResourceRole"))
-	}
-	if s.ResourceRole != nil && len(*s.ResourceRole) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ResourceRole", 1))
-	}
-	if s.S3StagingLocation == nil {
-		invalidParams.Add(request.NewErrParamRequired("S3StagingLocation"))
-	}
-	if s.SecurityGroupIds == nil {
-		invalidParams.Add(request.NewErrParamRequired("SecurityGroupIds"))
-	}
-	if s.SelectSqlQuery == nil {
-		invalidParams.Add(request.NewErrParamRequired("SelectSqlQuery"))
-	}
-	if s.SelectSqlQuery != nil && len(*s.SelectSqlQuery) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("SelectSqlQuery", 1))
-	}
-	if s.ServiceRole == nil {
-		invalidParams.Add(request.NewErrParamRequired("ServiceRole"))
-	}
-	if s.ServiceRole != nil && len(*s.ServiceRole) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ServiceRole", 1))
-	}
-	if s.SubnetId == nil {
-		invalidParams.Add(request.NewErrParamRequired("SubnetId"))
-	}
-	if s.SubnetId != nil && len(*s.SubnetId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("SubnetId", 1))
-	}
-	if s.DatabaseCredentials != nil {
-		if err := s.DatabaseCredentials.Validate(); err != nil {
-			invalidParams.AddNested("DatabaseCredentials", err.(request.ErrInvalidParams))
-		}
-	}
-	if s.DatabaseInformation != nil {
-		if err := s.DatabaseInformation.Validate(); err != nil {
-			invalidParams.AddNested("DatabaseInformation", err.(request.ErrInvalidParams))
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The database details of an Amazon RDS database.
 type RDSDatabase struct {
-	_ struct{} `type:"structure"`
-
 	// The name of a database hosted on an RDS DB instance.
-	DatabaseName *string `min:"1" type:"string" required:"true"`
+	DatabaseName *string `type:"string" required:"true"`
 
 	// The ID of an RDS DB instance.
-	InstanceIdentifier *string `min:"1" type:"string" required:"true"`
+	InstanceIdentifier *string `type:"string" required:"true"`
+
+	metadataRDSDatabase `json:"-" xml:"-"`
+}
+
+type metadataRDSDatabase struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3483,41 +3191,23 @@ func (s RDSDatabase) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *RDSDatabase) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "RDSDatabase"}
-	if s.DatabaseName == nil {
-		invalidParams.Add(request.NewErrParamRequired("DatabaseName"))
-	}
-	if s.DatabaseName != nil && len(*s.DatabaseName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("DatabaseName", 1))
-	}
-	if s.InstanceIdentifier == nil {
-		invalidParams.Add(request.NewErrParamRequired("InstanceIdentifier"))
-	}
-	if s.InstanceIdentifier != nil && len(*s.InstanceIdentifier) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("InstanceIdentifier", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The database credentials to connect to a database on an RDS DB instance.
 type RDSDatabaseCredentials struct {
-	_ struct{} `type:"structure"`
-
 	// The password to be used by Amazon ML to connect to a database on an RDS DB
 	// instance. The password should have sufficient permissions to execute the
 	// RDSSelectQuery query.
-	Password *string `min:"8" type:"string" required:"true"`
+	Password *string `type:"string" required:"true"`
 
 	// The username to be used by Amazon ML to connect to database on an Amazon
 	// RDS instance. The username should have sufficient permissions to execute
 	// an RDSSelectSqlQuery query.
-	Username *string `min:"1" type:"string" required:"true"`
+	Username *string `type:"string" required:"true"`
+
+	metadataRDSDatabaseCredentials `json:"-" xml:"-"`
+}
+
+type metadataRDSDatabaseCredentials struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3530,36 +3220,12 @@ func (s RDSDatabaseCredentials) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *RDSDatabaseCredentials) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "RDSDatabaseCredentials"}
-	if s.Password == nil {
-		invalidParams.Add(request.NewErrParamRequired("Password"))
-	}
-	if s.Password != nil && len(*s.Password) < 8 {
-		invalidParams.Add(request.NewErrParamMinLen("Password", 8))
-	}
-	if s.Username == nil {
-		invalidParams.Add(request.NewErrParamRequired("Username"))
-	}
-	if s.Username != nil && len(*s.Username) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("Username", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // The datasource details that are specific to Amazon RDS.
 type RDSMetadata struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the Data Pipeline instance that is used to carry to copy data from
 	// Amazon RDS to Amazon S3. You can use the ID to find details about the instance
 	// in the Data Pipeline console.
-	DataPipelineId *string `min:"1" type:"string"`
+	DataPipelineId *string `type:"string"`
 
 	// The database details required to connect to an Amazon RDS.
 	Database *RDSDatabase `type:"structure"`
@@ -3567,23 +3233,29 @@ type RDSMetadata struct {
 	// The username to be used by Amazon ML to connect to database on an Amazon
 	// RDS instance. The username should have sufficient permissions to execute
 	// an RDSSelectSqlQuery query.
-	DatabaseUserName *string `min:"1" type:"string"`
+	DatabaseUserName *string `type:"string"`
 
 	// The role (DataPipelineDefaultResourceRole) assumed by an Amazon EC2 instance
 	// to carry out the copy task from Amazon RDS to Amazon S3. For more information,
 	// see Role templates (http://docs.aws.amazon.com/datapipeline/latest/DeveloperGuide/dp-iam-roles.html)
 	// for data pipelines.
-	ResourceRole *string `min:"1" type:"string"`
+	ResourceRole *string `type:"string"`
 
 	// The SQL query that is supplied during CreateDataSourceFromRDS. Returns only
 	// if Verbose is true in GetDataSourceInput.
-	SelectSqlQuery *string `min:"1" type:"string"`
+	SelectSqlQuery *string `type:"string"`
 
 	// The role (DataPipelineDefaultRole) assumed by the Data Pipeline service to
 	// monitor the progress of the copy task from Amazon RDS to Amazon S3. For more
 	// information, see Role templates (http://docs.aws.amazon.com/datapipeline/latest/DeveloperGuide/dp-iam-roles.html)
 	// for data pipelines.
-	ServiceRole *string `min:"1" type:"string"`
+	ServiceRole *string `type:"string"`
+
+	metadataRDSMetadata `json:"-" xml:"-"`
+}
+
+type metadataRDSMetadata struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3598,8 +3270,6 @@ func (s RDSMetadata) GoString() string {
 
 // Describes the real-time endpoint information for an MLModel.
 type RealtimeEndpointInfo struct {
-	_ struct{} `type:"structure"`
-
 	// The time that the request to create the real-time endpoint for the MLModel
 	// was received. The time is expressed in epoch time.
 	CreatedAt *time.Time `type:"timestamp" timestampFormat:"unix"`
@@ -3622,6 +3292,12 @@ type RealtimeEndpointInfo struct {
 	// The maximum processing rate for the real-time endpoint for MLModel, measured
 	// in incoming requests per second.
 	PeakRequestsPerSecond *int64 `type:"integer"`
+
+	metadataRealtimeEndpointInfo `json:"-" xml:"-"`
+}
+
+type metadataRealtimeEndpointInfo struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3636,43 +3312,10 @@ func (s RealtimeEndpointInfo) GoString() string {
 
 // Describes the data specification of an Amazon Redshift DataSource.
 type RedshiftDataSpec struct {
-	_ struct{} `type:"structure"`
-
 	// Describes the splitting specifications for a DataSource.
 	DataRearrangement *string `type:"string"`
 
-	// A JSON string that represents the schema for an Amazon Redshift DataSource.
-	// The DataSchema defines the structure of the observation data in the data
-	// file(s) referenced in the DataSource.
-	//
-	// A DataSchema is not required if you specify a DataSchemaUri.
-	//
-	// Define your DataSchema as a series of key-value pairs. attributes and excludedVariableNames
-	// have an array of key-value pairs for their value. Use the following format
-	// to define your DataSchema.
-	//
-	// { "version": "1.0",
-	//
-	//  "recordAnnotationFieldName": "F1",
-	//
-	//  "recordWeightFieldName": "F2",
-	//
-	//  "targetFieldName": "F3",
-	//
-	//  "dataFormat": "CSV",
-	//
-	//  "dataFileContainsHeader": true,
-	//
-	//  "attributes": [
-	//
-	//  { "fieldName": "F1", "fieldType": "TEXT" }, { "fieldName": "F2", "fieldType":
-	// "NUMERIC" }, { "fieldName": "F3", "fieldType": "CATEGORICAL" }, { "fieldName":
-	// "F4", "fieldType": "NUMERIC" }, { "fieldName": "F5", "fieldType": "CATEGORICAL"
-	// }, { "fieldName": "F6", "fieldType": "TEXT" }, { "fieldName": "F7", "fieldType":
-	// "WEIGHTED_INT_SEQUENCE" }, { "fieldName": "F8", "fieldType": "WEIGHTED_STRING_SEQUENCE"
-	// } ],
-	//
-	//  "excludedVariableNames": [ "F6" ] }
+	// Describes the schema for an Amazon Redshift DataSource.
 	DataSchema *string `type:"string"`
 
 	// Describes the schema location for an Amazon Redshift DataSource.
@@ -3691,7 +3334,13 @@ type RedshiftDataSpec struct {
 
 	// Describes the SQL Query to execute on an Amazon Redshift database for an
 	// Amazon Redshift DataSource.
-	SelectSqlQuery *string `min:"1" type:"string" required:"true"`
+	SelectSqlQuery *string `type:"string" required:"true"`
+
+	metadataRedshiftDataSpec `json:"-" xml:"-"`
+}
+
+type metadataRedshiftDataSpec struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3704,51 +3353,20 @@ func (s RedshiftDataSpec) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *RedshiftDataSpec) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "RedshiftDataSpec"}
-	if s.DatabaseCredentials == nil {
-		invalidParams.Add(request.NewErrParamRequired("DatabaseCredentials"))
-	}
-	if s.DatabaseInformation == nil {
-		invalidParams.Add(request.NewErrParamRequired("DatabaseInformation"))
-	}
-	if s.S3StagingLocation == nil {
-		invalidParams.Add(request.NewErrParamRequired("S3StagingLocation"))
-	}
-	if s.SelectSqlQuery == nil {
-		invalidParams.Add(request.NewErrParamRequired("SelectSqlQuery"))
-	}
-	if s.SelectSqlQuery != nil && len(*s.SelectSqlQuery) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("SelectSqlQuery", 1))
-	}
-	if s.DatabaseCredentials != nil {
-		if err := s.DatabaseCredentials.Validate(); err != nil {
-			invalidParams.AddNested("DatabaseCredentials", err.(request.ErrInvalidParams))
-		}
-	}
-	if s.DatabaseInformation != nil {
-		if err := s.DatabaseInformation.Validate(); err != nil {
-			invalidParams.AddNested("DatabaseInformation", err.(request.ErrInvalidParams))
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Describes the database details required to connect to an Amazon Redshift
 // database.
 type RedshiftDatabase struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of an Amazon Redshift cluster.
-	ClusterIdentifier *string `min:"1" type:"string" required:"true"`
+	ClusterIdentifier *string `type:"string" required:"true"`
 
 	// The name of a database hosted on an Amazon Redshift cluster.
-	DatabaseName *string `min:"1" type:"string" required:"true"`
+	DatabaseName *string `type:"string" required:"true"`
+
+	metadataRedshiftDatabase `json:"-" xml:"-"`
+}
+
+type metadataRedshiftDatabase struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3761,44 +3379,26 @@ func (s RedshiftDatabase) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *RedshiftDatabase) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "RedshiftDatabase"}
-	if s.ClusterIdentifier == nil {
-		invalidParams.Add(request.NewErrParamRequired("ClusterIdentifier"))
-	}
-	if s.ClusterIdentifier != nil && len(*s.ClusterIdentifier) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("ClusterIdentifier", 1))
-	}
-	if s.DatabaseName == nil {
-		invalidParams.Add(request.NewErrParamRequired("DatabaseName"))
-	}
-	if s.DatabaseName != nil && len(*s.DatabaseName) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("DatabaseName", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Describes the database credentials for connecting to a database on an Amazon
 // Redshift cluster.
 type RedshiftDatabaseCredentials struct {
-	_ struct{} `type:"structure"`
-
 	// A password to be used by Amazon ML to connect to a database on an Amazon
 	// Redshift cluster. The password should have sufficient permissions to execute
 	// a RedshiftSelectSqlQuery query. The password should be valid for an Amazon
 	// Redshift USER (http://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_USER.html).
-	Password *string `min:"8" type:"string" required:"true"`
+	Password *string `type:"string" required:"true"`
 
 	// A username to be used by Amazon Machine Learning (Amazon ML)to connect to
 	// a database on an Amazon Redshift cluster. The username should have sufficient
 	// permissions to execute the RedshiftSelectSqlQuery query. The username should
 	// be valid for an Amazon Redshift USER (http://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_USER.html).
-	Username *string `min:"1" type:"string" required:"true"`
+	Username *string `type:"string" required:"true"`
+
+	metadataRedshiftDatabaseCredentials `json:"-" xml:"-"`
+}
+
+type metadataRedshiftDatabaseCredentials struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3811,37 +3411,13 @@ func (s RedshiftDatabaseCredentials) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *RedshiftDatabaseCredentials) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "RedshiftDatabaseCredentials"}
-	if s.Password == nil {
-		invalidParams.Add(request.NewErrParamRequired("Password"))
-	}
-	if s.Password != nil && len(*s.Password) < 8 {
-		invalidParams.Add(request.NewErrParamMinLen("Password", 8))
-	}
-	if s.Username == nil {
-		invalidParams.Add(request.NewErrParamRequired("Username"))
-	}
-	if s.Username != nil && len(*s.Username) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("Username", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Describes the DataSource details specific to Amazon Redshift.
 type RedshiftMetadata struct {
-	_ struct{} `type:"structure"`
-
 	// A username to be used by Amazon Machine Learning (Amazon ML)to connect to
 	// a database on an Amazon Redshift cluster. The username should have sufficient
 	// permissions to execute the RedshiftSelectSqlQuery query. The username should
 	// be valid for an Amazon Redshift USER (http://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_USER.html).
-	DatabaseUserName *string `min:"1" type:"string"`
+	DatabaseUserName *string `type:"string"`
 
 	// Describes the database details required to connect to an Amazon Redshift
 	// database.
@@ -3849,7 +3425,13 @@ type RedshiftMetadata struct {
 
 	// The SQL query that is specified during CreateDataSourceFromRedshift. Returns
 	// only if Verbose is true in GetDataSourceInput.
-	SelectSqlQuery *string `min:"1" type:"string"`
+	SelectSqlQuery *string `type:"string"`
+
+	metadataRedshiftMetadata `json:"-" xml:"-"`
+}
+
+type metadataRedshiftMetadata struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3864,8 +3446,6 @@ func (s RedshiftMetadata) GoString() string {
 
 // Describes the data specification of a DataSource.
 type S3DataSpec struct {
-	_ struct{} `type:"structure"`
-
 	// The location of the data file(s) used by a DataSource. The URI specifies
 	// a data file or an Amazon Simple Storage Service (Amazon S3) directory or
 	// bucket containing data files.
@@ -3874,40 +3454,17 @@ type S3DataSpec struct {
 	// Describes the splitting requirement of a Datasource.
 	DataRearrangement *string `type:"string"`
 
-	// A JSON string that represents the schema for an Amazon S3 DataSource. The
-	// DataSchema defines the structure of the observation data in the data file(s)
-	// referenced in the DataSource.
-	//
-	// Define your DataSchema as a series of key-value pairs. attributes and excludedVariableNames
-	// have an array of key-value pairs for their value. Use the following format
-	// to define your DataSchema.
-	//
-	// { "version": "1.0",
-	//
-	//  "recordAnnotationFieldName": "F1",
-	//
-	//  "recordWeightFieldName": "F2",
-	//
-	//  "targetFieldName": "F3",
-	//
-	//  "dataFormat": "CSV",
-	//
-	//  "dataFileContainsHeader": true,
-	//
-	//  "attributes": [
-	//
-	//  { "fieldName": "F1", "fieldType": "TEXT" }, { "fieldName": "F2", "fieldType":
-	// "NUMERIC" }, { "fieldName": "F3", "fieldType": "CATEGORICAL" }, { "fieldName":
-	// "F4", "fieldType": "NUMERIC" }, { "fieldName": "F5", "fieldType": "CATEGORICAL"
-	// }, { "fieldName": "F6", "fieldType": "TEXT" }, { "fieldName": "F7", "fieldType":
-	// "WEIGHTED_INT_SEQUENCE" }, { "fieldName": "F8", "fieldType": "WEIGHTED_STRING_SEQUENCE"
-	// } ],
-	//
-	//  "excludedVariableNames": [ "F6" ] }
+	// Describes the schema for an Amazon S3 DataSource.
 	DataSchema *string `type:"string"`
 
 	// Describes the schema Location in Amazon S3.
 	DataSchemaLocationS3 *string `type:"string"`
+
+	metadataS3DataSpec `json:"-" xml:"-"`
+}
+
+type metadataS3DataSpec struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3920,27 +3477,18 @@ func (s S3DataSpec) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *S3DataSpec) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "S3DataSpec"}
-	if s.DataLocationS3 == nil {
-		invalidParams.Add(request.NewErrParamRequired("DataLocationS3"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type UpdateBatchPredictionInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID assigned to the BatchPrediction during creation.
-	BatchPredictionId *string `min:"1" type:"string" required:"true"`
+	BatchPredictionId *string `type:"string" required:"true"`
 
 	// A new user-supplied name or description of the BatchPrediction.
 	BatchPredictionName *string `type:"string" required:"true"`
+
+	metadataUpdateBatchPredictionInput `json:"-" xml:"-"`
+}
+
+type metadataUpdateBatchPredictionInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3953,34 +3501,19 @@ func (s UpdateBatchPredictionInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *UpdateBatchPredictionInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "UpdateBatchPredictionInput"}
-	if s.BatchPredictionId == nil {
-		invalidParams.Add(request.NewErrParamRequired("BatchPredictionId"))
-	}
-	if s.BatchPredictionId != nil && len(*s.BatchPredictionId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("BatchPredictionId", 1))
-	}
-	if s.BatchPredictionName == nil {
-		invalidParams.Add(request.NewErrParamRequired("BatchPredictionName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of an UpdateBatchPrediction operation.
 //
 // You can see the updated content by using the GetBatchPrediction operation.
 type UpdateBatchPredictionOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID assigned to the BatchPrediction during creation. This value should
 	// be identical to the value of the BatchPredictionId in the request.
-	BatchPredictionId *string `min:"1" type:"string"`
+	BatchPredictionId *string `type:"string"`
+
+	metadataUpdateBatchPredictionOutput `json:"-" xml:"-"`
+}
+
+type metadataUpdateBatchPredictionOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3994,14 +3527,18 @@ func (s UpdateBatchPredictionOutput) GoString() string {
 }
 
 type UpdateDataSourceInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID assigned to the DataSource during creation.
-	DataSourceId *string `min:"1" type:"string" required:"true"`
+	DataSourceId *string `type:"string" required:"true"`
 
 	// A new user-supplied name or description of the DataSource that will replace
 	// the current description.
 	DataSourceName *string `type:"string" required:"true"`
+
+	metadataUpdateDataSourceInput `json:"-" xml:"-"`
+}
+
+type metadataUpdateDataSourceInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4014,34 +3551,19 @@ func (s UpdateDataSourceInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *UpdateDataSourceInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "UpdateDataSourceInput"}
-	if s.DataSourceId == nil {
-		invalidParams.Add(request.NewErrParamRequired("DataSourceId"))
-	}
-	if s.DataSourceId != nil && len(*s.DataSourceId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("DataSourceId", 1))
-	}
-	if s.DataSourceName == nil {
-		invalidParams.Add(request.NewErrParamRequired("DataSourceName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of an UpdateDataSource operation.
 //
 // You can see the updated content by using the GetBatchPrediction operation.
 type UpdateDataSourceOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID assigned to the DataSource during creation. This value should be identical
 	// to the value of the DataSourceID in the request.
-	DataSourceId *string `min:"1" type:"string"`
+	DataSourceId *string `type:"string"`
+
+	metadataUpdateDataSourceOutput `json:"-" xml:"-"`
+}
+
+type metadataUpdateDataSourceOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4055,14 +3577,18 @@ func (s UpdateDataSourceOutput) GoString() string {
 }
 
 type UpdateEvaluationInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID assigned to the Evaluation during creation.
-	EvaluationId *string `min:"1" type:"string" required:"true"`
+	EvaluationId *string `type:"string" required:"true"`
 
 	// A new user-supplied name or description of the Evaluation that will replace
 	// the current content.
 	EvaluationName *string `type:"string" required:"true"`
+
+	metadataUpdateEvaluationInput `json:"-" xml:"-"`
+}
+
+type metadataUpdateEvaluationInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4075,34 +3601,19 @@ func (s UpdateEvaluationInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *UpdateEvaluationInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "UpdateEvaluationInput"}
-	if s.EvaluationId == nil {
-		invalidParams.Add(request.NewErrParamRequired("EvaluationId"))
-	}
-	if s.EvaluationId != nil && len(*s.EvaluationId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("EvaluationId", 1))
-	}
-	if s.EvaluationName == nil {
-		invalidParams.Add(request.NewErrParamRequired("EvaluationName"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of an UpdateEvaluation operation.
 //
 // You can see the updated content by using the GetEvaluation operation.
 type UpdateEvaluationOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID assigned to the Evaluation during creation. This value should be identical
 	// to the value of the Evaluation in the request.
-	EvaluationId *string `min:"1" type:"string"`
+	EvaluationId *string `type:"string"`
+
+	metadataUpdateEvaluationOutput `json:"-" xml:"-"`
+}
+
+type metadataUpdateEvaluationOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4116,10 +3627,8 @@ func (s UpdateEvaluationOutput) GoString() string {
 }
 
 type UpdateMLModelInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID assigned to the MLModel during creation.
-	MLModelId *string `min:"1" type:"string" required:"true"`
+	MLModelId *string `type:"string" required:"true"`
 
 	// A user-supplied name or description of the MLModel.
 	MLModelName *string `type:"string"`
@@ -4131,6 +3640,12 @@ type UpdateMLModelInput struct {
 	// result from the MLModel, such as true. Output values less than the ScoreThreshold
 	// receive a negative response from the MLModel, such as false.
 	ScoreThreshold *float64 `type:"float"`
+
+	metadataUpdateMLModelInput `json:"-" xml:"-"`
+}
+
+type metadataUpdateMLModelInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4143,31 +3658,19 @@ func (s UpdateMLModelInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *UpdateMLModelInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "UpdateMLModelInput"}
-	if s.MLModelId == nil {
-		invalidParams.Add(request.NewErrParamRequired("MLModelId"))
-	}
-	if s.MLModelId != nil && len(*s.MLModelId) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("MLModelId", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 // Represents the output of an UpdateMLModel operation.
 //
 // You can see the updated content by using the GetMLModel operation.
 type UpdateMLModelOutput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID assigned to the MLModel during creation. This value should be identical
 	// to the value of the MLModelID in the request.
-	MLModelId *string `min:"1" type:"string"`
+	MLModelId *string `type:"string"`
+
+	metadataUpdateMLModelOutput `json:"-" xml:"-"`
+}
+
+type metadataUpdateMLModelOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation

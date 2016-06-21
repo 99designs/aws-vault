@@ -37,18 +37,22 @@ func addAccountID(r *request.Request) {
 }
 
 func addChecksum(r *request.Request) {
-	if r.Body == nil || r.HTTPRequest.Header.Get("X-Amz-Sha256-Tree-Hash") != "" {
+	if r.Body == nil {
 		return
 	}
 
 	h := ComputeHashes(r.Body)
-	hstr := hex.EncodeToString(h.TreeHash)
-	r.HTTPRequest.Header.Set("X-Amz-Sha256-Tree-Hash", hstr)
 
-	hLstr := hex.EncodeToString(h.LinearHash)
-	r.HTTPRequest.Header.Set("X-Amz-Content-Sha256", hLstr)
+	if r.HTTPRequest.Header.Get("X-Amz-Content-Sha256") == "" {
+		hstr := hex.EncodeToString(h.LinearHash)
+		r.HTTPRequest.Header.Set("X-Amz-Content-Sha256", hstr)
+	}
+	if r.HTTPRequest.Header.Get("X-Amz-Sha256-Tree-Hash") == "" {
+		hstr := hex.EncodeToString(h.TreeHash)
+		r.HTTPRequest.Header.Set("X-Amz-Sha256-Tree-Hash", hstr)
+	}
 }
 
 func addAPIVersion(r *request.Request) {
-	r.HTTPRequest.Header.Set("X-Amz-Glacier-Version", r.ClientInfo.APIVersion)
+	r.HTTPRequest.Header.Set("X-Amz-Glacier-Version", r.Service.APIVersion)
 }

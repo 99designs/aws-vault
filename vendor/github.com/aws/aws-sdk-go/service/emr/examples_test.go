@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/emr"
 )
 
@@ -16,7 +15,7 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleEMR_AddInstanceGroups() {
-	svc := emr.New(session.New())
+	svc := emr.New(nil)
 
 	params := &emr.AddInstanceGroupsInput{
 		InstanceGroups: []*emr.InstanceGroupConfig{ // Required
@@ -37,20 +36,6 @@ func ExampleEMR_AddInstanceGroups() {
 						},
 					},
 					// More values...
-				},
-				EbsConfiguration: &emr.EbsConfiguration{
-					EbsBlockDeviceConfigs: []*emr.EbsBlockDeviceConfig{
-						{ // Required
-							VolumeSpecification: &emr.VolumeSpecification{ // Required
-								SizeInGB:   aws.Int64(1),         // Required
-								VolumeType: aws.String("String"), // Required
-								Iops:       aws.Int64(1),
-							},
-							VolumesPerInstance: aws.Int64(1),
-						},
-						// More values...
-					},
-					EbsOptimized: aws.Bool(true),
 				},
 				Market: aws.String("MarketType"),
 				Name:   aws.String("XmlStringMaxLen256"),
@@ -73,7 +58,7 @@ func ExampleEMR_AddInstanceGroups() {
 }
 
 func ExampleEMR_AddJobFlowSteps() {
-	svc := emr.New(session.New())
+	svc := emr.New(nil)
 
 	params := &emr.AddJobFlowStepsInput{
 		JobFlowId: aws.String("XmlStringMaxLen256"), // Required
@@ -114,7 +99,7 @@ func ExampleEMR_AddJobFlowSteps() {
 }
 
 func ExampleEMR_AddTags() {
-	svc := emr.New(session.New())
+	svc := emr.New(nil)
 
 	params := &emr.AddTagsInput{
 		ResourceId: aws.String("ResourceId"), // Required
@@ -140,7 +125,7 @@ func ExampleEMR_AddTags() {
 }
 
 func ExampleEMR_DescribeCluster() {
-	svc := emr.New(session.New())
+	svc := emr.New(nil)
 
 	params := &emr.DescribeClusterInput{
 		ClusterId: aws.String("ClusterId"), // Required
@@ -159,7 +144,7 @@ func ExampleEMR_DescribeCluster() {
 }
 
 func ExampleEMR_DescribeJobFlows() {
-	svc := emr.New(session.New())
+	svc := emr.New(nil)
 
 	params := &emr.DescribeJobFlowsInput{
 		CreatedAfter:  aws.Time(time.Now()),
@@ -187,7 +172,7 @@ func ExampleEMR_DescribeJobFlows() {
 }
 
 func ExampleEMR_DescribeStep() {
-	svc := emr.New(session.New())
+	svc := emr.New(nil)
 
 	params := &emr.DescribeStepInput{
 		ClusterId: aws.String("ClusterId"), // Required
@@ -207,7 +192,7 @@ func ExampleEMR_DescribeStep() {
 }
 
 func ExampleEMR_ListBootstrapActions() {
-	svc := emr.New(session.New())
+	svc := emr.New(nil)
 
 	params := &emr.ListBootstrapActionsInput{
 		ClusterId: aws.String("ClusterId"), // Required
@@ -227,7 +212,7 @@ func ExampleEMR_ListBootstrapActions() {
 }
 
 func ExampleEMR_ListClusters() {
-	svc := emr.New(session.New())
+	svc := emr.New(nil)
 
 	params := &emr.ListClustersInput{
 		ClusterStates: []*string{
@@ -252,7 +237,7 @@ func ExampleEMR_ListClusters() {
 }
 
 func ExampleEMR_ListInstanceGroups() {
-	svc := emr.New(session.New())
+	svc := emr.New(nil)
 
 	params := &emr.ListInstanceGroupsInput{
 		ClusterId: aws.String("ClusterId"), // Required
@@ -272,17 +257,13 @@ func ExampleEMR_ListInstanceGroups() {
 }
 
 func ExampleEMR_ListInstances() {
-	svc := emr.New(session.New())
+	svc := emr.New(nil)
 
 	params := &emr.ListInstancesInput{
 		ClusterId:       aws.String("ClusterId"), // Required
 		InstanceGroupId: aws.String("InstanceGroupId"),
 		InstanceGroupTypes: []*string{
 			aws.String("InstanceGroupType"), // Required
-			// More values...
-		},
-		InstanceStates: []*string{
-			aws.String("InstanceState"), // Required
 			// More values...
 		},
 		Marker: aws.String("Marker"),
@@ -301,7 +282,7 @@ func ExampleEMR_ListInstances() {
 }
 
 func ExampleEMR_ListSteps() {
-	svc := emr.New(session.New())
+	svc := emr.New(nil)
 
 	params := &emr.ListStepsInput{
 		ClusterId: aws.String("ClusterId"), // Required
@@ -329,7 +310,7 @@ func ExampleEMR_ListSteps() {
 }
 
 func ExampleEMR_ModifyInstanceGroups() {
-	svc := emr.New(session.New())
+	svc := emr.New(nil)
 
 	params := &emr.ModifyInstanceGroupsInput{
 		InstanceGroups: []*emr.InstanceGroupModifyConfig{
@@ -340,20 +321,6 @@ func ExampleEMR_ModifyInstanceGroups() {
 					// More values...
 				},
 				InstanceCount: aws.Int64(1),
-				ShrinkPolicy: &emr.ShrinkPolicy{
-					DecommissionTimeout: aws.Int64(1),
-					InstanceResizePolicy: &emr.InstanceResizePolicy{
-						InstanceTerminationTimeout: aws.Int64(1),
-						InstancesToProtect: []*string{
-							aws.String("InstanceId"), // Required
-							// More values...
-						},
-						InstancesToTerminate: []*string{
-							aws.String("InstanceId"), // Required
-							// More values...
-						},
-					},
-				},
 			},
 			// More values...
 		},
@@ -372,7 +339,7 @@ func ExampleEMR_ModifyInstanceGroups() {
 }
 
 func ExampleEMR_RemoveTags() {
-	svc := emr.New(session.New())
+	svc := emr.New(nil)
 
 	params := &emr.RemoveTagsInput{
 		ResourceId: aws.String("ResourceId"), // Required
@@ -395,7 +362,7 @@ func ExampleEMR_RemoveTags() {
 }
 
 func ExampleEMR_RunJobFlow() {
-	svc := emr.New(session.New())
+	svc := emr.New(nil)
 
 	params := &emr.RunJobFlowInput{
 		Instances: &emr.JobFlowInstancesConfig{ // Required
@@ -432,20 +399,6 @@ func ExampleEMR_RunJobFlow() {
 						},
 						// More values...
 					},
-					EbsConfiguration: &emr.EbsConfiguration{
-						EbsBlockDeviceConfigs: []*emr.EbsBlockDeviceConfig{
-							{ // Required
-								VolumeSpecification: &emr.VolumeSpecification{ // Required
-									SizeInGB:   aws.Int64(1),         // Required
-									VolumeType: aws.String("String"), // Required
-									Iops:       aws.Int64(1),
-								},
-								VolumesPerInstance: aws.Int64(1),
-							},
-							// More values...
-						},
-						EbsOptimized: aws.Bool(true),
-					},
 					Market: aws.String("MarketType"),
 					Name:   aws.String("XmlStringMaxLen256"),
 				},
@@ -456,9 +409,8 @@ func ExampleEMR_RunJobFlow() {
 			Placement: &emr.PlacementType{
 				AvailabilityZone: aws.String("XmlString"), // Required
 			},
-			ServiceAccessSecurityGroup: aws.String("XmlStringMaxLen256"),
-			SlaveInstanceType:          aws.String("InstanceType"),
-			TerminationProtected:       aws.Bool(true),
+			SlaveInstanceType:    aws.String("InstanceType"),
+			TerminationProtected: aws.Bool(true),
 		},
 		Name:           aws.String("XmlStringMaxLen256"), // Required
 		AdditionalInfo: aws.String("XmlString"),
@@ -567,7 +519,7 @@ func ExampleEMR_RunJobFlow() {
 }
 
 func ExampleEMR_SetTerminationProtection() {
-	svc := emr.New(session.New())
+	svc := emr.New(nil)
 
 	params := &emr.SetTerminationProtectionInput{
 		JobFlowIds: []*string{ // Required
@@ -590,7 +542,7 @@ func ExampleEMR_SetTerminationProtection() {
 }
 
 func ExampleEMR_SetVisibleToAllUsers() {
-	svc := emr.New(session.New())
+	svc := emr.New(nil)
 
 	params := &emr.SetVisibleToAllUsersInput{
 		JobFlowIds: []*string{ // Required
@@ -613,7 +565,7 @@ func ExampleEMR_SetVisibleToAllUsers() {
 }
 
 func ExampleEMR_TerminateJobFlows() {
-	svc := emr.New(session.New())
+	svc := emr.New(nil)
 
 	params := &emr.TerminateJobFlowsInput{
 		JobFlowIds: []*string{ // Required

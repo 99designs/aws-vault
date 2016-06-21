@@ -60,5 +60,3 @@ type CloudWatchAPI interface {
 
 	SetAlarmState(*cloudwatch.SetAlarmStateInput) (*cloudwatch.SetAlarmStateOutput, error)
 }
-
-var _ CloudWatchAPI = (*cloudwatch.CloudWatch)(nil)

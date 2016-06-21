@@ -78,5 +78,3 @@ type CognitoSyncAPI interface {
 
 	UpdateRecords(*cognitosync.UpdateRecordsInput) (*cognitosync.UpdateRecordsOutput, error)
 }
-
-var _ CognitoSyncAPI = (*cognitosync.CognitoSync)(nil)

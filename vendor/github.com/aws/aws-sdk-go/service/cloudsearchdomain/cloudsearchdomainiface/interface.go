@@ -22,5 +22,3 @@ type CloudSearchDomainAPI interface {
 
 	UploadDocuments(*cloudsearchdomain.UploadDocumentsInput) (*cloudsearchdomain.UploadDocumentsOutput, error)
 }
-
-var _ CloudSearchDomainAPI = (*cloudsearchdomain.CloudSearchDomain)(nil)

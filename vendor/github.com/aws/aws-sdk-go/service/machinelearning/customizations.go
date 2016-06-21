@@ -22,9 +22,9 @@ func updatePredictEndpoint(r *request.Request) {
 		return
 	}
 
-	r.ClientInfo.Endpoint = *r.Params.(*PredictInput).PredictEndpoint
+	r.Service.Endpoint = *r.Params.(*PredictInput).PredictEndpoint
 
-	uri, err := url.Parse(r.ClientInfo.Endpoint)
+	uri, err := url.Parse(r.Service.Endpoint)
 	if err != nil {
 		r.Error = err
 		return

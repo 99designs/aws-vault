@@ -4,12 +4,13 @@ import (
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/awstesting/unit"
 	"github.com/aws/aws-sdk-go/service/cognitoidentity"
 	"github.com/stretchr/testify/assert"
 )
 
-var svc = cognitoidentity.New(unit.Session)
+var svc = cognitoidentity.New(&aws.Config{
+	Region: aws.String("mock-region"),
+})
 
 func TestUnsignedRequest_GetID(t *testing.T) {
 	req, _ := svc.GetIdRequest(&cognitoidentity.GetIdInput{

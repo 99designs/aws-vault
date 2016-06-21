@@ -48,9 +48,12 @@ func BenchmarkAssumeRoleProvider(b *testing.B) {
 	}
 
 	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		if _, err := p.Retrieve(); err != nil {
-			b.Fatal(err)
+	b.RunParallel(func(pb *testing.PB) {
+		for pb.Next() {
+			_, err := p.Retrieve()
+			if err != nil {
+				b.Fatal(err)
+			}
 		}
-	}
+	})
 }

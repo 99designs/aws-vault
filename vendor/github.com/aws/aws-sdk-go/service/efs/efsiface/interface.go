@@ -54,5 +54,3 @@ type EFSAPI interface {
 
 	ModifyMountTargetSecurityGroups(*efs.ModifyMountTargetSecurityGroupsInput) (*efs.ModifyMountTargetSecurityGroupsOutput, error)
 }
-
-var _ EFSAPI = (*efs.EFS)(nil)

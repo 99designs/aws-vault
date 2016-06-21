@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/glacier"
 )
 
@@ -16,7 +15,7 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleGlacier_AbortMultipartUpload() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.AbortMultipartUploadInput{
 		AccountId: aws.String("string"), // Required
@@ -37,7 +36,7 @@ func ExampleGlacier_AbortMultipartUpload() {
 }
 
 func ExampleGlacier_AbortVaultLock() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.AbortVaultLockInput{
 		AccountId: aws.String("string"), // Required
@@ -57,7 +56,7 @@ func ExampleGlacier_AbortVaultLock() {
 }
 
 func ExampleGlacier_AddTagsToVault() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.AddTagsToVaultInput{
 		AccountId: aws.String("string"), // Required
@@ -81,7 +80,7 @@ func ExampleGlacier_AddTagsToVault() {
 }
 
 func ExampleGlacier_CompleteMultipartUpload() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.CompleteMultipartUploadInput{
 		AccountId:   aws.String("string"), // Required
@@ -104,7 +103,7 @@ func ExampleGlacier_CompleteMultipartUpload() {
 }
 
 func ExampleGlacier_CompleteVaultLock() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.CompleteVaultLockInput{
 		AccountId: aws.String("string"), // Required
@@ -125,7 +124,7 @@ func ExampleGlacier_CompleteVaultLock() {
 }
 
 func ExampleGlacier_CreateVault() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.CreateVaultInput{
 		AccountId: aws.String("string"), // Required
@@ -145,7 +144,7 @@ func ExampleGlacier_CreateVault() {
 }
 
 func ExampleGlacier_DeleteArchive() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.DeleteArchiveInput{
 		AccountId: aws.String("string"), // Required
@@ -166,7 +165,7 @@ func ExampleGlacier_DeleteArchive() {
 }
 
 func ExampleGlacier_DeleteVault() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.DeleteVaultInput{
 		AccountId: aws.String("string"), // Required
@@ -186,7 +185,7 @@ func ExampleGlacier_DeleteVault() {
 }
 
 func ExampleGlacier_DeleteVaultAccessPolicy() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.DeleteVaultAccessPolicyInput{
 		AccountId: aws.String("string"), // Required
@@ -206,7 +205,7 @@ func ExampleGlacier_DeleteVaultAccessPolicy() {
 }
 
 func ExampleGlacier_DeleteVaultNotifications() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.DeleteVaultNotificationsInput{
 		AccountId: aws.String("string"), // Required
@@ -226,7 +225,7 @@ func ExampleGlacier_DeleteVaultNotifications() {
 }
 
 func ExampleGlacier_DescribeJob() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.DescribeJobInput{
 		AccountId: aws.String("string"), // Required
@@ -247,7 +246,7 @@ func ExampleGlacier_DescribeJob() {
 }
 
 func ExampleGlacier_DescribeVault() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.DescribeVaultInput{
 		AccountId: aws.String("string"), // Required
@@ -267,7 +266,7 @@ func ExampleGlacier_DescribeVault() {
 }
 
 func ExampleGlacier_GetDataRetrievalPolicy() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.GetDataRetrievalPolicyInput{
 		AccountId: aws.String("string"), // Required
@@ -286,7 +285,7 @@ func ExampleGlacier_GetDataRetrievalPolicy() {
 }
 
 func ExampleGlacier_GetJobOutput() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.GetJobOutputInput{
 		AccountId: aws.String("string"), // Required
@@ -308,7 +307,7 @@ func ExampleGlacier_GetJobOutput() {
 }
 
 func ExampleGlacier_GetVaultAccessPolicy() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.GetVaultAccessPolicyInput{
 		AccountId: aws.String("string"), // Required
@@ -328,7 +327,7 @@ func ExampleGlacier_GetVaultAccessPolicy() {
 }
 
 func ExampleGlacier_GetVaultLock() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.GetVaultLockInput{
 		AccountId: aws.String("string"), // Required
@@ -348,7 +347,7 @@ func ExampleGlacier_GetVaultLock() {
 }
 
 func ExampleGlacier_GetVaultNotifications() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.GetVaultNotificationsInput{
 		AccountId: aws.String("string"), // Required
@@ -368,7 +367,7 @@ func ExampleGlacier_GetVaultNotifications() {
 }
 
 func ExampleGlacier_InitiateJob() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.InitiateJobInput{
 		AccountId: aws.String("string"), // Required
@@ -402,7 +401,7 @@ func ExampleGlacier_InitiateJob() {
 }
 
 func ExampleGlacier_InitiateMultipartUpload() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.InitiateMultipartUploadInput{
 		AccountId:          aws.String("string"), // Required
@@ -424,7 +423,7 @@ func ExampleGlacier_InitiateMultipartUpload() {
 }
 
 func ExampleGlacier_InitiateVaultLock() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.InitiateVaultLockInput{
 		AccountId: aws.String("string"), // Required
@@ -447,7 +446,7 @@ func ExampleGlacier_InitiateVaultLock() {
 }
 
 func ExampleGlacier_ListJobs() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.ListJobsInput{
 		AccountId:  aws.String("string"), // Required
@@ -471,7 +470,7 @@ func ExampleGlacier_ListJobs() {
 }
 
 func ExampleGlacier_ListMultipartUploads() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.ListMultipartUploadsInput{
 		AccountId: aws.String("string"), // Required
@@ -493,7 +492,7 @@ func ExampleGlacier_ListMultipartUploads() {
 }
 
 func ExampleGlacier_ListParts() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.ListPartsInput{
 		AccountId: aws.String("string"), // Required
@@ -516,7 +515,7 @@ func ExampleGlacier_ListParts() {
 }
 
 func ExampleGlacier_ListTagsForVault() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.ListTagsForVaultInput{
 		AccountId: aws.String("string"), // Required
@@ -536,7 +535,7 @@ func ExampleGlacier_ListTagsForVault() {
 }
 
 func ExampleGlacier_ListVaults() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.ListVaultsInput{
 		AccountId: aws.String("string"), // Required
@@ -557,7 +556,7 @@ func ExampleGlacier_ListVaults() {
 }
 
 func ExampleGlacier_RemoveTagsFromVault() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.RemoveTagsFromVaultInput{
 		AccountId: aws.String("string"), // Required
@@ -581,7 +580,7 @@ func ExampleGlacier_RemoveTagsFromVault() {
 }
 
 func ExampleGlacier_SetDataRetrievalPolicy() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.SetDataRetrievalPolicyInput{
 		AccountId: aws.String("string"), // Required
@@ -609,7 +608,7 @@ func ExampleGlacier_SetDataRetrievalPolicy() {
 }
 
 func ExampleGlacier_SetVaultAccessPolicy() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.SetVaultAccessPolicyInput{
 		AccountId: aws.String("string"), // Required
@@ -632,7 +631,7 @@ func ExampleGlacier_SetVaultAccessPolicy() {
 }
 
 func ExampleGlacier_SetVaultNotifications() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.SetVaultNotificationsInput{
 		AccountId: aws.String("string"), // Required
@@ -659,7 +658,7 @@ func ExampleGlacier_SetVaultNotifications() {
 }
 
 func ExampleGlacier_UploadArchive() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.UploadArchiveInput{
 		AccountId:          aws.String("string"), // Required
@@ -682,7 +681,7 @@ func ExampleGlacier_UploadArchive() {
 }
 
 func ExampleGlacier_UploadMultipartPart() {
-	svc := glacier.New(session.New())
+	svc := glacier.New(nil)
 
 	params := &glacier.UploadMultipartPartInput{
 		AccountId: aws.String("string"), // Required

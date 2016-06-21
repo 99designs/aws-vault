@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodbstreams"
 )
 
@@ -16,7 +15,7 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleDynamoDBStreams_DescribeStream() {
-	svc := dynamodbstreams.New(session.New())
+	svc := dynamodbstreams.New(nil)
 
 	params := &dynamodbstreams.DescribeStreamInput{
 		StreamArn:             aws.String("StreamArn"), // Required
@@ -37,7 +36,7 @@ func ExampleDynamoDBStreams_DescribeStream() {
 }
 
 func ExampleDynamoDBStreams_GetRecords() {
-	svc := dynamodbstreams.New(session.New())
+	svc := dynamodbstreams.New(nil)
 
 	params := &dynamodbstreams.GetRecordsInput{
 		ShardIterator: aws.String("ShardIterator"), // Required
@@ -57,7 +56,7 @@ func ExampleDynamoDBStreams_GetRecords() {
 }
 
 func ExampleDynamoDBStreams_GetShardIterator() {
-	svc := dynamodbstreams.New(session.New())
+	svc := dynamodbstreams.New(nil)
 
 	params := &dynamodbstreams.GetShardIteratorInput{
 		ShardId:           aws.String("ShardId"),           // Required
@@ -79,7 +78,7 @@ func ExampleDynamoDBStreams_GetShardIterator() {
 }
 
 func ExampleDynamoDBStreams_ListStreams() {
-	svc := dynamodbstreams.New(session.New())
+	svc := dynamodbstreams.New(nil)
 
 	params := &dynamodbstreams.ListStreamsInput{
 		ExclusiveStartStreamArn: aws.String("StreamArn"),

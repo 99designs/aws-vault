@@ -4,11 +4,12 @@ package configservice
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/client"
-	"github.com/aws/aws-sdk-go/aws/client/metadata"
+	"github.com/aws/aws-sdk-go/aws/defaults"
 	"github.com/aws/aws-sdk-go/aws/request"
-	"github.com/aws/aws-sdk-go/private/protocol/jsonrpc"
-	"github.com/aws/aws-sdk-go/private/signer/v4"
+	"github.com/aws/aws-sdk-go/aws/service"
+	"github.com/aws/aws-sdk-go/aws/service/serviceinfo"
+	"github.com/aws/aws-sdk-go/internal/protocol/jsonrpc"
+	"github.com/aws/aws-sdk-go/internal/signer/v4"
 )
 
 // AWS Config provides a way to keep track of the configurations of all the
@@ -35,66 +36,42 @@ import (
 // actions or commands, as well as how to work with AWS Management Console,
 // see What Is AWS Config? (http://docs.aws.amazon.com/config/latest/developerguide/WhatIsConfig.html)
 // in the AWS Config Developer Guide.
-//The service client's operations are safe to be used concurrently.
-// It is not safe to mutate any of the client's properties though.
 type ConfigService struct {
-	*client.Client
+	*service.Service
 }
 
-// Used for custom client initialization logic
-var initClient func(*client.Client)
+// Used for custom service initialization logic
+var initService func(*service.Service)
 
 // Used for custom request initialization logic
 var initRequest func(*request.Request)
 
-// A ServiceName is the name of the service the client will make API calls to.
-const ServiceName = "config"
-
-// New creates a new instance of the ConfigService client with a session.
-// If additional configuration is needed for the client instance use the optional
-// aws.Config parameter to add your extra config.
-//
-// Example:
-//     // Create a ConfigService client from just a session.
-//     svc := configservice.New(mySession)
-//
-//     // Create a ConfigService client with additional configuration
-//     svc := configservice.New(mySession, aws.NewConfig().WithRegion("us-west-2"))
-func New(p client.ConfigProvider, cfgs ...*aws.Config) *ConfigService {
-	c := p.ClientConfig(ServiceName, cfgs...)
-	return newClient(*c.Config, c.Handlers, c.Endpoint, c.SigningRegion)
-}
-
-// newClient creates, initializes and returns a new service client instance.
-func newClient(cfg aws.Config, handlers request.Handlers, endpoint, signingRegion string) *ConfigService {
-	svc := &ConfigService{
-		Client: client.New(
-			cfg,
-			metadata.ClientInfo{
-				ServiceName:   ServiceName,
-				SigningRegion: signingRegion,
-				Endpoint:      endpoint,
-				APIVersion:    "2014-11-12",
-				JSONVersion:   "1.1",
-				TargetPrefix:  "StarlingDoveService",
-			},
-			handlers,
-		),
+// New returns a new ConfigService client.
+func New(config *aws.Config) *ConfigService {
+	service := &service.Service{
+		ServiceInfo: serviceinfo.ServiceInfo{
+			Config:       defaults.DefaultConfig.Merge(config),
+			ServiceName:  "config",
+			APIVersion:   "2014-11-12",
+			JSONVersion:  "1.1",
+			TargetPrefix: "StarlingDoveService",
+		},
 	}
+	service.Initialize()
 
 	// Handlers
-	svc.Handlers.Sign.PushBack(v4.Sign)
-	svc.Handlers.Build.PushBackNamed(jsonrpc.BuildHandler)
-	svc.Handlers.Unmarshal.PushBackNamed(jsonrpc.UnmarshalHandler)
-	svc.Handlers.UnmarshalMeta.PushBackNamed(jsonrpc.UnmarshalMetaHandler)
-	svc.Handlers.UnmarshalError.PushBackNamed(jsonrpc.UnmarshalErrorHandler)
+	service.Handlers.Sign.PushBack(v4.Sign)
+	service.Handlers.Build.PushBack(jsonrpc.Build)
+	service.Handlers.Unmarshal.PushBack(jsonrpc.Unmarshal)
+	service.Handlers.UnmarshalMeta.PushBack(jsonrpc.UnmarshalMeta)
+	service.Handlers.UnmarshalError.PushBack(jsonrpc.UnmarshalError)
 
-	// Run custom client initialization if present
-	if initClient != nil {
-		initClient(svc.Client)
+	// Run custom service initialization if present
+	if initService != nil {
+		initService(service)
 	}
 
-	return svc
+	return &ConfigService{service}
 }
 
 // newRequest creates a new request for a ConfigService operation and runs any

@@ -1,5 +1,3 @@
-// +build go1.5
-
 package main
 
 //go:generate go run gen/gen.go

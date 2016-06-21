@@ -8,49 +8,18 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ssm"
 )
 
 var _ time.Duration
 var _ bytes.Buffer
 
-func ExampleSSM_CancelCommand() {
-	svc := ssm.New(session.New())
-
-	params := &ssm.CancelCommandInput{
-		CommandId: aws.String("CommandId"), // Required
-		InstanceIds: []*string{
-			aws.String("InstanceId"), // Required
-			// More values...
-		},
-	}
-	resp, err := svc.CancelCommand(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
 func ExampleSSM_CreateAssociation() {
-	svc := ssm.New(session.New())
+	svc := ssm.New(nil)
 
 	params := &ssm.CreateAssociationInput{
 		InstanceId: aws.String("InstanceId"),   // Required
 		Name:       aws.String("DocumentName"), // Required
-		Parameters: map[string][]*string{
-			"Key": { // Required
-				aws.String("ParameterValue"), // Required
-				// More values...
-			},
-			// More values...
-		},
 	}
 	resp, err := svc.CreateAssociation(params)
 
@@ -66,20 +35,13 @@ func ExampleSSM_CreateAssociation() {
 }
 
 func ExampleSSM_CreateAssociationBatch() {
-	svc := ssm.New(session.New())
+	svc := ssm.New(nil)
 
 	params := &ssm.CreateAssociationBatchInput{
 		Entries: []*ssm.CreateAssociationBatchRequestEntry{ // Required
 			{ // Required
 				InstanceId: aws.String("InstanceId"),
 				Name:       aws.String("DocumentName"),
-				Parameters: map[string][]*string{
-					"Key": { // Required
-						aws.String("ParameterValue"), // Required
-						// More values...
-					},
-					// More values...
-				},
 			},
 			// More values...
 		},
@@ -98,7 +60,7 @@ func ExampleSSM_CreateAssociationBatch() {
 }
 
 func ExampleSSM_CreateDocument() {
-	svc := ssm.New(session.New())
+	svc := ssm.New(nil)
 
 	params := &ssm.CreateDocumentInput{
 		Content: aws.String("DocumentContent"), // Required
@@ -118,7 +80,7 @@ func ExampleSSM_CreateDocument() {
 }
 
 func ExampleSSM_DeleteAssociation() {
-	svc := ssm.New(session.New())
+	svc := ssm.New(nil)
 
 	params := &ssm.DeleteAssociationInput{
 		InstanceId: aws.String("InstanceId"),   // Required
@@ -138,7 +100,7 @@ func ExampleSSM_DeleteAssociation() {
 }
 
 func ExampleSSM_DeleteDocument() {
-	svc := ssm.New(session.New())
+	svc := ssm.New(nil)
 
 	params := &ssm.DeleteDocumentInput{
 		Name: aws.String("DocumentName"), // Required
@@ -157,7 +119,7 @@ func ExampleSSM_DeleteDocument() {
 }
 
 func ExampleSSM_DescribeAssociation() {
-	svc := ssm.New(session.New())
+	svc := ssm.New(nil)
 
 	params := &ssm.DescribeAssociationInput{
 		InstanceId: aws.String("InstanceId"),   // Required
@@ -177,10 +139,10 @@ func ExampleSSM_DescribeAssociation() {
 }
 
 func ExampleSSM_DescribeDocument() {
-	svc := ssm.New(session.New())
+	svc := ssm.New(nil)
 
 	params := &ssm.DescribeDocumentInput{
-		Name: aws.String("DocumentARN"), // Required
+		Name: aws.String("DocumentName"), // Required
 	}
 	resp, err := svc.DescribeDocument(params)
 
@@ -195,61 +157,11 @@ func ExampleSSM_DescribeDocument() {
 	fmt.Println(resp)
 }
 
-func ExampleSSM_DescribeDocumentPermission() {
-	svc := ssm.New(session.New())
-
-	params := &ssm.DescribeDocumentPermissionInput{
-		Name:           aws.String("DocumentName"),           // Required
-		PermissionType: aws.String("DocumentPermissionType"), // Required
-	}
-	resp, err := svc.DescribeDocumentPermission(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
-func ExampleSSM_DescribeInstanceInformation() {
-	svc := ssm.New(session.New())
-
-	params := &ssm.DescribeInstanceInformationInput{
-		InstanceInformationFilterList: []*ssm.InstanceInformationFilter{
-			{ // Required
-				Key: aws.String("InstanceInformationFilterKey"), // Required
-				ValueSet: []*string{ // Required
-					aws.String("InstanceInformationFilterValue"), // Required
-					// More values...
-				},
-			},
-			// More values...
-		},
-		MaxResults: aws.Int64(1),
-		NextToken:  aws.String("NextToken"),
-	}
-	resp, err := svc.DescribeInstanceInformation(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
 func ExampleSSM_GetDocument() {
-	svc := ssm.New(session.New())
+	svc := ssm.New(nil)
 
 	params := &ssm.GetDocumentInput{
-		Name: aws.String("DocumentARN"), // Required
+		Name: aws.String("DocumentName"), // Required
 	}
 	resp, err := svc.GetDocument(params)
 
@@ -265,7 +177,7 @@ func ExampleSSM_GetDocument() {
 }
 
 func ExampleSSM_ListAssociations() {
-	svc := ssm.New(session.New())
+	svc := ssm.New(nil)
 
 	params := &ssm.ListAssociationsInput{
 		AssociationFilterList: []*ssm.AssociationFilter{ // Required
@@ -291,67 +203,8 @@ func ExampleSSM_ListAssociations() {
 	fmt.Println(resp)
 }
 
-func ExampleSSM_ListCommandInvocations() {
-	svc := ssm.New(session.New())
-
-	params := &ssm.ListCommandInvocationsInput{
-		CommandId: aws.String("CommandId"),
-		Details:   aws.Bool(true),
-		Filters: []*ssm.CommandFilter{
-			{ // Required
-				Key:   aws.String("CommandFilterKey"),   // Required
-				Value: aws.String("CommandFilterValue"), // Required
-			},
-			// More values...
-		},
-		InstanceId: aws.String("InstanceId"),
-		MaxResults: aws.Int64(1),
-		NextToken:  aws.String("NextToken"),
-	}
-	resp, err := svc.ListCommandInvocations(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
-func ExampleSSM_ListCommands() {
-	svc := ssm.New(session.New())
-
-	params := &ssm.ListCommandsInput{
-		CommandId: aws.String("CommandId"),
-		Filters: []*ssm.CommandFilter{
-			{ // Required
-				Key:   aws.String("CommandFilterKey"),   // Required
-				Value: aws.String("CommandFilterValue"), // Required
-			},
-			// More values...
-		},
-		InstanceId: aws.String("InstanceId"),
-		MaxResults: aws.Int64(1),
-		NextToken:  aws.String("NextToken"),
-	}
-	resp, err := svc.ListCommands(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
 func ExampleSSM_ListDocuments() {
-	svc := ssm.New(session.New())
+	svc := ssm.New(nil)
 
 	params := &ssm.ListDocumentsInput{
 		DocumentFilterList: []*ssm.DocumentFilter{
@@ -377,72 +230,8 @@ func ExampleSSM_ListDocuments() {
 	fmt.Println(resp)
 }
 
-func ExampleSSM_ModifyDocumentPermission() {
-	svc := ssm.New(session.New())
-
-	params := &ssm.ModifyDocumentPermissionInput{
-		Name:           aws.String("DocumentName"),           // Required
-		PermissionType: aws.String("DocumentPermissionType"), // Required
-		AccountIdsToAdd: []*string{
-			aws.String("AccountId"), // Required
-			// More values...
-		},
-		AccountIdsToRemove: []*string{
-			aws.String("AccountId"), // Required
-			// More values...
-		},
-	}
-	resp, err := svc.ModifyDocumentPermission(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
-func ExampleSSM_SendCommand() {
-	svc := ssm.New(session.New())
-
-	params := &ssm.SendCommandInput{
-		DocumentName: aws.String("DocumentARN"), // Required
-		InstanceIds: []*string{ // Required
-			aws.String("InstanceId"), // Required
-			// More values...
-		},
-		Comment:            aws.String("Comment"),
-		DocumentHash:       aws.String("DocumentHash"),
-		DocumentHashType:   aws.String("DocumentHashType"),
-		OutputS3BucketName: aws.String("S3BucketName"),
-		OutputS3KeyPrefix:  aws.String("S3KeyPrefix"),
-		Parameters: map[string][]*string{
-			"Key": { // Required
-				aws.String("ParameterValue"), // Required
-				// More values...
-			},
-			// More values...
-		},
-		TimeoutSeconds: aws.Int64(1),
-	}
-	resp, err := svc.SendCommand(params)
-
-	if err != nil {
-		// Print the error, cast err to awserr.Error to get the Code and
-		// Message from an error.
-		fmt.Println(err.Error())
-		return
-	}
-
-	// Pretty-print the response data.
-	fmt.Println(resp)
-}
-
 func ExampleSSM_UpdateAssociationStatus() {
-	svc := ssm.New(session.New())
+	svc := ssm.New(nil)
 
 	params := &ssm.UpdateAssociationStatusInput{
 		AssociationStatus: &ssm.AssociationStatus{ // Required

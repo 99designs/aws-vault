@@ -4,13 +4,10 @@
 package efs
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/awsutil"
 	"github.com/aws/aws-sdk-go/aws/request"
-	"github.com/aws/aws-sdk-go/private/protocol"
-	"github.com/aws/aws-sdk-go/private/protocol/restjson"
 )
 
 const opCreateFileSystem = "CreateFileSystem"
@@ -116,7 +113,7 @@ func (c *EFS) CreateMountTargetRequest(input *CreateMountTargetInput) (req *requ
 // when mounting the file system. The EC2 instance on which you mount the file
 // system via the mount target can resolve the mount target's DNS name to its
 // IP address. For more information, see How it Works: Implementation Overview
-// (http://docs.aws.amazon.com/efs/latest/ug/how-it-works.html#how-it-works-implementation).
+// (http://docs.aws.amazon.com/efs/latest/ug/how-it-works.html#how-it-works-implementation)
 //
 //  Note that you can create mount targets for a file system in only one VPC,
 // and there can be only one mount target per Availability Zone. That is, if
@@ -156,16 +153,16 @@ func (c *EFS) CreateMountTargetRequest(input *CreateMountTargetInput) (req *requ
 // in another Availability Zone. For more information, go to Amazon EFS (http://aws.amazon.com/efs/)
 // product detail page. In addition, by always using a mount target local to
 // the instance's Availability Zone, you eliminate a partial failure scenario;
-// if the Availability Zone in which your mount target is created goes down,
+// if the Availablity Zone in which your mount target is created goes down,
 // then you won't be able to access your file system through that mount target.
 //
 // This operation requires permission for the following action on the file
 // system:
 //
-//   elasticfilesystem:CreateMountTarget   This operation also requires permission
+//  elasticfilesystem:CreateMountTarget  This operation also requires permission
 // for the following Amazon EC2 actions:
 //
-//   ec2:DescribeSubnets   ec2:DescribeNetworkInterfaces   ec2:CreateNetworkInterface
+//  ec2:DescribeSubnets ec2:DescribeNetworkInterfaces ec2:CreateNetworkInterface
 func (c *EFS) CreateMountTarget(input *CreateMountTargetInput) (*MountTargetDescription, error) {
 	req, out := c.CreateMountTargetRequest(input)
 	err := req.Send()
@@ -187,8 +184,6 @@ func (c *EFS) CreateTagsRequest(input *CreateTagsInput) (req *request.Request, o
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &CreateTagsOutput{}
 	req.Data = output
 	return
@@ -223,8 +218,6 @@ func (c *EFS) DeleteFileSystemRequest(input *DeleteFileSystemInput) (req *reques
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteFileSystemOutput{}
 	req.Data = output
 	return
@@ -265,8 +258,6 @@ func (c *EFS) DeleteMountTargetRequest(input *DeleteMountTargetInput) (req *requ
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteMountTargetOutput{}
 	req.Data = output
 	return
@@ -286,14 +277,14 @@ func (c *EFS) DeleteMountTargetRequest(input *DeleteMountTargetInput) (req *requ
 //  This operation requires permission for the following action on the file
 // system:
 //
-//   elasticfilesystem:DeleteMountTarget   The DeleteMountTarget call returns
+//  elasticfilesystem:DeleteMountTarget  The DeleteMountTarget call returns
 // while the mount target state is still "deleting". You can check the mount
 // target deletion by calling the DescribeMountTargets API, which returns a
 // list of mount target descriptions for the given file system.  The operation
 // also requires permission for the following Amazon EC2 action on the mount
 // target's network interface:
 //
-//   ec2:DeleteNetworkInterface
+//  ec2:DeleteNetworkInterface
 func (c *EFS) DeleteMountTarget(input *DeleteMountTargetInput) (*DeleteMountTargetOutput, error) {
 	req, out := c.DeleteMountTargetRequest(input)
 	err := req.Send()
@@ -315,8 +306,6 @@ func (c *EFS) DeleteTagsRequest(input *DeleteTagsInput) (req *request.Request, o
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteTagsOutput{}
 	req.Data = output
 	return
@@ -443,13 +432,11 @@ func (c *EFS) DescribeMountTargetsRequest(input *DescribeMountTargetsInput) (req
 	return
 }
 
-// Returns the descriptions of all the current mount targets, or a specific
-// mount target, for a file system. When requesting all of the current mount
-// targets, the order of mount targets returned in the response is unspecified.
+// Returns the descriptions of the current mount targets for a file system.
+// The order of mount targets returned in the response is unspecified.
 //
-// This operation requires permission for the elasticfilesystem:DescribeMountTargets
-// action, on either the file system id that you specify in FileSystemId, or
-// on the file system of the mount target that you specify in MountTargetId.
+//  This operation requires permission for the elasticfilesystem:DescribeMountTargets
+// action on the file system FileSystemId.
 func (c *EFS) DescribeMountTargets(input *DescribeMountTargetsInput) (*DescribeMountTargetsOutput, error) {
 	req, out := c.DescribeMountTargetsRequest(input)
 	err := req.Send()
@@ -504,8 +491,6 @@ func (c *EFS) ModifyMountTargetSecurityGroupsRequest(input *ModifyMountTargetSec
 	}
 
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(restjson.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &ModifyMountTargetSecurityGroupsOutput{}
 	req.Data = output
 	return
@@ -532,11 +517,15 @@ func (c *EFS) ModifyMountTargetSecurityGroups(input *ModifyMountTargetSecurityGr
 }
 
 type CreateFileSystemInput struct {
-	_ struct{} `type:"structure"`
-
 	// String of up to 64 ASCII characters. Amazon EFS uses this to ensure idempotent
 	// creation.
-	CreationToken *string `min:"1" type:"string" required:"true"`
+	CreationToken *string `type:"string" required:"true"`
+
+	metadataCreateFileSystemInput `json:"-" xml:"-"`
+}
+
+type metadataCreateFileSystemInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -549,25 +538,7 @@ func (s CreateFileSystemInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateFileSystemInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateFileSystemInput"}
-	if s.CreationToken == nil {
-		invalidParams.Add(request.NewErrParamRequired("CreationToken"))
-	}
-	if s.CreationToken != nil && len(*s.CreationToken) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("CreationToken", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type CreateMountTargetInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the file system for which to create the mount target.
 	FileSystemId *string `type:"string" required:"true"`
 
@@ -580,6 +551,12 @@ type CreateMountTargetInput struct {
 
 	// The ID of the subnet to add the mount target in.
 	SubnetId *string `type:"string" required:"true"`
+
+	metadataCreateMountTargetInput `json:"-" xml:"-"`
+}
+
+type metadataCreateMountTargetInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -592,31 +569,19 @@ func (s CreateMountTargetInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateMountTargetInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateMountTargetInput"}
-	if s.FileSystemId == nil {
-		invalidParams.Add(request.NewErrParamRequired("FileSystemId"))
-	}
-	if s.SubnetId == nil {
-		invalidParams.Add(request.NewErrParamRequired("SubnetId"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type CreateTagsInput struct {
-	_ struct{} `type:"structure"`
-
 	// String. The ID of the file system whose tags you want to modify. This operation
 	// modifies only the tags and not the file system.
 	FileSystemId *string `location:"uri" locationName:"FileSystemId" type:"string" required:"true"`
 
 	// An array of Tag objects to add. Each Tag object is a key-value pair.
 	Tags []*Tag `type:"list" required:"true"`
+
+	metadataCreateTagsInput `json:"-" xml:"-"`
+}
+
+type metadataCreateTagsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -629,34 +594,12 @@ func (s CreateTagsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *CreateTagsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "CreateTagsInput"}
-	if s.FileSystemId == nil {
-		invalidParams.Add(request.NewErrParamRequired("FileSystemId"))
-	}
-	if s.Tags == nil {
-		invalidParams.Add(request.NewErrParamRequired("Tags"))
-	}
-	if s.Tags != nil {
-		for i, v := range s.Tags {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Tags", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type CreateTagsOutput struct {
+	metadataCreateTagsOutput `json:"-" xml:"-"`
 }
 
-type CreateTagsOutput struct {
-	_ struct{} `type:"structure"`
+type metadataCreateTagsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -670,10 +613,14 @@ func (s CreateTagsOutput) GoString() string {
 }
 
 type DeleteFileSystemInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the file system you want to delete.
 	FileSystemId *string `location:"uri" locationName:"FileSystemId" type:"string" required:"true"`
+
+	metadataDeleteFileSystemInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteFileSystemInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -686,21 +633,12 @@ func (s DeleteFileSystemInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteFileSystemInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteFileSystemInput"}
-	if s.FileSystemId == nil {
-		invalidParams.Add(request.NewErrParamRequired("FileSystemId"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type DeleteFileSystemOutput struct {
+	metadataDeleteFileSystemOutput `json:"-" xml:"-"`
 }
 
-type DeleteFileSystemOutput struct {
-	_ struct{} `type:"structure"`
+type metadataDeleteFileSystemOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -714,10 +652,14 @@ func (s DeleteFileSystemOutput) GoString() string {
 }
 
 type DeleteMountTargetInput struct {
-	_ struct{} `type:"structure"`
-
 	// String. The ID of the mount target to delete.
 	MountTargetId *string `location:"uri" locationName:"MountTargetId" type:"string" required:"true"`
+
+	metadataDeleteMountTargetInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteMountTargetInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -730,21 +672,12 @@ func (s DeleteMountTargetInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteMountTargetInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteMountTargetInput"}
-	if s.MountTargetId == nil {
-		invalidParams.Add(request.NewErrParamRequired("MountTargetId"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type DeleteMountTargetOutput struct {
+	metadataDeleteMountTargetOutput `json:"-" xml:"-"`
 }
 
-type DeleteMountTargetOutput struct {
-	_ struct{} `type:"structure"`
+type metadataDeleteMountTargetOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -758,13 +691,17 @@ func (s DeleteMountTargetOutput) GoString() string {
 }
 
 type DeleteTagsInput struct {
-	_ struct{} `type:"structure"`
-
 	// String. The ID of the file system whose tags you want to delete.
 	FileSystemId *string `location:"uri" locationName:"FileSystemId" type:"string" required:"true"`
 
 	// A list of tag keys to delete.
 	TagKeys []*string `type:"list" required:"true"`
+
+	metadataDeleteTagsInput `json:"-" xml:"-"`
+}
+
+type metadataDeleteTagsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -777,24 +714,12 @@ func (s DeleteTagsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DeleteTagsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DeleteTagsInput"}
-	if s.FileSystemId == nil {
-		invalidParams.Add(request.NewErrParamRequired("FileSystemId"))
-	}
-	if s.TagKeys == nil {
-		invalidParams.Add(request.NewErrParamRequired("TagKeys"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type DeleteTagsOutput struct {
+	metadataDeleteTagsOutput `json:"-" xml:"-"`
 }
 
-type DeleteTagsOutput struct {
-	_ struct{} `type:"structure"`
+type metadataDeleteTagsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -808,12 +733,10 @@ func (s DeleteTagsOutput) GoString() string {
 }
 
 type DescribeFileSystemsInput struct {
-	_ struct{} `type:"structure"`
-
 	// Optional string. Restricts the list to the file system with this creation
 	// token (you specify a creation token at the time of creating an Amazon EFS
 	// file system).
-	CreationToken *string `location:"querystring" locationName:"CreationToken" min:"1" type:"string"`
+	CreationToken *string `location:"querystring" locationName:"CreationToken" type:"string"`
 
 	// Optional string. File system ID whose description you want to retrieve.
 	FileSystemId *string `location:"querystring" locationName:"FileSystemId" type:"string"`
@@ -828,7 +751,13 @@ type DescribeFileSystemsInput struct {
 	// of items Amazon EFS returns will be the minimum of the MaxItems parameter
 	// specified in the request and the service's internal maximum number of items
 	// per page.
-	MaxItems *int64 `location:"querystring" locationName:"MaxItems" min:"1" type:"integer"`
+	MaxItems *int64 `location:"querystring" locationName:"MaxItems" type:"integer"`
+
+	metadataDescribeFileSystemsInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeFileSystemsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -841,25 +770,7 @@ func (s DescribeFileSystemsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeFileSystemsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeFileSystemsInput"}
-	if s.CreationToken != nil && len(*s.CreationToken) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("CreationToken", 1))
-	}
-	if s.MaxItems != nil && *s.MaxItems < 1 {
-		invalidParams.Add(request.NewErrParamMinValue("MaxItems", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type DescribeFileSystemsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// An array of file system descriptions.
 	FileSystems []*FileSystemDescription `type:"list"`
 
@@ -869,6 +780,12 @@ type DescribeFileSystemsOutput struct {
 	// A string, present if there are more file systems than returned in the response.
 	// You can use the NextMarker in the subsequent request to fetch the descriptions.
 	NextMarker *string `type:"string"`
+
+	metadataDescribeFileSystemsOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeFileSystemsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -882,10 +799,14 @@ func (s DescribeFileSystemsOutput) GoString() string {
 }
 
 type DescribeMountTargetSecurityGroupsInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the mount target whose security groups you want to retrieve.
 	MountTargetId *string `location:"uri" locationName:"MountTargetId" type:"string" required:"true"`
+
+	metadataDescribeMountTargetSecurityGroupsInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeMountTargetSecurityGroupsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -898,24 +819,15 @@ func (s DescribeMountTargetSecurityGroupsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeMountTargetSecurityGroupsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeMountTargetSecurityGroupsInput"}
-	if s.MountTargetId == nil {
-		invalidParams.Add(request.NewErrParamRequired("MountTargetId"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type DescribeMountTargetSecurityGroupsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// An array of security groups.
 	SecurityGroups []*string `type:"list" required:"true"`
+
+	metadataDescribeMountTargetSecurityGroupsOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeMountTargetSecurityGroupsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -929,11 +841,8 @@ func (s DescribeMountTargetSecurityGroupsOutput) GoString() string {
 }
 
 type DescribeMountTargetsInput struct {
-	_ struct{} `type:"structure"`
-
-	// Optional. String. The ID of the file system whose mount targets you want
-	// to list. It must be included in your request if MountTargetId is not included.
-	FileSystemId *string `location:"querystring" locationName:"FileSystemId" type:"string"`
+	// String. The ID of the file system whose mount targets you want to list.
+	FileSystemId *string `location:"querystring" locationName:"FileSystemId" type:"string" required:"true"`
 
 	// Optional. String. Opaque pagination token returned from a previous DescribeMountTargets
 	// operation. If present, it specifies to continue the list from where the previous
@@ -942,11 +851,13 @@ type DescribeMountTargetsInput struct {
 
 	// Optional. Maximum number of mount targets to return in the response. It must
 	// be an integer with a value greater than zero.
-	MaxItems *int64 `location:"querystring" locationName:"MaxItems" min:"1" type:"integer"`
+	MaxItems *int64 `location:"querystring" locationName:"MaxItems" type:"integer"`
 
-	// Optional. String. The ID of the mount target that you want to have described.
-	// It must be included in your request if FileSystemId is not included.
-	MountTargetId *string `location:"querystring" locationName:"MountTargetId" type:"string"`
+	metadataDescribeMountTargetsInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeMountTargetsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -959,22 +870,7 @@ func (s DescribeMountTargetsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeMountTargetsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeMountTargetsInput"}
-	if s.MaxItems != nil && *s.MaxItems < 1 {
-		invalidParams.Add(request.NewErrParamMinValue("MaxItems", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type DescribeMountTargetsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// If the request included the Marker, the response returns that value in this
 	// field.
 	Marker *string `type:"string"`
@@ -987,6 +883,12 @@ type DescribeMountTargetsOutput struct {
 	// request, you can provide Marker in your request with this value to retrieve
 	// the next set of mount targets.
 	NextMarker *string `type:"string"`
+
+	metadataDescribeMountTargetsOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeMountTargetsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1000,8 +902,6 @@ func (s DescribeMountTargetsOutput) GoString() string {
 }
 
 type DescribeTagsInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the file system whose tag set you want to retrieve.
 	FileSystemId *string `location:"uri" locationName:"FileSystemId" type:"string" required:"true"`
 
@@ -1012,7 +912,13 @@ type DescribeTagsInput struct {
 
 	// Optional. Maximum number of file system tags to return in the response. It
 	// must be an integer with a value greater than zero.
-	MaxItems *int64 `location:"querystring" locationName:"MaxItems" min:"1" type:"integer"`
+	MaxItems *int64 `location:"querystring" locationName:"MaxItems" type:"integer"`
+
+	metadataDescribeTagsInput `json:"-" xml:"-"`
+}
+
+type metadataDescribeTagsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1025,25 +931,7 @@ func (s DescribeTagsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *DescribeTagsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "DescribeTagsInput"}
-	if s.FileSystemId == nil {
-		invalidParams.Add(request.NewErrParamRequired("FileSystemId"))
-	}
-	if s.MaxItems != nil && *s.MaxItems < 1 {
-		invalidParams.Add(request.NewErrParamMinValue("MaxItems", 1))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
-}
-
 type DescribeTagsOutput struct {
-	_ struct{} `type:"structure"`
-
 	// If the request included a Marker, the response returns that value in this
 	// field.
 	Marker *string `type:"string"`
@@ -1055,6 +943,12 @@ type DescribeTagsOutput struct {
 
 	// Returns tags associated with the file system as an array of Tag objects.
 	Tags []*Tag `type:"list" required:"true"`
+
+	metadataDescribeTagsOutput `json:"-" xml:"-"`
+}
+
+type metadataDescribeTagsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1069,13 +963,11 @@ func (s DescribeTagsOutput) GoString() string {
 
 // This object provides description of a file system.
 type FileSystemDescription struct {
-	_ struct{} `type:"structure"`
-
 	// The time at which the file system was created, in seconds, since 1970-01-01T00:00:00Z.
 	CreationTime *time.Time `type:"timestamp" timestampFormat:"unix" required:"true"`
 
 	// Opaque string specified in the request.
-	CreationToken *string `min:"1" type:"string" required:"true"`
+	CreationToken *string `type:"string" required:"true"`
 
 	// The file system ID assigned by Amazon EFS.
 	FileSystemId *string `type:"string" required:"true"`
@@ -1107,6 +999,12 @@ type FileSystemDescription struct {
 	// for a period longer than a couple of hours. Otherwise, the value is not the
 	// exact size the file system was at any instant in time.
 	SizeInBytes *FileSystemSize `type:"structure" required:"true"`
+
+	metadataFileSystemDescription `json:"-" xml:"-"`
+}
+
+type metadataFileSystemDescription struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1128,14 +1026,18 @@ func (s FileSystemDescription) GoString() string {
 // a period longer than a couple of hours. Otherwise, the value is not necessarily
 // the exact size the file system was at any instant in time.
 type FileSystemSize struct {
-	_ struct{} `type:"structure"`
-
 	// The time at which the size of data, returned in the Value field, was determined.
 	// The value is the integer number of seconds since 1970-01-01T00:00:00Z.
 	Timestamp *time.Time `type:"timestamp" timestampFormat:"unix"`
 
 	// The latest known metered size, in bytes, of data stored in the file system.
 	Value *int64 `type:"long" required:"true"`
+
+	metadataFileSystemSize `json:"-" xml:"-"`
+}
+
+type metadataFileSystemSize struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1149,13 +1051,17 @@ func (s FileSystemSize) GoString() string {
 }
 
 type ModifyMountTargetSecurityGroupsInput struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the mount target whose security groups you want to modify.
 	MountTargetId *string `location:"uri" locationName:"MountTargetId" type:"string" required:"true"`
 
 	// An array of up to five VPC security group IDs.
 	SecurityGroups []*string `type:"list"`
+
+	metadataModifyMountTargetSecurityGroupsInput `json:"-" xml:"-"`
+}
+
+type metadataModifyMountTargetSecurityGroupsInput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1168,21 +1074,12 @@ func (s ModifyMountTargetSecurityGroupsInput) GoString() string {
 	return s.String()
 }
 
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *ModifyMountTargetSecurityGroupsInput) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "ModifyMountTargetSecurityGroupsInput"}
-	if s.MountTargetId == nil {
-		invalidParams.Add(request.NewErrParamRequired("MountTargetId"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
+type ModifyMountTargetSecurityGroupsOutput struct {
+	metadataModifyMountTargetSecurityGroupsOutput `json:"-" xml:"-"`
 }
 
-type ModifyMountTargetSecurityGroupsOutput struct {
-	_ struct{} `type:"structure"`
+type metadataModifyMountTargetSecurityGroupsOutput struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1197,8 +1094,6 @@ func (s ModifyMountTargetSecurityGroupsOutput) GoString() string {
 
 // This object provides description of a mount target.
 type MountTargetDescription struct {
-	_ struct{} `type:"structure"`
-
 	// The ID of the file system for which the mount target is intended.
 	FileSystemId *string `type:"string" required:"true"`
 
@@ -1220,6 +1115,12 @@ type MountTargetDescription struct {
 
 	// The ID of the subnet that the mount target is in.
 	SubnetId *string `type:"string" required:"true"`
+
+	metadataMountTargetDescription `json:"-" xml:"-"`
+}
+
+type metadataMountTargetDescription struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1236,13 +1137,17 @@ func (s MountTargetDescription) GoString() string {
 // are letters, whitespace, and numbers, representable in UTF-8, and the characters
 // '+', '-', '=', '.', '_', ':', and '/'.
 type Tag struct {
-	_ struct{} `type:"structure"`
-
 	// Tag key, a string. The key must not start with "aws:".
-	Key *string `min:"1" type:"string" required:"true"`
+	Key *string `type:"string" required:"true"`
 
 	// Value of the tag key.
 	Value *string `type:"string" required:"true"`
+
+	metadataTag `json:"-" xml:"-"`
+}
+
+type metadataTag struct {
+	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1253,25 +1158,6 @@ func (s Tag) String() string {
 // GoString returns the string representation
 func (s Tag) GoString() string {
 	return s.String()
-}
-
-// Validate inspects the fields of the type to determine if they are valid.
-func (s *Tag) Validate() error {
-	invalidParams := request.ErrInvalidParams{Context: "Tag"}
-	if s.Key == nil {
-		invalidParams.Add(request.NewErrParamRequired("Key"))
-	}
-	if s.Key != nil && len(*s.Key) < 1 {
-		invalidParams.Add(request.NewErrParamMinLen("Key", 1))
-	}
-	if s.Value == nil {
-		invalidParams.Add(request.NewErrParamRequired("Value"))
-	}
-
-	if invalidParams.Len() > 0 {
-		return invalidParams
-	}
-	return nil
 }
 
 const (

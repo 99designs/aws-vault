@@ -142,5 +142,3 @@ type GlacierAPI interface {
 
 	UploadMultipartPart(*glacier.UploadMultipartPartInput) (*glacier.UploadMultipartPartOutput, error)
 }
-
-var _ GlacierAPI = (*glacier.Glacier)(nil)

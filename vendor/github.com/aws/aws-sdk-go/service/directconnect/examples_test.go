@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/directconnect"
 )
 
@@ -16,7 +15,7 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleDirectConnect_AllocateConnectionOnInterconnect() {
-	svc := directconnect.New(session.New())
+	svc := directconnect.New(nil)
 
 	params := &directconnect.AllocateConnectionOnInterconnectInput{
 		Bandwidth:      aws.String("Bandwidth"),      // Required
@@ -39,7 +38,7 @@ func ExampleDirectConnect_AllocateConnectionOnInterconnect() {
 }
 
 func ExampleDirectConnect_AllocatePrivateVirtualInterface() {
-	svc := directconnect.New(session.New())
+	svc := directconnect.New(nil)
 
 	params := &directconnect.AllocatePrivateVirtualInterfaceInput{
 		ConnectionId: aws.String("ConnectionId"), // Required
@@ -67,7 +66,7 @@ func ExampleDirectConnect_AllocatePrivateVirtualInterface() {
 }
 
 func ExampleDirectConnect_AllocatePublicVirtualInterface() {
-	svc := directconnect.New(session.New())
+	svc := directconnect.New(nil)
 
 	params := &directconnect.AllocatePublicVirtualInterfaceInput{
 		ConnectionId: aws.String("ConnectionId"), // Required
@@ -101,7 +100,7 @@ func ExampleDirectConnect_AllocatePublicVirtualInterface() {
 }
 
 func ExampleDirectConnect_ConfirmConnection() {
-	svc := directconnect.New(session.New())
+	svc := directconnect.New(nil)
 
 	params := &directconnect.ConfirmConnectionInput{
 		ConnectionId: aws.String("ConnectionId"), // Required
@@ -120,7 +119,7 @@ func ExampleDirectConnect_ConfirmConnection() {
 }
 
 func ExampleDirectConnect_ConfirmPrivateVirtualInterface() {
-	svc := directconnect.New(session.New())
+	svc := directconnect.New(nil)
 
 	params := &directconnect.ConfirmPrivateVirtualInterfaceInput{
 		VirtualGatewayId:   aws.String("VirtualGatewayId"),   // Required
@@ -140,7 +139,7 @@ func ExampleDirectConnect_ConfirmPrivateVirtualInterface() {
 }
 
 func ExampleDirectConnect_ConfirmPublicVirtualInterface() {
-	svc := directconnect.New(session.New())
+	svc := directconnect.New(nil)
 
 	params := &directconnect.ConfirmPublicVirtualInterfaceInput{
 		VirtualInterfaceId: aws.String("VirtualInterfaceId"), // Required
@@ -159,7 +158,7 @@ func ExampleDirectConnect_ConfirmPublicVirtualInterface() {
 }
 
 func ExampleDirectConnect_CreateConnection() {
-	svc := directconnect.New(session.New())
+	svc := directconnect.New(nil)
 
 	params := &directconnect.CreateConnectionInput{
 		Bandwidth:      aws.String("Bandwidth"),      // Required
@@ -180,7 +179,7 @@ func ExampleDirectConnect_CreateConnection() {
 }
 
 func ExampleDirectConnect_CreateInterconnect() {
-	svc := directconnect.New(session.New())
+	svc := directconnect.New(nil)
 
 	params := &directconnect.CreateInterconnectInput{
 		Bandwidth:        aws.String("Bandwidth"),        // Required
@@ -201,7 +200,7 @@ func ExampleDirectConnect_CreateInterconnect() {
 }
 
 func ExampleDirectConnect_CreatePrivateVirtualInterface() {
-	svc := directconnect.New(session.New())
+	svc := directconnect.New(nil)
 
 	params := &directconnect.CreatePrivateVirtualInterfaceInput{
 		ConnectionId: aws.String("ConnectionId"), // Required
@@ -229,7 +228,7 @@ func ExampleDirectConnect_CreatePrivateVirtualInterface() {
 }
 
 func ExampleDirectConnect_CreatePublicVirtualInterface() {
-	svc := directconnect.New(session.New())
+	svc := directconnect.New(nil)
 
 	params := &directconnect.CreatePublicVirtualInterfaceInput{
 		ConnectionId: aws.String("ConnectionId"), // Required
@@ -262,7 +261,7 @@ func ExampleDirectConnect_CreatePublicVirtualInterface() {
 }
 
 func ExampleDirectConnect_DeleteConnection() {
-	svc := directconnect.New(session.New())
+	svc := directconnect.New(nil)
 
 	params := &directconnect.DeleteConnectionInput{
 		ConnectionId: aws.String("ConnectionId"), // Required
@@ -281,7 +280,7 @@ func ExampleDirectConnect_DeleteConnection() {
 }
 
 func ExampleDirectConnect_DeleteInterconnect() {
-	svc := directconnect.New(session.New())
+	svc := directconnect.New(nil)
 
 	params := &directconnect.DeleteInterconnectInput{
 		InterconnectId: aws.String("InterconnectId"), // Required
@@ -300,7 +299,7 @@ func ExampleDirectConnect_DeleteInterconnect() {
 }
 
 func ExampleDirectConnect_DeleteVirtualInterface() {
-	svc := directconnect.New(session.New())
+	svc := directconnect.New(nil)
 
 	params := &directconnect.DeleteVirtualInterfaceInput{
 		VirtualInterfaceId: aws.String("VirtualInterfaceId"), // Required
@@ -319,7 +318,7 @@ func ExampleDirectConnect_DeleteVirtualInterface() {
 }
 
 func ExampleDirectConnect_DescribeConnections() {
-	svc := directconnect.New(session.New())
+	svc := directconnect.New(nil)
 
 	params := &directconnect.DescribeConnectionsInput{
 		ConnectionId: aws.String("ConnectionId"),
@@ -338,7 +337,7 @@ func ExampleDirectConnect_DescribeConnections() {
 }
 
 func ExampleDirectConnect_DescribeConnectionsOnInterconnect() {
-	svc := directconnect.New(session.New())
+	svc := directconnect.New(nil)
 
 	params := &directconnect.DescribeConnectionsOnInterconnectInput{
 		InterconnectId: aws.String("InterconnectId"), // Required
@@ -357,7 +356,7 @@ func ExampleDirectConnect_DescribeConnectionsOnInterconnect() {
 }
 
 func ExampleDirectConnect_DescribeInterconnects() {
-	svc := directconnect.New(session.New())
+	svc := directconnect.New(nil)
 
 	params := &directconnect.DescribeInterconnectsInput{
 		InterconnectId: aws.String("InterconnectId"),
@@ -376,7 +375,7 @@ func ExampleDirectConnect_DescribeInterconnects() {
 }
 
 func ExampleDirectConnect_DescribeLocations() {
-	svc := directconnect.New(session.New())
+	svc := directconnect.New(nil)
 
 	var params *directconnect.DescribeLocationsInput
 	resp, err := svc.DescribeLocations(params)
@@ -393,7 +392,7 @@ func ExampleDirectConnect_DescribeLocations() {
 }
 
 func ExampleDirectConnect_DescribeVirtualGateways() {
-	svc := directconnect.New(session.New())
+	svc := directconnect.New(nil)
 
 	var params *directconnect.DescribeVirtualGatewaysInput
 	resp, err := svc.DescribeVirtualGateways(params)
@@ -410,7 +409,7 @@ func ExampleDirectConnect_DescribeVirtualGateways() {
 }
 
 func ExampleDirectConnect_DescribeVirtualInterfaces() {
-	svc := directconnect.New(session.New())
+	svc := directconnect.New(nil)
 
 	params := &directconnect.DescribeVirtualInterfacesInput{
 		ConnectionId:       aws.String("ConnectionId"),

@@ -19,8 +19,6 @@ import:
   - aws/awserr
   - aws/credentials
   - service/iam
-- package: github.com/bgentry/speakeasy
-  version: 200c3052657e041d0b8abab4ad65e0ba64a9f8c4
 - package: github.com/skratchdot/open-golang
   version: c8748311a7528d0ba7330d302adbc5a677ef9c9e
   subpackages:
@@ -29,3 +27,4 @@ import:
   version: a98ad7ee00ec53921f08832bc06ecf7fd600e6a1
 - package: gopkg.in/alecthomas/kingpin.v2
   version: 639879d6110b1b0409410c7b737ef0bb18325038
+- package: github.com/dvsekhvalnov/jose2go

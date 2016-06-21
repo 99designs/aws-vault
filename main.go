@@ -31,9 +31,12 @@ func (w logWriter) Write(b []byte) (int, error) {
 
 func main() {
 	var (
-		prompts          = prompt.Available()
+		prompts  = prompt.Available()
+		backends = keyring.SupportedBackends()
+
 		debug            = kingpin.Flag("debug", "Show debugging output").Bool()
-		promptDriver     = kingpin.Flag("prompt", fmt.Sprintf("Prompt driver to use  %v", prompts)).Default("terminal").OverrideDefaultFromEnvar("AWS_VAULT_PROMPT").Enum(prompts...)
+		backend          = kingpin.Flag("backend", fmt.Sprintf("Secret backend to use %v", backends)).Default(keyring.DefaultBackend).OverrideDefaultFromEnvar("AWS_VAULT_BACKEND").Enum(backends...)
+		promptDriver     = kingpin.Flag("prompt", fmt.Sprintf("Prompt driver to use %v", prompts)).Default("terminal").OverrideDefaultFromEnvar("AWS_VAULT_PROMPT").Enum(prompts...)
 		add              = kingpin.Command("add", "Adds credentials, prompts if none provided")
 		addProfile       = add.Arg("profile", "Name of the profile").Required().String()
 		addFromEnv       = add.Flag("env", "Read the credentials from the environment").Bool()
@@ -69,12 +72,12 @@ func main() {
 		Exit:   os.Exit,
 	}
 
-	keyring, err := keyring.Open("aws-vault")
+	cmd := kingpin.Parse()
+
+	keyring, err := keyring.Open("aws-vault", *backend)
 	if err != nil {
 		ui.Error.Fatal(err)
 	}
-
-	cmd := kingpin.Parse()
 
 	if *debug {
 		ui.Debug = log.New(os.Stderr, "DEBUG ", log.LstdFlags)

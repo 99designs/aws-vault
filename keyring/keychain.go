@@ -43,6 +43,8 @@ func init() {
 
 		return &keychain{Path: usr.HomeDir + "/Library/Keychains/" + name + ".keychain", Service: name}, nil
 	})
+
+	DefaultBackend = KeychainBackend
 }
 
 func (k *keychain) Get(key string) (Item, error) {

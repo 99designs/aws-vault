@@ -1,16 +1,16 @@
-hash: f2a10b0d49616eeea455f5e31df7bf26544beacb460b62352962ef69a6989c53
-updated: 2016-04-23T21:46:39.827232759-07:00
+hash: 90a5a45c153cf550f5147d1df57e9876fbd792f21b200de7e66103783618f91b
+updated: 2016-05-03T13:25:54.040402684+10:00
 imports:
 - name: github.com/alecthomas/template
-  version: ""
+  version: b867cc6ab45cece8143cfcc6fc9c77cf3f2c23c0
   subpackages:
   - parse
 - name: github.com/alecthomas/units
-  version: ""
+  version: 6b4e7dc5e3143b85ea77909c72caf89416fc2915
 - name: github.com/aulanov/go.dbus
-  version: ""
+  version: 25c3068a42a0b50b877953fb249dbcffc6bd1bca
 - name: github.com/aws/aws-sdk-go
-  version: ""
+  version: 376badeb12ede342ca2f41fd7b45027aa3f00264
   subpackages:
   - aws
   - internal/endpoints
@@ -31,14 +31,26 @@ imports:
   - aws/corehandlers
   - internal/protocol/query/queryutil
   - aws/ec2metadata
-- name: github.com/bgentry/speakeasy
-  version: ""
+- name: github.com/dvsekhvalnov/jose2go
+  version: 6387d3c1f5abd8443b223577d5a7e0f4e0e5731f
+  subpackages:
+  - aes
+  - arrays
+  - base64url
+  - compact
+  - kdf
+  - keys/ecc
+  - padding
 - name: github.com/skratchdot/open-golang
-  version: ""
+  version: c8748311a7528d0ba7330d302adbc5a677ef9c9e
   subpackages:
   - open
 - name: github.com/vaughan0/go-ini
-  version: ""
+  version: a98ad7ee00ec53921f08832bc06ecf7fd600e6a1
+- name: golang.org/x/crypto
+  version: 285fb2ed20d1dc450fc743a1b3ff7c36bef372b9
+  subpackages:
+  - ssh/terminal
 - name: gopkg.in/alecthomas/kingpin.v2
-  version: ""
+  version: 639879d6110b1b0409410c7b737ef0bb18325038
 devImports: []

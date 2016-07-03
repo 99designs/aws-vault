@@ -1,5 +1,5 @@
 hash: 90a5a45c153cf550f5147d1df57e9876fbd792f21b200de7e66103783618f91b
-updated: 2016-05-03T13:25:54.040402684+10:00
+updated: 2016-07-03T12:49:12.259291805+02:00
 imports:
 - name: github.com/alecthomas/template
   version: b867cc6ab45cece8143cfcc6fc9c77cf3f2c23c0
@@ -32,7 +32,7 @@ imports:
   - internal/protocol/query/queryutil
   - aws/ec2metadata
 - name: github.com/dvsekhvalnov/jose2go
-  version: 6387d3c1f5abd8443b223577d5a7e0f4e0e5731f
+  version: 2a04a552f4a8adf7d51731877b7a2021bab968bb
   subpackages:
   - aes
   - arrays
@@ -48,7 +48,7 @@ imports:
 - name: github.com/vaughan0/go-ini
   version: a98ad7ee00ec53921f08832bc06ecf7fd600e6a1
 - name: golang.org/x/crypto
-  version: 285fb2ed20d1dc450fc743a1b3ff7c36bef372b9
+  version: 811831de4c4dd03a0b8737233af3b36852386373
   subpackages:
   - ssh/terminal
 - name: gopkg.in/alecthomas/kingpin.v2

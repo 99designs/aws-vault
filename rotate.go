@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/iam"
 )
 
@@ -47,9 +48,9 @@ func RotateCommand(ui Ui, input RotateCommandInput) {
 		}
 	}
 
-	client := iam.New(&aws.Config{
+	client := iam.New(session.New(&aws.Config{
 		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: oldVal}),
-	})
+	}))
 
 	createOut, err := client.CreateAccessKey(&iam.CreateAccessKeyInput{})
 	if err != nil {
@@ -59,7 +60,7 @@ func RotateCommand(ui Ui, input RotateCommandInput) {
 	ui.Debug.Println("Created new access key")
 
 	newMasterCreds := credentials.Value{
-		AccessKeyID: *createOut.AccessKey.AccessKeyId,
+		AccessKeyID:     *createOut.AccessKey.AccessKeyId,
 		SecretAccessKey: *createOut.AccessKey.SecretAccessKey,
 	}
 
@@ -96,9 +97,9 @@ func RotateCommand(ui Ui, input RotateCommandInput) {
 		}
 	}
 
-	client = iam.New(&aws.Config{
+	client = iam.New(session.New(&aws.Config{
 		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: newVal}),
-	})
+	}))
 
 	_, err = client.DeleteAccessKey(&iam.DeleteAccessKeyInput{
 		AccessKeyId: aws.String(oldMasterCreds.AccessKeyID),

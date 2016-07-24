@@ -11,6 +11,7 @@ import (
 	"github.com/99designs/aws-vault/prompt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
 )
 
@@ -191,11 +192,11 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 
 	client := p.client
 	if client == nil {
-		client = sts.New(&aws.Config{
+		client = sts.New(session.New(&aws.Config{
 			Credentials: credentials.NewCredentials(&credentials.StaticProvider{
 				Value: *creds,
 			}),
-		})
+		}))
 	}
 
 	log.Printf("Getting new session token for profile %s", p.profiles.sourceProfile(p.profile))
@@ -207,14 +208,14 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 	return *resp.Credentials, nil
 }
 
-func (p *VaultProvider) assumeRole(session sts.Credentials, roleArn string) (sts.Credentials, error) {
+func (p *VaultProvider) assumeRole(creds sts.Credentials, roleArn string) (sts.Credentials, error) {
 	client := p.client
 	if client == nil {
-		client = sts.New(&aws.Config{Credentials: credentials.NewStaticCredentials(
-			*session.AccessKeyId,
-			*session.SecretAccessKey,
-			*session.SessionToken,
-		)})
+		client = sts.New(session.New(&aws.Config{Credentials: credentials.NewStaticCredentials(
+			*creds.AccessKeyId,
+			*creds.SecretAccessKey,
+			*creds.SessionToken,
+		)}))
 	}
 
 	// Try to work out a role name that will hopefully end up unique.

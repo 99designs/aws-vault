@@ -26,3 +26,5 @@ type DynamoDBStreamsAPI interface {
 
 	ListStreams(*dynamodbstreams.ListStreamsInput) (*dynamodbstreams.ListStreamsOutput, error)
 }
+
+var _ DynamoDBStreamsAPI = (*dynamodbstreams.DynamoDBStreams)(nil)

@@ -4,13 +4,38 @@
 package opsworks
 
 import (
+	"fmt"
+
 	"github.com/aws/aws-sdk-go/aws/awsutil"
 	"github.com/aws/aws-sdk-go/aws/request"
+	"github.com/aws/aws-sdk-go/private/protocol"
+	"github.com/aws/aws-sdk-go/private/protocol/jsonrpc"
 )
 
 const opAssignInstance = "AssignInstance"
 
-// AssignInstanceRequest generates a request for the AssignInstance operation.
+// AssignInstanceRequest generates a "aws/request.Request" representing the
+// client's request for the AssignInstance operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the AssignInstance method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the AssignInstanceRequest method.
+//    req, resp := client.AssignInstanceRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) AssignInstanceRequest(input *AssignInstanceInput) (req *request.Request, output *AssignInstanceOutput) {
 	op := &request.Operation{
 		Name:       opAssignInstance,
@@ -23,6 +48,8 @@ func (c *OpsWorks) AssignInstanceRequest(input *AssignInstanceInput) (req *reque
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &AssignInstanceOutput{}
 	req.Data = output
 	return
@@ -30,13 +57,16 @@ func (c *OpsWorks) AssignInstanceRequest(input *AssignInstanceInput) (req *reque
 
 // Assign a registered instance to a layer.
 //
-//  You can assign registered on-premises instances to any layer type. You
-// can assign registered Amazon EC2 instances only to custom layers. You cannot
-// use this action with instances that were created with AWS OpsWorks.  Required
-// Permissions: To use this action, an AWS Identity and Access Management (IAM)
-// user must have a Manage permissions level for the stack or an attached policy
-// that explicitly grants permissions. For more information on user permissions,
-// see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
+//   You can assign registered on-premises instances to any layer type.
+//
+//   You can assign registered Amazon EC2 instances only to custom layers.
+//
+//   You cannot use this action with instances that were created with AWS OpsWorks.
+//
+//    Required Permissions: To use this action, an AWS Identity and Access
+// Management (IAM) user must have a Manage permissions level for the stack
+// or an attached policy that explicitly grants permissions. For more information
+// on user permissions, see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
 func (c *OpsWorks) AssignInstance(input *AssignInstanceInput) (*AssignInstanceOutput, error) {
 	req, out := c.AssignInstanceRequest(input)
 	err := req.Send()
@@ -45,7 +75,28 @@ func (c *OpsWorks) AssignInstance(input *AssignInstanceInput) (*AssignInstanceOu
 
 const opAssignVolume = "AssignVolume"
 
-// AssignVolumeRequest generates a request for the AssignVolume operation.
+// AssignVolumeRequest generates a "aws/request.Request" representing the
+// client's request for the AssignVolume operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the AssignVolume method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the AssignVolumeRequest method.
+//    req, resp := client.AssignVolumeRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) AssignVolumeRequest(input *AssignVolumeInput) (req *request.Request, output *AssignVolumeOutput) {
 	op := &request.Operation{
 		Name:       opAssignVolume,
@@ -58,6 +109,8 @@ func (c *OpsWorks) AssignVolumeRequest(input *AssignVolumeInput) (req *request.R
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &AssignVolumeOutput{}
 	req.Data = output
 	return
@@ -69,7 +122,7 @@ func (c *OpsWorks) AssignVolumeRequest(input *AssignVolumeInput) (req *request.R
 // point before calling AssignVolume. For more information, see Resource Management
 // (http://docs.aws.amazon.com/opsworks/latest/userguide/resources.html).
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -81,7 +134,28 @@ func (c *OpsWorks) AssignVolume(input *AssignVolumeInput) (*AssignVolumeOutput, 
 
 const opAssociateElasticIp = "AssociateElasticIp"
 
-// AssociateElasticIpRequest generates a request for the AssociateElasticIp operation.
+// AssociateElasticIpRequest generates a "aws/request.Request" representing the
+// client's request for the AssociateElasticIp operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the AssociateElasticIp method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the AssociateElasticIpRequest method.
+//    req, resp := client.AssociateElasticIpRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) AssociateElasticIpRequest(input *AssociateElasticIpInput) (req *request.Request, output *AssociateElasticIpOutput) {
 	op := &request.Operation{
 		Name:       opAssociateElasticIp,
@@ -94,6 +168,8 @@ func (c *OpsWorks) AssociateElasticIpRequest(input *AssociateElasticIpInput) (re
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &AssociateElasticIpOutput{}
 	req.Data = output
 	return
@@ -103,7 +179,7 @@ func (c *OpsWorks) AssociateElasticIpRequest(input *AssociateElasticIpInput) (re
 // instance. The address must first be registered with the stack by calling
 // RegisterElasticIp. For more information, see Resource Management (http://docs.aws.amazon.com/opsworks/latest/userguide/resources.html).
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -115,7 +191,28 @@ func (c *OpsWorks) AssociateElasticIp(input *AssociateElasticIpInput) (*Associat
 
 const opAttachElasticLoadBalancer = "AttachElasticLoadBalancer"
 
-// AttachElasticLoadBalancerRequest generates a request for the AttachElasticLoadBalancer operation.
+// AttachElasticLoadBalancerRequest generates a "aws/request.Request" representing the
+// client's request for the AttachElasticLoadBalancer operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the AttachElasticLoadBalancer method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the AttachElasticLoadBalancerRequest method.
+//    req, resp := client.AttachElasticLoadBalancerRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) AttachElasticLoadBalancerRequest(input *AttachElasticLoadBalancerInput) (req *request.Request, output *AttachElasticLoadBalancerOutput) {
 	op := &request.Operation{
 		Name:       opAttachElasticLoadBalancer,
@@ -128,6 +225,8 @@ func (c *OpsWorks) AttachElasticLoadBalancerRequest(input *AttachElasticLoadBala
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &AttachElasticLoadBalancerOutput{}
 	req.Data = output
 	return
@@ -140,7 +239,7 @@ func (c *OpsWorks) AttachElasticLoadBalancerRequest(input *AttachElasticLoadBala
 // the Elastic Load Balancing console, API, or CLI. For more information, see
 //  Elastic Load Balancing Developer Guide (http://docs.aws.amazon.com/ElasticLoadBalancing/latest/DeveloperGuide/Welcome.html).
 //
-//  Required Permissions: To use this action, an IAM user must have a Manage
+//   Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -152,7 +251,28 @@ func (c *OpsWorks) AttachElasticLoadBalancer(input *AttachElasticLoadBalancerInp
 
 const opCloneStack = "CloneStack"
 
-// CloneStackRequest generates a request for the CloneStack operation.
+// CloneStackRequest generates a "aws/request.Request" representing the
+// client's request for the CloneStack operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CloneStack method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CloneStackRequest method.
+//    req, resp := client.CloneStackRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) CloneStackRequest(input *CloneStackInput) (req *request.Request, output *CloneStackOutput) {
 	op := &request.Operation{
 		Name:       opCloneStack,
@@ -174,7 +294,7 @@ func (c *OpsWorks) CloneStackRequest(input *CloneStackInput) (req *request.Reque
 // (http://docs.aws.amazon.com/opsworks/latest/userguide/workingstacks-cloning.html).
 // By default, all parameters are set to the values used by the parent stack.
 //
-// Required Permissions: To use this action, an IAM user must have an attached
+//  Required Permissions: To use this action, an IAM user must have an attached
 // policy that explicitly grants permissions. For more information on user permissions,
 // see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
 func (c *OpsWorks) CloneStack(input *CloneStackInput) (*CloneStackOutput, error) {
@@ -185,7 +305,28 @@ func (c *OpsWorks) CloneStack(input *CloneStackInput) (*CloneStackOutput, error)
 
 const opCreateApp = "CreateApp"
 
-// CreateAppRequest generates a request for the CreateApp operation.
+// CreateAppRequest generates a "aws/request.Request" representing the
+// client's request for the CreateApp operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CreateApp method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CreateAppRequest method.
+//    req, resp := client.CreateAppRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) CreateAppRequest(input *CreateAppInput) (req *request.Request, output *CreateAppOutput) {
 	op := &request.Operation{
 		Name:       opCreateApp,
@@ -206,7 +347,7 @@ func (c *OpsWorks) CreateAppRequest(input *CreateAppInput) (req *request.Request
 // Creates an app for a specified stack. For more information, see Creating
 // Apps (http://docs.aws.amazon.com/opsworks/latest/userguide/workingapps-creating.html).
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -218,7 +359,28 @@ func (c *OpsWorks) CreateApp(input *CreateAppInput) (*CreateAppOutput, error) {
 
 const opCreateDeployment = "CreateDeployment"
 
-// CreateDeploymentRequest generates a request for the CreateDeployment operation.
+// CreateDeploymentRequest generates a "aws/request.Request" representing the
+// client's request for the CreateDeployment operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CreateDeployment method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CreateDeploymentRequest method.
+//    req, resp := client.CreateDeploymentRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) CreateDeploymentRequest(input *CreateDeploymentInput) (req *request.Request, output *CreateDeploymentOutput) {
 	op := &request.Operation{
 		Name:       opCreateDeployment,
@@ -240,7 +402,7 @@ func (c *OpsWorks) CreateDeploymentRequest(input *CreateDeploymentInput) (req *r
 // (http://docs.aws.amazon.com/opsworks/latest/userguide/workingapps-deploying.html)
 // and Run Stack Commands (http://docs.aws.amazon.com/opsworks/latest/userguide/workingstacks-commands.html).
 //
-// Required Permissions: To use this action, an IAM user must have a Deploy
+//  Required Permissions: To use this action, an IAM user must have a Deploy
 // or Manage permissions level for the stack, or an attached policy that explicitly
 // grants permissions. For more information on user permissions, see Managing
 // User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -252,7 +414,28 @@ func (c *OpsWorks) CreateDeployment(input *CreateDeploymentInput) (*CreateDeploy
 
 const opCreateInstance = "CreateInstance"
 
-// CreateInstanceRequest generates a request for the CreateInstance operation.
+// CreateInstanceRequest generates a "aws/request.Request" representing the
+// client's request for the CreateInstance operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CreateInstance method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CreateInstanceRequest method.
+//    req, resp := client.CreateInstanceRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) CreateInstanceRequest(input *CreateInstanceInput) (req *request.Request, output *CreateInstanceOutput) {
 	op := &request.Operation{
 		Name:       opCreateInstance,
@@ -273,7 +456,7 @@ func (c *OpsWorks) CreateInstanceRequest(input *CreateInstanceInput) (req *reque
 // Creates an instance in a specified stack. For more information, see Adding
 // an Instance to a Layer (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-add.html).
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -285,7 +468,28 @@ func (c *OpsWorks) CreateInstance(input *CreateInstanceInput) (*CreateInstanceOu
 
 const opCreateLayer = "CreateLayer"
 
-// CreateLayerRequest generates a request for the CreateLayer operation.
+// CreateLayerRequest generates a "aws/request.Request" representing the
+// client's request for the CreateLayer operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CreateLayer method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CreateLayerRequest method.
+//    req, resp := client.CreateLayerRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) CreateLayerRequest(input *CreateLayerInput) (req *request.Request, output *CreateLayerOutput) {
 	op := &request.Operation{
 		Name:       opCreateLayer,
@@ -312,7 +516,7 @@ func (c *OpsWorks) CreateLayerRequest(input *CreateLayerInput) (req *request.Req
 // of custom layers, so you can call CreateLayer as many times as you like for
 // that layer type.
 //
-//  Required Permissions: To use this action, an IAM user must have a Manage
+//   Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -324,7 +528,28 @@ func (c *OpsWorks) CreateLayer(input *CreateLayerInput) (*CreateLayerOutput, err
 
 const opCreateStack = "CreateStack"
 
-// CreateStackRequest generates a request for the CreateStack operation.
+// CreateStackRequest generates a "aws/request.Request" representing the
+// client's request for the CreateStack operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CreateStack method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CreateStackRequest method.
+//    req, resp := client.CreateStackRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) CreateStackRequest(input *CreateStackInput) (req *request.Request, output *CreateStackOutput) {
 	op := &request.Operation{
 		Name:       opCreateStack,
@@ -344,7 +569,7 @@ func (c *OpsWorks) CreateStackRequest(input *CreateStackInput) (req *request.Req
 
 // Creates a new stack. For more information, see Create a New Stack (http://docs.aws.amazon.com/opsworks/latest/userguide/workingstacks-edit.html).
 //
-// Required Permissions: To use this action, an IAM user must have an attached
+//  Required Permissions: To use this action, an IAM user must have an attached
 // policy that explicitly grants permissions. For more information on user permissions,
 // see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
 func (c *OpsWorks) CreateStack(input *CreateStackInput) (*CreateStackOutput, error) {
@@ -355,7 +580,28 @@ func (c *OpsWorks) CreateStack(input *CreateStackInput) (*CreateStackOutput, err
 
 const opCreateUserProfile = "CreateUserProfile"
 
-// CreateUserProfileRequest generates a request for the CreateUserProfile operation.
+// CreateUserProfileRequest generates a "aws/request.Request" representing the
+// client's request for the CreateUserProfile operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CreateUserProfile method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CreateUserProfileRequest method.
+//    req, resp := client.CreateUserProfileRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) CreateUserProfileRequest(input *CreateUserProfileInput) (req *request.Request, output *CreateUserProfileOutput) {
 	op := &request.Operation{
 		Name:       opCreateUserProfile,
@@ -375,7 +621,7 @@ func (c *OpsWorks) CreateUserProfileRequest(input *CreateUserProfileInput) (req 
 
 // Creates a new user profile.
 //
-// Required Permissions: To use this action, an IAM user must have an attached
+//  Required Permissions: To use this action, an IAM user must have an attached
 // policy that explicitly grants permissions. For more information on user permissions,
 // see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
 func (c *OpsWorks) CreateUserProfile(input *CreateUserProfileInput) (*CreateUserProfileOutput, error) {
@@ -386,7 +632,28 @@ func (c *OpsWorks) CreateUserProfile(input *CreateUserProfileInput) (*CreateUser
 
 const opDeleteApp = "DeleteApp"
 
-// DeleteAppRequest generates a request for the DeleteApp operation.
+// DeleteAppRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteApp operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteApp method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteAppRequest method.
+//    req, resp := client.DeleteAppRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DeleteAppRequest(input *DeleteAppInput) (req *request.Request, output *DeleteAppOutput) {
 	op := &request.Operation{
 		Name:       opDeleteApp,
@@ -399,6 +666,8 @@ func (c *OpsWorks) DeleteAppRequest(input *DeleteAppInput) (req *request.Request
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteAppOutput{}
 	req.Data = output
 	return
@@ -406,7 +675,7 @@ func (c *OpsWorks) DeleteAppRequest(input *DeleteAppInput) (req *request.Request
 
 // Deletes a specified app.
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -418,7 +687,28 @@ func (c *OpsWorks) DeleteApp(input *DeleteAppInput) (*DeleteAppOutput, error) {
 
 const opDeleteInstance = "DeleteInstance"
 
-// DeleteInstanceRequest generates a request for the DeleteInstance operation.
+// DeleteInstanceRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteInstance operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteInstance method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteInstanceRequest method.
+//    req, resp := client.DeleteInstanceRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DeleteInstanceRequest(input *DeleteInstanceInput) (req *request.Request, output *DeleteInstanceOutput) {
 	op := &request.Operation{
 		Name:       opDeleteInstance,
@@ -431,6 +721,8 @@ func (c *OpsWorks) DeleteInstanceRequest(input *DeleteInstanceInput) (req *reque
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteInstanceOutput{}
 	req.Data = output
 	return
@@ -441,7 +733,7 @@ func (c *OpsWorks) DeleteInstanceRequest(input *DeleteInstanceInput) (req *reque
 //
 // For more information, see Deleting Instances (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-delete.html).
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -453,7 +745,28 @@ func (c *OpsWorks) DeleteInstance(input *DeleteInstanceInput) (*DeleteInstanceOu
 
 const opDeleteLayer = "DeleteLayer"
 
-// DeleteLayerRequest generates a request for the DeleteLayer operation.
+// DeleteLayerRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteLayer operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteLayer method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteLayerRequest method.
+//    req, resp := client.DeleteLayerRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DeleteLayerRequest(input *DeleteLayerInput) (req *request.Request, output *DeleteLayerOutput) {
 	op := &request.Operation{
 		Name:       opDeleteLayer,
@@ -466,6 +779,8 @@ func (c *OpsWorks) DeleteLayerRequest(input *DeleteLayerInput) (req *request.Req
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteLayerOutput{}
 	req.Data = output
 	return
@@ -475,7 +790,7 @@ func (c *OpsWorks) DeleteLayerRequest(input *DeleteLayerInput) (req *request.Req
 // instances or unassign registered instances. For more information, see How
 // to Delete a Layer (http://docs.aws.amazon.com/opsworks/latest/userguide/workinglayers-basics-delete.html).
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -487,7 +802,28 @@ func (c *OpsWorks) DeleteLayer(input *DeleteLayerInput) (*DeleteLayerOutput, err
 
 const opDeleteStack = "DeleteStack"
 
-// DeleteStackRequest generates a request for the DeleteStack operation.
+// DeleteStackRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteStack operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteStack method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteStackRequest method.
+//    req, resp := client.DeleteStackRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DeleteStackRequest(input *DeleteStackInput) (req *request.Request, output *DeleteStackOutput) {
 	op := &request.Operation{
 		Name:       opDeleteStack,
@@ -500,6 +836,8 @@ func (c *OpsWorks) DeleteStackRequest(input *DeleteStackInput) (req *request.Req
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteStackOutput{}
 	req.Data = output
 	return
@@ -509,7 +847,7 @@ func (c *OpsWorks) DeleteStackRequest(input *DeleteStackInput) (req *request.Req
 // apps or deregister registered instances. For more information, see Shut Down
 // a Stack (http://docs.aws.amazon.com/opsworks/latest/userguide/workingstacks-shutting.html).
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -521,7 +859,28 @@ func (c *OpsWorks) DeleteStack(input *DeleteStackInput) (*DeleteStackOutput, err
 
 const opDeleteUserProfile = "DeleteUserProfile"
 
-// DeleteUserProfileRequest generates a request for the DeleteUserProfile operation.
+// DeleteUserProfileRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteUserProfile operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteUserProfile method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteUserProfileRequest method.
+//    req, resp := client.DeleteUserProfileRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DeleteUserProfileRequest(input *DeleteUserProfileInput) (req *request.Request, output *DeleteUserProfileOutput) {
 	op := &request.Operation{
 		Name:       opDeleteUserProfile,
@@ -534,6 +893,8 @@ func (c *OpsWorks) DeleteUserProfileRequest(input *DeleteUserProfileInput) (req 
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteUserProfileOutput{}
 	req.Data = output
 	return
@@ -541,7 +902,7 @@ func (c *OpsWorks) DeleteUserProfileRequest(input *DeleteUserProfileInput) (req 
 
 // Deletes a user profile.
 //
-// Required Permissions: To use this action, an IAM user must have an attached
+//  Required Permissions: To use this action, an IAM user must have an attached
 // policy that explicitly grants permissions. For more information on user permissions,
 // see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
 func (c *OpsWorks) DeleteUserProfile(input *DeleteUserProfileInput) (*DeleteUserProfileOutput, error) {
@@ -552,7 +913,28 @@ func (c *OpsWorks) DeleteUserProfile(input *DeleteUserProfileInput) (*DeleteUser
 
 const opDeregisterEcsCluster = "DeregisterEcsCluster"
 
-// DeregisterEcsClusterRequest generates a request for the DeregisterEcsCluster operation.
+// DeregisterEcsClusterRequest generates a "aws/request.Request" representing the
+// client's request for the DeregisterEcsCluster operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeregisterEcsCluster method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeregisterEcsClusterRequest method.
+//    req, resp := client.DeregisterEcsClusterRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DeregisterEcsClusterRequest(input *DeregisterEcsClusterInput) (req *request.Request, output *DeregisterEcsClusterOutput) {
 	op := &request.Operation{
 		Name:       opDeregisterEcsCluster,
@@ -565,6 +947,8 @@ func (c *OpsWorks) DeregisterEcsClusterRequest(input *DeregisterEcsClusterInput)
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeregisterEcsClusterOutput{}
 	req.Data = output
 	return
@@ -573,9 +957,10 @@ func (c *OpsWorks) DeregisterEcsClusterRequest(input *DeregisterEcsClusterInput)
 // Deregisters a specified Amazon ECS cluster from a stack. For more information,
 // see  Resource Management (http://docs.aws.amazon.com/opsworks/latest/userguide/workinglayers-ecscluster.html#workinglayers-ecscluster-delete).
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack or an attached policy that explicitly grants
-// permissions. For more information on user permissions, see .
+// permissions. For more information on user permissions, see http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html
+// (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
 func (c *OpsWorks) DeregisterEcsCluster(input *DeregisterEcsClusterInput) (*DeregisterEcsClusterOutput, error) {
 	req, out := c.DeregisterEcsClusterRequest(input)
 	err := req.Send()
@@ -584,7 +969,28 @@ func (c *OpsWorks) DeregisterEcsCluster(input *DeregisterEcsClusterInput) (*Dere
 
 const opDeregisterElasticIp = "DeregisterElasticIp"
 
-// DeregisterElasticIpRequest generates a request for the DeregisterElasticIp operation.
+// DeregisterElasticIpRequest generates a "aws/request.Request" representing the
+// client's request for the DeregisterElasticIp operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeregisterElasticIp method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeregisterElasticIpRequest method.
+//    req, resp := client.DeregisterElasticIpRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DeregisterElasticIpRequest(input *DeregisterElasticIpInput) (req *request.Request, output *DeregisterElasticIpOutput) {
 	op := &request.Operation{
 		Name:       opDeregisterElasticIp,
@@ -597,6 +1003,8 @@ func (c *OpsWorks) DeregisterElasticIpRequest(input *DeregisterElasticIpInput) (
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeregisterElasticIpOutput{}
 	req.Data = output
 	return
@@ -605,7 +1013,7 @@ func (c *OpsWorks) DeregisterElasticIpRequest(input *DeregisterElasticIpInput) (
 // Deregisters a specified Elastic IP address. The address can then be registered
 // by another stack. For more information, see Resource Management (http://docs.aws.amazon.com/opsworks/latest/userguide/resources.html).
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -617,7 +1025,28 @@ func (c *OpsWorks) DeregisterElasticIp(input *DeregisterElasticIpInput) (*Deregi
 
 const opDeregisterInstance = "DeregisterInstance"
 
-// DeregisterInstanceRequest generates a request for the DeregisterInstance operation.
+// DeregisterInstanceRequest generates a "aws/request.Request" representing the
+// client's request for the DeregisterInstance operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeregisterInstance method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeregisterInstanceRequest method.
+//    req, resp := client.DeregisterInstanceRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DeregisterInstanceRequest(input *DeregisterInstanceInput) (req *request.Request, output *DeregisterInstanceOutput) {
 	op := &request.Operation{
 		Name:       opDeregisterInstance,
@@ -630,6 +1059,8 @@ func (c *OpsWorks) DeregisterInstanceRequest(input *DeregisterInstanceInput) (re
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeregisterInstanceOutput{}
 	req.Data = output
 	return
@@ -639,7 +1070,7 @@ func (c *OpsWorks) DeregisterInstanceRequest(input *DeregisterInstanceInput) (re
 // the instance from the stack and returns it to your control. This action can
 // not be used with instances that were created with AWS OpsWorks.
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -651,7 +1082,28 @@ func (c *OpsWorks) DeregisterInstance(input *DeregisterInstanceInput) (*Deregist
 
 const opDeregisterRdsDbInstance = "DeregisterRdsDbInstance"
 
-// DeregisterRdsDbInstanceRequest generates a request for the DeregisterRdsDbInstance operation.
+// DeregisterRdsDbInstanceRequest generates a "aws/request.Request" representing the
+// client's request for the DeregisterRdsDbInstance operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeregisterRdsDbInstance method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeregisterRdsDbInstanceRequest method.
+//    req, resp := client.DeregisterRdsDbInstanceRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DeregisterRdsDbInstanceRequest(input *DeregisterRdsDbInstanceInput) (req *request.Request, output *DeregisterRdsDbInstanceOutput) {
 	op := &request.Operation{
 		Name:       opDeregisterRdsDbInstance,
@@ -664,6 +1116,8 @@ func (c *OpsWorks) DeregisterRdsDbInstanceRequest(input *DeregisterRdsDbInstance
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeregisterRdsDbInstanceOutput{}
 	req.Data = output
 	return
@@ -671,7 +1125,7 @@ func (c *OpsWorks) DeregisterRdsDbInstanceRequest(input *DeregisterRdsDbInstance
 
 // Deregisters an Amazon RDS instance.
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -683,7 +1137,28 @@ func (c *OpsWorks) DeregisterRdsDbInstance(input *DeregisterRdsDbInstanceInput) 
 
 const opDeregisterVolume = "DeregisterVolume"
 
-// DeregisterVolumeRequest generates a request for the DeregisterVolume operation.
+// DeregisterVolumeRequest generates a "aws/request.Request" representing the
+// client's request for the DeregisterVolume operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeregisterVolume method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeregisterVolumeRequest method.
+//    req, resp := client.DeregisterVolumeRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DeregisterVolumeRequest(input *DeregisterVolumeInput) (req *request.Request, output *DeregisterVolumeOutput) {
 	op := &request.Operation{
 		Name:       opDeregisterVolume,
@@ -696,6 +1171,8 @@ func (c *OpsWorks) DeregisterVolumeRequest(input *DeregisterVolumeInput) (req *r
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeregisterVolumeOutput{}
 	req.Data = output
 	return
@@ -704,7 +1181,7 @@ func (c *OpsWorks) DeregisterVolumeRequest(input *DeregisterVolumeInput) (req *r
 // Deregisters an Amazon EBS volume. The volume can then be registered by another
 // stack. For more information, see Resource Management (http://docs.aws.amazon.com/opsworks/latest/userguide/resources.html).
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -716,7 +1193,28 @@ func (c *OpsWorks) DeregisterVolume(input *DeregisterVolumeInput) (*DeregisterVo
 
 const opDescribeAgentVersions = "DescribeAgentVersions"
 
-// DescribeAgentVersionsRequest generates a request for the DescribeAgentVersions operation.
+// DescribeAgentVersionsRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeAgentVersions operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeAgentVersions method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeAgentVersionsRequest method.
+//    req, resp := client.DescribeAgentVersionsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DescribeAgentVersionsRequest(input *DescribeAgentVersionsInput) (req *request.Request, output *DescribeAgentVersionsOutput) {
 	op := &request.Operation{
 		Name:       opDescribeAgentVersions,
@@ -745,7 +1243,28 @@ func (c *OpsWorks) DescribeAgentVersions(input *DescribeAgentVersionsInput) (*De
 
 const opDescribeApps = "DescribeApps"
 
-// DescribeAppsRequest generates a request for the DescribeApps operation.
+// DescribeAppsRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeApps operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeApps method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeAppsRequest method.
+//    req, resp := client.DescribeAppsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DescribeAppsRequest(input *DescribeAppsInput) (req *request.Request, output *DescribeAppsOutput) {
 	op := &request.Operation{
 		Name:       opDescribeApps,
@@ -767,7 +1286,7 @@ func (c *OpsWorks) DescribeAppsRequest(input *DescribeAppsInput) (req *request.R
 //
 //  You must specify at least one of the parameters.
 //
-//  Required Permissions: To use this action, an IAM user must have a Show,
+//   Required Permissions: To use this action, an IAM user must have a Show,
 // Deploy, or Manage permissions level for the stack, or an attached policy
 // that explicitly grants permissions. For more information on user permissions,
 // see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -779,7 +1298,28 @@ func (c *OpsWorks) DescribeApps(input *DescribeAppsInput) (*DescribeAppsOutput, 
 
 const opDescribeCommands = "DescribeCommands"
 
-// DescribeCommandsRequest generates a request for the DescribeCommands operation.
+// DescribeCommandsRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeCommands operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeCommands method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeCommandsRequest method.
+//    req, resp := client.DescribeCommandsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DescribeCommandsRequest(input *DescribeCommandsInput) (req *request.Request, output *DescribeCommandsOutput) {
 	op := &request.Operation{
 		Name:       opDescribeCommands,
@@ -801,7 +1341,7 @@ func (c *OpsWorks) DescribeCommandsRequest(input *DescribeCommandsInput) (req *r
 //
 //  You must specify at least one of the parameters.
 //
-//  Required Permissions: To use this action, an IAM user must have a Show,
+//   Required Permissions: To use this action, an IAM user must have a Show,
 // Deploy, or Manage permissions level for the stack, or an attached policy
 // that explicitly grants permissions. For more information on user permissions,
 // see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -813,7 +1353,28 @@ func (c *OpsWorks) DescribeCommands(input *DescribeCommandsInput) (*DescribeComm
 
 const opDescribeDeployments = "DescribeDeployments"
 
-// DescribeDeploymentsRequest generates a request for the DescribeDeployments operation.
+// DescribeDeploymentsRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeDeployments operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeDeployments method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeDeploymentsRequest method.
+//    req, resp := client.DescribeDeploymentsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DescribeDeploymentsRequest(input *DescribeDeploymentsInput) (req *request.Request, output *DescribeDeploymentsOutput) {
 	op := &request.Operation{
 		Name:       opDescribeDeployments,
@@ -835,7 +1396,7 @@ func (c *OpsWorks) DescribeDeploymentsRequest(input *DescribeDeploymentsInput) (
 //
 //  You must specify at least one of the parameters.
 //
-//  Required Permissions: To use this action, an IAM user must have a Show,
+//   Required Permissions: To use this action, an IAM user must have a Show,
 // Deploy, or Manage permissions level for the stack, or an attached policy
 // that explicitly grants permissions. For more information on user permissions,
 // see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -847,7 +1408,28 @@ func (c *OpsWorks) DescribeDeployments(input *DescribeDeploymentsInput) (*Descri
 
 const opDescribeEcsClusters = "DescribeEcsClusters"
 
-// DescribeEcsClustersRequest generates a request for the DescribeEcsClusters operation.
+// DescribeEcsClustersRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeEcsClusters operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeEcsClusters method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeEcsClustersRequest method.
+//    req, resp := client.DescribeEcsClustersRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DescribeEcsClustersRequest(input *DescribeEcsClustersInput) (req *request.Request, output *DescribeEcsClustersOutput) {
 	op := &request.Operation{
 		Name:       opDescribeEcsClusters,
@@ -876,7 +1458,7 @@ func (c *OpsWorks) DescribeEcsClustersRequest(input *DescribeEcsClustersInput) (
 // the response. However, AWS OpsWorks currently supports only one cluster per
 // layer, so the result set has a maximum of one element.
 //
-// Required Permissions: To use this action, an IAM user must have a Show,
+//  Required Permissions: To use this action, an IAM user must have a Show,
 // Deploy, or Manage permissions level for the stack or an attached policy that
 // explicitly grants permission. For more information on user permissions, see
 // Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -886,8 +1468,26 @@ func (c *OpsWorks) DescribeEcsClusters(input *DescribeEcsClustersInput) (*Descri
 	return out, err
 }
 
+// DescribeEcsClustersPages iterates over the pages of a DescribeEcsClusters operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See DescribeEcsClusters method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a DescribeEcsClusters operation.
+//    pageNum := 0
+//    err := client.DescribeEcsClustersPages(params,
+//        func(page *DescribeEcsClustersOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *OpsWorks) DescribeEcsClustersPages(input *DescribeEcsClustersInput, fn func(p *DescribeEcsClustersOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeEcsClustersRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeEcsClustersOutput), lastPage)
 	})
@@ -895,7 +1495,28 @@ func (c *OpsWorks) DescribeEcsClustersPages(input *DescribeEcsClustersInput, fn 
 
 const opDescribeElasticIps = "DescribeElasticIps"
 
-// DescribeElasticIpsRequest generates a request for the DescribeElasticIps operation.
+// DescribeElasticIpsRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeElasticIps operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeElasticIps method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeElasticIpsRequest method.
+//    req, resp := client.DescribeElasticIpsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DescribeElasticIpsRequest(input *DescribeElasticIpsInput) (req *request.Request, output *DescribeElasticIpsOutput) {
 	op := &request.Operation{
 		Name:       opDescribeElasticIps,
@@ -917,7 +1538,7 @@ func (c *OpsWorks) DescribeElasticIpsRequest(input *DescribeElasticIpsInput) (re
 //
 //  You must specify at least one of the parameters.
 //
-//  Required Permissions: To use this action, an IAM user must have a Show,
+//   Required Permissions: To use this action, an IAM user must have a Show,
 // Deploy, or Manage permissions level for the stack, or an attached policy
 // that explicitly grants permissions. For more information on user permissions,
 // see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -929,7 +1550,28 @@ func (c *OpsWorks) DescribeElasticIps(input *DescribeElasticIpsInput) (*Describe
 
 const opDescribeElasticLoadBalancers = "DescribeElasticLoadBalancers"
 
-// DescribeElasticLoadBalancersRequest generates a request for the DescribeElasticLoadBalancers operation.
+// DescribeElasticLoadBalancersRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeElasticLoadBalancers operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeElasticLoadBalancers method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeElasticLoadBalancersRequest method.
+//    req, resp := client.DescribeElasticLoadBalancersRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DescribeElasticLoadBalancersRequest(input *DescribeElasticLoadBalancersInput) (req *request.Request, output *DescribeElasticLoadBalancersOutput) {
 	op := &request.Operation{
 		Name:       opDescribeElasticLoadBalancers,
@@ -951,7 +1593,7 @@ func (c *OpsWorks) DescribeElasticLoadBalancersRequest(input *DescribeElasticLoa
 //
 //  You must specify at least one of the parameters.
 //
-//  Required Permissions: To use this action, an IAM user must have a Show,
+//   Required Permissions: To use this action, an IAM user must have a Show,
 // Deploy, or Manage permissions level for the stack, or an attached policy
 // that explicitly grants permissions. For more information on user permissions,
 // see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -963,7 +1605,28 @@ func (c *OpsWorks) DescribeElasticLoadBalancers(input *DescribeElasticLoadBalanc
 
 const opDescribeInstances = "DescribeInstances"
 
-// DescribeInstancesRequest generates a request for the DescribeInstances operation.
+// DescribeInstancesRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeInstances operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeInstances method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeInstancesRequest method.
+//    req, resp := client.DescribeInstancesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DescribeInstancesRequest(input *DescribeInstancesInput) (req *request.Request, output *DescribeInstancesOutput) {
 	op := &request.Operation{
 		Name:       opDescribeInstances,
@@ -985,7 +1648,7 @@ func (c *OpsWorks) DescribeInstancesRequest(input *DescribeInstancesInput) (req 
 //
 //  You must specify at least one of the parameters.
 //
-//  Required Permissions: To use this action, an IAM user must have a Show,
+//   Required Permissions: To use this action, an IAM user must have a Show,
 // Deploy, or Manage permissions level for the stack, or an attached policy
 // that explicitly grants permissions. For more information on user permissions,
 // see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -997,7 +1660,28 @@ func (c *OpsWorks) DescribeInstances(input *DescribeInstancesInput) (*DescribeIn
 
 const opDescribeLayers = "DescribeLayers"
 
-// DescribeLayersRequest generates a request for the DescribeLayers operation.
+// DescribeLayersRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeLayers operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeLayers method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeLayersRequest method.
+//    req, resp := client.DescribeLayersRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DescribeLayersRequest(input *DescribeLayersInput) (req *request.Request, output *DescribeLayersOutput) {
 	op := &request.Operation{
 		Name:       opDescribeLayers,
@@ -1019,7 +1703,7 @@ func (c *OpsWorks) DescribeLayersRequest(input *DescribeLayersInput) (req *reque
 //
 //  You must specify at least one of the parameters.
 //
-//  Required Permissions: To use this action, an IAM user must have a Show,
+//   Required Permissions: To use this action, an IAM user must have a Show,
 // Deploy, or Manage permissions level for the stack, or an attached policy
 // that explicitly grants permissions. For more information on user permissions,
 // see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1031,7 +1715,28 @@ func (c *OpsWorks) DescribeLayers(input *DescribeLayersInput) (*DescribeLayersOu
 
 const opDescribeLoadBasedAutoScaling = "DescribeLoadBasedAutoScaling"
 
-// DescribeLoadBasedAutoScalingRequest generates a request for the DescribeLoadBasedAutoScaling operation.
+// DescribeLoadBasedAutoScalingRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeLoadBasedAutoScaling operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeLoadBasedAutoScaling method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeLoadBasedAutoScalingRequest method.
+//    req, resp := client.DescribeLoadBasedAutoScalingRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DescribeLoadBasedAutoScalingRequest(input *DescribeLoadBasedAutoScalingInput) (req *request.Request, output *DescribeLoadBasedAutoScalingOutput) {
 	op := &request.Operation{
 		Name:       opDescribeLoadBasedAutoScaling,
@@ -1053,7 +1758,7 @@ func (c *OpsWorks) DescribeLoadBasedAutoScalingRequest(input *DescribeLoadBasedA
 //
 //  You must specify at least one of the parameters.
 //
-//  Required Permissions: To use this action, an IAM user must have a Show,
+//   Required Permissions: To use this action, an IAM user must have a Show,
 // Deploy, or Manage permissions level for the stack, or an attached policy
 // that explicitly grants permissions. For more information on user permissions,
 // see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1065,7 +1770,28 @@ func (c *OpsWorks) DescribeLoadBasedAutoScaling(input *DescribeLoadBasedAutoScal
 
 const opDescribeMyUserProfile = "DescribeMyUserProfile"
 
-// DescribeMyUserProfileRequest generates a request for the DescribeMyUserProfile operation.
+// DescribeMyUserProfileRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeMyUserProfile operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeMyUserProfile method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeMyUserProfileRequest method.
+//    req, resp := client.DescribeMyUserProfileRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DescribeMyUserProfileRequest(input *DescribeMyUserProfileInput) (req *request.Request, output *DescribeMyUserProfileOutput) {
 	op := &request.Operation{
 		Name:       opDescribeMyUserProfile,
@@ -1085,7 +1811,7 @@ func (c *OpsWorks) DescribeMyUserProfileRequest(input *DescribeMyUserProfileInpu
 
 // Describes a user's SSH information.
 //
-// Required Permissions: To use this action, an IAM user must have self-management
+//  Required Permissions: To use this action, an IAM user must have self-management
 // enabled or an attached policy that explicitly grants permissions. For more
 // information on user permissions, see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
 func (c *OpsWorks) DescribeMyUserProfile(input *DescribeMyUserProfileInput) (*DescribeMyUserProfileOutput, error) {
@@ -1096,7 +1822,28 @@ func (c *OpsWorks) DescribeMyUserProfile(input *DescribeMyUserProfileInput) (*De
 
 const opDescribePermissions = "DescribePermissions"
 
-// DescribePermissionsRequest generates a request for the DescribePermissions operation.
+// DescribePermissionsRequest generates a "aws/request.Request" representing the
+// client's request for the DescribePermissions operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribePermissions method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribePermissionsRequest method.
+//    req, resp := client.DescribePermissionsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DescribePermissionsRequest(input *DescribePermissionsInput) (req *request.Request, output *DescribePermissionsOutput) {
 	op := &request.Operation{
 		Name:       opDescribePermissions,
@@ -1116,7 +1863,7 @@ func (c *OpsWorks) DescribePermissionsRequest(input *DescribePermissionsInput) (
 
 // Describes the permissions for a specified stack.
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1128,7 +1875,28 @@ func (c *OpsWorks) DescribePermissions(input *DescribePermissionsInput) (*Descri
 
 const opDescribeRaidArrays = "DescribeRaidArrays"
 
-// DescribeRaidArraysRequest generates a request for the DescribeRaidArrays operation.
+// DescribeRaidArraysRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeRaidArrays operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeRaidArrays method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeRaidArraysRequest method.
+//    req, resp := client.DescribeRaidArraysRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DescribeRaidArraysRequest(input *DescribeRaidArraysInput) (req *request.Request, output *DescribeRaidArraysOutput) {
 	op := &request.Operation{
 		Name:       opDescribeRaidArrays,
@@ -1150,7 +1918,7 @@ func (c *OpsWorks) DescribeRaidArraysRequest(input *DescribeRaidArraysInput) (re
 //
 //  You must specify at least one of the parameters.
 //
-//  Required Permissions: To use this action, an IAM user must have a Show,
+//   Required Permissions: To use this action, an IAM user must have a Show,
 // Deploy, or Manage permissions level for the stack, or an attached policy
 // that explicitly grants permissions. For more information on user permissions,
 // see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1162,7 +1930,28 @@ func (c *OpsWorks) DescribeRaidArrays(input *DescribeRaidArraysInput) (*Describe
 
 const opDescribeRdsDbInstances = "DescribeRdsDbInstances"
 
-// DescribeRdsDbInstancesRequest generates a request for the DescribeRdsDbInstances operation.
+// DescribeRdsDbInstancesRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeRdsDbInstances operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeRdsDbInstances method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeRdsDbInstancesRequest method.
+//    req, resp := client.DescribeRdsDbInstancesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DescribeRdsDbInstancesRequest(input *DescribeRdsDbInstancesInput) (req *request.Request, output *DescribeRdsDbInstancesOutput) {
 	op := &request.Operation{
 		Name:       opDescribeRdsDbInstances,
@@ -1182,7 +1971,7 @@ func (c *OpsWorks) DescribeRdsDbInstancesRequest(input *DescribeRdsDbInstancesIn
 
 // Describes Amazon RDS instances.
 //
-// Required Permissions: To use this action, an IAM user must have a Show,
+//  Required Permissions: To use this action, an IAM user must have a Show,
 // Deploy, or Manage permissions level for the stack, or an attached policy
 // that explicitly grants permissions. For more information on user permissions,
 // see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1194,7 +1983,28 @@ func (c *OpsWorks) DescribeRdsDbInstances(input *DescribeRdsDbInstancesInput) (*
 
 const opDescribeServiceErrors = "DescribeServiceErrors"
 
-// DescribeServiceErrorsRequest generates a request for the DescribeServiceErrors operation.
+// DescribeServiceErrorsRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeServiceErrors operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeServiceErrors method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeServiceErrorsRequest method.
+//    req, resp := client.DescribeServiceErrorsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DescribeServiceErrorsRequest(input *DescribeServiceErrorsInput) (req *request.Request, output *DescribeServiceErrorsOutput) {
 	op := &request.Operation{
 		Name:       opDescribeServiceErrors,
@@ -1214,7 +2024,7 @@ func (c *OpsWorks) DescribeServiceErrorsRequest(input *DescribeServiceErrorsInpu
 
 // Describes AWS OpsWorks service errors.
 //
-// Required Permissions: To use this action, an IAM user must have a Show,
+//  Required Permissions: To use this action, an IAM user must have a Show,
 // Deploy, or Manage permissions level for the stack, or an attached policy
 // that explicitly grants permissions. For more information on user permissions,
 // see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1226,7 +2036,28 @@ func (c *OpsWorks) DescribeServiceErrors(input *DescribeServiceErrorsInput) (*De
 
 const opDescribeStackProvisioningParameters = "DescribeStackProvisioningParameters"
 
-// DescribeStackProvisioningParametersRequest generates a request for the DescribeStackProvisioningParameters operation.
+// DescribeStackProvisioningParametersRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeStackProvisioningParameters operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeStackProvisioningParameters method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeStackProvisioningParametersRequest method.
+//    req, resp := client.DescribeStackProvisioningParametersRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DescribeStackProvisioningParametersRequest(input *DescribeStackProvisioningParametersInput) (req *request.Request, output *DescribeStackProvisioningParametersOutput) {
 	op := &request.Operation{
 		Name:       opDescribeStackProvisioningParameters,
@@ -1246,7 +2077,7 @@ func (c *OpsWorks) DescribeStackProvisioningParametersRequest(input *DescribeSta
 
 // Requests a description of a stack's provisioning parameters.
 //
-// Required Permissions: To use this action, an IAM user must have a Show,
+//  Required Permissions: To use this action, an IAM user must have a Show,
 // Deploy, or Manage permissions level for the stack or an attached policy that
 // explicitly grants permissions. For more information on user permissions,
 // see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1258,7 +2089,28 @@ func (c *OpsWorks) DescribeStackProvisioningParameters(input *DescribeStackProvi
 
 const opDescribeStackSummary = "DescribeStackSummary"
 
-// DescribeStackSummaryRequest generates a request for the DescribeStackSummary operation.
+// DescribeStackSummaryRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeStackSummary operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeStackSummary method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeStackSummaryRequest method.
+//    req, resp := client.DescribeStackSummaryRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DescribeStackSummaryRequest(input *DescribeStackSummaryInput) (req *request.Request, output *DescribeStackSummaryOutput) {
 	op := &request.Operation{
 		Name:       opDescribeStackSummary,
@@ -1279,7 +2131,7 @@ func (c *OpsWorks) DescribeStackSummaryRequest(input *DescribeStackSummaryInput)
 // Describes the number of layers and apps in a specified stack, and the number
 // of instances in each state, such as running_setup or online.
 //
-// Required Permissions: To use this action, an IAM user must have a Show,
+//  Required Permissions: To use this action, an IAM user must have a Show,
 // Deploy, or Manage permissions level for the stack, or an attached policy
 // that explicitly grants permissions. For more information on user permissions,
 // see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1291,7 +2143,28 @@ func (c *OpsWorks) DescribeStackSummary(input *DescribeStackSummaryInput) (*Desc
 
 const opDescribeStacks = "DescribeStacks"
 
-// DescribeStacksRequest generates a request for the DescribeStacks operation.
+// DescribeStacksRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeStacks operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeStacks method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeStacksRequest method.
+//    req, resp := client.DescribeStacksRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DescribeStacksRequest(input *DescribeStacksInput) (req *request.Request, output *DescribeStacksOutput) {
 	op := &request.Operation{
 		Name:       opDescribeStacks,
@@ -1311,7 +2184,7 @@ func (c *OpsWorks) DescribeStacksRequest(input *DescribeStacksInput) (req *reque
 
 // Requests a description of one or more stacks.
 //
-// Required Permissions: To use this action, an IAM user must have a Show,
+//  Required Permissions: To use this action, an IAM user must have a Show,
 // Deploy, or Manage permissions level for the stack, or an attached policy
 // that explicitly grants permissions. For more information on user permissions,
 // see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1323,7 +2196,28 @@ func (c *OpsWorks) DescribeStacks(input *DescribeStacksInput) (*DescribeStacksOu
 
 const opDescribeTimeBasedAutoScaling = "DescribeTimeBasedAutoScaling"
 
-// DescribeTimeBasedAutoScalingRequest generates a request for the DescribeTimeBasedAutoScaling operation.
+// DescribeTimeBasedAutoScalingRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeTimeBasedAutoScaling operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeTimeBasedAutoScaling method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeTimeBasedAutoScalingRequest method.
+//    req, resp := client.DescribeTimeBasedAutoScalingRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DescribeTimeBasedAutoScalingRequest(input *DescribeTimeBasedAutoScalingInput) (req *request.Request, output *DescribeTimeBasedAutoScalingOutput) {
 	op := &request.Operation{
 		Name:       opDescribeTimeBasedAutoScaling,
@@ -1345,7 +2239,7 @@ func (c *OpsWorks) DescribeTimeBasedAutoScalingRequest(input *DescribeTimeBasedA
 //
 //  You must specify at least one of the parameters.
 //
-//  Required Permissions: To use this action, an IAM user must have a Show,
+//   Required Permissions: To use this action, an IAM user must have a Show,
 // Deploy, or Manage permissions level for the stack, or an attached policy
 // that explicitly grants permissions. For more information on user permissions,
 // see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1357,7 +2251,28 @@ func (c *OpsWorks) DescribeTimeBasedAutoScaling(input *DescribeTimeBasedAutoScal
 
 const opDescribeUserProfiles = "DescribeUserProfiles"
 
-// DescribeUserProfilesRequest generates a request for the DescribeUserProfiles operation.
+// DescribeUserProfilesRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeUserProfiles operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeUserProfiles method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeUserProfilesRequest method.
+//    req, resp := client.DescribeUserProfilesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DescribeUserProfilesRequest(input *DescribeUserProfilesInput) (req *request.Request, output *DescribeUserProfilesOutput) {
 	op := &request.Operation{
 		Name:       opDescribeUserProfiles,
@@ -1377,7 +2292,7 @@ func (c *OpsWorks) DescribeUserProfilesRequest(input *DescribeUserProfilesInput)
 
 // Describe specified users.
 //
-// Required Permissions: To use this action, an IAM user must have an attached
+//  Required Permissions: To use this action, an IAM user must have an attached
 // policy that explicitly grants permissions. For more information on user permissions,
 // see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
 func (c *OpsWorks) DescribeUserProfiles(input *DescribeUserProfilesInput) (*DescribeUserProfilesOutput, error) {
@@ -1388,7 +2303,28 @@ func (c *OpsWorks) DescribeUserProfiles(input *DescribeUserProfilesInput) (*Desc
 
 const opDescribeVolumes = "DescribeVolumes"
 
-// DescribeVolumesRequest generates a request for the DescribeVolumes operation.
+// DescribeVolumesRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeVolumes operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeVolumes method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeVolumesRequest method.
+//    req, resp := client.DescribeVolumesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DescribeVolumesRequest(input *DescribeVolumesInput) (req *request.Request, output *DescribeVolumesOutput) {
 	op := &request.Operation{
 		Name:       opDescribeVolumes,
@@ -1410,7 +2346,7 @@ func (c *OpsWorks) DescribeVolumesRequest(input *DescribeVolumesInput) (req *req
 //
 //  You must specify at least one of the parameters.
 //
-//  Required Permissions: To use this action, an IAM user must have a Show,
+//   Required Permissions: To use this action, an IAM user must have a Show,
 // Deploy, or Manage permissions level for the stack, or an attached policy
 // that explicitly grants permissions. For more information on user permissions,
 // see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1422,7 +2358,28 @@ func (c *OpsWorks) DescribeVolumes(input *DescribeVolumesInput) (*DescribeVolume
 
 const opDetachElasticLoadBalancer = "DetachElasticLoadBalancer"
 
-// DetachElasticLoadBalancerRequest generates a request for the DetachElasticLoadBalancer operation.
+// DetachElasticLoadBalancerRequest generates a "aws/request.Request" representing the
+// client's request for the DetachElasticLoadBalancer operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DetachElasticLoadBalancer method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DetachElasticLoadBalancerRequest method.
+//    req, resp := client.DetachElasticLoadBalancerRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DetachElasticLoadBalancerRequest(input *DetachElasticLoadBalancerInput) (req *request.Request, output *DetachElasticLoadBalancerOutput) {
 	op := &request.Operation{
 		Name:       opDetachElasticLoadBalancer,
@@ -1435,6 +2392,8 @@ func (c *OpsWorks) DetachElasticLoadBalancerRequest(input *DetachElasticLoadBala
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DetachElasticLoadBalancerOutput{}
 	req.Data = output
 	return
@@ -1442,7 +2401,7 @@ func (c *OpsWorks) DetachElasticLoadBalancerRequest(input *DetachElasticLoadBala
 
 // Detaches a specified Elastic Load Balancing instance from its layer.
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1454,7 +2413,28 @@ func (c *OpsWorks) DetachElasticLoadBalancer(input *DetachElasticLoadBalancerInp
 
 const opDisassociateElasticIp = "DisassociateElasticIp"
 
-// DisassociateElasticIpRequest generates a request for the DisassociateElasticIp operation.
+// DisassociateElasticIpRequest generates a "aws/request.Request" representing the
+// client's request for the DisassociateElasticIp operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DisassociateElasticIp method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DisassociateElasticIpRequest method.
+//    req, resp := client.DisassociateElasticIpRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) DisassociateElasticIpRequest(input *DisassociateElasticIpInput) (req *request.Request, output *DisassociateElasticIpOutput) {
 	op := &request.Operation{
 		Name:       opDisassociateElasticIp,
@@ -1467,6 +2447,8 @@ func (c *OpsWorks) DisassociateElasticIpRequest(input *DisassociateElasticIpInpu
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DisassociateElasticIpOutput{}
 	req.Data = output
 	return
@@ -1476,7 +2458,7 @@ func (c *OpsWorks) DisassociateElasticIpRequest(input *DisassociateElasticIpInpu
 // registered with the stack. For more information, see Resource Management
 // (http://docs.aws.amazon.com/opsworks/latest/userguide/resources.html).
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1488,7 +2470,28 @@ func (c *OpsWorks) DisassociateElasticIp(input *DisassociateElasticIpInput) (*Di
 
 const opGetHostnameSuggestion = "GetHostnameSuggestion"
 
-// GetHostnameSuggestionRequest generates a request for the GetHostnameSuggestion operation.
+// GetHostnameSuggestionRequest generates a "aws/request.Request" representing the
+// client's request for the GetHostnameSuggestion operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GetHostnameSuggestion method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GetHostnameSuggestionRequest method.
+//    req, resp := client.GetHostnameSuggestionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) GetHostnameSuggestionRequest(input *GetHostnameSuggestionInput) (req *request.Request, output *GetHostnameSuggestionOutput) {
 	op := &request.Operation{
 		Name:       opGetHostnameSuggestion,
@@ -1509,7 +2512,7 @@ func (c *OpsWorks) GetHostnameSuggestionRequest(input *GetHostnameSuggestionInpu
 // Gets a generated host name for the specified layer, based on the current
 // host name theme.
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1521,7 +2524,28 @@ func (c *OpsWorks) GetHostnameSuggestion(input *GetHostnameSuggestionInput) (*Ge
 
 const opGrantAccess = "GrantAccess"
 
-// GrantAccessRequest generates a request for the GrantAccess operation.
+// GrantAccessRequest generates a "aws/request.Request" representing the
+// client's request for the GrantAccess operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GrantAccess method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GrantAccessRequest method.
+//    req, resp := client.GrantAccessRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) GrantAccessRequest(input *GrantAccessInput) (req *request.Request, output *GrantAccessOutput) {
 	op := &request.Operation{
 		Name:       opGrantAccess,
@@ -1539,8 +2563,9 @@ func (c *OpsWorks) GrantAccessRequest(input *GrantAccessInput) (req *request.Req
 	return
 }
 
-// This action can be used only with Windows stacks. Grants RDP access to a
-// Windows instance for a specified time period.
+// This action can be used only with Windows stacks.
+//
+//  Grants RDP access to a Windows instance for a specified time period.
 func (c *OpsWorks) GrantAccess(input *GrantAccessInput) (*GrantAccessOutput, error) {
 	req, out := c.GrantAccessRequest(input)
 	err := req.Send()
@@ -1549,7 +2574,28 @@ func (c *OpsWorks) GrantAccess(input *GrantAccessInput) (*GrantAccessOutput, err
 
 const opRebootInstance = "RebootInstance"
 
-// RebootInstanceRequest generates a request for the RebootInstance operation.
+// RebootInstanceRequest generates a "aws/request.Request" representing the
+// client's request for the RebootInstance operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RebootInstance method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RebootInstanceRequest method.
+//    req, resp := client.RebootInstanceRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) RebootInstanceRequest(input *RebootInstanceInput) (req *request.Request, output *RebootInstanceOutput) {
 	op := &request.Operation{
 		Name:       opRebootInstance,
@@ -1562,6 +2608,8 @@ func (c *OpsWorks) RebootInstanceRequest(input *RebootInstanceInput) (req *reque
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &RebootInstanceOutput{}
 	req.Data = output
 	return
@@ -1570,7 +2618,7 @@ func (c *OpsWorks) RebootInstanceRequest(input *RebootInstanceInput) (req *reque
 // Reboots a specified instance. For more information, see Starting, Stopping,
 // and Rebooting Instances (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-starting.html).
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1582,7 +2630,28 @@ func (c *OpsWorks) RebootInstance(input *RebootInstanceInput) (*RebootInstanceOu
 
 const opRegisterEcsCluster = "RegisterEcsCluster"
 
-// RegisterEcsClusterRequest generates a request for the RegisterEcsCluster operation.
+// RegisterEcsClusterRequest generates a "aws/request.Request" representing the
+// client's request for the RegisterEcsCluster operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RegisterEcsCluster method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RegisterEcsClusterRequest method.
+//    req, resp := client.RegisterEcsClusterRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) RegisterEcsClusterRequest(input *RegisterEcsClusterInput) (req *request.Request, output *RegisterEcsClusterOutput) {
 	op := &request.Operation{
 		Name:       opRegisterEcsCluster,
@@ -1604,7 +2673,7 @@ func (c *OpsWorks) RegisterEcsClusterRequest(input *RegisterEcsClusterInput) (re
 // one cluster with a stack. A cluster can be registered with only one stack.
 // For more information, see  Resource Management (http://docs.aws.amazon.com/opsworks/latest/userguide/workinglayers-ecscluster.html).
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see  Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1616,7 +2685,28 @@ func (c *OpsWorks) RegisterEcsCluster(input *RegisterEcsClusterInput) (*Register
 
 const opRegisterElasticIp = "RegisterElasticIp"
 
-// RegisterElasticIpRequest generates a request for the RegisterElasticIp operation.
+// RegisterElasticIpRequest generates a "aws/request.Request" representing the
+// client's request for the RegisterElasticIp operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RegisterElasticIp method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RegisterElasticIpRequest method.
+//    req, resp := client.RegisterElasticIpRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) RegisterElasticIpRequest(input *RegisterElasticIpInput) (req *request.Request, output *RegisterElasticIpOutput) {
 	op := &request.Operation{
 		Name:       opRegisterElasticIp,
@@ -1639,7 +2729,7 @@ func (c *OpsWorks) RegisterElasticIpRequest(input *RegisterElasticIpInput) (req 
 // you must first deregister it by calling DeregisterElasticIp. For more information,
 // see Resource Management (http://docs.aws.amazon.com/opsworks/latest/userguide/resources.html).
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1651,7 +2741,28 @@ func (c *OpsWorks) RegisterElasticIp(input *RegisterElasticIpInput) (*RegisterEl
 
 const opRegisterInstance = "RegisterInstance"
 
-// RegisterInstanceRequest generates a request for the RegisterInstance operation.
+// RegisterInstanceRequest generates a "aws/request.Request" representing the
+// client's request for the RegisterInstance operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RegisterInstance method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RegisterInstanceRequest method.
+//    req, resp := client.RegisterInstanceRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) RegisterInstanceRequest(input *RegisterInstanceInput) (req *request.Request, output *RegisterInstanceOutput) {
 	op := &request.Operation{
 		Name:       opRegisterInstance,
@@ -1672,13 +2783,14 @@ func (c *OpsWorks) RegisterInstanceRequest(input *RegisterInstanceInput) (req *r
 // Registers instances with a specified stack that were created outside of AWS
 // OpsWorks.
 //
-// We do not recommend using this action to register instances. The complete
+//  We do not recommend using this action to register instances. The complete
 // registration operation has two primary steps, installing the AWS OpsWorks
 // agent on the instance and registering the instance with the stack. RegisterInstance
 // handles only the second step. You should instead use the AWS CLI register
 // command, which performs the entire registration operation. For more information,
 // see  Registering an Instance with an AWS OpsWorks Stack (http://docs.aws.amazon.com/opsworks/latest/userguide/registered-instances-register.html).
-// Required Permissions: To use this action, an IAM user must have a Manage
+//
+//   Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1690,7 +2802,28 @@ func (c *OpsWorks) RegisterInstance(input *RegisterInstanceInput) (*RegisterInst
 
 const opRegisterRdsDbInstance = "RegisterRdsDbInstance"
 
-// RegisterRdsDbInstanceRequest generates a request for the RegisterRdsDbInstance operation.
+// RegisterRdsDbInstanceRequest generates a "aws/request.Request" representing the
+// client's request for the RegisterRdsDbInstance operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RegisterRdsDbInstance method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RegisterRdsDbInstanceRequest method.
+//    req, resp := client.RegisterRdsDbInstanceRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) RegisterRdsDbInstanceRequest(input *RegisterRdsDbInstanceInput) (req *request.Request, output *RegisterRdsDbInstanceOutput) {
 	op := &request.Operation{
 		Name:       opRegisterRdsDbInstance,
@@ -1703,6 +2836,8 @@ func (c *OpsWorks) RegisterRdsDbInstanceRequest(input *RegisterRdsDbInstanceInpu
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &RegisterRdsDbInstanceOutput{}
 	req.Data = output
 	return
@@ -1710,7 +2845,7 @@ func (c *OpsWorks) RegisterRdsDbInstanceRequest(input *RegisterRdsDbInstanceInpu
 
 // Registers an Amazon RDS instance with a stack.
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1722,7 +2857,28 @@ func (c *OpsWorks) RegisterRdsDbInstance(input *RegisterRdsDbInstanceInput) (*Re
 
 const opRegisterVolume = "RegisterVolume"
 
-// RegisterVolumeRequest generates a request for the RegisterVolume operation.
+// RegisterVolumeRequest generates a "aws/request.Request" representing the
+// client's request for the RegisterVolume operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RegisterVolume method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RegisterVolumeRequest method.
+//    req, resp := client.RegisterVolumeRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) RegisterVolumeRequest(input *RegisterVolumeInput) (req *request.Request, output *RegisterVolumeOutput) {
 	op := &request.Operation{
 		Name:       opRegisterVolume,
@@ -1745,7 +2901,7 @@ func (c *OpsWorks) RegisterVolumeRequest(input *RegisterVolumeInput) (req *reque
 // first deregister it by calling DeregisterVolume. For more information, see
 // Resource Management (http://docs.aws.amazon.com/opsworks/latest/userguide/resources.html).
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1757,7 +2913,28 @@ func (c *OpsWorks) RegisterVolume(input *RegisterVolumeInput) (*RegisterVolumeOu
 
 const opSetLoadBasedAutoScaling = "SetLoadBasedAutoScaling"
 
-// SetLoadBasedAutoScalingRequest generates a request for the SetLoadBasedAutoScaling operation.
+// SetLoadBasedAutoScalingRequest generates a "aws/request.Request" representing the
+// client's request for the SetLoadBasedAutoScaling operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the SetLoadBasedAutoScaling method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the SetLoadBasedAutoScalingRequest method.
+//    req, resp := client.SetLoadBasedAutoScalingRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) SetLoadBasedAutoScalingRequest(input *SetLoadBasedAutoScalingInput) (req *request.Request, output *SetLoadBasedAutoScalingOutput) {
 	op := &request.Operation{
 		Name:       opSetLoadBasedAutoScaling,
@@ -1770,6 +2947,8 @@ func (c *OpsWorks) SetLoadBasedAutoScalingRequest(input *SetLoadBasedAutoScaling
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &SetLoadBasedAutoScalingOutput{}
 	req.Data = output
 	return
@@ -1784,7 +2963,7 @@ func (c *OpsWorks) SetLoadBasedAutoScalingRequest(input *SetLoadBasedAutoScaling
 // from that set, so you must ensure that you have created enough instances
 // to handle the maximum anticipated load.
 //
-//  Required Permissions: To use this action, an IAM user must have a Manage
+//   Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1796,7 +2975,28 @@ func (c *OpsWorks) SetLoadBasedAutoScaling(input *SetLoadBasedAutoScalingInput) 
 
 const opSetPermission = "SetPermission"
 
-// SetPermissionRequest generates a request for the SetPermission operation.
+// SetPermissionRequest generates a "aws/request.Request" representing the
+// client's request for the SetPermission operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the SetPermission method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the SetPermissionRequest method.
+//    req, resp := client.SetPermissionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) SetPermissionRequest(input *SetPermissionInput) (req *request.Request, output *SetPermissionOutput) {
 	op := &request.Operation{
 		Name:       opSetPermission,
@@ -1809,6 +3009,8 @@ func (c *OpsWorks) SetPermissionRequest(input *SetPermissionInput) (req *request
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &SetPermissionOutput{}
 	req.Data = output
 	return
@@ -1817,7 +3019,7 @@ func (c *OpsWorks) SetPermissionRequest(input *SetPermissionInput) (req *request
 // Specifies a user's permissions. For more information, see Security and Permissions
 // (http://docs.aws.amazon.com/opsworks/latest/userguide/workingsecurity.html).
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1829,7 +3031,28 @@ func (c *OpsWorks) SetPermission(input *SetPermissionInput) (*SetPermissionOutpu
 
 const opSetTimeBasedAutoScaling = "SetTimeBasedAutoScaling"
 
-// SetTimeBasedAutoScalingRequest generates a request for the SetTimeBasedAutoScaling operation.
+// SetTimeBasedAutoScalingRequest generates a "aws/request.Request" representing the
+// client's request for the SetTimeBasedAutoScaling operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the SetTimeBasedAutoScaling method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the SetTimeBasedAutoScalingRequest method.
+//    req, resp := client.SetTimeBasedAutoScalingRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) SetTimeBasedAutoScalingRequest(input *SetTimeBasedAutoScalingInput) (req *request.Request, output *SetTimeBasedAutoScalingOutput) {
 	op := &request.Operation{
 		Name:       opSetTimeBasedAutoScaling,
@@ -1842,6 +3065,8 @@ func (c *OpsWorks) SetTimeBasedAutoScalingRequest(input *SetTimeBasedAutoScaling
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &SetTimeBasedAutoScalingOutput{}
 	req.Data = output
 	return
@@ -1851,7 +3076,7 @@ func (c *OpsWorks) SetTimeBasedAutoScalingRequest(input *SetTimeBasedAutoScaling
 // For more information, see Managing Load with Time-based and Load-based Instances
 // (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-autoscaling.html).
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1863,7 +3088,28 @@ func (c *OpsWorks) SetTimeBasedAutoScaling(input *SetTimeBasedAutoScalingInput) 
 
 const opStartInstance = "StartInstance"
 
-// StartInstanceRequest generates a request for the StartInstance operation.
+// StartInstanceRequest generates a "aws/request.Request" representing the
+// client's request for the StartInstance operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the StartInstance method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the StartInstanceRequest method.
+//    req, resp := client.StartInstanceRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) StartInstanceRequest(input *StartInstanceInput) (req *request.Request, output *StartInstanceOutput) {
 	op := &request.Operation{
 		Name:       opStartInstance,
@@ -1876,6 +3122,8 @@ func (c *OpsWorks) StartInstanceRequest(input *StartInstanceInput) (req *request
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &StartInstanceOutput{}
 	req.Data = output
 	return
@@ -1884,7 +3132,7 @@ func (c *OpsWorks) StartInstanceRequest(input *StartInstanceInput) (req *request
 // Starts a specified instance. For more information, see Starting, Stopping,
 // and Rebooting Instances (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-starting.html).
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1896,7 +3144,28 @@ func (c *OpsWorks) StartInstance(input *StartInstanceInput) (*StartInstanceOutpu
 
 const opStartStack = "StartStack"
 
-// StartStackRequest generates a request for the StartStack operation.
+// StartStackRequest generates a "aws/request.Request" representing the
+// client's request for the StartStack operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the StartStack method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the StartStackRequest method.
+//    req, resp := client.StartStackRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) StartStackRequest(input *StartStackInput) (req *request.Request, output *StartStackOutput) {
 	op := &request.Operation{
 		Name:       opStartStack,
@@ -1909,6 +3178,8 @@ func (c *OpsWorks) StartStackRequest(input *StartStackInput) (req *request.Reque
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &StartStackOutput{}
 	req.Data = output
 	return
@@ -1916,7 +3187,7 @@ func (c *OpsWorks) StartStackRequest(input *StartStackInput) (req *request.Reque
 
 // Starts a stack's instances.
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1928,7 +3199,28 @@ func (c *OpsWorks) StartStack(input *StartStackInput) (*StartStackOutput, error)
 
 const opStopInstance = "StopInstance"
 
-// StopInstanceRequest generates a request for the StopInstance operation.
+// StopInstanceRequest generates a "aws/request.Request" representing the
+// client's request for the StopInstance operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the StopInstance method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the StopInstanceRequest method.
+//    req, resp := client.StopInstanceRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) StopInstanceRequest(input *StopInstanceInput) (req *request.Request, output *StopInstanceOutput) {
 	op := &request.Operation{
 		Name:       opStopInstance,
@@ -1941,6 +3233,8 @@ func (c *OpsWorks) StopInstanceRequest(input *StopInstanceInput) (req *request.R
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &StopInstanceOutput{}
 	req.Data = output
 	return
@@ -1951,7 +3245,7 @@ func (c *OpsWorks) StopInstanceRequest(input *StopInstanceInput) (req *request.R
 // EBS-backed instance without losing data. For more information, see Starting,
 // Stopping, and Rebooting Instances (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-starting.html).
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1963,7 +3257,28 @@ func (c *OpsWorks) StopInstance(input *StopInstanceInput) (*StopInstanceOutput, 
 
 const opStopStack = "StopStack"
 
-// StopStackRequest generates a request for the StopStack operation.
+// StopStackRequest generates a "aws/request.Request" representing the
+// client's request for the StopStack operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the StopStack method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the StopStackRequest method.
+//    req, resp := client.StopStackRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) StopStackRequest(input *StopStackInput) (req *request.Request, output *StopStackOutput) {
 	op := &request.Operation{
 		Name:       opStopStack,
@@ -1976,6 +3291,8 @@ func (c *OpsWorks) StopStackRequest(input *StopStackInput) (req *request.Request
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &StopStackOutput{}
 	req.Data = output
 	return
@@ -1983,7 +3300,7 @@ func (c *OpsWorks) StopStackRequest(input *StopStackInput) (req *request.Request
 
 // Stops a specified stack.
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -1995,7 +3312,28 @@ func (c *OpsWorks) StopStack(input *StopStackInput) (*StopStackOutput, error) {
 
 const opUnassignInstance = "UnassignInstance"
 
-// UnassignInstanceRequest generates a request for the UnassignInstance operation.
+// UnassignInstanceRequest generates a "aws/request.Request" representing the
+// client's request for the UnassignInstance operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UnassignInstance method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UnassignInstanceRequest method.
+//    req, resp := client.UnassignInstanceRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) UnassignInstanceRequest(input *UnassignInstanceInput) (req *request.Request, output *UnassignInstanceOutput) {
 	op := &request.Operation{
 		Name:       opUnassignInstance,
@@ -2008,6 +3346,8 @@ func (c *OpsWorks) UnassignInstanceRequest(input *UnassignInstanceInput) (req *r
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &UnassignInstanceOutput{}
 	req.Data = output
 	return
@@ -2018,7 +3358,7 @@ func (c *OpsWorks) UnassignInstanceRequest(input *UnassignInstanceInput) (req *r
 // as needed. You cannot use this action with instances that were created with
 // AWS OpsWorks.
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -2030,7 +3370,28 @@ func (c *OpsWorks) UnassignInstance(input *UnassignInstanceInput) (*UnassignInst
 
 const opUnassignVolume = "UnassignVolume"
 
-// UnassignVolumeRequest generates a request for the UnassignVolume operation.
+// UnassignVolumeRequest generates a "aws/request.Request" representing the
+// client's request for the UnassignVolume operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UnassignVolume method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UnassignVolumeRequest method.
+//    req, resp := client.UnassignVolumeRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) UnassignVolumeRequest(input *UnassignVolumeInput) (req *request.Request, output *UnassignVolumeOutput) {
 	op := &request.Operation{
 		Name:       opUnassignVolume,
@@ -2043,6 +3404,8 @@ func (c *OpsWorks) UnassignVolumeRequest(input *UnassignVolumeInput) (req *reque
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &UnassignVolumeOutput{}
 	req.Data = output
 	return
@@ -2051,7 +3414,7 @@ func (c *OpsWorks) UnassignVolumeRequest(input *UnassignVolumeInput) (req *reque
 // Unassigns an assigned Amazon EBS volume. The volume remains registered with
 // the stack. For more information, see Resource Management (http://docs.aws.amazon.com/opsworks/latest/userguide/resources.html).
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -2063,7 +3426,28 @@ func (c *OpsWorks) UnassignVolume(input *UnassignVolumeInput) (*UnassignVolumeOu
 
 const opUpdateApp = "UpdateApp"
 
-// UpdateAppRequest generates a request for the UpdateApp operation.
+// UpdateAppRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateApp operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateApp method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateAppRequest method.
+//    req, resp := client.UpdateAppRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) UpdateAppRequest(input *UpdateAppInput) (req *request.Request, output *UpdateAppOutput) {
 	op := &request.Operation{
 		Name:       opUpdateApp,
@@ -2076,6 +3460,8 @@ func (c *OpsWorks) UpdateAppRequest(input *UpdateAppInput) (req *request.Request
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &UpdateAppOutput{}
 	req.Data = output
 	return
@@ -2083,7 +3469,7 @@ func (c *OpsWorks) UpdateAppRequest(input *UpdateAppInput) (req *request.Request
 
 // Updates a specified app.
 //
-// Required Permissions: To use this action, an IAM user must have a Deploy
+//  Required Permissions: To use this action, an IAM user must have a Deploy
 // or Manage permissions level for the stack, or an attached policy that explicitly
 // grants permissions. For more information on user permissions, see Managing
 // User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -2095,7 +3481,28 @@ func (c *OpsWorks) UpdateApp(input *UpdateAppInput) (*UpdateAppOutput, error) {
 
 const opUpdateElasticIp = "UpdateElasticIp"
 
-// UpdateElasticIpRequest generates a request for the UpdateElasticIp operation.
+// UpdateElasticIpRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateElasticIp operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateElasticIp method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateElasticIpRequest method.
+//    req, resp := client.UpdateElasticIpRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) UpdateElasticIpRequest(input *UpdateElasticIpInput) (req *request.Request, output *UpdateElasticIpOutput) {
 	op := &request.Operation{
 		Name:       opUpdateElasticIp,
@@ -2108,6 +3515,8 @@ func (c *OpsWorks) UpdateElasticIpRequest(input *UpdateElasticIpInput) (req *req
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &UpdateElasticIpOutput{}
 	req.Data = output
 	return
@@ -2116,7 +3525,7 @@ func (c *OpsWorks) UpdateElasticIpRequest(input *UpdateElasticIpInput) (req *req
 // Updates a registered Elastic IP address's name. For more information, see
 // Resource Management (http://docs.aws.amazon.com/opsworks/latest/userguide/resources.html).
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -2128,7 +3537,28 @@ func (c *OpsWorks) UpdateElasticIp(input *UpdateElasticIpInput) (*UpdateElasticI
 
 const opUpdateInstance = "UpdateInstance"
 
-// UpdateInstanceRequest generates a request for the UpdateInstance operation.
+// UpdateInstanceRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateInstance operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateInstance method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateInstanceRequest method.
+//    req, resp := client.UpdateInstanceRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) UpdateInstanceRequest(input *UpdateInstanceInput) (req *request.Request, output *UpdateInstanceOutput) {
 	op := &request.Operation{
 		Name:       opUpdateInstance,
@@ -2141,6 +3571,8 @@ func (c *OpsWorks) UpdateInstanceRequest(input *UpdateInstanceInput) (req *reque
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &UpdateInstanceOutput{}
 	req.Data = output
 	return
@@ -2148,7 +3580,7 @@ func (c *OpsWorks) UpdateInstanceRequest(input *UpdateInstanceInput) (req *reque
 
 // Updates a specified instance.
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -2160,7 +3592,28 @@ func (c *OpsWorks) UpdateInstance(input *UpdateInstanceInput) (*UpdateInstanceOu
 
 const opUpdateLayer = "UpdateLayer"
 
-// UpdateLayerRequest generates a request for the UpdateLayer operation.
+// UpdateLayerRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateLayer operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateLayer method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateLayerRequest method.
+//    req, resp := client.UpdateLayerRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) UpdateLayerRequest(input *UpdateLayerInput) (req *request.Request, output *UpdateLayerOutput) {
 	op := &request.Operation{
 		Name:       opUpdateLayer,
@@ -2173,6 +3626,8 @@ func (c *OpsWorks) UpdateLayerRequest(input *UpdateLayerInput) (req *request.Req
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &UpdateLayerOutput{}
 	req.Data = output
 	return
@@ -2180,7 +3635,7 @@ func (c *OpsWorks) UpdateLayerRequest(input *UpdateLayerInput) (req *request.Req
 
 // Updates a specified layer.
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -2192,7 +3647,28 @@ func (c *OpsWorks) UpdateLayer(input *UpdateLayerInput) (*UpdateLayerOutput, err
 
 const opUpdateMyUserProfile = "UpdateMyUserProfile"
 
-// UpdateMyUserProfileRequest generates a request for the UpdateMyUserProfile operation.
+// UpdateMyUserProfileRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateMyUserProfile operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateMyUserProfile method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateMyUserProfileRequest method.
+//    req, resp := client.UpdateMyUserProfileRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) UpdateMyUserProfileRequest(input *UpdateMyUserProfileInput) (req *request.Request, output *UpdateMyUserProfileOutput) {
 	op := &request.Operation{
 		Name:       opUpdateMyUserProfile,
@@ -2205,6 +3681,8 @@ func (c *OpsWorks) UpdateMyUserProfileRequest(input *UpdateMyUserProfileInput) (
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &UpdateMyUserProfileOutput{}
 	req.Data = output
 	return
@@ -2212,7 +3690,7 @@ func (c *OpsWorks) UpdateMyUserProfileRequest(input *UpdateMyUserProfileInput) (
 
 // Updates a user's SSH public key.
 //
-// Required Permissions: To use this action, an IAM user must have self-management
+//  Required Permissions: To use this action, an IAM user must have self-management
 // enabled or an attached policy that explicitly grants permissions. For more
 // information on user permissions, see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
 func (c *OpsWorks) UpdateMyUserProfile(input *UpdateMyUserProfileInput) (*UpdateMyUserProfileOutput, error) {
@@ -2223,7 +3701,28 @@ func (c *OpsWorks) UpdateMyUserProfile(input *UpdateMyUserProfileInput) (*Update
 
 const opUpdateRdsDbInstance = "UpdateRdsDbInstance"
 
-// UpdateRdsDbInstanceRequest generates a request for the UpdateRdsDbInstance operation.
+// UpdateRdsDbInstanceRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateRdsDbInstance operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateRdsDbInstance method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateRdsDbInstanceRequest method.
+//    req, resp := client.UpdateRdsDbInstanceRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) UpdateRdsDbInstanceRequest(input *UpdateRdsDbInstanceInput) (req *request.Request, output *UpdateRdsDbInstanceOutput) {
 	op := &request.Operation{
 		Name:       opUpdateRdsDbInstance,
@@ -2236,6 +3735,8 @@ func (c *OpsWorks) UpdateRdsDbInstanceRequest(input *UpdateRdsDbInstanceInput) (
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &UpdateRdsDbInstanceOutput{}
 	req.Data = output
 	return
@@ -2243,7 +3744,7 @@ func (c *OpsWorks) UpdateRdsDbInstanceRequest(input *UpdateRdsDbInstanceInput) (
 
 // Updates an Amazon RDS instance.
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -2255,7 +3756,28 @@ func (c *OpsWorks) UpdateRdsDbInstance(input *UpdateRdsDbInstanceInput) (*Update
 
 const opUpdateStack = "UpdateStack"
 
-// UpdateStackRequest generates a request for the UpdateStack operation.
+// UpdateStackRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateStack operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateStack method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateStackRequest method.
+//    req, resp := client.UpdateStackRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) UpdateStackRequest(input *UpdateStackInput) (req *request.Request, output *UpdateStackOutput) {
 	op := &request.Operation{
 		Name:       opUpdateStack,
@@ -2268,6 +3790,8 @@ func (c *OpsWorks) UpdateStackRequest(input *UpdateStackInput) (req *request.Req
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &UpdateStackOutput{}
 	req.Data = output
 	return
@@ -2275,7 +3799,7 @@ func (c *OpsWorks) UpdateStackRequest(input *UpdateStackInput) (req *request.Req
 
 // Updates a specified stack.
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -2287,7 +3811,28 @@ func (c *OpsWorks) UpdateStack(input *UpdateStackInput) (*UpdateStackOutput, err
 
 const opUpdateUserProfile = "UpdateUserProfile"
 
-// UpdateUserProfileRequest generates a request for the UpdateUserProfile operation.
+// UpdateUserProfileRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateUserProfile operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateUserProfile method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateUserProfileRequest method.
+//    req, resp := client.UpdateUserProfileRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) UpdateUserProfileRequest(input *UpdateUserProfileInput) (req *request.Request, output *UpdateUserProfileOutput) {
 	op := &request.Operation{
 		Name:       opUpdateUserProfile,
@@ -2300,6 +3845,8 @@ func (c *OpsWorks) UpdateUserProfileRequest(input *UpdateUserProfileInput) (req 
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &UpdateUserProfileOutput{}
 	req.Data = output
 	return
@@ -2307,7 +3854,7 @@ func (c *OpsWorks) UpdateUserProfileRequest(input *UpdateUserProfileInput) (req 
 
 // Updates a specified user profile.
 //
-// Required Permissions: To use this action, an IAM user must have an attached
+//  Required Permissions: To use this action, an IAM user must have an attached
 // policy that explicitly grants permissions. For more information on user permissions,
 // see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
 func (c *OpsWorks) UpdateUserProfile(input *UpdateUserProfileInput) (*UpdateUserProfileOutput, error) {
@@ -2318,7 +3865,28 @@ func (c *OpsWorks) UpdateUserProfile(input *UpdateUserProfileInput) (*UpdateUser
 
 const opUpdateVolume = "UpdateVolume"
 
-// UpdateVolumeRequest generates a request for the UpdateVolume operation.
+// UpdateVolumeRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateVolume operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateVolume method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateVolumeRequest method.
+//    req, resp := client.UpdateVolumeRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *OpsWorks) UpdateVolumeRequest(input *UpdateVolumeInput) (req *request.Request, output *UpdateVolumeOutput) {
 	op := &request.Operation{
 		Name:       opUpdateVolume,
@@ -2331,6 +3899,8 @@ func (c *OpsWorks) UpdateVolumeRequest(input *UpdateVolumeInput) (req *request.R
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &UpdateVolumeOutput{}
 	req.Data = output
 	return
@@ -2339,7 +3909,7 @@ func (c *OpsWorks) UpdateVolumeRequest(input *UpdateVolumeInput) (req *request.R
 // Updates an Amazon EBS volume's name or mount point. For more information,
 // see Resource Management (http://docs.aws.amazon.com/opsworks/latest/userguide/resources.html).
 //
-// Required Permissions: To use this action, an IAM user must have a Manage
+//  Required Permissions: To use this action, an IAM user must have a Manage
 // permissions level for the stack, or an attached policy that explicitly grants
 // permissions. For more information on user permissions, see Managing User
 // Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
@@ -2351,17 +3921,13 @@ func (c *OpsWorks) UpdateVolume(input *UpdateVolumeInput) (*UpdateVolumeOutput, 
 
 // Describes an agent version.
 type AgentVersion struct {
+	_ struct{} `type:"structure"`
+
 	// The configuration manager.
 	ConfigurationManager *StackConfigurationManager `type:"structure"`
 
 	// The agent version.
 	Version *string `type:"string"`
-
-	metadataAgentVersion `json:"-" xml:"-"`
-}
-
-type metadataAgentVersion struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2376,6 +3942,8 @@ func (s AgentVersion) GoString() string {
 
 // A description of the app.
 type App struct {
+	_ struct{} `type:"structure"`
+
 	// The app ID.
 	AppId *string `type:"string"`
 
@@ -2407,9 +3975,9 @@ type App struct {
 	// see  Environment Variables (http://docs.aws.amazon.com/opsworks/latest/userguide/workingapps-creating.html#workingapps-creating-environment).
 	//
 	//  There is no specific limit on the number of environment variables. However,
-	// the size of the associated data structure - which includes the variables'
-	// names, values, and protected flag values - cannot exceed 10 KB (10240 Bytes).
-	// This limit should accommodate most if not all use cases, but if you do exceed
+	// the size of the associated data structure - which includes the variable names,
+	// values, and protected flag values - cannot exceed 10 KB (10240 Bytes). This
+	// limit should accommodate most if not all use cases, but if you do exceed
 	// it, you will cause an exception (API) with an "Environment: is too large
 	// (maximum is 10KB)" message.
 	Environment []*EnvironmentVariable `type:"list"`
@@ -2428,12 +3996,6 @@ type App struct {
 
 	// The app type.
 	Type *string `type:"string" enum:"AppType"`
-
-	metadataApp `json:"-" xml:"-"`
-}
-
-type metadataApp struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2447,18 +4009,14 @@ func (s App) GoString() string {
 }
 
 type AssignInstanceInput struct {
+	_ struct{} `type:"structure"`
+
 	// The instance ID.
 	InstanceId *string `type:"string" required:"true"`
 
 	// The layer ID, which must correspond to a custom layer. You cannot assign
 	// a registered instance to a built-in layer.
 	LayerIds []*string `type:"list" required:"true"`
-
-	metadataAssignInstanceInput `json:"-" xml:"-"`
-}
-
-type metadataAssignInstanceInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2471,12 +4029,24 @@ func (s AssignInstanceInput) GoString() string {
 	return s.String()
 }
 
-type AssignInstanceOutput struct {
-	metadataAssignInstanceOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *AssignInstanceInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "AssignInstanceInput"}
+	if s.InstanceId == nil {
+		invalidParams.Add(request.NewErrParamRequired("InstanceId"))
+	}
+	if s.LayerIds == nil {
+		invalidParams.Add(request.NewErrParamRequired("LayerIds"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataAssignInstanceOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type AssignInstanceOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -2490,17 +4060,13 @@ func (s AssignInstanceOutput) GoString() string {
 }
 
 type AssignVolumeInput struct {
+	_ struct{} `type:"structure"`
+
 	// The instance ID.
 	InstanceId *string `type:"string"`
 
 	// The volume ID.
 	VolumeId *string `type:"string" required:"true"`
-
-	metadataAssignVolumeInput `json:"-" xml:"-"`
-}
-
-type metadataAssignVolumeInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2513,12 +4079,21 @@ func (s AssignVolumeInput) GoString() string {
 	return s.String()
 }
 
-type AssignVolumeOutput struct {
-	metadataAssignVolumeOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *AssignVolumeInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "AssignVolumeInput"}
+	if s.VolumeId == nil {
+		invalidParams.Add(request.NewErrParamRequired("VolumeId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataAssignVolumeOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type AssignVolumeOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -2532,17 +4107,13 @@ func (s AssignVolumeOutput) GoString() string {
 }
 
 type AssociateElasticIpInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Elastic IP address.
 	ElasticIp *string `type:"string" required:"true"`
 
 	// The instance ID.
 	InstanceId *string `type:"string"`
-
-	metadataAssociateElasticIpInput `json:"-" xml:"-"`
-}
-
-type metadataAssociateElasticIpInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2555,12 +4126,21 @@ func (s AssociateElasticIpInput) GoString() string {
 	return s.String()
 }
 
-type AssociateElasticIpOutput struct {
-	metadataAssociateElasticIpOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *AssociateElasticIpInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "AssociateElasticIpInput"}
+	if s.ElasticIp == nil {
+		invalidParams.Add(request.NewErrParamRequired("ElasticIp"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataAssociateElasticIpOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type AssociateElasticIpOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -2574,18 +4154,14 @@ func (s AssociateElasticIpOutput) GoString() string {
 }
 
 type AttachElasticLoadBalancerInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Elastic Load Balancing instance's name.
 	ElasticLoadBalancerName *string `type:"string" required:"true"`
 
 	// The ID of the layer that the Elastic Load Balancing instance is to be attached
 	// to.
 	LayerId *string `type:"string" required:"true"`
-
-	metadataAttachElasticLoadBalancerInput `json:"-" xml:"-"`
-}
-
-type metadataAttachElasticLoadBalancerInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2598,12 +4174,24 @@ func (s AttachElasticLoadBalancerInput) GoString() string {
 	return s.String()
 }
 
-type AttachElasticLoadBalancerOutput struct {
-	metadataAttachElasticLoadBalancerOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *AttachElasticLoadBalancerInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "AttachElasticLoadBalancerInput"}
+	if s.ElasticLoadBalancerName == nil {
+		invalidParams.Add(request.NewErrParamRequired("ElasticLoadBalancerName"))
+	}
+	if s.LayerId == nil {
+		invalidParams.Add(request.NewErrParamRequired("LayerId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataAttachElasticLoadBalancerOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type AttachElasticLoadBalancerOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -2619,17 +4207,20 @@ func (s AttachElasticLoadBalancerOutput) GoString() string {
 // Describes a load-based auto scaling upscaling or downscaling threshold configuration,
 // which specifies when AWS OpsWorks starts or stops load-based instances.
 type AutoScalingThresholds struct {
+	_ struct{} `type:"structure"`
+
 	// Custom Cloudwatch auto scaling alarms, to be used as thresholds. This parameter
 	// takes a list of up to five alarm names, which are case sensitive and must
 	// be in the same region as the stack.
 	//
-	// To use custom alarms, you must update your service role to allow cloudwatch:DescribeAlarms.
+	//  To use custom alarms, you must update your service role to allow cloudwatch:DescribeAlarms.
 	// You can either have AWS OpsWorks update the role for you when you first use
 	// this feature or you can edit the role manually. For more information, see
 	// Allowing AWS OpsWorks to Act on Your Behalf (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-servicerole.html).
 	Alarms []*string `type:"list"`
 
-	// The CPU utilization threshold, as a percent of the available CPU.
+	// The CPU utilization threshold, as a percent of the available CPU. A value
+	// of -1 disables the threshold.
 	CpuThreshold *float64 `type:"double"`
 
 	// The amount of time (in minutes) after a scaling event occurs that AWS OpsWorks
@@ -2640,27 +4231,22 @@ type AutoScalingThresholds struct {
 	// which typically takes several minutes. IgnoreMetricsTime allows you to direct
 	// AWS OpsWorks to suppress scaling events long enough to get the new instances
 	// online.
-	IgnoreMetricsTime *int64 `type:"integer"`
+	IgnoreMetricsTime *int64 `min:"1" type:"integer"`
 
 	// The number of instances to add or remove when the load exceeds a threshold.
 	InstanceCount *int64 `type:"integer"`
 
-	// The load threshold. For more information about how load is computed, see
-	// Load (computing) (http://en.wikipedia.org/wiki/Load_%28computing%29).
+	// The load threshold. A value of -1 disables the threshold. For more information
+	// about how load is computed, see Load (computing) (http://en.wikipedia.org/wiki/Load_%28computing%29).
 	LoadThreshold *float64 `type:"double"`
 
-	// The memory utilization threshold, as a percent of the available memory.
+	// The memory utilization threshold, as a percent of the available memory. A
+	// value of -1 disables the threshold.
 	MemoryThreshold *float64 `type:"double"`
 
 	// The amount of time, in minutes, that the load must exceed a threshold before
 	// more instances are added or removed.
-	ThresholdsWaitTime *int64 `type:"integer"`
-
-	metadataAutoScalingThresholds `json:"-" xml:"-"`
-}
-
-type metadataAutoScalingThresholds struct {
-	SDKShapeTraits bool `type:"structure"`
+	ThresholdsWaitTime *int64 `min:"1" type:"integer"`
 }
 
 // String returns the string representation
@@ -2673,10 +4259,28 @@ func (s AutoScalingThresholds) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *AutoScalingThresholds) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "AutoScalingThresholds"}
+	if s.IgnoreMetricsTime != nil && *s.IgnoreMetricsTime < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("IgnoreMetricsTime", 1))
+	}
+	if s.ThresholdsWaitTime != nil && *s.ThresholdsWaitTime < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("ThresholdsWaitTime", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Describes a block device mapping. This data type maps directly to the Amazon
 // EC2 BlockDeviceMapping (http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_BlockDeviceMapping.html)
 // data type.
 type BlockDeviceMapping struct {
+	_ struct{} `type:"structure"`
+
 	// The device name that is exposed to the instance, such as /dev/sdh. For the
 	// root device, you can use the explicit device name or you can set this parameter
 	// to ROOT_DEVICE and AWS OpsWorks will provide the correct device name.
@@ -2691,12 +4295,6 @@ type BlockDeviceMapping struct {
 
 	// The virtual device name. For more information, see BlockDeviceMapping (http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_BlockDeviceMapping.html).
 	VirtualName *string `type:"string"`
-
-	metadataBlockDeviceMapping `json:"-" xml:"-"`
-}
-
-type metadataBlockDeviceMapping struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2711,17 +4309,13 @@ func (s BlockDeviceMapping) GoString() string {
 
 // Describes the Chef configuration.
 type ChefConfiguration struct {
+	_ struct{} `type:"structure"`
+
 	// The Berkshelf version.
 	BerkshelfVersion *string `type:"string"`
 
 	// Whether to enable Berkshelf.
 	ManageBerkshelf *bool `type:"boolean"`
-
-	metadataChefConfiguration `json:"-" xml:"-"`
-}
-
-type metadataChefConfiguration struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2735,18 +4329,24 @@ func (s ChefConfiguration) GoString() string {
 }
 
 type CloneStackInput struct {
+	_ struct{} `type:"structure"`
+
 	// The default AWS OpsWorks agent version. You have the following options:
 	//
-	//  Auto-update - Set this parameter to LATEST. AWS OpsWorks automatically
+	//   Auto-update - Set this parameter to LATEST. AWS OpsWorks automatically
 	// installs new agent versions on the stack's instances as soon as they are
-	// available. Fixed version - Set this parameter to your preferred agent version.
-	// To update the agent version, you must edit the stack configuration and specify
-	// a new version. AWS OpsWorks then automatically installs that version on the
-	// stack's instances.  The default setting is LATEST. To specify an agent version,
-	// you must use the complete version number, not the abbreviated number shown
-	// on the console. For a list of available agent version numbers, call DescribeAgentVersions.
+	// available.
 	//
-	// You can also specify an agent version when you create or update an instance,
+	//   Fixed version - Set this parameter to your preferred agent version. To
+	// update the agent version, you must edit the stack configuration and specify
+	// a new version. AWS OpsWorks then automatically installs that version on the
+	// stack's instances.
+	//
+	//   The default setting is LATEST. To specify an agent version, you must use
+	// the complete version number, not the abbreviated number shown on the console.
+	// For a list of available agent version numbers, call DescribeAgentVersions.
+	//
+	//  You can also specify an agent version when you create or update an instance,
 	// which overrides the stack's default setting.
 	AgentVersion *string `type:"string"`
 
@@ -2765,9 +4365,10 @@ type CloneStackInput struct {
 	// Whether to clone the source stack's permissions.
 	ClonePermissions *bool `type:"boolean"`
 
-	// The configuration manager. When you clone a Linux stack we recommend that
-	// you use the configuration manager to specify the Chef version: 0.9, 11.4,
-	// or 11.10. The default value is currently 11.10.
+	// The configuration manager. When you clone a stack we recommend that you use
+	// the configuration manager to specify the Chef version: 12, 11.10, or 11.4
+	// for Linux stacks, or 12.2 for Windows stacks. The default value for Linux
+	// stacks is currently 12.
 	ConfigurationManager *StackConfigurationManager `type:"structure"`
 
 	// Contains the information required to retrieve an app or cookbook from a repository.
@@ -2798,15 +4399,28 @@ type CloneStackInput struct {
 
 	// The stack's operating system, which must be set to one of the following.
 	//
-	//  A supported Linux operating system: An Amazon Linux version, such as Amazon
-	// Linux 2015.03, Red Hat Enterprise Linux 7, Ubuntu 12.04 LTS, or Ubuntu 14.04
-	// LTS.  Microsoft Windows Server 2012 R2 Base. A custom AMI: Custom. You specify
-	// the custom AMI you want to use when you create instances. For more information
-	// on how to use custom AMIs with OpsWorks, see Using Custom AMIs (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-custom-ami.html).
-	//  The default option is the parent stack's operating system. For more information
+	//   A supported Linux operating system: An Amazon Linux version, such as Amazon
+	// Linux 2016.03, Amazon Linux 2015.09, or Amazon Linux 2015.03.
+	//
+	//   A supported Ubuntu operating system, such as Ubuntu 16.04 LTS, Ubuntu
+	// 14.04 LTS, or Ubuntu 12.04 LTS.
+	//
+	//    CentOS 7
+	//
+	//    Red Hat Enterprise Linux 7
+	//
+	//    Microsoft Windows Server 2012 R2 Base, Microsoft Windows Server 2012
+	// R2 with SQL Server Express, Microsoft Windows Server 2012 R2 with SQL Server
+	// Standard, or Microsoft Windows Server 2012 R2 with SQL Server Web.
+	//
+	//   A custom AMI: Custom. You specify the custom AMI you want to use when
+	// you create instances. For more information on how to use custom AMIs with
+	// OpsWorks, see Using Custom AMIs (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-custom-ami.html).
+	//
+	//   The default option is the parent stack's operating system. For more information
 	// on the supported operating systems, see AWS OpsWorks Operating Systems (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-os.html).
 	//
-	// You can specify a different Linux operating system for the cloned stack,
+	//  You can specify a different Linux operating system for the cloned stack,
 	// but you cannot change from Linux to Windows or Windows to Linux.
 	DefaultOs *string `type:"string"`
 
@@ -2837,8 +4451,28 @@ type CloneStackInput struct {
 	// HostnameTheme is set to Layer_Dependent, which creates host names by appending
 	// integers to the layer's short name. The other themes are:
 	//
-	//   Baked_Goods   Clouds   Europe_Cities   Fruits   Greek_Deities   Legendary_creatures_from_Japan
-	//   Planets_and_Moons   Roman_Deities   Scottish_Islands   US_Cities   Wild_Cats
+	//    Baked_Goods
+	//
+	//    Clouds
+	//
+	//    Europe_Cities
+	//
+	//    Fruits
+	//
+	//    Greek_Deities
+	//
+	//    Legendary_creatures_from_Japan
+	//
+	//    Planets_and_Moons
+	//
+	//    Roman_Deities
+	//
+	//    Scottish_Islands
+	//
+	//    US_Cities
+	//
+	//    Wild_Cats
+	//
 	//   To obtain a generated host name, call GetHostNameSuggestion, which returns
 	// a host name based on the current theme.
 	HostnameTheme *string `type:"string"`
@@ -2876,45 +4510,47 @@ type CloneStackInput struct {
 	// you can instead provide your own custom security groups. UseOpsworksSecurityGroups
 	// has the following settings:
 	//
-	//  True - AWS OpsWorks automatically associates the appropriate built-in security
-	// group with each layer (default setting). You can associate additional security
-	// groups with a layer after you create it but you cannot delete the built-in
-	// security group.  False - AWS OpsWorks does not associate built-in security
-	// groups with layers. You must create appropriate Amazon Elastic Compute Cloud
-	// (Amazon EC2) security groups and associate a security group with each layer
-	// that you create. However, you can still manually associate a built-in security
+	//   True - AWS OpsWorks automatically associates the appropriate built-in
+	// security group with each layer (default setting). You can associate additional
+	// security groups with a layer after you create it but you cannot delete the
+	// built-in security group.
+	//
+	//   False - AWS OpsWorks does not associate built-in security groups with
+	// layers. You must create appropriate Amazon Elastic Compute Cloud (Amazon
+	// EC2) security groups and associate a security group with each layer that
+	// you create. However, you can still manually associate a built-in security
 	// group with a layer on creation; custom security groups are required only
-	// for those layers that need custom settings.   For more information, see Create
-	// a New Stack (http://docs.aws.amazon.com/opsworks/latest/userguide/workingstacks-creating.html).
+	// for those layers that need custom settings.
+	//
+	//   For more information, see Create a New Stack (http://docs.aws.amazon.com/opsworks/latest/userguide/workingstacks-creating.html).
 	UseOpsworksSecurityGroups *bool `type:"boolean"`
 
 	// The ID of the VPC that the cloned stack is to be launched into. It must be
 	// in the specified region. All instances are launched into this VPC, and you
 	// cannot change the ID later.
 	//
-	//  If your account supports EC2 Classic, the default value is no VPC. If your
-	// account does not support EC2 Classic, the default value is the default VPC
-	// for the specified region.  If the VPC ID corresponds to a default VPC and
-	// you have specified either the DefaultAvailabilityZone or the DefaultSubnetId
-	// parameter only, AWS OpsWorks infers the value of the other parameter. If
-	// you specify neither parameter, AWS OpsWorks sets these parameters to the
-	// first valid Availability Zone for the specified region and the corresponding
-	// default VPC subnet ID, respectively.
+	//   If your account supports EC2 Classic, the default value is no VPC.
+	//
+	//   If your account does not support EC2 Classic, the default value is the
+	// default VPC for the specified region.
+	//
+	//   If the VPC ID corresponds to a default VPC and you have specified either
+	// the DefaultAvailabilityZone or the DefaultSubnetId parameter only, AWS OpsWorks
+	// infers the value of the other parameter. If you specify neither parameter,
+	// AWS OpsWorks sets these parameters to the first valid Availability Zone for
+	// the specified region and the corresponding default VPC subnet ID, respectively.
 	//
 	// If you specify a nondefault VPC ID, note the following:
 	//
-	//  It must belong to a VPC in your account that is in the specified region.
-	// You must specify a value for DefaultSubnetId.  For more information on how
-	// to use AWS OpsWorks with a VPC, see Running a Stack in a VPC (http://docs.aws.amazon.com/opsworks/latest/userguide/workingstacks-vpc.html).
+	//   It must belong to a VPC in your account that is in the specified region.
+	//
+	//   You must specify a value for DefaultSubnetId.
+	//
+	//   For more information on how to use AWS OpsWorks with a VPC, see Running
+	// a Stack in a VPC (http://docs.aws.amazon.com/opsworks/latest/userguide/workingstacks-vpc.html).
 	// For more information on default VPC and EC2 Classic, see Supported Platforms
 	// (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-supported-platforms.html).
 	VpcId *string `type:"string"`
-
-	metadataCloneStackInput `json:"-" xml:"-"`
-}
-
-type metadataCloneStackInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2927,16 +4563,28 @@ func (s CloneStackInput) GoString() string {
 	return s.String()
 }
 
-// Contains the response to a CloneStack request.
-type CloneStackOutput struct {
-	// The cloned stack ID.
-	StackId *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CloneStackInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CloneStackInput"}
+	if s.ServiceRoleArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("ServiceRoleArn"))
+	}
+	if s.SourceStackId == nil {
+		invalidParams.Add(request.NewErrParamRequired("SourceStackId"))
+	}
 
-	metadataCloneStackOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataCloneStackOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Contains the response to a CloneStack request.
+type CloneStackOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The cloned stack ID.
+	StackId *string `type:"string"`
 }
 
 // String returns the string representation
@@ -2951,6 +4599,8 @@ func (s CloneStackOutput) GoString() string {
 
 // Describes a command.
 type Command struct {
+	_ struct{} `type:"structure"`
+
 	// Date and time when the command was acknowledged.
 	AcknowledgedAt *string `type:"string"`
 
@@ -2977,20 +4627,37 @@ type Command struct {
 
 	// The command status:
 	//
-	//  failed successful skipped pending
+	//   failed
+	//
+	//   successful
+	//
+	//   skipped
+	//
+	//   pending
 	Status *string `type:"string"`
 
 	// The command type:
 	//
-	//   deploy   rollback   start   stop   restart   undeploy   update_dependencies
-	//   install_dependencies   update_custom_cookbooks   execute_recipes
+	//    deploy
+	//
+	//    rollback
+	//
+	//    start
+	//
+	//    stop
+	//
+	//    restart
+	//
+	//    undeploy
+	//
+	//    update_dependencies
+	//
+	//    install_dependencies
+	//
+	//    update_custom_cookbooks
+	//
+	//    execute_recipes
 	Type *string `type:"string"`
-
-	metadataCommand `json:"-" xml:"-"`
-}
-
-type metadataCommand struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3004,6 +4671,8 @@ func (s Command) GoString() string {
 }
 
 type CreateAppInput struct {
+	_ struct{} `type:"structure"`
+
 	// A Source object that specifies the app repository.
 	AppSource *Source `type:"structure"`
 
@@ -3028,14 +4697,14 @@ type CreateAppInput struct {
 	// are defined on the associated app server instance. For more information,
 	// see  Environment Variables (http://docs.aws.amazon.com/opsworks/latest/userguide/workingapps-creating.html#workingapps-creating-environment).
 	//
-	//  There is no specific limit on the number of environment variables. However,
+	// There is no specific limit on the number of environment variables. However,
 	// the size of the associated data structure - which includes the variables'
 	// names, values, and protected flag values - cannot exceed 10 KB (10240 Bytes).
 	// This limit should accommodate most if not all use cases. Exceeding it will
 	// cause an exception with the message, "Environment: is too large (maximum
 	// is 10KB)."
 	//
-	// This parameter is supported only by Chef 11.10 stacks. If you have specified
+	//  This parameter is supported only by Chef 11.10 stacks. If you have specified
 	// one or more environment variables, you cannot modify the stack's Chef version.
 	Environment []*EnvironmentVariable `type:"list"`
 
@@ -3057,12 +4726,6 @@ type CreateAppInput struct {
 	// layer. If your app isn't one of the standard types, or you prefer to implement
 	// your own Deploy recipes, specify other.
 	Type *string `type:"string" required:"true" enum:"AppType"`
-
-	metadataCreateAppInput `json:"-" xml:"-"`
-}
-
-type metadataCreateAppInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3075,16 +4738,46 @@ func (s CreateAppInput) GoString() string {
 	return s.String()
 }
 
-// Contains the response to a CreateApp request.
-type CreateAppOutput struct {
-	// The app ID.
-	AppId *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateAppInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateAppInput"}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
+	if s.StackId == nil {
+		invalidParams.Add(request.NewErrParamRequired("StackId"))
+	}
+	if s.Type == nil {
+		invalidParams.Add(request.NewErrParamRequired("Type"))
+	}
+	if s.Environment != nil {
+		for i, v := range s.Environment {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Environment", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
+	if s.SslConfiguration != nil {
+		if err := s.SslConfiguration.Validate(); err != nil {
+			invalidParams.AddNested("SslConfiguration", err.(request.ErrInvalidParams))
+		}
+	}
 
-	metadataCreateAppOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataCreateAppOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Contains the response to a CreateApp request.
+type CreateAppOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The app ID.
+	AppId *string `type:"string"`
 }
 
 // String returns the string representation
@@ -3098,6 +4791,8 @@ func (s CreateAppOutput) GoString() string {
 }
 
 type CreateDeploymentInput struct {
+	_ struct{} `type:"structure"`
+
 	// The app ID. This parameter is required for app deployments, but not for other
 	// deployment commands.
 	AppId *string `type:"string"`
@@ -3122,14 +4817,11 @@ type CreateDeploymentInput struct {
 	// The instance IDs for the deployment targets.
 	InstanceIds []*string `type:"list"`
 
+	// The layer IDs for the deployment targets.
+	LayerIds []*string `type:"list"`
+
 	// The stack ID.
 	StackId *string `type:"string" required:"true"`
-
-	metadataCreateDeploymentInput `json:"-" xml:"-"`
-}
-
-type metadataCreateDeploymentInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3142,17 +4834,34 @@ func (s CreateDeploymentInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateDeploymentInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateDeploymentInput"}
+	if s.Command == nil {
+		invalidParams.Add(request.NewErrParamRequired("Command"))
+	}
+	if s.StackId == nil {
+		invalidParams.Add(request.NewErrParamRequired("StackId"))
+	}
+	if s.Command != nil {
+		if err := s.Command.Validate(); err != nil {
+			invalidParams.AddNested("Command", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Contains the response to a CreateDeployment request.
 type CreateDeploymentOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The deployment ID, which can be used with other requests to identify the
 	// deployment.
 	DeploymentId *string `type:"string"`
-
-	metadataCreateDeploymentOutput `json:"-" xml:"-"`
-}
-
-type metadataCreateDeploymentOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3166,22 +4875,27 @@ func (s CreateDeploymentOutput) GoString() string {
 }
 
 type CreateInstanceInput struct {
+	_ struct{} `type:"structure"`
+
 	// The default AWS OpsWorks agent version. You have the following options:
 	//
-	//   INHERIT - Use the stack's default agent version setting.  version_number
-	// - Use the specified agent version. This value overrides the stack's default
-	// setting. To update the agent version, edit the instance configuration and
-	// specify a new version. AWS OpsWorks then automatically installs that version
-	// on the instance.  The default setting is INHERIT. To specify an agent version,
-	// you must use the complete version number, not the abbreviated number shown
-	// on the console. For a list of available agent version numbers, call DescribeAgentVersions.
+	//    INHERIT - Use the stack's default agent version setting.
+	//
+	//    version_number - Use the specified agent version. This value overrides
+	// the stack's default setting. To update the agent version, edit the instance
+	// configuration and specify a new version. AWS OpsWorks then automatically
+	// installs that version on the instance.
+	//
+	//   The default setting is INHERIT. To specify an agent version, you must
+	// use the complete version number, not the abbreviated number shown on the
+	// console. For a list of available agent version numbers, call DescribeAgentVersions.
 	AgentVersion *string `type:"string"`
 
 	// A custom AMI ID to be used to create the instance. The AMI should be based
 	// on one of the supported operating systems. For more information, see Using
 	// Custom AMIs (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-custom-ami.html).
 	//
-	// If you specify a custom AMI, you must set Os to Custom.
+	//  If you specify a custom AMI, you must set Os to Custom.
 	AmiId *string `type:"string"`
 
 	// The instance architecture. The default option is x86_64. Instance types do
@@ -3200,6 +4914,7 @@ type CreateInstanceInput struct {
 
 	// An array of BlockDeviceMapping objects that specify the instance's block
 	// devices. For more information, see Block Device Mapping (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/block-device-mapping-concepts.html).
+	// Note that block device mappings are not supported for custom AMIs.
 	BlockDeviceMappings []*BlockDeviceMapping `type:"list"`
 
 	// Whether to create an Amazon EBS-optimized instance.
@@ -3231,16 +4946,31 @@ type CreateInstanceInput struct {
 
 	// The instance's operating system, which must be set to one of the following.
 	//
-	//  A supported Linux operating system: An Amazon Linux version, such as Amazon
-	// Linux 2015.03, Red Hat Enterprise Linux 7, Ubuntu 12.04 LTS, or Ubuntu 14.04
-	// LTS.  Microsoft Windows Server 2012 R2 Base. A custom AMI: Custom.  For more
-	// information on the supported operating systems, see AWS OpsWorks Operating
-	// Systems (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-os.html).
+	//   A supported Linux operating system: An Amazon Linux version, such as Amazon
+	// Linux 2016.03, Amazon Linux 2015.09, or Amazon Linux 2015.03.
+	//
+	//   A supported Ubuntu operating system, such as Ubuntu 16.04 LTS, Ubuntu
+	// 14.04 LTS, or Ubuntu 12.04 LTS.
+	//
+	//    CentOS 7
+	//
+	//    Red Hat Enterprise Linux 7
+	//
+	//   A supported Windows operating system, such as Microsoft Windows Server
+	// 2012 R2 Base, Microsoft Windows Server 2012 R2 with SQL Server Express, Microsoft
+	// Windows Server 2012 R2 with SQL Server Standard, or Microsoft Windows Server
+	// 2012 R2 with SQL Server Web.
+	//
+	//   A custom AMI: Custom.
+	//
+	//   For more information on the supported operating systems, see AWS OpsWorks
+	// Operating Systems (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-os.html).
 	//
 	// The default option is the current Amazon Linux version. If you set this
 	// parameter to Custom, you must use the CreateInstance action's AmiId parameter
-	// to specify the custom AMI that you want to use. For more information on the
-	// supported operating systems, see Operating Systems (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-os.html)For
+	// to specify the custom AMI that you want to use. Block device mappings are
+	// not supported if the value is Custom. For more information on the supported
+	// operating systems, see Operating Systems (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-os.html)For
 	// more information on how to use custom AMIs with AWS OpsWorks, see Using Custom
 	// AMIs (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-custom-ami.html).
 	Os *string `type:"string"`
@@ -3260,14 +4990,20 @@ type CreateInstanceInput struct {
 	// AWS OpsWorks to launch the instance in a different subnet.
 	SubnetId *string `type:"string"`
 
+	// The instance's tenancy option. The default option is no tenancy, or if the
+	// instance is running in a VPC, inherit tenancy settings from the VPC. The
+	// following are valid values for this parameter: dedicated, default, or host.
+	// Because there are costs associated with changes in tenancy options, we recommend
+	// that you research tenancy options before choosing them for your instances.
+	// For more information about dedicated hosts, see Dedicated Hosts Overview
+	// (http://aws.amazon.com/ec2/dedicated-hosts/) and Amazon EC2 Dedicated Hosts
+	// (http://aws.amazon.com/ec2/dedicated-hosts/). For more information about
+	// dedicated instances, see Dedicated Instances (http://docs.aws.amazon.com/AmazonVPC/latest/UserGuide/dedicated-instance.html)
+	// and Amazon EC2 Dedicated Instances (http://aws.amazon.com/ec2/purchasing-options/dedicated-instances/).
+	Tenancy *string `type:"string"`
+
 	// The instance's virtualization type, paravirtual or hvm.
 	VirtualizationType *string `type:"string"`
-
-	metadataCreateInstanceInput `json:"-" xml:"-"`
-}
-
-type metadataCreateInstanceInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3280,16 +5016,31 @@ func (s CreateInstanceInput) GoString() string {
 	return s.String()
 }
 
-// Contains the response to a CreateInstance request.
-type CreateInstanceOutput struct {
-	// The instance ID.
-	InstanceId *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateInstanceInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateInstanceInput"}
+	if s.InstanceType == nil {
+		invalidParams.Add(request.NewErrParamRequired("InstanceType"))
+	}
+	if s.LayerIds == nil {
+		invalidParams.Add(request.NewErrParamRequired("LayerIds"))
+	}
+	if s.StackId == nil {
+		invalidParams.Add(request.NewErrParamRequired("StackId"))
+	}
 
-	metadataCreateInstanceOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataCreateInstanceOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Contains the response to a CreateInstance request.
+type CreateInstanceOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The instance ID.
+	InstanceId *string `type:"string"`
 }
 
 // String returns the string representation
@@ -3303,6 +5054,8 @@ func (s CreateInstanceOutput) GoString() string {
 }
 
 type CreateLayerInput struct {
+	_ struct{} `type:"structure"`
+
 	// One or more user-defined key-value pairs to be added to the stack attributes.
 	//
 	// To create a cluster layer, set the EcsClusterArn attribute to the cluster's
@@ -3325,6 +5078,7 @@ type CreateLayerInput struct {
 	// A JSON-formatted string containing custom stack configuration and deployment
 	// attributes to be installed on the layer's instances. For more information,
 	// see  Using Custom JSON (http://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook-json-override.html).
+	// This feature is supported as of version 1.7.42 of the AWS CLI.
 	CustomJson *string `type:"string"`
 
 	// A LayerCustomRecipes object that specifies the layer custom recipes.
@@ -3371,7 +5125,8 @@ type CreateLayerInput struct {
 	StackId *string `type:"string" required:"true"`
 
 	// The layer type. A stack cannot have more than one built-in layer of the same
-	// type. It can have any number of custom layers.
+	// type. It can have any number of custom layers. Built-in layers are not available
+	// in Chef 12 stacks.
 	Type *string `type:"string" required:"true" enum:"LayerType"`
 
 	// Whether to use Amazon EBS-optimized instances.
@@ -3379,12 +5134,6 @@ type CreateLayerInput struct {
 
 	// A VolumeConfigurations object that describes the layer's Amazon EBS volumes.
 	VolumeConfigurations []*VolumeConfiguration `type:"list"`
-
-	metadataCreateLayerInput `json:"-" xml:"-"`
-}
-
-type metadataCreateLayerInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3397,16 +5146,44 @@ func (s CreateLayerInput) GoString() string {
 	return s.String()
 }
 
-// Contains the response to a CreateLayer request.
-type CreateLayerOutput struct {
-	// The layer ID.
-	LayerId *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateLayerInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateLayerInput"}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
+	if s.Shortname == nil {
+		invalidParams.Add(request.NewErrParamRequired("Shortname"))
+	}
+	if s.StackId == nil {
+		invalidParams.Add(request.NewErrParamRequired("StackId"))
+	}
+	if s.Type == nil {
+		invalidParams.Add(request.NewErrParamRequired("Type"))
+	}
+	if s.VolumeConfigurations != nil {
+		for i, v := range s.VolumeConfigurations {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "VolumeConfigurations", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
 
-	metadataCreateLayerOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataCreateLayerOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Contains the response to a CreateLayer request.
+type CreateLayerOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The layer ID.
+	LayerId *string `type:"string"`
 }
 
 // String returns the string representation
@@ -3420,18 +5197,25 @@ func (s CreateLayerOutput) GoString() string {
 }
 
 type CreateStackInput struct {
+	_ struct{} `type:"structure"`
+
 	// The default AWS OpsWorks agent version. You have the following options:
 	//
-	//  Auto-update - Set this parameter to LATEST. AWS OpsWorks automatically
+	//   Auto-update - Set this parameter to LATEST. AWS OpsWorks automatically
 	// installs new agent versions on the stack's instances as soon as they are
-	// available. Fixed version - Set this parameter to your preferred agent version.
-	// To update the agent version, you must edit the stack configuration and specify
-	// a new version. AWS OpsWorks then automatically installs that version on the
-	// stack's instances.  The default setting is LATEST. To specify an agent version,
-	// you must use the complete version number, not the abbreviated number shown
-	// on the console. For a list of available agent version numbers, call DescribeAgentVersions.
+	// available.
 	//
-	// You can also specify an agent version when you create or update an instance,
+	//   Fixed version - Set this parameter to your preferred agent version. To
+	// update the agent version, you must edit the stack configuration and specify
+	// a new version. AWS OpsWorks then automatically installs that version on the
+	// stack's instances.
+	//
+	//   The default setting is the most recent release of the agent. To specify
+	// an agent version, you must use the complete version number, not the abbreviated
+	// number shown on the console. For a list of available agent version numbers,
+	// call DescribeAgentVersions.
+	//
+	//  You can also specify an agent version when you create or update an instance,
 	// which overrides the stack's default setting.
 	AgentVersion *string `type:"string"`
 
@@ -3443,9 +5227,10 @@ type CreateStackInput struct {
 	// a New Stack (http://docs.aws.amazon.com/opsworks/latest/userguide/workingstacks-creating.html).
 	ChefConfiguration *ChefConfiguration `type:"structure"`
 
-	// The configuration manager. When you clone a stack we recommend that you use
-	// the configuration manager to specify the Chef version: 0.9, 11.4, or 11.10.
-	// The default value is currently 11.4.
+	// The configuration manager. When you create a stack we recommend that you
+	// use the configuration manager to specify the Chef version: 12, 11.10, or
+	// 11.4 for Linux stacks, or 12.2 for Windows stacks. The default value for
+	// Linux stacks is currently 11.4.
 	ConfigurationManager *StackConfigurationManager `type:"structure"`
 
 	// Contains the information required to retrieve an app or cookbook from a repository.
@@ -3479,12 +5264,25 @@ type CreateStackInput struct {
 	// unless you specify a different operating system when you create the instance.
 	// You can specify one of the following.
 	//
-	//  A supported Linux operating system: An Amazon Linux version, such as Amazon
-	// Linux 2015.03, Red Hat Enterprise Linux 7, Ubuntu 12.04 LTS, or Ubuntu 14.04
-	// LTS.  Microsoft Windows Server 2012 R2 Base. A custom AMI: Custom. You specify
-	// the custom AMI you want to use when you create instances. For more information,
-	// see  Using Custom AMIs (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-custom-ami.html).
-	//  The default option is the current Amazon Linux version. For more information
+	//   A supported Linux operating system: An Amazon Linux version, such as Amazon
+	// Linux 2016.03, Amazon Linux 2015.09, or Amazon Linux 2015.03.
+	//
+	//   A supported Ubuntu operating system, such as Ubuntu 16.04 LTS, Ubuntu
+	// 14.04 LTS, or Ubuntu 12.04 LTS.
+	//
+	//    CentOS 7
+	//
+	//    Red Hat Enterprise Linux 7
+	//
+	//   A supported Windows operating system, such as Microsoft Windows Server
+	// 2012 R2 Base, Microsoft Windows Server 2012 R2 with SQL Server Express, Microsoft
+	// Windows Server 2012 R2 with SQL Server Standard, or Microsoft Windows Server
+	// 2012 R2 with SQL Server Web.
+	//
+	//   A custom AMI: Custom. You specify the custom AMI you want to use when
+	// you create instances. For more information, see  Using Custom AMIs (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-custom-ami.html).
+	//
+	//   The default option is the current Amazon Linux version. For more information
 	// on the supported operating systems, see AWS OpsWorks Operating Systems (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-os.html).
 	DefaultOs *string `type:"string"`
 
@@ -3516,8 +5314,28 @@ type CreateStackInput struct {
 	// is set to Layer_Dependent, which creates host names by appending integers
 	// to the layer's short name. The other themes are:
 	//
-	//   Baked_Goods   Clouds   Europe_Cities   Fruits   Greek_Deities   Legendary_creatures_from_Japan
-	//   Planets_and_Moons   Roman_Deities   Scottish_Islands   US_Cities   Wild_Cats
+	//    Baked_Goods
+	//
+	//    Clouds
+	//
+	//    Europe_Cities
+	//
+	//    Fruits
+	//
+	//    Greek_Deities
+	//
+	//    Legendary_creatures_from_Japan
+	//
+	//    Planets_and_Moons
+	//
+	//    Roman_Deities
+	//
+	//    Scottish_Islands
+	//
+	//    US_Cities
+	//
+	//    Wild_Cats
+	//
 	//   To obtain a generated host name, call GetHostNameSuggestion, which returns
 	// a host name based on the current theme.
 	HostnameTheme *string `type:"string"`
@@ -3546,14 +5364,17 @@ type CreateStackInput struct {
 	// you can instead provide your own custom security groups. UseOpsworksSecurityGroups
 	// has the following settings:
 	//
-	//  True - AWS OpsWorks automatically associates the appropriate built-in security
-	// group with each layer (default setting). You can associate additional security
-	// groups with a layer after you create it, but you cannot delete the built-in
-	// security group.  False - AWS OpsWorks does not associate built-in security
-	// groups with layers. You must create appropriate EC2 security groups and associate
-	// a security group with each layer that you create. However, you can still
-	// manually associate a built-in security group with a layer on creation; custom
-	// security groups are required only for those layers that need custom settings.
+	//   True - AWS OpsWorks automatically associates the appropriate built-in
+	// security group with each layer (default setting). You can associate additional
+	// security groups with a layer after you create it, but you cannot delete the
+	// built-in security group.
+	//
+	//   False - AWS OpsWorks does not associate built-in security groups with
+	// layers. You must create appropriate EC2 security groups and associate a security
+	// group with each layer that you create. However, you can still manually associate
+	// a built-in security group with a layer on creation; custom security groups
+	// are required only for those layers that need custom settings.
+	//
 	//   For more information, see Create a New Stack (http://docs.aws.amazon.com/opsworks/latest/userguide/workingstacks-creating.html).
 	UseOpsworksSecurityGroups *bool `type:"boolean"`
 
@@ -3561,29 +5382,28 @@ type CreateStackInput struct {
 	// in the stack's region. All instances are launched into this VPC. You cannot
 	// change the ID later.
 	//
-	//  If your account supports EC2-Classic, the default value is no VPC. If your
-	// account does not support EC2-Classic, the default value is the default VPC
-	// for the specified region.  If the VPC ID corresponds to a default VPC and
-	// you have specified either the DefaultAvailabilityZone or the DefaultSubnetId
-	// parameter only, AWS OpsWorks infers the value of the other parameter. If
-	// you specify neither parameter, AWS OpsWorks sets these parameters to the
-	// first valid Availability Zone for the specified region and the corresponding
-	// default VPC subnet ID, respectively.
+	//   If your account supports EC2-Classic, the default value is no VPC.
+	//
+	//   If your account does not support EC2-Classic, the default value is the
+	// default VPC for the specified region.
+	//
+	//   If the VPC ID corresponds to a default VPC and you have specified either
+	// the DefaultAvailabilityZone or the DefaultSubnetId parameter only, AWS OpsWorks
+	// infers the value of the other parameter. If you specify neither parameter,
+	// AWS OpsWorks sets these parameters to the first valid Availability Zone for
+	// the specified region and the corresponding default VPC subnet ID, respectively.
 	//
 	// If you specify a nondefault VPC ID, note the following:
 	//
-	//  It must belong to a VPC in your account that is in the specified region.
-	// You must specify a value for DefaultSubnetId.  For more information on how
-	// to use AWS OpsWorks with a VPC, see Running a Stack in a VPC (http://docs.aws.amazon.com/opsworks/latest/userguide/workingstacks-vpc.html).
+	//   It must belong to a VPC in your account that is in the specified region.
+	//
+	//   You must specify a value for DefaultSubnetId.
+	//
+	//   For more information on how to use AWS OpsWorks with a VPC, see Running
+	// a Stack in a VPC (http://docs.aws.amazon.com/opsworks/latest/userguide/workingstacks-vpc.html).
 	// For more information on default VPC and EC2-Classic, see Supported Platforms
 	// (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-supported-platforms.html).
 	VpcId *string `type:"string"`
-
-	metadataCreateStackInput `json:"-" xml:"-"`
-}
-
-type metadataCreateStackInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3596,17 +5416,35 @@ func (s CreateStackInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateStackInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateStackInput"}
+	if s.DefaultInstanceProfileArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("DefaultInstanceProfileArn"))
+	}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
+	if s.Region == nil {
+		invalidParams.Add(request.NewErrParamRequired("Region"))
+	}
+	if s.ServiceRoleArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("ServiceRoleArn"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Contains the response to a CreateStack request.
 type CreateStackOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The stack ID, which is an opaque string that you use to identify the stack
 	// when performing actions such as DescribeStacks.
 	StackId *string `type:"string"`
-
-	metadataCreateStackOutput `json:"-" xml:"-"`
-}
-
-type metadataCreateStackOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3620,6 +5458,8 @@ func (s CreateStackOutput) GoString() string {
 }
 
 type CreateUserProfileInput struct {
+	_ struct{} `type:"structure"`
+
 	// Whether users can specify their own SSH public key through the My Settings
 	// page. For more information, see Setting an IAM User's Public SSH Key (http://docs.aws.amazon.com/opsworks/latest/userguide/security-settingsshkey.html).
 	AllowSelfManagement *bool `type:"boolean"`
@@ -3636,12 +5476,6 @@ type CreateUserProfileInput struct {
 	// you do not specify an SSH user name, AWS OpsWorks generates one from the
 	// IAM user name.
 	SshUsername *string `type:"string"`
-
-	metadataCreateUserProfileInput `json:"-" xml:"-"`
-}
-
-type metadataCreateUserProfileInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3654,16 +5488,25 @@ func (s CreateUserProfileInput) GoString() string {
 	return s.String()
 }
 
-// Contains the response to a CreateUserProfile request.
-type CreateUserProfileOutput struct {
-	// The user's IAM ARN.
-	IamUserArn *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateUserProfileInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateUserProfileInput"}
+	if s.IamUserArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("IamUserArn"))
+	}
 
-	metadataCreateUserProfileOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataCreateUserProfileOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Contains the response to a CreateUserProfile request.
+type CreateUserProfileOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The user's IAM ARN.
+	IamUserArn *string `type:"string"`
 }
 
 // String returns the string representation
@@ -3678,6 +5521,8 @@ func (s CreateUserProfileOutput) GoString() string {
 
 // Describes an app's data source.
 type DataSource struct {
+	_ struct{} `type:"structure"`
+
 	// The data source's ARN.
 	Arn *string `type:"string"`
 
@@ -3687,12 +5532,6 @@ type DataSource struct {
 	// The data source's type, AutoSelectOpsworksMysqlInstance, OpsworksMysqlInstance,
 	// or RdsDbInstance.
 	Type *string `type:"string"`
-
-	metadataDataSource `json:"-" xml:"-"`
-}
-
-type metadataDataSource struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3706,14 +5545,10 @@ func (s DataSource) GoString() string {
 }
 
 type DeleteAppInput struct {
+	_ struct{} `type:"structure"`
+
 	// The app ID.
 	AppId *string `type:"string" required:"true"`
-
-	metadataDeleteAppInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteAppInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3726,12 +5561,21 @@ func (s DeleteAppInput) GoString() string {
 	return s.String()
 }
 
-type DeleteAppOutput struct {
-	metadataDeleteAppOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteAppInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteAppInput"}
+	if s.AppId == nil {
+		invalidParams.Add(request.NewErrParamRequired("AppId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeleteAppOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DeleteAppOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -3745,6 +5589,8 @@ func (s DeleteAppOutput) GoString() string {
 }
 
 type DeleteInstanceInput struct {
+	_ struct{} `type:"structure"`
+
 	// Whether to delete the instance Elastic IP address.
 	DeleteElasticIp *bool `type:"boolean"`
 
@@ -3753,12 +5599,6 @@ type DeleteInstanceInput struct {
 
 	// The instance ID.
 	InstanceId *string `type:"string" required:"true"`
-
-	metadataDeleteInstanceInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteInstanceInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3771,12 +5611,21 @@ func (s DeleteInstanceInput) GoString() string {
 	return s.String()
 }
 
-type DeleteInstanceOutput struct {
-	metadataDeleteInstanceOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteInstanceInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteInstanceInput"}
+	if s.InstanceId == nil {
+		invalidParams.Add(request.NewErrParamRequired("InstanceId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeleteInstanceOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DeleteInstanceOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -3790,14 +5639,10 @@ func (s DeleteInstanceOutput) GoString() string {
 }
 
 type DeleteLayerInput struct {
+	_ struct{} `type:"structure"`
+
 	// The layer ID.
 	LayerId *string `type:"string" required:"true"`
-
-	metadataDeleteLayerInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteLayerInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3810,12 +5655,21 @@ func (s DeleteLayerInput) GoString() string {
 	return s.String()
 }
 
-type DeleteLayerOutput struct {
-	metadataDeleteLayerOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteLayerInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteLayerInput"}
+	if s.LayerId == nil {
+		invalidParams.Add(request.NewErrParamRequired("LayerId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeleteLayerOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DeleteLayerOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -3829,14 +5683,10 @@ func (s DeleteLayerOutput) GoString() string {
 }
 
 type DeleteStackInput struct {
+	_ struct{} `type:"structure"`
+
 	// The stack ID.
 	StackId *string `type:"string" required:"true"`
-
-	metadataDeleteStackInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteStackInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3849,12 +5699,21 @@ func (s DeleteStackInput) GoString() string {
 	return s.String()
 }
 
-type DeleteStackOutput struct {
-	metadataDeleteStackOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteStackInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteStackInput"}
+	if s.StackId == nil {
+		invalidParams.Add(request.NewErrParamRequired("StackId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeleteStackOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DeleteStackOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -3868,14 +5727,10 @@ func (s DeleteStackOutput) GoString() string {
 }
 
 type DeleteUserProfileInput struct {
+	_ struct{} `type:"structure"`
+
 	// The user's IAM ARN.
 	IamUserArn *string `type:"string" required:"true"`
-
-	metadataDeleteUserProfileInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteUserProfileInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3888,12 +5743,21 @@ func (s DeleteUserProfileInput) GoString() string {
 	return s.String()
 }
 
-type DeleteUserProfileOutput struct {
-	metadataDeleteUserProfileOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteUserProfileInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteUserProfileInput"}
+	if s.IamUserArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("IamUserArn"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeleteUserProfileOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DeleteUserProfileOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -3908,6 +5772,8 @@ func (s DeleteUserProfileOutput) GoString() string {
 
 // Describes a deployment of a stack or app.
 type Deployment struct {
+	_ struct{} `type:"structure"`
+
 	// The app ID.
 	AppId *string `type:"string"`
 
@@ -3951,14 +5817,12 @@ type Deployment struct {
 
 	// The deployment status:
 	//
-	//  running successful failed
+	//   running
+	//
+	//   successful
+	//
+	//   failed
 	Status *string `type:"string"`
-
-	metadataDeployment `json:"-" xml:"-"`
-}
-
-type metadataDeployment struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3973,6 +5837,8 @@ func (s Deployment) GoString() string {
 
 // Used to specify a stack or deployment command.
 type DeploymentCommand struct {
+	_ struct{} `type:"structure"`
+
 	// The arguments of those commands that take arguments. It should be set to
 	// a JSON object with the following format:
 	//
@@ -3981,47 +5847,56 @@ type DeploymentCommand struct {
 	//
 	// The update_dependencies command takes two arguments:
 	//
-	//   upgrade_os_to - Specifies the desired Amazon Linux version for instances
+	//    upgrade_os_to - Specifies the desired Amazon Linux version for instances
 	// whose OS you want to upgrade, such as Amazon Linux 2014.09. You must also
-	// set the allow_reboot argument to true.  allow_reboot - Specifies whether
-	// to allow AWS OpsWorks to reboot the instances if necessary, after installing
-	// the updates. This argument can be set to either true or false. The default
-	// value is false.  For example, to upgrade an instance to Amazon Linux 2014.09,
-	// set Args to the following.
+	// set the allow_reboot argument to true.
 	//
-	//  { "upgrade_os_to":["Amazon Linux 2014.09"], "allow_reboot":["true"] }
+	//    allow_reboot - Specifies whether to allow AWS OpsWorks to reboot the
+	// instances if necessary, after installing the updates. This argument can be
+	// set to either true or false. The default value is false.
+	//
+	//   For example, to upgrade an instance to Amazon Linux 2014.09, set Args
+	// to the following.
+	//
+	//   { "upgrade_os_to":["Amazon Linux 2014.09"], "allow_reboot":["true"] }
 	Args map[string][]*string `type:"map"`
 
 	// Specifies the operation. You can specify only one command.
 	//
 	// For stacks, the following commands are available:
 	//
-	//   execute_recipes: Execute one or more recipes. To specify the recipes,
+	//    execute_recipes: Execute one or more recipes. To specify the recipes,
 	// set an Args parameter named recipes to the list of recipes to be executed.
 	// For example, to execute phpapp::appsetup, set Args to {"recipes":["phpapp::appsetup"]}.
-	//  install_dependencies: Install the stack's dependencies.  update_custom_cookbooks:
-	// Update the stack's custom cookbooks.  update_dependencies: Update the stack's
-	// dependencies.  The update_dependencies and install_dependencies commands
-	// are supported only for Linux instances. You can run the commands successfully
-	// on Windows instances, but they do nothing. For apps, the following commands
-	// are available:
 	//
-	//   deploy: Deploy an app. Ruby on Rails apps have an optional Args parameter
+	//    install_dependencies: Install the stack's dependencies.
+	//
+	//    update_custom_cookbooks: Update the stack's custom cookbooks.
+	//
+	//    update_dependencies: Update the stack's dependencies.
+	//
+	//    The update_dependencies and install_dependencies commands are supported
+	// only for Linux instances. You can run the commands successfully on Windows
+	// instances, but they do nothing.
+	//
+	//  For apps, the following commands are available:
+	//
+	//    deploy: Deploy an app. Ruby on Rails apps have an optional Args parameter
 	// named migrate. Set Args to {"migrate":["true"]} to migrate the database.
-	// The default setting is {"migrate":["false"]}.  rollback Roll the app back
-	// to the previous version. When you update an app, AWS OpsWorks stores the
-	// previous version, up to a maximum of five versions. You can use this command
-	// to roll an app back as many as four versions.  start: Start the app's web
-	// or application server.  stop: Stop the app's web or application server.
-	// restart: Restart the app's web or application server.  undeploy: Undeploy
-	// the app.
+	// The default setting is {"migrate":["false"]}.
+	//
+	//    rollback Roll the app back to the previous version. When you update an
+	// app, AWS OpsWorks stores the previous version, up to a maximum of five versions.
+	// You can use this command to roll an app back as many as four versions.
+	//
+	//    start: Start the app's web or application server.
+	//
+	//    stop: Stop the app's web or application server.
+	//
+	//    restart: Restart the app's web or application server.
+	//
+	//    undeploy: Undeploy the app.
 	Name *string `type:"string" required:"true" enum:"DeploymentCommandName"`
-
-	metadataDeploymentCommand `json:"-" xml:"-"`
-}
-
-type metadataDeploymentCommand struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4034,15 +5909,24 @@ func (s DeploymentCommand) GoString() string {
 	return s.String()
 }
 
-type DeregisterEcsClusterInput struct {
-	// The cluster's ARN.
-	EcsClusterArn *string `type:"string" required:"true"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeploymentCommand) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeploymentCommand"}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
 
-	metadataDeregisterEcsClusterInput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeregisterEcsClusterInput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DeregisterEcsClusterInput struct {
+	_ struct{} `type:"structure"`
+
+	// The cluster's ARN.
+	EcsClusterArn *string `type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -4055,12 +5939,21 @@ func (s DeregisterEcsClusterInput) GoString() string {
 	return s.String()
 }
 
-type DeregisterEcsClusterOutput struct {
-	metadataDeregisterEcsClusterOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeregisterEcsClusterInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeregisterEcsClusterInput"}
+	if s.EcsClusterArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("EcsClusterArn"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeregisterEcsClusterOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DeregisterEcsClusterOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -4074,14 +5967,10 @@ func (s DeregisterEcsClusterOutput) GoString() string {
 }
 
 type DeregisterElasticIpInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Elastic IP address.
 	ElasticIp *string `type:"string" required:"true"`
-
-	metadataDeregisterElasticIpInput `json:"-" xml:"-"`
-}
-
-type metadataDeregisterElasticIpInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4094,12 +5983,21 @@ func (s DeregisterElasticIpInput) GoString() string {
 	return s.String()
 }
 
-type DeregisterElasticIpOutput struct {
-	metadataDeregisterElasticIpOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeregisterElasticIpInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeregisterElasticIpInput"}
+	if s.ElasticIp == nil {
+		invalidParams.Add(request.NewErrParamRequired("ElasticIp"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeregisterElasticIpOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DeregisterElasticIpOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -4113,14 +6011,10 @@ func (s DeregisterElasticIpOutput) GoString() string {
 }
 
 type DeregisterInstanceInput struct {
+	_ struct{} `type:"structure"`
+
 	// The instance ID.
 	InstanceId *string `type:"string" required:"true"`
-
-	metadataDeregisterInstanceInput `json:"-" xml:"-"`
-}
-
-type metadataDeregisterInstanceInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4133,12 +6027,21 @@ func (s DeregisterInstanceInput) GoString() string {
 	return s.String()
 }
 
-type DeregisterInstanceOutput struct {
-	metadataDeregisterInstanceOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeregisterInstanceInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeregisterInstanceInput"}
+	if s.InstanceId == nil {
+		invalidParams.Add(request.NewErrParamRequired("InstanceId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeregisterInstanceOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DeregisterInstanceOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -4152,14 +6055,10 @@ func (s DeregisterInstanceOutput) GoString() string {
 }
 
 type DeregisterRdsDbInstanceInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon RDS instance's ARN.
 	RdsDbInstanceArn *string `type:"string" required:"true"`
-
-	metadataDeregisterRdsDbInstanceInput `json:"-" xml:"-"`
-}
-
-type metadataDeregisterRdsDbInstanceInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4172,12 +6071,21 @@ func (s DeregisterRdsDbInstanceInput) GoString() string {
 	return s.String()
 }
 
-type DeregisterRdsDbInstanceOutput struct {
-	metadataDeregisterRdsDbInstanceOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeregisterRdsDbInstanceInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeregisterRdsDbInstanceInput"}
+	if s.RdsDbInstanceArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("RdsDbInstanceArn"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeregisterRdsDbInstanceOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DeregisterRdsDbInstanceOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -4191,16 +6099,12 @@ func (s DeregisterRdsDbInstanceOutput) GoString() string {
 }
 
 type DeregisterVolumeInput struct {
+	_ struct{} `type:"structure"`
+
 	// The AWS OpsWorks volume ID, which is the GUID that AWS OpsWorks assigned
 	// to the instance when you registered the volume with the stack, not the Amazon
 	// EC2 volume ID.
 	VolumeId *string `type:"string" required:"true"`
-
-	metadataDeregisterVolumeInput `json:"-" xml:"-"`
-}
-
-type metadataDeregisterVolumeInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4213,12 +6117,21 @@ func (s DeregisterVolumeInput) GoString() string {
 	return s.String()
 }
 
-type DeregisterVolumeOutput struct {
-	metadataDeregisterVolumeOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeregisterVolumeInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeregisterVolumeInput"}
+	if s.VolumeId == nil {
+		invalidParams.Add(request.NewErrParamRequired("VolumeId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeregisterVolumeOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DeregisterVolumeOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -4232,17 +6145,13 @@ func (s DeregisterVolumeOutput) GoString() string {
 }
 
 type DescribeAgentVersionsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The configuration manager.
 	ConfigurationManager *StackConfigurationManager `type:"structure"`
 
 	// The stack ID.
 	StackId *string `type:"string"`
-
-	metadataDescribeAgentVersionsInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeAgentVersionsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4257,16 +6166,12 @@ func (s DescribeAgentVersionsInput) GoString() string {
 
 // Contains the response to a DescribeAgentVersions request.
 type DescribeAgentVersionsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The agent versions for the specified stack or configuration manager. Note
 	// that this value is the complete version number, not the abbreviated number
 	// used by the console.
 	AgentVersions []*AgentVersion `type:"list"`
-
-	metadataDescribeAgentVersionsOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeAgentVersionsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4280,6 +6185,8 @@ func (s DescribeAgentVersionsOutput) GoString() string {
 }
 
 type DescribeAppsInput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of app IDs for the apps to be described. If you use this parameter,
 	// DescribeApps returns a description of the specified apps. Otherwise, it returns
 	// a description of every app.
@@ -4288,12 +6195,6 @@ type DescribeAppsInput struct {
 	// The app stack ID. If you use this parameter, DescribeApps returns a description
 	// of the apps in the specified stack.
 	StackId *string `type:"string"`
-
-	metadataDescribeAppsInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeAppsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4308,14 +6209,10 @@ func (s DescribeAppsInput) GoString() string {
 
 // Contains the response to a DescribeApps request.
 type DescribeAppsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of App objects that describe the specified apps.
 	Apps []*App `type:"list"`
-
-	metadataDescribeAppsOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeAppsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4329,6 +6226,8 @@ func (s DescribeAppsOutput) GoString() string {
 }
 
 type DescribeCommandsInput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of command IDs. If you include this parameter, DescribeCommands
 	// returns a description of the specified commands. Otherwise, it returns a
 	// description of every command.
@@ -4341,12 +6240,6 @@ type DescribeCommandsInput struct {
 	// The instance ID. If you include this parameter, DescribeCommands returns
 	// a description of the commands associated with the specified instance.
 	InstanceId *string `type:"string"`
-
-	metadataDescribeCommandsInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeCommandsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4361,14 +6254,10 @@ func (s DescribeCommandsInput) GoString() string {
 
 // Contains the response to a DescribeCommands request.
 type DescribeCommandsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of Command objects that describe each of the specified commands.
 	Commands []*Command `type:"list"`
-
-	metadataDescribeCommandsOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeCommandsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4382,6 +6271,8 @@ func (s DescribeCommandsOutput) GoString() string {
 }
 
 type DescribeDeploymentsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The app ID. If you include this parameter, DescribeDeployments returns a
 	// description of the commands associated with the specified app.
 	AppId *string `type:"string"`
@@ -4394,12 +6285,6 @@ type DescribeDeploymentsInput struct {
 	// The stack ID. If you include this parameter, DescribeDeployments returns
 	// a description of the commands associated with the specified stack.
 	StackId *string `type:"string"`
-
-	metadataDescribeDeploymentsInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeDeploymentsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4414,14 +6299,10 @@ func (s DescribeDeploymentsInput) GoString() string {
 
 // Contains the response to a DescribeDeployments request.
 type DescribeDeploymentsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of Deployment objects that describe the deployments.
 	Deployments []*Deployment `type:"list"`
-
-	metadataDescribeDeploymentsOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeDeploymentsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4435,6 +6316,8 @@ func (s DescribeDeploymentsOutput) GoString() string {
 }
 
 type DescribeEcsClustersInput struct {
+	_ struct{} `type:"structure"`
+
 	// A list of ARNs, one for each cluster to be described.
 	EcsClusterArns []*string `type:"list"`
 
@@ -4455,12 +6338,6 @@ type DescribeEcsClustersInput struct {
 	// A stack ID. DescribeEcsClusters returns a description of the cluster that
 	// is registered with the stack.
 	StackId *string `type:"string"`
-
-	metadataDescribeEcsClustersInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeEcsClustersInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4475,6 +6352,8 @@ func (s DescribeEcsClustersInput) GoString() string {
 
 // Contains the response to a DescribeEcsClusters request.
 type DescribeEcsClustersOutput struct {
+	_ struct{} `type:"structure"`
+
 	// A list of EcsCluster objects containing the cluster descriptions.
 	EcsClusters []*EcsCluster `type:"list"`
 
@@ -4483,12 +6362,6 @@ type DescribeEcsClustersOutput struct {
 	// parameter to retrieve the next set of results. If the previous paginated
 	// request returned all of the remaining results, this parameter is set to null.
 	NextToken *string `type:"string"`
-
-	metadataDescribeEcsClustersOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeEcsClustersOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4502,6 +6375,8 @@ func (s DescribeEcsClustersOutput) GoString() string {
 }
 
 type DescribeElasticIpsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The instance ID. If you include this parameter, DescribeElasticIps returns
 	// a description of the Elastic IP addresses associated with the specified instance.
 	InstanceId *string `type:"string"`
@@ -4514,12 +6389,6 @@ type DescribeElasticIpsInput struct {
 	// A stack ID. If you include this parameter, DescribeElasticIps returns a description
 	// of the Elastic IP addresses that are registered with the specified stack.
 	StackId *string `type:"string"`
-
-	metadataDescribeElasticIpsInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeElasticIpsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4534,14 +6403,10 @@ func (s DescribeElasticIpsInput) GoString() string {
 
 // Contains the response to a DescribeElasticIps request.
 type DescribeElasticIpsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// An ElasticIps object that describes the specified Elastic IP addresses.
 	ElasticIps []*ElasticIp `type:"list"`
-
-	metadataDescribeElasticIpsOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeElasticIpsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4555,18 +6420,14 @@ func (s DescribeElasticIpsOutput) GoString() string {
 }
 
 type DescribeElasticLoadBalancersInput struct {
+	_ struct{} `type:"structure"`
+
 	// A list of layer IDs. The action describes the Elastic Load Balancing instances
 	// for the specified layers.
 	LayerIds []*string `type:"list"`
 
 	// A stack ID. The action describes the stack's Elastic Load Balancing instances.
 	StackId *string `type:"string"`
-
-	metadataDescribeElasticLoadBalancersInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeElasticLoadBalancersInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4581,15 +6442,11 @@ func (s DescribeElasticLoadBalancersInput) GoString() string {
 
 // Contains the response to a DescribeElasticLoadBalancers request.
 type DescribeElasticLoadBalancersOutput struct {
+	_ struct{} `type:"structure"`
+
 	// A list of ElasticLoadBalancer objects that describe the specified Elastic
 	// Load Balancing instances.
 	ElasticLoadBalancers []*ElasticLoadBalancer `type:"list"`
-
-	metadataDescribeElasticLoadBalancersOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeElasticLoadBalancersOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4603,6 +6460,8 @@ func (s DescribeElasticLoadBalancersOutput) GoString() string {
 }
 
 type DescribeInstancesInput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of instance IDs to be described. If you use this parameter, DescribeInstances
 	// returns a description of the specified instances. Otherwise, it returns a
 	// description of every instance.
@@ -4615,12 +6474,6 @@ type DescribeInstancesInput struct {
 	// A stack ID. If you use this parameter, DescribeInstances returns descriptions
 	// of the instances associated with the specified stack.
 	StackId *string `type:"string"`
-
-	metadataDescribeInstancesInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeInstancesInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4635,14 +6488,10 @@ func (s DescribeInstancesInput) GoString() string {
 
 // Contains the response to a DescribeInstances request.
 type DescribeInstancesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of Instance objects that describe the instances.
 	Instances []*Instance `type:"list"`
-
-	metadataDescribeInstancesOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeInstancesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4656,6 +6505,8 @@ func (s DescribeInstancesOutput) GoString() string {
 }
 
 type DescribeLayersInput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of layer IDs that specify the layers to be described. If you omit
 	// this parameter, DescribeLayers returns a description of every layer in the
 	// specified stack.
@@ -4663,12 +6514,6 @@ type DescribeLayersInput struct {
 
 	// The stack ID.
 	StackId *string `type:"string"`
-
-	metadataDescribeLayersInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeLayersInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4683,14 +6528,10 @@ func (s DescribeLayersInput) GoString() string {
 
 // Contains the response to a DescribeLayers request.
 type DescribeLayersOutput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of Layer objects that describe the layers.
 	Layers []*Layer `type:"list"`
-
-	metadataDescribeLayersOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeLayersOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4704,14 +6545,10 @@ func (s DescribeLayersOutput) GoString() string {
 }
 
 type DescribeLoadBasedAutoScalingInput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of layer IDs.
 	LayerIds []*string `type:"list" required:"true"`
-
-	metadataDescribeLoadBasedAutoScalingInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeLoadBasedAutoScalingInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4724,17 +6561,26 @@ func (s DescribeLoadBasedAutoScalingInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeLoadBasedAutoScalingInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeLoadBasedAutoScalingInput"}
+	if s.LayerIds == nil {
+		invalidParams.Add(request.NewErrParamRequired("LayerIds"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Contains the response to a DescribeLoadBasedAutoScaling request.
 type DescribeLoadBasedAutoScalingOutput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of LoadBasedAutoScalingConfiguration objects that describe each
 	// layer's configuration.
 	LoadBasedAutoScalingConfigurations []*LoadBasedAutoScalingConfiguration `type:"list"`
-
-	metadataDescribeLoadBasedAutoScalingOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeLoadBasedAutoScalingOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4748,11 +6594,7 @@ func (s DescribeLoadBasedAutoScalingOutput) GoString() string {
 }
 
 type DescribeMyUserProfileInput struct {
-	metadataDescribeMyUserProfileInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeMyUserProfileInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -4767,14 +6609,10 @@ func (s DescribeMyUserProfileInput) GoString() string {
 
 // Contains the response to a DescribeMyUserProfile request.
 type DescribeMyUserProfileOutput struct {
+	_ struct{} `type:"structure"`
+
 	// A UserProfile object that describes the user's SSH information.
 	UserProfile *SelfUserProfile `type:"structure"`
-
-	metadataDescribeMyUserProfileOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeMyUserProfileOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4788,18 +6626,14 @@ func (s DescribeMyUserProfileOutput) GoString() string {
 }
 
 type DescribePermissionsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The user's IAM ARN. For more information about IAM ARNs, see Using Identifiers
 	// (http://docs.aws.amazon.com/IAM/latest/UserGuide/Using_Identifiers.html).
 	IamUserArn *string `type:"string"`
 
 	// The stack ID.
 	StackId *string `type:"string"`
-
-	metadataDescribePermissionsInput `json:"-" xml:"-"`
-}
-
-type metadataDescribePermissionsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4814,21 +6648,20 @@ func (s DescribePermissionsInput) GoString() string {
 
 // Contains the response to a DescribePermissions request.
 type DescribePermissionsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of Permission objects that describe the stack permissions.
 	//
-	//  If the request object contains only a stack ID, the array contains a Permission
-	// object with permissions for each of the stack IAM ARNs. If the request object
-	// contains only an IAM ARN, the array contains a Permission object with permissions
-	// for each of the user's stack IDs. If the request contains a stack ID and
-	// an IAM ARN, the array contains a single Permission object with permissions
-	// for the specified stack and IAM ARN.
+	//   If the request object contains only a stack ID, the array contains a Permission
+	// object with permissions for each of the stack IAM ARNs.
+	//
+	//   If the request object contains only an IAM ARN, the array contains a Permission
+	// object with permissions for each of the user's stack IDs.
+	//
+	//   If the request contains a stack ID and an IAM ARN, the array contains
+	// a single Permission object with permissions for the specified stack and IAM
+	// ARN.
 	Permissions []*Permission `type:"list"`
-
-	metadataDescribePermissionsOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribePermissionsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4842,6 +6675,8 @@ func (s DescribePermissionsOutput) GoString() string {
 }
 
 type DescribeRaidArraysInput struct {
+	_ struct{} `type:"structure"`
+
 	// The instance ID. If you use this parameter, DescribeRaidArrays returns descriptions
 	// of the RAID arrays associated with the specified instance.
 	InstanceId *string `type:"string"`
@@ -4853,12 +6688,6 @@ type DescribeRaidArraysInput struct {
 
 	// The stack ID.
 	StackId *string `type:"string"`
-
-	metadataDescribeRaidArraysInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeRaidArraysInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4873,14 +6702,10 @@ func (s DescribeRaidArraysInput) GoString() string {
 
 // Contains the response to a DescribeRaidArrays request.
 type DescribeRaidArraysOutput struct {
+	_ struct{} `type:"structure"`
+
 	// A RaidArrays object that describes the specified RAID arrays.
 	RaidArrays []*RaidArray `type:"list"`
-
-	metadataDescribeRaidArraysOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeRaidArraysOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4894,18 +6719,14 @@ func (s DescribeRaidArraysOutput) GoString() string {
 }
 
 type DescribeRdsDbInstancesInput struct {
+	_ struct{} `type:"structure"`
+
 	// An array containing the ARNs of the instances to be described.
 	RdsDbInstanceArns []*string `type:"list"`
 
 	// The stack ID that the instances are registered with. The operation returns
 	// descriptions of all registered Amazon RDS instances.
 	StackId *string `type:"string" required:"true"`
-
-	metadataDescribeRdsDbInstancesInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeRdsDbInstancesInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4918,16 +6739,25 @@ func (s DescribeRdsDbInstancesInput) GoString() string {
 	return s.String()
 }
 
-// Contains the response to a DescribeRdsDbInstances request.
-type DescribeRdsDbInstancesOutput struct {
-	// An a array of RdsDbInstance objects that describe the instances.
-	RdsDbInstances []*RdsDbInstance `type:"list"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeRdsDbInstancesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeRdsDbInstancesInput"}
+	if s.StackId == nil {
+		invalidParams.Add(request.NewErrParamRequired("StackId"))
+	}
 
-	metadataDescribeRdsDbInstancesOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDescribeRdsDbInstancesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Contains the response to a DescribeRdsDbInstances request.
+type DescribeRdsDbInstancesOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An a array of RdsDbInstance objects that describe the instances.
+	RdsDbInstances []*RdsDbInstance `type:"list"`
 }
 
 // String returns the string representation
@@ -4941,6 +6771,8 @@ func (s DescribeRdsDbInstancesOutput) GoString() string {
 }
 
 type DescribeServiceErrorsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The instance ID. If you use this parameter, DescribeServiceErrors returns
 	// descriptions of the errors associated with the specified instance.
 	InstanceId *string `type:"string"`
@@ -4953,12 +6785,6 @@ type DescribeServiceErrorsInput struct {
 	// The stack ID. If you use this parameter, DescribeServiceErrors returns descriptions
 	// of the errors associated with the specified stack.
 	StackId *string `type:"string"`
-
-	metadataDescribeServiceErrorsInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeServiceErrorsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4973,14 +6799,10 @@ func (s DescribeServiceErrorsInput) GoString() string {
 
 // Contains the response to a DescribeServiceErrors request.
 type DescribeServiceErrorsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of ServiceError objects that describe the specified service errors.
 	ServiceErrors []*ServiceError `type:"list"`
-
-	metadataDescribeServiceErrorsOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeServiceErrorsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4994,14 +6816,10 @@ func (s DescribeServiceErrorsOutput) GoString() string {
 }
 
 type DescribeStackProvisioningParametersInput struct {
+	_ struct{} `type:"structure"`
+
 	// The stack ID
 	StackId *string `type:"string" required:"true"`
-
-	metadataDescribeStackProvisioningParametersInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeStackProvisioningParametersInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5014,19 +6832,28 @@ func (s DescribeStackProvisioningParametersInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeStackProvisioningParametersInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeStackProvisioningParametersInput"}
+	if s.StackId == nil {
+		invalidParams.Add(request.NewErrParamRequired("StackId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Contains the response to a DescribeStackProvisioningParameters request.
 type DescribeStackProvisioningParametersOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The AWS OpsWorks agent installer's URL.
 	AgentInstallerUrl *string `type:"string"`
 
 	// An embedded object that contains the provisioning parameters.
 	Parameters map[string]*string `type:"map"`
-
-	metadataDescribeStackProvisioningParametersOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeStackProvisioningParametersOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5040,14 +6867,10 @@ func (s DescribeStackProvisioningParametersOutput) GoString() string {
 }
 
 type DescribeStackSummaryInput struct {
+	_ struct{} `type:"structure"`
+
 	// The stack ID.
 	StackId *string `type:"string" required:"true"`
-
-	metadataDescribeStackSummaryInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeStackSummaryInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5060,16 +6883,25 @@ func (s DescribeStackSummaryInput) GoString() string {
 	return s.String()
 }
 
-// Contains the response to a DescribeStackSummary request.
-type DescribeStackSummaryOutput struct {
-	// A StackSummary object that contains the results.
-	StackSummary *StackSummary `type:"structure"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeStackSummaryInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeStackSummaryInput"}
+	if s.StackId == nil {
+		invalidParams.Add(request.NewErrParamRequired("StackId"))
+	}
 
-	metadataDescribeStackSummaryOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDescribeStackSummaryOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Contains the response to a DescribeStackSummary request.
+type DescribeStackSummaryOutput struct {
+	_ struct{} `type:"structure"`
+
+	// A StackSummary object that contains the results.
+	StackSummary *StackSummary `type:"structure"`
 }
 
 // String returns the string representation
@@ -5083,15 +6915,11 @@ func (s DescribeStackSummaryOutput) GoString() string {
 }
 
 type DescribeStacksInput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of stack IDs that specify the stacks to be described. If you omit
 	// this parameter, DescribeStacks returns a description of every stack.
 	StackIds []*string `type:"list"`
-
-	metadataDescribeStacksInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeStacksInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5106,14 +6934,10 @@ func (s DescribeStacksInput) GoString() string {
 
 // Contains the response to a DescribeStacks request.
 type DescribeStacksOutput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of Stack objects that describe the stacks.
 	Stacks []*Stack `type:"list"`
-
-	metadataDescribeStacksOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeStacksOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5127,14 +6951,10 @@ func (s DescribeStacksOutput) GoString() string {
 }
 
 type DescribeTimeBasedAutoScalingInput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of instance IDs.
 	InstanceIds []*string `type:"list" required:"true"`
-
-	metadataDescribeTimeBasedAutoScalingInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeTimeBasedAutoScalingInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5147,17 +6967,26 @@ func (s DescribeTimeBasedAutoScalingInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeTimeBasedAutoScalingInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeTimeBasedAutoScalingInput"}
+	if s.InstanceIds == nil {
+		invalidParams.Add(request.NewErrParamRequired("InstanceIds"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Contains the response to a DescribeTimeBasedAutoScaling request.
 type DescribeTimeBasedAutoScalingOutput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of TimeBasedAutoScalingConfiguration objects that describe the configuration
 	// for the specified instances.
 	TimeBasedAutoScalingConfigurations []*TimeBasedAutoScalingConfiguration `type:"list"`
-
-	metadataDescribeTimeBasedAutoScalingOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeTimeBasedAutoScalingOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5171,14 +7000,10 @@ func (s DescribeTimeBasedAutoScalingOutput) GoString() string {
 }
 
 type DescribeUserProfilesInput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of IAM user ARNs that identify the users to be described.
 	IamUserArns []*string `type:"list"`
-
-	metadataDescribeUserProfilesInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeUserProfilesInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5193,14 +7018,10 @@ func (s DescribeUserProfilesInput) GoString() string {
 
 // Contains the response to a DescribeUserProfiles request.
 type DescribeUserProfilesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// A Users object that describes the specified users.
 	UserProfiles []*UserProfile `type:"list"`
-
-	metadataDescribeUserProfilesOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeUserProfilesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5214,6 +7035,8 @@ func (s DescribeUserProfilesOutput) GoString() string {
 }
 
 type DescribeVolumesInput struct {
+	_ struct{} `type:"structure"`
+
 	// The instance ID. If you use this parameter, DescribeVolumes returns descriptions
 	// of the volumes associated with the specified instance.
 	InstanceId *string `type:"string"`
@@ -5229,12 +7052,6 @@ type DescribeVolumesInput struct {
 	// descriptions of the specified volumes. Otherwise, it returns a description
 	// of every volume.
 	VolumeIds []*string `type:"list"`
-
-	metadataDescribeVolumesInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeVolumesInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5249,14 +7066,10 @@ func (s DescribeVolumesInput) GoString() string {
 
 // Contains the response to a DescribeVolumes request.
 type DescribeVolumesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of volume IDs.
 	Volumes []*Volume `type:"list"`
-
-	metadataDescribeVolumesOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeVolumesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5270,18 +7083,14 @@ func (s DescribeVolumesOutput) GoString() string {
 }
 
 type DetachElasticLoadBalancerInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Elastic Load Balancing instance's name.
 	ElasticLoadBalancerName *string `type:"string" required:"true"`
 
 	// The ID of the layer that the Elastic Load Balancing instance is attached
 	// to.
 	LayerId *string `type:"string" required:"true"`
-
-	metadataDetachElasticLoadBalancerInput `json:"-" xml:"-"`
-}
-
-type metadataDetachElasticLoadBalancerInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5294,12 +7103,24 @@ func (s DetachElasticLoadBalancerInput) GoString() string {
 	return s.String()
 }
 
-type DetachElasticLoadBalancerOutput struct {
-	metadataDetachElasticLoadBalancerOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DetachElasticLoadBalancerInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DetachElasticLoadBalancerInput"}
+	if s.ElasticLoadBalancerName == nil {
+		invalidParams.Add(request.NewErrParamRequired("ElasticLoadBalancerName"))
+	}
+	if s.LayerId == nil {
+		invalidParams.Add(request.NewErrParamRequired("LayerId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDetachElasticLoadBalancerOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DetachElasticLoadBalancerOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -5313,14 +7134,10 @@ func (s DetachElasticLoadBalancerOutput) GoString() string {
 }
 
 type DisassociateElasticIpInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Elastic IP address.
 	ElasticIp *string `type:"string" required:"true"`
-
-	metadataDisassociateElasticIpInput `json:"-" xml:"-"`
-}
-
-type metadataDisassociateElasticIpInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5333,12 +7150,21 @@ func (s DisassociateElasticIpInput) GoString() string {
 	return s.String()
 }
 
-type DisassociateElasticIpOutput struct {
-	metadataDisassociateElasticIpOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DisassociateElasticIpInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DisassociateElasticIpInput"}
+	if s.ElasticIp == nil {
+		invalidParams.Add(request.NewErrParamRequired("ElasticIp"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDisassociateElasticIpOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DisassociateElasticIpOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -5355,6 +7181,8 @@ func (s DisassociateElasticIpOutput) GoString() string {
 // EC2 EbsBlockDevice (http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_EbsBlockDevice.html)
 // data type.
 type EbsBlockDevice struct {
+	_ struct{} `type:"structure"`
+
 	// Whether the volume is deleted on instance termination.
 	DeleteOnTermination *bool `type:"boolean"`
 
@@ -5371,12 +7199,6 @@ type EbsBlockDevice struct {
 	// The volume type. gp2 for General Purpose (SSD) volumes, io1 for Provisioned
 	// IOPS (SSD) volumes, and standard for Magnetic volumes.
 	VolumeType *string `type:"string" enum:"VolumeType"`
-
-	metadataEbsBlockDevice `json:"-" xml:"-"`
-}
-
-type metadataEbsBlockDevice struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5391,6 +7213,8 @@ func (s EbsBlockDevice) GoString() string {
 
 // Describes a registered Amazon ECS cluster.
 type EcsCluster struct {
+	_ struct{} `type:"structure"`
+
 	// The cluster's ARN.
 	EcsClusterArn *string `type:"string"`
 
@@ -5402,12 +7226,6 @@ type EcsCluster struct {
 
 	// The stack ID.
 	StackId *string `type:"string"`
-
-	metadataEcsCluster `json:"-" xml:"-"`
-}
-
-type metadataEcsCluster struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5422,6 +7240,8 @@ func (s EcsCluster) GoString() string {
 
 // Describes an Elastic IP address.
 type ElasticIp struct {
+	_ struct{} `type:"structure"`
+
 	// The domain.
 	Domain *string `type:"string"`
 
@@ -5436,12 +7256,6 @@ type ElasticIp struct {
 
 	// The AWS region. For more information, see Regions and Endpoints (http://docs.aws.amazon.com/general/latest/gr/rande.html).
 	Region *string `type:"string"`
-
-	metadataElasticIp `json:"-" xml:"-"`
-}
-
-type metadataElasticIp struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5456,6 +7270,8 @@ func (s ElasticIp) GoString() string {
 
 // Describes an Elastic Load Balancing instance.
 type ElasticLoadBalancer struct {
+	_ struct{} `type:"structure"`
+
 	// A list of Availability Zones.
 	AvailabilityZones []*string `type:"list"`
 
@@ -5483,12 +7299,6 @@ type ElasticLoadBalancer struct {
 
 	// The VPC ID.
 	VpcId *string `type:"string"`
-
-	metadataElasticLoadBalancer `json:"-" xml:"-"`
-}
-
-type metadataElasticLoadBalancer struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5503,6 +7313,8 @@ func (s ElasticLoadBalancer) GoString() string {
 
 // Represents an app's environment variable.
 type EnvironmentVariable struct {
+	_ struct{} `type:"structure"`
+
 	// (Required) The environment variable's name, which can consist of up to 64
 	// characters and must be specified. The name can contain upper- and lowercase
 	// letters, numbers, and underscores (_), but it must start with a letter or
@@ -5519,12 +7331,6 @@ type EnvironmentVariable struct {
 	// you specify a value, it can contain up to 256 characters, which must all
 	// be printable.
 	Value *string `type:"string" required:"true"`
-
-	metadataEnvironmentVariable `json:"-" xml:"-"`
-}
-
-type metadataEnvironmentVariable struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5537,15 +7343,27 @@ func (s EnvironmentVariable) GoString() string {
 	return s.String()
 }
 
-type GetHostnameSuggestionInput struct {
-	// The layer ID.
-	LayerId *string `type:"string" required:"true"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *EnvironmentVariable) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "EnvironmentVariable"}
+	if s.Key == nil {
+		invalidParams.Add(request.NewErrParamRequired("Key"))
+	}
+	if s.Value == nil {
+		invalidParams.Add(request.NewErrParamRequired("Value"))
+	}
 
-	metadataGetHostnameSuggestionInput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataGetHostnameSuggestionInput struct {
-	SDKShapeTraits bool `type:"structure"`
+type GetHostnameSuggestionInput struct {
+	_ struct{} `type:"structure"`
+
+	// The layer ID.
+	LayerId *string `type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -5558,19 +7376,28 @@ func (s GetHostnameSuggestionInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetHostnameSuggestionInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetHostnameSuggestionInput"}
+	if s.LayerId == nil {
+		invalidParams.Add(request.NewErrParamRequired("LayerId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Contains the response to a GetHostnameSuggestion request.
 type GetHostnameSuggestionOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The generated host name.
 	Hostname *string `type:"string"`
 
 	// The layer ID.
 	LayerId *string `type:"string"`
-
-	metadataGetHostnameSuggestionOutput `json:"-" xml:"-"`
-}
-
-type metadataGetHostnameSuggestionOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5584,6 +7411,8 @@ func (s GetHostnameSuggestionOutput) GoString() string {
 }
 
 type GrantAccessInput struct {
+	_ struct{} `type:"structure"`
+
 	// The instance's AWS OpsWorks ID.
 	InstanceId *string `type:"string" required:"true"`
 
@@ -5591,13 +7420,7 @@ type GrantAccessInput struct {
 	// at the end of this period, the user will no longer be able to use the credentials
 	// to log in. If the user is logged in at the time, he or she automatically
 	// will be logged out.
-	ValidForInMinutes *int64 `type:"integer"`
-
-	metadataGrantAccessInput `json:"-" xml:"-"`
-}
-
-type metadataGrantAccessInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	ValidForInMinutes *int64 `min:"60" type:"integer"`
 }
 
 // String returns the string representation
@@ -5610,17 +7433,29 @@ func (s GrantAccessInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GrantAccessInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GrantAccessInput"}
+	if s.InstanceId == nil {
+		invalidParams.Add(request.NewErrParamRequired("InstanceId"))
+	}
+	if s.ValidForInMinutes != nil && *s.ValidForInMinutes < 60 {
+		invalidParams.Add(request.NewErrParamMinValue("ValidForInMinutes", 60))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Contains the response to a GrantAccess request.
 type GrantAccessOutput struct {
+	_ struct{} `type:"structure"`
+
 	// A TemporaryCredential object that contains the data needed to log in to the
 	// instance by RDP clients, such as the Microsoft Remote Desktop Connection.
 	TemporaryCredential *TemporaryCredential `type:"structure"`
-
-	metadataGrantAccessOutput `json:"-" xml:"-"`
-}
-
-type metadataGrantAccessOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5635,6 +7470,8 @@ func (s GrantAccessOutput) GoString() string {
 
 // Describes an instance.
 type Instance struct {
+	_ struct{} `type:"structure"`
+
 	// The agent version. This parameter is set to INHERIT if the instance inherits
 	// the default stack setting or to a a version number for a fixed agent version.
 	AgentVersion *string `type:"string"`
@@ -5758,22 +7595,45 @@ type Instance struct {
 
 	// The instance status:
 	//
-	//   booting   connection_lost   online   pending   rebooting   requested
-	//  running_setup   setup_failed   shutting_down   start_failed   stopped
-	// stopping   terminated   terminating
+	//    booting
+	//
+	//    connection_lost
+	//
+	//    online
+	//
+	//    pending
+	//
+	//    rebooting
+	//
+	//    requested
+	//
+	//    running_setup
+	//
+	//    setup_failed
+	//
+	//    shutting_down
+	//
+	//    start_failed
+	//
+	//    stop_failed
+	//
+	//    stopped
+	//
+	//    stopping
+	//
+	//    terminated
+	//
+	//    terminating
 	Status *string `type:"string"`
 
 	// The instance's subnet ID; applicable only if the stack is running in a VPC.
 	SubnetId *string `type:"string"`
 
+	// The instance's tenancy option, such as dedicated or host.
+	Tenancy *string `type:"string"`
+
 	// The instance's virtualization type: paravirtual or hvm.
 	VirtualizationType *string `type:"string" enum:"VirtualizationType"`
-
-	metadataInstance `json:"-" xml:"-"`
-}
-
-type metadataInstance struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5789,17 +7649,13 @@ func (s Instance) GoString() string {
 // Contains a description of an Amazon EC2 instance from the Amazon EC2 metadata
 // service. For more information, see Instance Metadata and User Data (http://docs.aws.amazon.com/sdkfornet/latest/apidocs/Index.html).
 type InstanceIdentity struct {
+	_ struct{} `type:"structure"`
+
 	// A JSON document that contains the metadata.
 	Document *string `type:"string"`
 
 	// A signature that can be used to verify the document's accuracy and authenticity.
 	Signature *string `type:"string"`
-
-	metadataInstanceIdentity `json:"-" xml:"-"`
-}
-
-type metadataInstanceIdentity struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5814,6 +7670,8 @@ func (s InstanceIdentity) GoString() string {
 
 // Describes how many instances a stack has for each status.
 type InstancesCount struct {
+	_ struct{} `type:"structure"`
+
 	// The number of instances in the Assigning state.
 	Assigning *int64 `type:"integer"`
 
@@ -5870,12 +7728,6 @@ type InstancesCount struct {
 
 	// The number of instances in the Unassigning state.
 	Unassigning *int64 `type:"integer"`
-
-	metadataInstancesCount `json:"-" xml:"-"`
-}
-
-type metadataInstancesCount struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -5890,6 +7742,8 @@ func (s InstancesCount) GoString() string {
 
 // Describes a layer.
 type Layer struct {
+	_ struct{} `type:"structure"`
+
 	// The layer attributes.
 	//
 	// For the HaproxyStatsPassword, MysqlRootPassword, and GangliaPassword attributes,
@@ -5980,12 +7834,6 @@ type Layer struct {
 
 	// A VolumeConfigurations object that describes the layer's Amazon EBS volumes.
 	VolumeConfigurations []*VolumeConfiguration `type:"list"`
-
-	metadataLayer `json:"-" xml:"-"`
-}
-
-type metadataLayer struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6000,14 +7848,10 @@ func (s Layer) GoString() string {
 
 // Specifies the lifecycle event configuration
 type LifecycleEventConfiguration struct {
+	_ struct{} `type:"structure"`
+
 	// A ShutdownEventConfiguration object that specifies the Shutdown event configuration.
 	Shutdown *ShutdownEventConfiguration `type:"structure"`
-
-	metadataLifecycleEventConfiguration `json:"-" xml:"-"`
-}
-
-type metadataLifecycleEventConfiguration struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6022,6 +7866,8 @@ func (s LifecycleEventConfiguration) GoString() string {
 
 // Describes a layer's load-based auto scaling configuration.
 type LoadBasedAutoScalingConfiguration struct {
+	_ struct{} `type:"structure"`
+
 	// An AutoScalingThresholds object that describes the downscaling configuration,
 	// which defines how and when AWS OpsWorks reduces the number of instances.
 	DownScaling *AutoScalingThresholds `type:"structure"`
@@ -6035,12 +7881,6 @@ type LoadBasedAutoScalingConfiguration struct {
 	// An AutoScalingThresholds object that describes the upscaling configuration,
 	// which defines how and when AWS OpsWorks increases the number of instances.
 	UpScaling *AutoScalingThresholds `type:"structure"`
-
-	metadataLoadBasedAutoScalingConfiguration `json:"-" xml:"-"`
-}
-
-type metadataLoadBasedAutoScalingConfiguration struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6055,6 +7895,8 @@ func (s LoadBasedAutoScalingConfiguration) GoString() string {
 
 // Describes stack or user permissions.
 type Permission struct {
+	_ struct{} `type:"structure"`
+
 	// Whether the user can use SSH.
 	AllowSsh *bool `type:"boolean"`
 
@@ -6067,18 +7909,22 @@ type Permission struct {
 
 	// The user's permission level, which must be the following:
 	//
-	//   deny   show   deploy   manage   iam_only   For more information on the
-	// permissions associated with these levels, see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html)
+	//    deny
+	//
+	//    show
+	//
+	//    deploy
+	//
+	//    manage
+	//
+	//    iam_only
+	//
+	//   For more information on the permissions associated with these levels,
+	// see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html)
 	Level *string `type:"string"`
 
 	// A stack ID.
 	StackId *string `type:"string"`
-
-	metadataPermission `json:"-" xml:"-"`
-}
-
-type metadataPermission struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6093,6 +7939,8 @@ func (s Permission) GoString() string {
 
 // Describes an instance's RAID array.
 type RaidArray struct {
+	_ struct{} `type:"structure"`
+
 	// The array's Availability Zone. For more information, see Regions and Endpoints
 	// (http://docs.aws.amazon.com/general/latest/gr/rande.html).
 	AvailabilityZone *string `type:"string"`
@@ -6132,12 +7980,6 @@ type RaidArray struct {
 
 	// The volume type, standard or PIOPS.
 	VolumeType *string `type:"string"`
-
-	metadataRaidArray `json:"-" xml:"-"`
-}
-
-type metadataRaidArray struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6152,6 +7994,8 @@ func (s RaidArray) GoString() string {
 
 // Describes an Amazon RDS instance.
 type RdsDbInstance struct {
+	_ struct{} `type:"structure"`
+
 	// The instance's address.
 	Address *string `type:"string"`
 
@@ -6180,12 +8024,6 @@ type RdsDbInstance struct {
 
 	// The ID of the stack that the instance is registered with.
 	StackId *string `type:"string"`
-
-	metadataRdsDbInstance `json:"-" xml:"-"`
-}
-
-type metadataRdsDbInstance struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6199,14 +8037,10 @@ func (s RdsDbInstance) GoString() string {
 }
 
 type RebootInstanceInput struct {
+	_ struct{} `type:"structure"`
+
 	// The instance ID.
 	InstanceId *string `type:"string" required:"true"`
-
-	metadataRebootInstanceInput `json:"-" xml:"-"`
-}
-
-type metadataRebootInstanceInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6219,12 +8053,21 @@ func (s RebootInstanceInput) GoString() string {
 	return s.String()
 }
 
-type RebootInstanceOutput struct {
-	metadataRebootInstanceOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RebootInstanceInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RebootInstanceInput"}
+	if s.InstanceId == nil {
+		invalidParams.Add(request.NewErrParamRequired("InstanceId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataRebootInstanceOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type RebootInstanceOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -6249,6 +8092,8 @@ func (s RebootInstanceOutput) GoString() string {
 // without the .rb extension. For example: phpapp2::dbsetup specifies the dbsetup.rb
 // recipe in the repository's phpapp2 folder.
 type Recipes struct {
+	_ struct{} `type:"structure"`
+
 	// An array of custom recipe names to be run following a configure event.
 	Configure []*string `type:"list"`
 
@@ -6263,12 +8108,6 @@ type Recipes struct {
 
 	// An array of custom recipe names to be run following a undeploy event.
 	Undeploy []*string `type:"list"`
-
-	metadataRecipes `json:"-" xml:"-"`
-}
-
-type metadataRecipes struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6282,17 +8121,13 @@ func (s Recipes) GoString() string {
 }
 
 type RegisterEcsClusterInput struct {
+	_ struct{} `type:"structure"`
+
 	// The cluster's ARN.
 	EcsClusterArn *string `type:"string" required:"true"`
 
 	// The stack ID.
 	StackId *string `type:"string" required:"true"`
-
-	metadataRegisterEcsClusterInput `json:"-" xml:"-"`
-}
-
-type metadataRegisterEcsClusterInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6305,16 +8140,28 @@ func (s RegisterEcsClusterInput) GoString() string {
 	return s.String()
 }
 
-// Contains the response to a RegisterEcsCluster request.
-type RegisterEcsClusterOutput struct {
-	// The cluster's ARN.
-	EcsClusterArn *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RegisterEcsClusterInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RegisterEcsClusterInput"}
+	if s.EcsClusterArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("EcsClusterArn"))
+	}
+	if s.StackId == nil {
+		invalidParams.Add(request.NewErrParamRequired("StackId"))
+	}
 
-	metadataRegisterEcsClusterOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataRegisterEcsClusterOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Contains the response to a RegisterEcsCluster request.
+type RegisterEcsClusterOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The cluster's ARN.
+	EcsClusterArn *string `type:"string"`
 }
 
 // String returns the string representation
@@ -6328,17 +8175,13 @@ func (s RegisterEcsClusterOutput) GoString() string {
 }
 
 type RegisterElasticIpInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Elastic IP address.
 	ElasticIp *string `type:"string" required:"true"`
 
 	// The stack ID.
 	StackId *string `type:"string" required:"true"`
-
-	metadataRegisterElasticIpInput `json:"-" xml:"-"`
-}
-
-type metadataRegisterElasticIpInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6351,16 +8194,28 @@ func (s RegisterElasticIpInput) GoString() string {
 	return s.String()
 }
 
-// Contains the response to a RegisterElasticIp request.
-type RegisterElasticIpOutput struct {
-	// The Elastic IP address.
-	ElasticIp *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RegisterElasticIpInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RegisterElasticIpInput"}
+	if s.ElasticIp == nil {
+		invalidParams.Add(request.NewErrParamRequired("ElasticIp"))
+	}
+	if s.StackId == nil {
+		invalidParams.Add(request.NewErrParamRequired("StackId"))
+	}
 
-	metadataRegisterElasticIpOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataRegisterElasticIpOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Contains the response to a RegisterElasticIp request.
+type RegisterElasticIpOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Elastic IP address.
+	ElasticIp *string `type:"string"`
 }
 
 // String returns the string representation
@@ -6374,6 +8229,8 @@ func (s RegisterElasticIpOutput) GoString() string {
 }
 
 type RegisterInstanceInput struct {
+	_ struct{} `type:"structure"`
+
 	// The instance's hostname.
 	Hostname *string `type:"string"`
 
@@ -6395,12 +8252,6 @@ type RegisterInstanceInput struct {
 
 	// The ID of the stack that the instance is to be registered with.
 	StackId *string `type:"string" required:"true"`
-
-	metadataRegisterInstanceInput `json:"-" xml:"-"`
-}
-
-type metadataRegisterInstanceInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6413,16 +8264,25 @@ func (s RegisterInstanceInput) GoString() string {
 	return s.String()
 }
 
-// Contains the response to a RegisterInstanceResult request.
-type RegisterInstanceOutput struct {
-	// The registered instance's AWS OpsWorks ID.
-	InstanceId *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RegisterInstanceInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RegisterInstanceInput"}
+	if s.StackId == nil {
+		invalidParams.Add(request.NewErrParamRequired("StackId"))
+	}
 
-	metadataRegisterInstanceOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataRegisterInstanceOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Contains the response to a RegisterInstanceResult request.
+type RegisterInstanceOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The registered instance's AWS OpsWorks ID.
+	InstanceId *string `type:"string"`
 }
 
 // String returns the string representation
@@ -6436,6 +8296,8 @@ func (s RegisterInstanceOutput) GoString() string {
 }
 
 type RegisterRdsDbInstanceInput struct {
+	_ struct{} `type:"structure"`
+
 	// The database password.
 	DbPassword *string `type:"string" required:"true"`
 
@@ -6447,12 +8309,6 @@ type RegisterRdsDbInstanceInput struct {
 
 	// The stack ID.
 	StackId *string `type:"string" required:"true"`
-
-	metadataRegisterRdsDbInstanceInput `json:"-" xml:"-"`
-}
-
-type metadataRegisterRdsDbInstanceInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6465,12 +8321,30 @@ func (s RegisterRdsDbInstanceInput) GoString() string {
 	return s.String()
 }
 
-type RegisterRdsDbInstanceOutput struct {
-	metadataRegisterRdsDbInstanceOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RegisterRdsDbInstanceInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RegisterRdsDbInstanceInput"}
+	if s.DbPassword == nil {
+		invalidParams.Add(request.NewErrParamRequired("DbPassword"))
+	}
+	if s.DbUser == nil {
+		invalidParams.Add(request.NewErrParamRequired("DbUser"))
+	}
+	if s.RdsDbInstanceArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("RdsDbInstanceArn"))
+	}
+	if s.StackId == nil {
+		invalidParams.Add(request.NewErrParamRequired("StackId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataRegisterRdsDbInstanceOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type RegisterRdsDbInstanceOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -6484,17 +8358,13 @@ func (s RegisterRdsDbInstanceOutput) GoString() string {
 }
 
 type RegisterVolumeInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon EBS volume ID.
 	Ec2VolumeId *string `type:"string"`
 
 	// The stack ID.
 	StackId *string `type:"string" required:"true"`
-
-	metadataRegisterVolumeInput `json:"-" xml:"-"`
-}
-
-type metadataRegisterVolumeInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6507,16 +8377,25 @@ func (s RegisterVolumeInput) GoString() string {
 	return s.String()
 }
 
-// Contains the response to a RegisterVolume request.
-type RegisterVolumeOutput struct {
-	// The volume ID.
-	VolumeId *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RegisterVolumeInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RegisterVolumeInput"}
+	if s.StackId == nil {
+		invalidParams.Add(request.NewErrParamRequired("StackId"))
+	}
 
-	metadataRegisterVolumeOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataRegisterVolumeOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Contains the response to a RegisterVolume request.
+type RegisterVolumeOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The volume ID.
+	VolumeId *string `type:"string"`
 }
 
 // String returns the string representation
@@ -6531,6 +8410,8 @@ func (s RegisterVolumeOutput) GoString() string {
 
 // A registered instance's reported operating system.
 type ReportedOs struct {
+	_ struct{} `type:"structure"`
+
 	// The operating system family.
 	Family *string `type:"string"`
 
@@ -6539,12 +8420,6 @@ type ReportedOs struct {
 
 	// The operating system version.
 	Version *string `type:"string"`
-
-	metadataReportedOs `json:"-" xml:"-"`
-}
-
-type metadataReportedOs struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6559,6 +8434,8 @@ func (s ReportedOs) GoString() string {
 
 // Describes a user's SSH information.
 type SelfUserProfile struct {
+	_ struct{} `type:"structure"`
+
 	// The user's IAM ARN.
 	IamUserArn *string `type:"string"`
 
@@ -6570,12 +8447,6 @@ type SelfUserProfile struct {
 
 	// The user's SSH user name.
 	SshUsername *string `type:"string"`
-
-	metadataSelfUserProfile `json:"-" xml:"-"`
-}
-
-type metadataSelfUserProfile struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6590,6 +8461,8 @@ func (s SelfUserProfile) GoString() string {
 
 // Describes an AWS OpsWorks service error.
 type ServiceError struct {
+	_ struct{} `type:"structure"`
+
 	// When the error occurred.
 	CreatedAt *string `type:"string"`
 
@@ -6607,12 +8480,6 @@ type ServiceError struct {
 
 	// The error type.
 	Type *string `type:"string"`
-
-	metadataServiceError `json:"-" xml:"-"`
-}
-
-type metadataServiceError struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6626,6 +8493,8 @@ func (s ServiceError) GoString() string {
 }
 
 type SetLoadBasedAutoScalingInput struct {
+	_ struct{} `type:"structure"`
+
 	// An AutoScalingThresholds object with the downscaling threshold configuration.
 	// If the load falls below these thresholds for a specified amount of time,
 	// AWS OpsWorks stops a specified number of instances.
@@ -6641,12 +8510,6 @@ type SetLoadBasedAutoScalingInput struct {
 	// If the load exceeds these thresholds for a specified amount of time, AWS
 	// OpsWorks starts a specified number of instances.
 	UpScaling *AutoScalingThresholds `type:"structure"`
-
-	metadataSetLoadBasedAutoScalingInput `json:"-" xml:"-"`
-}
-
-type metadataSetLoadBasedAutoScalingInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6659,12 +8522,31 @@ func (s SetLoadBasedAutoScalingInput) GoString() string {
 	return s.String()
 }
 
-type SetLoadBasedAutoScalingOutput struct {
-	metadataSetLoadBasedAutoScalingOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *SetLoadBasedAutoScalingInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "SetLoadBasedAutoScalingInput"}
+	if s.LayerId == nil {
+		invalidParams.Add(request.NewErrParamRequired("LayerId"))
+	}
+	if s.DownScaling != nil {
+		if err := s.DownScaling.Validate(); err != nil {
+			invalidParams.AddNested("DownScaling", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.UpScaling != nil {
+		if err := s.UpScaling.Validate(); err != nil {
+			invalidParams.AddNested("UpScaling", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataSetLoadBasedAutoScalingOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type SetLoadBasedAutoScalingOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -6678,6 +8560,8 @@ func (s SetLoadBasedAutoScalingOutput) GoString() string {
 }
 
 type SetPermissionInput struct {
+	_ struct{} `type:"structure"`
+
 	// The user is allowed to use SSH to communicate with the instance.
 	AllowSsh *bool `type:"boolean"`
 
@@ -6690,18 +8574,22 @@ type SetPermissionInput struct {
 	// The user's permission level, which must be set to one of the following strings.
 	// You cannot set your own permissions level.
 	//
-	//   deny   show   deploy   manage   iam_only   For more information on the
-	// permissions associated with these levels, see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
+	//    deny
+	//
+	//    show
+	//
+	//    deploy
+	//
+	//    manage
+	//
+	//    iam_only
+	//
+	//   For more information on the permissions associated with these levels,
+	// see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html).
 	Level *string `type:"string"`
 
 	// The stack ID.
 	StackId *string `type:"string" required:"true"`
-
-	metadataSetPermissionInput `json:"-" xml:"-"`
-}
-
-type metadataSetPermissionInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6714,12 +8602,24 @@ func (s SetPermissionInput) GoString() string {
 	return s.String()
 }
 
-type SetPermissionOutput struct {
-	metadataSetPermissionOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *SetPermissionInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "SetPermissionInput"}
+	if s.IamUserArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("IamUserArn"))
+	}
+	if s.StackId == nil {
+		invalidParams.Add(request.NewErrParamRequired("StackId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataSetPermissionOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type SetPermissionOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -6733,17 +8633,13 @@ func (s SetPermissionOutput) GoString() string {
 }
 
 type SetTimeBasedAutoScalingInput struct {
+	_ struct{} `type:"structure"`
+
 	// An AutoScalingSchedule with the instance schedule.
 	AutoScalingSchedule *WeeklyAutoScalingSchedule `type:"structure"`
 
 	// The instance ID.
 	InstanceId *string `type:"string" required:"true"`
-
-	metadataSetTimeBasedAutoScalingInput `json:"-" xml:"-"`
-}
-
-type metadataSetTimeBasedAutoScalingInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6756,12 +8652,21 @@ func (s SetTimeBasedAutoScalingInput) GoString() string {
 	return s.String()
 }
 
-type SetTimeBasedAutoScalingOutput struct {
-	metadataSetTimeBasedAutoScalingOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *SetTimeBasedAutoScalingInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "SetTimeBasedAutoScalingInput"}
+	if s.InstanceId == nil {
+		invalidParams.Add(request.NewErrParamRequired("InstanceId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataSetTimeBasedAutoScalingOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type SetTimeBasedAutoScalingOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -6776,6 +8681,8 @@ func (s SetTimeBasedAutoScalingOutput) GoString() string {
 
 // The Shutdown event configuration.
 type ShutdownEventConfiguration struct {
+	_ struct{} `type:"structure"`
+
 	// Whether to enable Elastic Load Balancing connection draining. For more information,
 	// see Connection Draining (http://docs.aws.amazon.com/ElasticLoadBalancing/latest/DeveloperGuide/TerminologyandKeyConcepts.html#conn-drain)
 	DelayUntilElbConnectionsDrained *bool `type:"boolean"`
@@ -6783,12 +8690,6 @@ type ShutdownEventConfiguration struct {
 	// The time, in seconds, that AWS OpsWorks will wait after triggering a Shutdown
 	// event before shutting down an instance.
 	ExecutionTimeout *int64 `type:"integer"`
-
-	metadataShutdownEventConfiguration `json:"-" xml:"-"`
-}
-
-type metadataShutdownEventConfiguration struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6805,11 +8706,17 @@ func (s ShutdownEventConfiguration) GoString() string {
 // For more information, see Creating Apps (http://docs.aws.amazon.com/opsworks/latest/userguide/workingapps-creating.html)
 // or Custom Recipes and Cookbooks (http://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook.html).
 type Source struct {
+	_ struct{} `type:"structure"`
+
 	// When included in a request, the parameter depends on the repository type.
 	//
-	//  For Amazon S3 bundles, set Password to the appropriate IAM secret access
-	// key. For HTTP bundles and Subversion repositories, set Password to the password.
-	//  For more information on how to safely handle IAM credentials, see .
+	//   For Amazon S3 bundles, set Password to the appropriate IAM secret access
+	// key.
+	//
+	//   For HTTP bundles and Subversion repositories, set Password to the password.
+	//
+	//   For more information on how to safely handle IAM credentials, see http://docs.aws.amazon.com/general/latest/gr/aws-access-keys-best-practices.html
+	// (http://docs.aws.amazon.com/general/latest/gr/aws-access-keys-best-practices.html).
 	//
 	// In responses, AWS OpsWorks returns *****FILTERED***** instead of the actual
 	// value.
@@ -6835,16 +8742,12 @@ type Source struct {
 
 	// This parameter depends on the repository type.
 	//
-	//  For Amazon S3 bundles, set Username to the appropriate IAM access key ID.
-	// For HTTP bundles, Git repositories, and Subversion repositories, set Username
+	//   For Amazon S3 bundles, set Username to the appropriate IAM access key
+	// ID.
+	//
+	//   For HTTP bundles, Git repositories, and Subversion repositories, set Username
 	// to the user name.
 	Username *string `type:"string"`
-
-	metadataSource `json:"-" xml:"-"`
-}
-
-type metadataSource struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6859,6 +8762,8 @@ func (s Source) GoString() string {
 
 // Describes an app's SSL configuration.
 type SslConfiguration struct {
+	_ struct{} `type:"structure"`
+
 	// The contents of the certificate's domain.crt file.
 	Certificate *string `type:"string" required:"true"`
 
@@ -6868,12 +8773,6 @@ type SslConfiguration struct {
 
 	// The private key; the contents of the certificate's domain.kex file.
 	PrivateKey *string `type:"string" required:"true"`
-
-	metadataSslConfiguration `json:"-" xml:"-"`
-}
-
-type metadataSslConfiguration struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6886,8 +8785,26 @@ func (s SslConfiguration) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *SslConfiguration) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "SslConfiguration"}
+	if s.Certificate == nil {
+		invalidParams.Add(request.NewErrParamRequired("Certificate"))
+	}
+	if s.PrivateKey == nil {
+		invalidParams.Add(request.NewErrParamRequired("PrivateKey"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Describes a stack.
 type Stack struct {
+	_ struct{} `type:"structure"`
+
 	// The agent version. This parameter is set to LATEST for auto-update. or a
 	// version number for a fixed agent version.
 	AgentVersion *string `type:"string"`
@@ -6974,12 +8891,6 @@ type Stack struct {
 
 	// The VPC ID; applicable only if the stack is running in a VPC.
 	VpcId *string `type:"string"`
-
-	metadataStack `json:"-" xml:"-"`
-}
-
-type metadataStack struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -6994,18 +8905,15 @@ func (s Stack) GoString() string {
 
 // Describes the configuration manager.
 type StackConfigurationManager struct {
+	_ struct{} `type:"structure"`
+
 	// The name. This parameter must be set to "Chef".
 	Name *string `type:"string"`
 
-	// The Chef version. This parameter must be set to 0.9, 11.4, or 11.10. The
-	// default value is 11.4.
+	// The Chef version. This parameter must be set to 12, 11.10, or 11.4 for Linux
+	// stacks, and to 12.2 for Windows stacks. The default value for Linux stacks
+	// is 11.4.
 	Version *string `type:"string"`
-
-	metadataStackConfigurationManager `json:"-" xml:"-"`
-}
-
-type metadataStackConfigurationManager struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7020,6 +8928,8 @@ func (s StackConfigurationManager) GoString() string {
 
 // Summarizes the number of layers, instances, and apps in a stack.
 type StackSummary struct {
+	_ struct{} `type:"structure"`
+
 	// The number of apps.
 	AppsCount *int64 `type:"integer"`
 
@@ -7037,12 +8947,6 @@ type StackSummary struct {
 
 	// The stack ID.
 	StackId *string `type:"string"`
-
-	metadataStackSummary `json:"-" xml:"-"`
-}
-
-type metadataStackSummary struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7056,14 +8960,10 @@ func (s StackSummary) GoString() string {
 }
 
 type StartInstanceInput struct {
+	_ struct{} `type:"structure"`
+
 	// The instance ID.
 	InstanceId *string `type:"string" required:"true"`
-
-	metadataStartInstanceInput `json:"-" xml:"-"`
-}
-
-type metadataStartInstanceInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7076,12 +8976,21 @@ func (s StartInstanceInput) GoString() string {
 	return s.String()
 }
 
-type StartInstanceOutput struct {
-	metadataStartInstanceOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *StartInstanceInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "StartInstanceInput"}
+	if s.InstanceId == nil {
+		invalidParams.Add(request.NewErrParamRequired("InstanceId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataStartInstanceOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type StartInstanceOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -7095,14 +9004,10 @@ func (s StartInstanceOutput) GoString() string {
 }
 
 type StartStackInput struct {
+	_ struct{} `type:"structure"`
+
 	// The stack ID.
 	StackId *string `type:"string" required:"true"`
-
-	metadataStartStackInput `json:"-" xml:"-"`
-}
-
-type metadataStartStackInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7115,12 +9020,21 @@ func (s StartStackInput) GoString() string {
 	return s.String()
 }
 
-type StartStackOutput struct {
-	metadataStartStackOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *StartStackInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "StartStackInput"}
+	if s.StackId == nil {
+		invalidParams.Add(request.NewErrParamRequired("StackId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataStartStackOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type StartStackOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -7134,14 +9048,10 @@ func (s StartStackOutput) GoString() string {
 }
 
 type StopInstanceInput struct {
+	_ struct{} `type:"structure"`
+
 	// The instance ID.
 	InstanceId *string `type:"string" required:"true"`
-
-	metadataStopInstanceInput `json:"-" xml:"-"`
-}
-
-type metadataStopInstanceInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7154,12 +9064,21 @@ func (s StopInstanceInput) GoString() string {
 	return s.String()
 }
 
-type StopInstanceOutput struct {
-	metadataStopInstanceOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *StopInstanceInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "StopInstanceInput"}
+	if s.InstanceId == nil {
+		invalidParams.Add(request.NewErrParamRequired("InstanceId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataStopInstanceOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type StopInstanceOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -7173,14 +9092,10 @@ func (s StopInstanceOutput) GoString() string {
 }
 
 type StopStackInput struct {
+	_ struct{} `type:"structure"`
+
 	// The stack ID.
 	StackId *string `type:"string" required:"true"`
-
-	metadataStopStackInput `json:"-" xml:"-"`
-}
-
-type metadataStopStackInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7193,12 +9108,21 @@ func (s StopStackInput) GoString() string {
 	return s.String()
 }
 
-type StopStackOutput struct {
-	metadataStopStackOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *StopStackInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "StopStackInput"}
+	if s.StackId == nil {
+		invalidParams.Add(request.NewErrParamRequired("StackId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataStopStackOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type StopStackOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -7214,6 +9138,8 @@ func (s StopStackOutput) GoString() string {
 // Contains the data needed by RDP clients such as the Microsoft Remote Desktop
 // Connection to log in to the instance.
 type TemporaryCredential struct {
+	_ struct{} `type:"structure"`
+
 	// The instance's AWS OpsWorks ID.
 	InstanceId *string `type:"string"`
 
@@ -7228,12 +9154,6 @@ type TemporaryCredential struct {
 	// to log in. If they are logged in at the time, they will be automatically
 	// logged out.
 	ValidForInMinutes *int64 `type:"integer"`
-
-	metadataTemporaryCredential `json:"-" xml:"-"`
-}
-
-type metadataTemporaryCredential struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7248,17 +9168,13 @@ func (s TemporaryCredential) GoString() string {
 
 // Describes an instance's time-based auto scaling configuration.
 type TimeBasedAutoScalingConfiguration struct {
+	_ struct{} `type:"structure"`
+
 	// A WeeklyAutoScalingSchedule object with the instance schedule.
 	AutoScalingSchedule *WeeklyAutoScalingSchedule `type:"structure"`
 
 	// The instance ID.
 	InstanceId *string `type:"string"`
-
-	metadataTimeBasedAutoScalingConfiguration `json:"-" xml:"-"`
-}
-
-type metadataTimeBasedAutoScalingConfiguration struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7272,14 +9188,10 @@ func (s TimeBasedAutoScalingConfiguration) GoString() string {
 }
 
 type UnassignInstanceInput struct {
+	_ struct{} `type:"structure"`
+
 	// The instance ID.
 	InstanceId *string `type:"string" required:"true"`
-
-	metadataUnassignInstanceInput `json:"-" xml:"-"`
-}
-
-type metadataUnassignInstanceInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7292,12 +9204,21 @@ func (s UnassignInstanceInput) GoString() string {
 	return s.String()
 }
 
-type UnassignInstanceOutput struct {
-	metadataUnassignInstanceOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UnassignInstanceInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UnassignInstanceInput"}
+	if s.InstanceId == nil {
+		invalidParams.Add(request.NewErrParamRequired("InstanceId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataUnassignInstanceOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type UnassignInstanceOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -7311,14 +9232,10 @@ func (s UnassignInstanceOutput) GoString() string {
 }
 
 type UnassignVolumeInput struct {
+	_ struct{} `type:"structure"`
+
 	// The volume ID.
 	VolumeId *string `type:"string" required:"true"`
-
-	metadataUnassignVolumeInput `json:"-" xml:"-"`
-}
-
-type metadataUnassignVolumeInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7331,12 +9248,21 @@ func (s UnassignVolumeInput) GoString() string {
 	return s.String()
 }
 
-type UnassignVolumeOutput struct {
-	metadataUnassignVolumeOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UnassignVolumeInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UnassignVolumeInput"}
+	if s.VolumeId == nil {
+		invalidParams.Add(request.NewErrParamRequired("VolumeId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataUnassignVolumeOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type UnassignVolumeOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -7350,6 +9276,8 @@ func (s UnassignVolumeOutput) GoString() string {
 }
 
 type UpdateAppInput struct {
+	_ struct{} `type:"structure"`
+
 	// The app ID.
 	AppId *string `type:"string" required:"true"`
 
@@ -7377,14 +9305,14 @@ type UpdateAppInput struct {
 	// are defined on the associated app server instances.For more information,
 	// see  Environment Variables (http://docs.aws.amazon.com/opsworks/latest/userguide/workingapps-creating.html#workingapps-creating-environment).
 	//
-	//  There is no specific limit on the number of environment variables. However,
+	// There is no specific limit on the number of environment variables. However,
 	// the size of the associated data structure - which includes the variables'
 	// names, values, and protected flag values - cannot exceed 10 KB (10240 Bytes).
 	// This limit should accommodate most if not all use cases. Exceeding it will
 	// cause an exception with the message, "Environment: is too large (maximum
 	// is 10KB)."
 	//
-	// This parameter is supported only by Chef 11.10 stacks. If you have specified
+	//  This parameter is supported only by Chef 11.10 stacks. If you have specified
 	// one or more environment variables, you cannot modify the stack's Chef version.
 	Environment []*EnvironmentVariable `type:"list"`
 
@@ -7396,12 +9324,6 @@ type UpdateAppInput struct {
 
 	// The app type.
 	Type *string `type:"string" enum:"AppType"`
-
-	metadataUpdateAppInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateAppInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7414,12 +9336,36 @@ func (s UpdateAppInput) GoString() string {
 	return s.String()
 }
 
-type UpdateAppOutput struct {
-	metadataUpdateAppOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateAppInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateAppInput"}
+	if s.AppId == nil {
+		invalidParams.Add(request.NewErrParamRequired("AppId"))
+	}
+	if s.Environment != nil {
+		for i, v := range s.Environment {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Environment", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
+	if s.SslConfiguration != nil {
+		if err := s.SslConfiguration.Validate(); err != nil {
+			invalidParams.AddNested("SslConfiguration", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataUpdateAppOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type UpdateAppOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -7433,17 +9379,13 @@ func (s UpdateAppOutput) GoString() string {
 }
 
 type UpdateElasticIpInput struct {
+	_ struct{} `type:"structure"`
+
 	// The address.
 	ElasticIp *string `type:"string" required:"true"`
 
 	// The new name.
 	Name *string `type:"string"`
-
-	metadataUpdateElasticIpInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateElasticIpInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7456,12 +9398,21 @@ func (s UpdateElasticIpInput) GoString() string {
 	return s.String()
 }
 
-type UpdateElasticIpOutput struct {
-	metadataUpdateElasticIpOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateElasticIpInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateElasticIpInput"}
+	if s.ElasticIp == nil {
+		invalidParams.Add(request.NewErrParamRequired("ElasticIp"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataUpdateElasticIpOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type UpdateElasticIpOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -7475,23 +9426,27 @@ func (s UpdateElasticIpOutput) GoString() string {
 }
 
 type UpdateInstanceInput struct {
+	_ struct{} `type:"structure"`
+
 	// The default AWS OpsWorks agent version. You have the following options:
 	//
-	//   INHERIT - Use the stack's default agent version setting.  version_number
-	// - Use the specified agent version. This value overrides the stack's default
-	// setting. To update the agent version, you must edit the instance configuration
-	// and specify a new version. AWS OpsWorks then automatically installs that
-	// version on the instance.  The default setting is INHERIT. To specify an agent
-	// version, you must use the complete version number, not the abbreviated number
-	// shown on the console. For a list of available agent version numbers, call
-	// DescribeAgentVersions.
+	//    INHERIT - Use the stack's default agent version setting.
+	//
+	//    version_number - Use the specified agent version. This value overrides
+	// the stack's default setting. To update the agent version, you must edit the
+	// instance configuration and specify a new version. AWS OpsWorks then automatically
+	// installs that version on the instance.
+	//
+	//   The default setting is INHERIT. To specify an agent version, you must
+	// use the complete version number, not the abbreviated number shown on the
+	// console. For a list of available agent version numbers, call DescribeAgentVersions.
 	AgentVersion *string `type:"string"`
 
 	// A custom AMI ID to be used to create the instance. The AMI must be based
 	// on one of the supported operating systems. For more information, see Instances
 	// (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-custom-ami.html)
 	//
-	// If you specify a custom AMI, you must set Os to Custom.
+	//  If you specify a custom AMI, you must set Os to Custom.
 	AmiId *string `type:"string"`
 
 	// The instance architecture. Instance types do not necessarily support both
@@ -7535,11 +9490,25 @@ type UpdateInstanceInput struct {
 
 	// The instance's operating system, which must be set to one of the following.
 	//
-	//  A supported Linux operating system: An Amazon Linux version, such as Amazon
-	// Linux 2015.03, Red Hat Enterprise Linux 7, Ubuntu 12.04 LTS, or Ubuntu 14.04
-	// LTS.  Microsoft Windows Server 2012 R2 Base. A custom AMI: Custom.  For more
-	// information on the supported operating systems, see AWS OpsWorks Operating
-	// Systems (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-os.html).
+	//   A supported Linux operating system: An Amazon Linux version, such as Amazon
+	// Linux 2016.03, Amazon Linux 2015.09, or Amazon Linux 2015.03.
+	//
+	//   A supported Ubuntu operating system, such as Ubuntu 16.04 LTS, Ubuntu
+	// 14.04 LTS, or Ubuntu 12.04 LTS.
+	//
+	//    CentOS 7
+	//
+	//    Red Hat Enterprise Linux 7
+	//
+	//   A supported Windows operating system, such as Microsoft Windows Server
+	// 2012 R2 Base, Microsoft Windows Server 2012 R2 with SQL Server Express, Microsoft
+	// Windows Server 2012 R2 with SQL Server Standard, or Microsoft Windows Server
+	// 2012 R2 with SQL Server Web.
+	//
+	//   A custom AMI: Custom.
+	//
+	//   For more information on the supported operating systems, see AWS OpsWorks
+	// Operating Systems (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-os.html).
 	//
 	// The default option is the current Amazon Linux version. If you set this
 	// parameter to Custom, you must use the AmiId parameter to specify the custom
@@ -7548,18 +9517,12 @@ type UpdateInstanceInput struct {
 	// For more information on how to use custom AMIs with OpsWorks, see Using Custom
 	// AMIs (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-custom-ami.html).
 	//
-	// You can specify a different Linux operating system for the updated stack,
+	//  You can specify a different Linux operating system for the updated stack,
 	// but you cannot change from Linux to Windows or Windows to Linux.
 	Os *string `type:"string"`
 
 	// The instance's Amazon EC2 key name.
 	SshKeyName *string `type:"string"`
-
-	metadataUpdateInstanceInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateInstanceInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7572,12 +9535,21 @@ func (s UpdateInstanceInput) GoString() string {
 	return s.String()
 }
 
-type UpdateInstanceOutput struct {
-	metadataUpdateInstanceOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateInstanceInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateInstanceInput"}
+	if s.InstanceId == nil {
+		invalidParams.Add(request.NewErrParamRequired("InstanceId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataUpdateInstanceOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type UpdateInstanceOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -7591,6 +9563,8 @@ func (s UpdateInstanceOutput) GoString() string {
 }
 
 type UpdateLayerInput struct {
+	_ struct{} `type:"structure"`
+
 	// One or more user-defined key/value pairs to be added to the stack attributes.
 	Attributes map[string]*string `type:"map"`
 
@@ -7657,12 +9631,6 @@ type UpdateLayerInput struct {
 
 	// A VolumeConfigurations object that describes the layer's Amazon EBS volumes.
 	VolumeConfigurations []*VolumeConfiguration `type:"list"`
-
-	metadataUpdateLayerInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateLayerInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7675,12 +9643,31 @@ func (s UpdateLayerInput) GoString() string {
 	return s.String()
 }
 
-type UpdateLayerOutput struct {
-	metadataUpdateLayerOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateLayerInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateLayerInput"}
+	if s.LayerId == nil {
+		invalidParams.Add(request.NewErrParamRequired("LayerId"))
+	}
+	if s.VolumeConfigurations != nil {
+		for i, v := range s.VolumeConfigurations {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "VolumeConfigurations", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataUpdateLayerOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type UpdateLayerOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -7694,14 +9681,10 @@ func (s UpdateLayerOutput) GoString() string {
 }
 
 type UpdateMyUserProfileInput struct {
+	_ struct{} `type:"structure"`
+
 	// The user's SSH public key.
 	SshPublicKey *string `type:"string"`
-
-	metadataUpdateMyUserProfileInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateMyUserProfileInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7715,11 +9698,7 @@ func (s UpdateMyUserProfileInput) GoString() string {
 }
 
 type UpdateMyUserProfileOutput struct {
-	metadataUpdateMyUserProfileOutput `json:"-" xml:"-"`
-}
-
-type metadataUpdateMyUserProfileOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -7733,6 +9712,8 @@ func (s UpdateMyUserProfileOutput) GoString() string {
 }
 
 type UpdateRdsDbInstanceInput struct {
+	_ struct{} `type:"structure"`
+
 	// The database password.
 	DbPassword *string `type:"string"`
 
@@ -7741,12 +9722,6 @@ type UpdateRdsDbInstanceInput struct {
 
 	// The Amazon RDS instance's ARN.
 	RdsDbInstanceArn *string `type:"string" required:"true"`
-
-	metadataUpdateRdsDbInstanceInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateRdsDbInstanceInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7759,12 +9734,21 @@ func (s UpdateRdsDbInstanceInput) GoString() string {
 	return s.String()
 }
 
-type UpdateRdsDbInstanceOutput struct {
-	metadataUpdateRdsDbInstanceOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateRdsDbInstanceInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateRdsDbInstanceInput"}
+	if s.RdsDbInstanceArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("RdsDbInstanceArn"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataUpdateRdsDbInstanceOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type UpdateRdsDbInstanceOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -7778,18 +9762,24 @@ func (s UpdateRdsDbInstanceOutput) GoString() string {
 }
 
 type UpdateStackInput struct {
+	_ struct{} `type:"structure"`
+
 	// The default AWS OpsWorks agent version. You have the following options:
 	//
-	//  Auto-update - Set this parameter to LATEST. AWS OpsWorks automatically
+	//   Auto-update - Set this parameter to LATEST. AWS OpsWorks automatically
 	// installs new agent versions on the stack's instances as soon as they are
-	// available. Fixed version - Set this parameter to your preferred agent version.
-	// To update the agent version, you must edit the stack configuration and specify
-	// a new version. AWS OpsWorks then automatically installs that version on the
-	// stack's instances.  The default setting is LATEST. To specify an agent version,
-	// you must use the complete version number, not the abbreviated number shown
-	// on the console. For a list of available agent version numbers, call DescribeAgentVersions.
+	// available.
 	//
-	// You can also specify an agent version when you create or update an instance,
+	//   Fixed version - Set this parameter to your preferred agent version. To
+	// update the agent version, you must edit the stack configuration and specify
+	// a new version. AWS OpsWorks then automatically installs that version on the
+	// stack's instances.
+	//
+	//   The default setting is LATEST. To specify an agent version, you must use
+	// the complete version number, not the abbreviated number shown on the console.
+	// For a list of available agent version numbers, call DescribeAgentVersions.
+	//
+	//  You can also specify an agent version when you create or update an instance,
 	// which overrides the stack's default setting.
 	AgentVersion *string `type:"string"`
 
@@ -7801,9 +9791,10 @@ type UpdateStackInput struct {
 	// a New Stack (http://docs.aws.amazon.com/opsworks/latest/userguide/workingstacks-creating.html).
 	ChefConfiguration *ChefConfiguration `type:"structure"`
 
-	// The configuration manager. When you clone a stack, we recommend that you
-	// use the configuration manager to specify the Chef version: 0.9, 11.4, or
-	// 11.10. The default value is currently 11.4.
+	// The configuration manager. When you update a stack, we recommend that you
+	// use the configuration manager to specify the Chef version: 12, 11.10, or
+	// 11.4 for Linux stacks, or 12.2 for Windows stacks. The default value for
+	// Linux stacks is currently 11.4.
 	ConfigurationManager *StackConfigurationManager `type:"structure"`
 
 	// Contains the information required to retrieve an app or cookbook from a repository.
@@ -7835,12 +9826,26 @@ type UpdateStackInput struct {
 
 	// The stack's operating system, which must be set to one of the following:
 	//
-	//  A supported Linux operating system: An Amazon Linux version, such as Amazon
-	// Linux 2015.03, Red Hat Enterprise Linux 7, Ubuntu 12.04 LTS, or Ubuntu 14.04
-	// LTS.  Microsoft Windows Server 2012 R2 Base. A custom AMI: Custom. You specify
-	// the custom AMI you want to use when you create instances. For more information
-	// on how to use custom AMIs with OpsWorks, see Using Custom AMIs (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-custom-ami.html).
-	//  The default option is the stack's current operating system. For more information
+	//   A supported Linux operating system: An Amazon Linux version, such as Amazon
+	// Linux 2016.03, Amazon Linux 2015.09, or Amazon Linux 2015.03.
+	//
+	//   A supported Ubuntu operating system, such as Ubuntu 16.04 LTS, Ubuntu
+	// 14.04 LTS, or Ubuntu 12.04 LTS.
+	//
+	//    CentOS 7
+	//
+	//    Red Hat Enterprise Linux 7
+	//
+	//   A supported Windows operating system, such as Microsoft Windows Server
+	// 2012 R2 Base, Microsoft Windows Server 2012 R2 with SQL Server Express, Microsoft
+	// Windows Server 2012 R2 with SQL Server Standard, or Microsoft Windows Server
+	// 2012 R2 with SQL Server Web.
+	//
+	//   A custom AMI: Custom. You specify the custom AMI you want to use when
+	// you create instances. For more information on how to use custom AMIs with
+	// OpsWorks, see Using Custom AMIs (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-custom-ami.html).
+	//
+	//   The default option is the stack's current operating system. For more information
 	// on the supported operating systems, see AWS OpsWorks Operating Systems (http://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-os.html).
 	DefaultOs *string `type:"string"`
 
@@ -7871,8 +9876,28 @@ type UpdateStackInput struct {
 	// HostnameTheme is set to Layer_Dependent, which creates host names by appending
 	// integers to the layer's short name. The other themes are:
 	//
-	//   Baked_Goods   Clouds   Europe_Cities   Fruits   Greek_Deities   Legendary_creatures_from_Japan
-	//   Planets_and_Moons   Roman_Deities   Scottish_Islands   US_Cities   Wild_Cats
+	//    Baked_Goods
+	//
+	//    Clouds
+	//
+	//    Europe_Cities
+	//
+	//    Fruits
+	//
+	//    Greek_Deities
+	//
+	//    Legendary_creatures_from_Japan
+	//
+	//    Planets_and_Moons
+	//
+	//    Roman_Deities
+	//
+	//    Scottish_Islands
+	//
+	//    US_Cities
+	//
+	//    Wild_Cats
+	//
 	//   To obtain a generated host name, call GetHostNameSuggestion, which returns
 	// a host name based on the current theme.
 	HostnameTheme *string `type:"string"`
@@ -7897,22 +9922,19 @@ type UpdateStackInput struct {
 	// allows you to provide your own custom security groups instead of using the
 	// built-in groups. UseOpsworksSecurityGroups has the following settings:
 	//
-	//  True - AWS OpsWorks automatically associates the appropriate built-in security
-	// group with each layer (default setting). You can associate additional security
-	// groups with a layer after you create it, but you cannot delete the built-in
-	// security group.  False - AWS OpsWorks does not associate built-in security
-	// groups with layers. You must create appropriate EC2 security groups and associate
-	// a security group with each layer that you create. However, you can still
-	// manually associate a built-in security group with a layer on. Custom security
-	// groups are required only for those layers that need custom settings.   For
-	// more information, see Create a New Stack (http://docs.aws.amazon.com/opsworks/latest/userguide/workingstacks-creating.html).
+	//   True - AWS OpsWorks automatically associates the appropriate built-in
+	// security group with each layer (default setting). You can associate additional
+	// security groups with a layer after you create it, but you cannot delete the
+	// built-in security group.
+	//
+	//   False - AWS OpsWorks does not associate built-in security groups with
+	// layers. You must create appropriate EC2 security groups and associate a security
+	// group with each layer that you create. However, you can still manually associate
+	// a built-in security group with a layer on. Custom security groups are required
+	// only for those layers that need custom settings.
+	//
+	//   For more information, see Create a New Stack (http://docs.aws.amazon.com/opsworks/latest/userguide/workingstacks-creating.html).
 	UseOpsworksSecurityGroups *bool `type:"boolean"`
-
-	metadataUpdateStackInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateStackInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7925,12 +9947,21 @@ func (s UpdateStackInput) GoString() string {
 	return s.String()
 }
 
-type UpdateStackOutput struct {
-	metadataUpdateStackOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateStackInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateStackInput"}
+	if s.StackId == nil {
+		invalidParams.Add(request.NewErrParamRequired("StackId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataUpdateStackOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type UpdateStackOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -7944,6 +9975,8 @@ func (s UpdateStackOutput) GoString() string {
 }
 
 type UpdateUserProfileInput struct {
+	_ struct{} `type:"structure"`
+
 	// Whether users can specify their own SSH public key through the My Settings
 	// page. For more information, see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/security-settingsshkey.html).
 	AllowSelfManagement *bool `type:"boolean"`
@@ -7960,12 +9993,6 @@ type UpdateUserProfileInput struct {
 	// you do not specify an SSH user name, AWS OpsWorks generates one from the
 	// IAM user name.
 	SshUsername *string `type:"string"`
-
-	metadataUpdateUserProfileInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateUserProfileInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -7978,12 +10005,21 @@ func (s UpdateUserProfileInput) GoString() string {
 	return s.String()
 }
 
-type UpdateUserProfileOutput struct {
-	metadataUpdateUserProfileOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateUserProfileInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateUserProfileInput"}
+	if s.IamUserArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("IamUserArn"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataUpdateUserProfileOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type UpdateUserProfileOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -7997,6 +10033,8 @@ func (s UpdateUserProfileOutput) GoString() string {
 }
 
 type UpdateVolumeInput struct {
+	_ struct{} `type:"structure"`
+
 	// The new mount point.
 	MountPoint *string `type:"string"`
 
@@ -8005,12 +10043,6 @@ type UpdateVolumeInput struct {
 
 	// The volume ID.
 	VolumeId *string `type:"string" required:"true"`
-
-	metadataUpdateVolumeInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateVolumeInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -8023,12 +10055,21 @@ func (s UpdateVolumeInput) GoString() string {
 	return s.String()
 }
 
-type UpdateVolumeOutput struct {
-	metadataUpdateVolumeOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateVolumeInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateVolumeInput"}
+	if s.VolumeId == nil {
+		invalidParams.Add(request.NewErrParamRequired("VolumeId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataUpdateVolumeOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type UpdateVolumeOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -8043,6 +10084,8 @@ func (s UpdateVolumeOutput) GoString() string {
 
 // Describes a user's SSH information.
 type UserProfile struct {
+	_ struct{} `type:"structure"`
+
 	// Whether users can specify their own SSH public key through the My Settings
 	// page. For more information, see Managing User Permissions (http://docs.aws.amazon.com/opsworks/latest/userguide/security-settingsshkey.html).
 	AllowSelfManagement *bool `type:"boolean"`
@@ -8058,12 +10101,6 @@ type UserProfile struct {
 
 	// The user's SSH user name.
 	SshUsername *string `type:"string"`
-
-	metadataUserProfile `json:"-" xml:"-"`
-}
-
-type metadataUserProfile struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -8078,6 +10115,8 @@ func (s UserProfile) GoString() string {
 
 // Describes an instance's Amazon EBS volume.
 type Volume struct {
+	_ struct{} `type:"structure"`
+
 	// The volume Availability Zone. For more information, see Regions and Endpoints
 	// (http://docs.aws.amazon.com/general/latest/gr/rande.html).
 	AvailabilityZone *string `type:"string"`
@@ -8094,7 +10133,7 @@ type Volume struct {
 	// For PIOPS volumes, the IOPS per disk.
 	Iops *int64 `type:"integer"`
 
-	// The volume mount point. For example "/dev/sdh".
+	// The volume mount point. For example, "/mnt/disk1".
 	MountPoint *string `type:"string"`
 
 	// The volume name.
@@ -8118,12 +10157,6 @@ type Volume struct {
 
 	// The volume type, standard or PIOPS.
 	VolumeType *string `type:"string"`
-
-	metadataVolume `json:"-" xml:"-"`
-}
-
-type metadataVolume struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -8138,6 +10171,8 @@ func (s Volume) GoString() string {
 
 // Describes an Amazon EBS volume configuration.
 type VolumeConfiguration struct {
+	_ struct{} `type:"structure"`
+
 	// For PIOPS volumes, the IOPS per disk.
 	Iops *int64 `type:"integer"`
 
@@ -8155,15 +10190,12 @@ type VolumeConfiguration struct {
 
 	// The volume type:
 	//
-	//   standard - Magnetic  io1 - Provisioned IOPS (SSD)  gp2 - General Purpose
-	// (SSD)
+	//    standard - Magnetic
+	//
+	//    io1 - Provisioned IOPS (SSD)
+	//
+	//    gp2 - General Purpose (SSD)
 	VolumeType *string `type:"string"`
-
-	metadataVolumeConfiguration `json:"-" xml:"-"`
-}
-
-type metadataVolumeConfiguration struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -8176,21 +10208,46 @@ func (s VolumeConfiguration) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *VolumeConfiguration) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "VolumeConfiguration"}
+	if s.MountPoint == nil {
+		invalidParams.Add(request.NewErrParamRequired("MountPoint"))
+	}
+	if s.NumberOfDisks == nil {
+		invalidParams.Add(request.NewErrParamRequired("NumberOfDisks"))
+	}
+	if s.Size == nil {
+		invalidParams.Add(request.NewErrParamRequired("Size"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Describes a time-based instance's auto scaling schedule. The schedule consists
 // of a set of key-value pairs.
 //
-//  The key is the time period (a UTC hour) and must be an integer from 0 -
-// 23. The value indicates whether the instance should be online or offline
-// for the specified period, and must be set to "on" or "off"  The default setting
-// for all time periods is off, so you use the following parameters primarily
-// to specify the online periods. You don't have to explicitly specify offline
-// periods unless you want to change an online period to an offline period.
+//   The key is the time period (a UTC hour) and must be an integer from 0
+// - 23.
+//
+//   The value indicates whether the instance should be online or offline for
+// the specified period, and must be set to "on" or "off"
+//
+//   The default setting for all time periods is off, so you use the following
+// parameters primarily to specify the online periods. You don't have to explicitly
+// specify offline periods unless you want to change an online period to an
+// offline period.
 //
 // The following example specifies that the instance should be online for four
 // hours, from UTC 1200 - 1600. It will be off for the remainder of the day.
 //
 //   { "12":"on", "13":"on", "14":"on", "15":"on" }
 type WeeklyAutoScalingSchedule struct {
+	_ struct{} `type:"structure"`
+
 	// The schedule for Friday.
 	Friday map[string]*string `type:"map"`
 
@@ -8211,12 +10268,6 @@ type WeeklyAutoScalingSchedule struct {
 
 	// The schedule for Wednesday.
 	Wednesday map[string]*string `type:"map"`
-
-	metadataWeeklyAutoScalingSchedule `json:"-" xml:"-"`
-}
-
-type metadataWeeklyAutoScalingSchedule struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation

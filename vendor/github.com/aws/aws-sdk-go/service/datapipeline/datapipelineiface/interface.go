@@ -92,3 +92,5 @@ type DataPipelineAPI interface {
 
 	ValidatePipelineDefinition(*datapipeline.ValidatePipelineDefinitionInput) (*datapipeline.ValidatePipelineDefinitionOutput, error)
 }
+
+var _ DataPipelineAPI = (*datapipeline.DataPipeline)(nil)

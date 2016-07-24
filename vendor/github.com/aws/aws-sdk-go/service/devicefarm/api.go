@@ -12,7 +12,28 @@ import (
 
 const opCreateDevicePool = "CreateDevicePool"
 
-// CreateDevicePoolRequest generates a request for the CreateDevicePool operation.
+// CreateDevicePoolRequest generates a "aws/request.Request" representing the
+// client's request for the CreateDevicePool operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CreateDevicePool method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CreateDevicePoolRequest method.
+//    req, resp := client.CreateDevicePoolRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) CreateDevicePoolRequest(input *CreateDevicePoolInput) (req *request.Request, output *CreateDevicePoolOutput) {
 	op := &request.Operation{
 		Name:       opCreateDevicePool,
@@ -39,7 +60,28 @@ func (c *DeviceFarm) CreateDevicePool(input *CreateDevicePoolInput) (*CreateDevi
 
 const opCreateProject = "CreateProject"
 
-// CreateProjectRequest generates a request for the CreateProject operation.
+// CreateProjectRequest generates a "aws/request.Request" representing the
+// client's request for the CreateProject operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CreateProject method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CreateProjectRequest method.
+//    req, resp := client.CreateProjectRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) CreateProjectRequest(input *CreateProjectInput) (req *request.Request, output *CreateProjectOutput) {
 	op := &request.Operation{
 		Name:       opCreateProject,
@@ -64,9 +106,78 @@ func (c *DeviceFarm) CreateProject(input *CreateProjectInput) (*CreateProjectOut
 	return out, err
 }
 
+const opCreateRemoteAccessSession = "CreateRemoteAccessSession"
+
+// CreateRemoteAccessSessionRequest generates a "aws/request.Request" representing the
+// client's request for the CreateRemoteAccessSession operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CreateRemoteAccessSession method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CreateRemoteAccessSessionRequest method.
+//    req, resp := client.CreateRemoteAccessSessionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *DeviceFarm) CreateRemoteAccessSessionRequest(input *CreateRemoteAccessSessionInput) (req *request.Request, output *CreateRemoteAccessSessionOutput) {
+	op := &request.Operation{
+		Name:       opCreateRemoteAccessSession,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &CreateRemoteAccessSessionInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &CreateRemoteAccessSessionOutput{}
+	req.Data = output
+	return
+}
+
+// Specifies and starts a remote access session.
+func (c *DeviceFarm) CreateRemoteAccessSession(input *CreateRemoteAccessSessionInput) (*CreateRemoteAccessSessionOutput, error) {
+	req, out := c.CreateRemoteAccessSessionRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opCreateUpload = "CreateUpload"
 
-// CreateUploadRequest generates a request for the CreateUpload operation.
+// CreateUploadRequest generates a "aws/request.Request" representing the
+// client's request for the CreateUpload operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CreateUpload method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CreateUploadRequest method.
+//    req, resp := client.CreateUploadRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) CreateUploadRequest(input *CreateUploadInput) (req *request.Request, output *CreateUploadOutput) {
 	op := &request.Operation{
 		Name:       opCreateUpload,
@@ -91,9 +202,275 @@ func (c *DeviceFarm) CreateUpload(input *CreateUploadInput) (*CreateUploadOutput
 	return out, err
 }
 
+const opDeleteDevicePool = "DeleteDevicePool"
+
+// DeleteDevicePoolRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteDevicePool operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteDevicePool method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteDevicePoolRequest method.
+//    req, resp := client.DeleteDevicePoolRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *DeviceFarm) DeleteDevicePoolRequest(input *DeleteDevicePoolInput) (req *request.Request, output *DeleteDevicePoolOutput) {
+	op := &request.Operation{
+		Name:       opDeleteDevicePool,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DeleteDevicePoolInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &DeleteDevicePoolOutput{}
+	req.Data = output
+	return
+}
+
+// Deletes a device pool given the pool ARN. Does not allow deletion of curated
+// pools owned by the system.
+func (c *DeviceFarm) DeleteDevicePool(input *DeleteDevicePoolInput) (*DeleteDevicePoolOutput, error) {
+	req, out := c.DeleteDevicePoolRequest(input)
+	err := req.Send()
+	return out, err
+}
+
+const opDeleteProject = "DeleteProject"
+
+// DeleteProjectRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteProject operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteProject method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteProjectRequest method.
+//    req, resp := client.DeleteProjectRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *DeviceFarm) DeleteProjectRequest(input *DeleteProjectInput) (req *request.Request, output *DeleteProjectOutput) {
+	op := &request.Operation{
+		Name:       opDeleteProject,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DeleteProjectInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &DeleteProjectOutput{}
+	req.Data = output
+	return
+}
+
+// Deletes an AWS Device Farm project, given the project ARN.
+//
+// Note Deleting this resource does not stop an in-progress run.
+func (c *DeviceFarm) DeleteProject(input *DeleteProjectInput) (*DeleteProjectOutput, error) {
+	req, out := c.DeleteProjectRequest(input)
+	err := req.Send()
+	return out, err
+}
+
+const opDeleteRemoteAccessSession = "DeleteRemoteAccessSession"
+
+// DeleteRemoteAccessSessionRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteRemoteAccessSession operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteRemoteAccessSession method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteRemoteAccessSessionRequest method.
+//    req, resp := client.DeleteRemoteAccessSessionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *DeviceFarm) DeleteRemoteAccessSessionRequest(input *DeleteRemoteAccessSessionInput) (req *request.Request, output *DeleteRemoteAccessSessionOutput) {
+	op := &request.Operation{
+		Name:       opDeleteRemoteAccessSession,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DeleteRemoteAccessSessionInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &DeleteRemoteAccessSessionOutput{}
+	req.Data = output
+	return
+}
+
+// Deletes a completed remote access session and its results.
+func (c *DeviceFarm) DeleteRemoteAccessSession(input *DeleteRemoteAccessSessionInput) (*DeleteRemoteAccessSessionOutput, error) {
+	req, out := c.DeleteRemoteAccessSessionRequest(input)
+	err := req.Send()
+	return out, err
+}
+
+const opDeleteRun = "DeleteRun"
+
+// DeleteRunRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteRun operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteRun method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteRunRequest method.
+//    req, resp := client.DeleteRunRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *DeviceFarm) DeleteRunRequest(input *DeleteRunInput) (req *request.Request, output *DeleteRunOutput) {
+	op := &request.Operation{
+		Name:       opDeleteRun,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DeleteRunInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &DeleteRunOutput{}
+	req.Data = output
+	return
+}
+
+// Deletes the run, given the run ARN.
+//
+// Note Deleting this resource does not stop an in-progress run.
+func (c *DeviceFarm) DeleteRun(input *DeleteRunInput) (*DeleteRunOutput, error) {
+	req, out := c.DeleteRunRequest(input)
+	err := req.Send()
+	return out, err
+}
+
+const opDeleteUpload = "DeleteUpload"
+
+// DeleteUploadRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteUpload operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteUpload method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteUploadRequest method.
+//    req, resp := client.DeleteUploadRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *DeviceFarm) DeleteUploadRequest(input *DeleteUploadInput) (req *request.Request, output *DeleteUploadOutput) {
+	op := &request.Operation{
+		Name:       opDeleteUpload,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DeleteUploadInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &DeleteUploadOutput{}
+	req.Data = output
+	return
+}
+
+// Deletes an upload given the upload ARN.
+func (c *DeviceFarm) DeleteUpload(input *DeleteUploadInput) (*DeleteUploadOutput, error) {
+	req, out := c.DeleteUploadRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opGetAccountSettings = "GetAccountSettings"
 
-// GetAccountSettingsRequest generates a request for the GetAccountSettings operation.
+// GetAccountSettingsRequest generates a "aws/request.Request" representing the
+// client's request for the GetAccountSettings operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GetAccountSettings method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GetAccountSettingsRequest method.
+//    req, resp := client.GetAccountSettingsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) GetAccountSettingsRequest(input *GetAccountSettingsInput) (req *request.Request, output *GetAccountSettingsOutput) {
 	op := &request.Operation{
 		Name:       opGetAccountSettings,
@@ -121,7 +498,28 @@ func (c *DeviceFarm) GetAccountSettings(input *GetAccountSettingsInput) (*GetAcc
 
 const opGetDevice = "GetDevice"
 
-// GetDeviceRequest generates a request for the GetDevice operation.
+// GetDeviceRequest generates a "aws/request.Request" representing the
+// client's request for the GetDevice operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GetDevice method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GetDeviceRequest method.
+//    req, resp := client.GetDeviceRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) GetDeviceRequest(input *GetDeviceInput) (req *request.Request, output *GetDeviceOutput) {
 	op := &request.Operation{
 		Name:       opGetDevice,
@@ -148,7 +546,28 @@ func (c *DeviceFarm) GetDevice(input *GetDeviceInput) (*GetDeviceOutput, error) 
 
 const opGetDevicePool = "GetDevicePool"
 
-// GetDevicePoolRequest generates a request for the GetDevicePool operation.
+// GetDevicePoolRequest generates a "aws/request.Request" representing the
+// client's request for the GetDevicePool operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GetDevicePool method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GetDevicePoolRequest method.
+//    req, resp := client.GetDevicePoolRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) GetDevicePoolRequest(input *GetDevicePoolInput) (req *request.Request, output *GetDevicePoolOutput) {
 	op := &request.Operation{
 		Name:       opGetDevicePool,
@@ -175,7 +594,28 @@ func (c *DeviceFarm) GetDevicePool(input *GetDevicePoolInput) (*GetDevicePoolOut
 
 const opGetDevicePoolCompatibility = "GetDevicePoolCompatibility"
 
-// GetDevicePoolCompatibilityRequest generates a request for the GetDevicePoolCompatibility operation.
+// GetDevicePoolCompatibilityRequest generates a "aws/request.Request" representing the
+// client's request for the GetDevicePoolCompatibility operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GetDevicePoolCompatibility method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GetDevicePoolCompatibilityRequest method.
+//    req, resp := client.GetDevicePoolCompatibilityRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) GetDevicePoolCompatibilityRequest(input *GetDevicePoolCompatibilityInput) (req *request.Request, output *GetDevicePoolCompatibilityOutput) {
 	op := &request.Operation{
 		Name:       opGetDevicePoolCompatibility,
@@ -202,7 +642,28 @@ func (c *DeviceFarm) GetDevicePoolCompatibility(input *GetDevicePoolCompatibilit
 
 const opGetJob = "GetJob"
 
-// GetJobRequest generates a request for the GetJob operation.
+// GetJobRequest generates a "aws/request.Request" representing the
+// client's request for the GetJob operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GetJob method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GetJobRequest method.
+//    req, resp := client.GetJobRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) GetJobRequest(input *GetJobInput) (req *request.Request, output *GetJobOutput) {
 	op := &request.Operation{
 		Name:       opGetJob,
@@ -227,9 +688,114 @@ func (c *DeviceFarm) GetJob(input *GetJobInput) (*GetJobOutput, error) {
 	return out, err
 }
 
+const opGetOfferingStatus = "GetOfferingStatus"
+
+// GetOfferingStatusRequest generates a "aws/request.Request" representing the
+// client's request for the GetOfferingStatus operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GetOfferingStatus method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GetOfferingStatusRequest method.
+//    req, resp := client.GetOfferingStatusRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *DeviceFarm) GetOfferingStatusRequest(input *GetOfferingStatusInput) (req *request.Request, output *GetOfferingStatusOutput) {
+	op := &request.Operation{
+		Name:       opGetOfferingStatus,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+		Paginator: &request.Paginator{
+			InputTokens:     []string{"nextToken"},
+			OutputTokens:    []string{"nextToken"},
+			LimitToken:      "",
+			TruncationToken: "",
+		},
+	}
+
+	if input == nil {
+		input = &GetOfferingStatusInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &GetOfferingStatusOutput{}
+	req.Data = output
+	return
+}
+
+// Gets the current status and future status of all offerings purchased by an
+// AWS account. The response indicates how many offerings are currently available
+// and the offerings that will be available in the next period. The API returns
+// a NotEligible error if the user is not permitted to invoke the operation.
+// Please contact aws-devicefarm-support@amazon.com (mailto:aws-devicefarm-support@amazon.com)
+// if you believe that you should be able to invoke this operation.
+func (c *DeviceFarm) GetOfferingStatus(input *GetOfferingStatusInput) (*GetOfferingStatusOutput, error) {
+	req, out := c.GetOfferingStatusRequest(input)
+	err := req.Send()
+	return out, err
+}
+
+// GetOfferingStatusPages iterates over the pages of a GetOfferingStatus operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See GetOfferingStatus method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a GetOfferingStatus operation.
+//    pageNum := 0
+//    err := client.GetOfferingStatusPages(params,
+//        func(page *GetOfferingStatusOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
+func (c *DeviceFarm) GetOfferingStatusPages(input *GetOfferingStatusInput, fn func(p *GetOfferingStatusOutput, lastPage bool) (shouldContinue bool)) error {
+	page, _ := c.GetOfferingStatusRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
+	return page.EachPage(func(p interface{}, lastPage bool) bool {
+		return fn(p.(*GetOfferingStatusOutput), lastPage)
+	})
+}
+
 const opGetProject = "GetProject"
 
-// GetProjectRequest generates a request for the GetProject operation.
+// GetProjectRequest generates a "aws/request.Request" representing the
+// client's request for the GetProject operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GetProject method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GetProjectRequest method.
+//    req, resp := client.GetProjectRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) GetProjectRequest(input *GetProjectInput) (req *request.Request, output *GetProjectOutput) {
 	op := &request.Operation{
 		Name:       opGetProject,
@@ -254,9 +820,78 @@ func (c *DeviceFarm) GetProject(input *GetProjectInput) (*GetProjectOutput, erro
 	return out, err
 }
 
+const opGetRemoteAccessSession = "GetRemoteAccessSession"
+
+// GetRemoteAccessSessionRequest generates a "aws/request.Request" representing the
+// client's request for the GetRemoteAccessSession operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GetRemoteAccessSession method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GetRemoteAccessSessionRequest method.
+//    req, resp := client.GetRemoteAccessSessionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *DeviceFarm) GetRemoteAccessSessionRequest(input *GetRemoteAccessSessionInput) (req *request.Request, output *GetRemoteAccessSessionOutput) {
+	op := &request.Operation{
+		Name:       opGetRemoteAccessSession,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &GetRemoteAccessSessionInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &GetRemoteAccessSessionOutput{}
+	req.Data = output
+	return
+}
+
+// Returns a link to a currently running remote access session.
+func (c *DeviceFarm) GetRemoteAccessSession(input *GetRemoteAccessSessionInput) (*GetRemoteAccessSessionOutput, error) {
+	req, out := c.GetRemoteAccessSessionRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opGetRun = "GetRun"
 
-// GetRunRequest generates a request for the GetRun operation.
+// GetRunRequest generates a "aws/request.Request" representing the
+// client's request for the GetRun operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GetRun method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GetRunRequest method.
+//    req, resp := client.GetRunRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) GetRunRequest(input *GetRunInput) (req *request.Request, output *GetRunOutput) {
 	op := &request.Operation{
 		Name:       opGetRun,
@@ -283,7 +918,28 @@ func (c *DeviceFarm) GetRun(input *GetRunInput) (*GetRunOutput, error) {
 
 const opGetSuite = "GetSuite"
 
-// GetSuiteRequest generates a request for the GetSuite operation.
+// GetSuiteRequest generates a "aws/request.Request" representing the
+// client's request for the GetSuite operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GetSuite method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GetSuiteRequest method.
+//    req, resp := client.GetSuiteRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) GetSuiteRequest(input *GetSuiteInput) (req *request.Request, output *GetSuiteOutput) {
 	op := &request.Operation{
 		Name:       opGetSuite,
@@ -310,7 +966,28 @@ func (c *DeviceFarm) GetSuite(input *GetSuiteInput) (*GetSuiteOutput, error) {
 
 const opGetTest = "GetTest"
 
-// GetTestRequest generates a request for the GetTest operation.
+// GetTestRequest generates a "aws/request.Request" representing the
+// client's request for the GetTest operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GetTest method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GetTestRequest method.
+//    req, resp := client.GetTestRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) GetTestRequest(input *GetTestInput) (req *request.Request, output *GetTestOutput) {
 	op := &request.Operation{
 		Name:       opGetTest,
@@ -337,7 +1014,28 @@ func (c *DeviceFarm) GetTest(input *GetTestInput) (*GetTestOutput, error) {
 
 const opGetUpload = "GetUpload"
 
-// GetUploadRequest generates a request for the GetUpload operation.
+// GetUploadRequest generates a "aws/request.Request" representing the
+// client's request for the GetUpload operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GetUpload method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GetUploadRequest method.
+//    req, resp := client.GetUploadRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) GetUploadRequest(input *GetUploadInput) (req *request.Request, output *GetUploadOutput) {
 	op := &request.Operation{
 		Name:       opGetUpload,
@@ -362,9 +1060,80 @@ func (c *DeviceFarm) GetUpload(input *GetUploadInput) (*GetUploadOutput, error) 
 	return out, err
 }
 
+const opInstallToRemoteAccessSession = "InstallToRemoteAccessSession"
+
+// InstallToRemoteAccessSessionRequest generates a "aws/request.Request" representing the
+// client's request for the InstallToRemoteAccessSession operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the InstallToRemoteAccessSession method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the InstallToRemoteAccessSessionRequest method.
+//    req, resp := client.InstallToRemoteAccessSessionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *DeviceFarm) InstallToRemoteAccessSessionRequest(input *InstallToRemoteAccessSessionInput) (req *request.Request, output *InstallToRemoteAccessSessionOutput) {
+	op := &request.Operation{
+		Name:       opInstallToRemoteAccessSession,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &InstallToRemoteAccessSessionInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &InstallToRemoteAccessSessionOutput{}
+	req.Data = output
+	return
+}
+
+// Installs an application to the device in a remote access session. For Android
+// applications, the file must be in .apk format. For iOS applications, the
+// file must be in .ipa format.
+func (c *DeviceFarm) InstallToRemoteAccessSession(input *InstallToRemoteAccessSessionInput) (*InstallToRemoteAccessSessionOutput, error) {
+	req, out := c.InstallToRemoteAccessSessionRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opListArtifacts = "ListArtifacts"
 
-// ListArtifactsRequest generates a request for the ListArtifacts operation.
+// ListArtifactsRequest generates a "aws/request.Request" representing the
+// client's request for the ListArtifacts operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListArtifacts method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListArtifactsRequest method.
+//    req, resp := client.ListArtifactsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) ListArtifactsRequest(input *ListArtifactsInput) (req *request.Request, output *ListArtifactsOutput) {
 	op := &request.Operation{
 		Name:       opListArtifacts,
@@ -395,8 +1164,26 @@ func (c *DeviceFarm) ListArtifacts(input *ListArtifactsInput) (*ListArtifactsOut
 	return out, err
 }
 
+// ListArtifactsPages iterates over the pages of a ListArtifacts operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListArtifacts method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListArtifacts operation.
+//    pageNum := 0
+//    err := client.ListArtifactsPages(params,
+//        func(page *ListArtifactsOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *DeviceFarm) ListArtifactsPages(input *ListArtifactsInput, fn func(p *ListArtifactsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListArtifactsRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListArtifactsOutput), lastPage)
 	})
@@ -404,7 +1191,28 @@ func (c *DeviceFarm) ListArtifactsPages(input *ListArtifactsInput, fn func(p *Li
 
 const opListDevicePools = "ListDevicePools"
 
-// ListDevicePoolsRequest generates a request for the ListDevicePools operation.
+// ListDevicePoolsRequest generates a "aws/request.Request" representing the
+// client's request for the ListDevicePools operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListDevicePools method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListDevicePoolsRequest method.
+//    req, resp := client.ListDevicePoolsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) ListDevicePoolsRequest(input *ListDevicePoolsInput) (req *request.Request, output *ListDevicePoolsOutput) {
 	op := &request.Operation{
 		Name:       opListDevicePools,
@@ -435,8 +1243,26 @@ func (c *DeviceFarm) ListDevicePools(input *ListDevicePoolsInput) (*ListDevicePo
 	return out, err
 }
 
+// ListDevicePoolsPages iterates over the pages of a ListDevicePools operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListDevicePools method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListDevicePools operation.
+//    pageNum := 0
+//    err := client.ListDevicePoolsPages(params,
+//        func(page *ListDevicePoolsOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *DeviceFarm) ListDevicePoolsPages(input *ListDevicePoolsInput, fn func(p *ListDevicePoolsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListDevicePoolsRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListDevicePoolsOutput), lastPage)
 	})
@@ -444,7 +1270,28 @@ func (c *DeviceFarm) ListDevicePoolsPages(input *ListDevicePoolsInput, fn func(p
 
 const opListDevices = "ListDevices"
 
-// ListDevicesRequest generates a request for the ListDevices operation.
+// ListDevicesRequest generates a "aws/request.Request" representing the
+// client's request for the ListDevices operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListDevices method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListDevicesRequest method.
+//    req, resp := client.ListDevicesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) ListDevicesRequest(input *ListDevicesInput) (req *request.Request, output *ListDevicesOutput) {
 	op := &request.Operation{
 		Name:       opListDevices,
@@ -475,8 +1322,26 @@ func (c *DeviceFarm) ListDevices(input *ListDevicesInput) (*ListDevicesOutput, e
 	return out, err
 }
 
+// ListDevicesPages iterates over the pages of a ListDevices operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListDevices method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListDevices operation.
+//    pageNum := 0
+//    err := client.ListDevicesPages(params,
+//        func(page *ListDevicesOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *DeviceFarm) ListDevicesPages(input *ListDevicesInput, fn func(p *ListDevicesOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListDevicesRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListDevicesOutput), lastPage)
 	})
@@ -484,7 +1349,28 @@ func (c *DeviceFarm) ListDevicesPages(input *ListDevicesInput, fn func(p *ListDe
 
 const opListJobs = "ListJobs"
 
-// ListJobsRequest generates a request for the ListJobs operation.
+// ListJobsRequest generates a "aws/request.Request" representing the
+// client's request for the ListJobs operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListJobs method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListJobsRequest method.
+//    req, resp := client.ListJobsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) ListJobsRequest(input *ListJobsInput) (req *request.Request, output *ListJobsOutput) {
 	op := &request.Operation{
 		Name:       opListJobs,
@@ -515,16 +1401,223 @@ func (c *DeviceFarm) ListJobs(input *ListJobsInput) (*ListJobsOutput, error) {
 	return out, err
 }
 
+// ListJobsPages iterates over the pages of a ListJobs operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListJobs method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListJobs operation.
+//    pageNum := 0
+//    err := client.ListJobsPages(params,
+//        func(page *ListJobsOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *DeviceFarm) ListJobsPages(input *ListJobsInput, fn func(p *ListJobsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListJobsRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListJobsOutput), lastPage)
 	})
 }
 
+const opListOfferingTransactions = "ListOfferingTransactions"
+
+// ListOfferingTransactionsRequest generates a "aws/request.Request" representing the
+// client's request for the ListOfferingTransactions operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListOfferingTransactions method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListOfferingTransactionsRequest method.
+//    req, resp := client.ListOfferingTransactionsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *DeviceFarm) ListOfferingTransactionsRequest(input *ListOfferingTransactionsInput) (req *request.Request, output *ListOfferingTransactionsOutput) {
+	op := &request.Operation{
+		Name:       opListOfferingTransactions,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+		Paginator: &request.Paginator{
+			InputTokens:     []string{"nextToken"},
+			OutputTokens:    []string{"nextToken"},
+			LimitToken:      "",
+			TruncationToken: "",
+		},
+	}
+
+	if input == nil {
+		input = &ListOfferingTransactionsInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &ListOfferingTransactionsOutput{}
+	req.Data = output
+	return
+}
+
+// Returns a list of all historical purchases, renewals, and system renewal
+// transactions for an AWS account. The list is paginated and ordered by a descending
+// timestamp (most recent transactions are first). The API returns a NotEligible
+// error if the user is not permitted to invoke the operation. Please contact
+// aws-devicefarm-support@amazon.com (mailto:aws-devicefarm-support@amazon.com)
+// if you believe that you should be able to invoke this operation.
+func (c *DeviceFarm) ListOfferingTransactions(input *ListOfferingTransactionsInput) (*ListOfferingTransactionsOutput, error) {
+	req, out := c.ListOfferingTransactionsRequest(input)
+	err := req.Send()
+	return out, err
+}
+
+// ListOfferingTransactionsPages iterates over the pages of a ListOfferingTransactions operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListOfferingTransactions method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListOfferingTransactions operation.
+//    pageNum := 0
+//    err := client.ListOfferingTransactionsPages(params,
+//        func(page *ListOfferingTransactionsOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
+func (c *DeviceFarm) ListOfferingTransactionsPages(input *ListOfferingTransactionsInput, fn func(p *ListOfferingTransactionsOutput, lastPage bool) (shouldContinue bool)) error {
+	page, _ := c.ListOfferingTransactionsRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
+	return page.EachPage(func(p interface{}, lastPage bool) bool {
+		return fn(p.(*ListOfferingTransactionsOutput), lastPage)
+	})
+}
+
+const opListOfferings = "ListOfferings"
+
+// ListOfferingsRequest generates a "aws/request.Request" representing the
+// client's request for the ListOfferings operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListOfferings method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListOfferingsRequest method.
+//    req, resp := client.ListOfferingsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *DeviceFarm) ListOfferingsRequest(input *ListOfferingsInput) (req *request.Request, output *ListOfferingsOutput) {
+	op := &request.Operation{
+		Name:       opListOfferings,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+		Paginator: &request.Paginator{
+			InputTokens:     []string{"nextToken"},
+			OutputTokens:    []string{"nextToken"},
+			LimitToken:      "",
+			TruncationToken: "",
+		},
+	}
+
+	if input == nil {
+		input = &ListOfferingsInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &ListOfferingsOutput{}
+	req.Data = output
+	return
+}
+
+// Returns a list of products or offerings that the user can manage through
+// the API. Each offering record indicates the recurring price per unit and
+// the frequency for that offering. The API returns a NotEligible error if the
+// user is not permitted to invoke the operation. Please contact aws-devicefarm-support@amazon.com
+// (mailto:aws-devicefarm-support@amazon.com) if you believe that you should
+// be able to invoke this operation.
+func (c *DeviceFarm) ListOfferings(input *ListOfferingsInput) (*ListOfferingsOutput, error) {
+	req, out := c.ListOfferingsRequest(input)
+	err := req.Send()
+	return out, err
+}
+
+// ListOfferingsPages iterates over the pages of a ListOfferings operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListOfferings method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListOfferings operation.
+//    pageNum := 0
+//    err := client.ListOfferingsPages(params,
+//        func(page *ListOfferingsOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
+func (c *DeviceFarm) ListOfferingsPages(input *ListOfferingsInput, fn func(p *ListOfferingsOutput, lastPage bool) (shouldContinue bool)) error {
+	page, _ := c.ListOfferingsRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
+	return page.EachPage(func(p interface{}, lastPage bool) bool {
+		return fn(p.(*ListOfferingsOutput), lastPage)
+	})
+}
+
 const opListProjects = "ListProjects"
 
-// ListProjectsRequest generates a request for the ListProjects operation.
+// ListProjectsRequest generates a "aws/request.Request" representing the
+// client's request for the ListProjects operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListProjects method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListProjectsRequest method.
+//    req, resp := client.ListProjectsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) ListProjectsRequest(input *ListProjectsInput) (req *request.Request, output *ListProjectsOutput) {
 	op := &request.Operation{
 		Name:       opListProjects,
@@ -555,16 +1648,103 @@ func (c *DeviceFarm) ListProjects(input *ListProjectsInput) (*ListProjectsOutput
 	return out, err
 }
 
+// ListProjectsPages iterates over the pages of a ListProjects operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListProjects method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListProjects operation.
+//    pageNum := 0
+//    err := client.ListProjectsPages(params,
+//        func(page *ListProjectsOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *DeviceFarm) ListProjectsPages(input *ListProjectsInput, fn func(p *ListProjectsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListProjectsRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListProjectsOutput), lastPage)
 	})
 }
 
+const opListRemoteAccessSessions = "ListRemoteAccessSessions"
+
+// ListRemoteAccessSessionsRequest generates a "aws/request.Request" representing the
+// client's request for the ListRemoteAccessSessions operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListRemoteAccessSessions method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListRemoteAccessSessionsRequest method.
+//    req, resp := client.ListRemoteAccessSessionsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *DeviceFarm) ListRemoteAccessSessionsRequest(input *ListRemoteAccessSessionsInput) (req *request.Request, output *ListRemoteAccessSessionsOutput) {
+	op := &request.Operation{
+		Name:       opListRemoteAccessSessions,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &ListRemoteAccessSessionsInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &ListRemoteAccessSessionsOutput{}
+	req.Data = output
+	return
+}
+
+// Returns a list of all currently running remote access sessions.
+func (c *DeviceFarm) ListRemoteAccessSessions(input *ListRemoteAccessSessionsInput) (*ListRemoteAccessSessionsOutput, error) {
+	req, out := c.ListRemoteAccessSessionsRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opListRuns = "ListRuns"
 
-// ListRunsRequest generates a request for the ListRuns operation.
+// ListRunsRequest generates a "aws/request.Request" representing the
+// client's request for the ListRuns operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListRuns method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListRunsRequest method.
+//    req, resp := client.ListRunsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) ListRunsRequest(input *ListRunsInput) (req *request.Request, output *ListRunsOutput) {
 	op := &request.Operation{
 		Name:       opListRuns,
@@ -595,8 +1775,26 @@ func (c *DeviceFarm) ListRuns(input *ListRunsInput) (*ListRunsOutput, error) {
 	return out, err
 }
 
+// ListRunsPages iterates over the pages of a ListRuns operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListRuns method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListRuns operation.
+//    pageNum := 0
+//    err := client.ListRunsPages(params,
+//        func(page *ListRunsOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *DeviceFarm) ListRunsPages(input *ListRunsInput, fn func(p *ListRunsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListRunsRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListRunsOutput), lastPage)
 	})
@@ -604,7 +1802,28 @@ func (c *DeviceFarm) ListRunsPages(input *ListRunsInput, fn func(p *ListRunsOutp
 
 const opListSamples = "ListSamples"
 
-// ListSamplesRequest generates a request for the ListSamples operation.
+// ListSamplesRequest generates a "aws/request.Request" representing the
+// client's request for the ListSamples operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListSamples method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListSamplesRequest method.
+//    req, resp := client.ListSamplesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) ListSamplesRequest(input *ListSamplesInput) (req *request.Request, output *ListSamplesOutput) {
 	op := &request.Operation{
 		Name:       opListSamples,
@@ -635,8 +1854,26 @@ func (c *DeviceFarm) ListSamples(input *ListSamplesInput) (*ListSamplesOutput, e
 	return out, err
 }
 
+// ListSamplesPages iterates over the pages of a ListSamples operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListSamples method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListSamples operation.
+//    pageNum := 0
+//    err := client.ListSamplesPages(params,
+//        func(page *ListSamplesOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *DeviceFarm) ListSamplesPages(input *ListSamplesInput, fn func(p *ListSamplesOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListSamplesRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListSamplesOutput), lastPage)
 	})
@@ -644,7 +1881,28 @@ func (c *DeviceFarm) ListSamplesPages(input *ListSamplesInput, fn func(p *ListSa
 
 const opListSuites = "ListSuites"
 
-// ListSuitesRequest generates a request for the ListSuites operation.
+// ListSuitesRequest generates a "aws/request.Request" representing the
+// client's request for the ListSuites operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListSuites method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListSuitesRequest method.
+//    req, resp := client.ListSuitesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) ListSuitesRequest(input *ListSuitesInput) (req *request.Request, output *ListSuitesOutput) {
 	op := &request.Operation{
 		Name:       opListSuites,
@@ -675,8 +1933,26 @@ func (c *DeviceFarm) ListSuites(input *ListSuitesInput) (*ListSuitesOutput, erro
 	return out, err
 }
 
+// ListSuitesPages iterates over the pages of a ListSuites operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListSuites method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListSuites operation.
+//    pageNum := 0
+//    err := client.ListSuitesPages(params,
+//        func(page *ListSuitesOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *DeviceFarm) ListSuitesPages(input *ListSuitesInput, fn func(p *ListSuitesOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListSuitesRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListSuitesOutput), lastPage)
 	})
@@ -684,7 +1960,28 @@ func (c *DeviceFarm) ListSuitesPages(input *ListSuitesInput, fn func(p *ListSuit
 
 const opListTests = "ListTests"
 
-// ListTestsRequest generates a request for the ListTests operation.
+// ListTestsRequest generates a "aws/request.Request" representing the
+// client's request for the ListTests operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListTests method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListTestsRequest method.
+//    req, resp := client.ListTestsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) ListTestsRequest(input *ListTestsInput) (req *request.Request, output *ListTestsOutput) {
 	op := &request.Operation{
 		Name:       opListTests,
@@ -715,8 +2012,26 @@ func (c *DeviceFarm) ListTests(input *ListTestsInput) (*ListTestsOutput, error) 
 	return out, err
 }
 
+// ListTestsPages iterates over the pages of a ListTests operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListTests method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListTests operation.
+//    pageNum := 0
+//    err := client.ListTestsPages(params,
+//        func(page *ListTestsOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *DeviceFarm) ListTestsPages(input *ListTestsInput, fn func(p *ListTestsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListTestsRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListTestsOutput), lastPage)
 	})
@@ -724,7 +2039,28 @@ func (c *DeviceFarm) ListTestsPages(input *ListTestsInput, fn func(p *ListTestsO
 
 const opListUniqueProblems = "ListUniqueProblems"
 
-// ListUniqueProblemsRequest generates a request for the ListUniqueProblems operation.
+// ListUniqueProblemsRequest generates a "aws/request.Request" representing the
+// client's request for the ListUniqueProblems operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListUniqueProblems method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListUniqueProblemsRequest method.
+//    req, resp := client.ListUniqueProblemsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) ListUniqueProblemsRequest(input *ListUniqueProblemsInput) (req *request.Request, output *ListUniqueProblemsOutput) {
 	op := &request.Operation{
 		Name:       opListUniqueProblems,
@@ -755,8 +2091,26 @@ func (c *DeviceFarm) ListUniqueProblems(input *ListUniqueProblemsInput) (*ListUn
 	return out, err
 }
 
+// ListUniqueProblemsPages iterates over the pages of a ListUniqueProblems operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListUniqueProblems method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListUniqueProblems operation.
+//    pageNum := 0
+//    err := client.ListUniqueProblemsPages(params,
+//        func(page *ListUniqueProblemsOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *DeviceFarm) ListUniqueProblemsPages(input *ListUniqueProblemsInput, fn func(p *ListUniqueProblemsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListUniqueProblemsRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListUniqueProblemsOutput), lastPage)
 	})
@@ -764,7 +2118,28 @@ func (c *DeviceFarm) ListUniqueProblemsPages(input *ListUniqueProblemsInput, fn 
 
 const opListUploads = "ListUploads"
 
-// ListUploadsRequest generates a request for the ListUploads operation.
+// ListUploadsRequest generates a "aws/request.Request" representing the
+// client's request for the ListUploads operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListUploads method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListUploadsRequest method.
+//    req, resp := client.ListUploadsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) ListUploadsRequest(input *ListUploadsInput) (req *request.Request, output *ListUploadsOutput) {
 	op := &request.Operation{
 		Name:       opListUploads,
@@ -795,16 +2170,160 @@ func (c *DeviceFarm) ListUploads(input *ListUploadsInput) (*ListUploadsOutput, e
 	return out, err
 }
 
+// ListUploadsPages iterates over the pages of a ListUploads operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListUploads method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListUploads operation.
+//    pageNum := 0
+//    err := client.ListUploadsPages(params,
+//        func(page *ListUploadsOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *DeviceFarm) ListUploadsPages(input *ListUploadsInput, fn func(p *ListUploadsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListUploadsRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListUploadsOutput), lastPage)
 	})
 }
 
+const opPurchaseOffering = "PurchaseOffering"
+
+// PurchaseOfferingRequest generates a "aws/request.Request" representing the
+// client's request for the PurchaseOffering operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the PurchaseOffering method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the PurchaseOfferingRequest method.
+//    req, resp := client.PurchaseOfferingRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *DeviceFarm) PurchaseOfferingRequest(input *PurchaseOfferingInput) (req *request.Request, output *PurchaseOfferingOutput) {
+	op := &request.Operation{
+		Name:       opPurchaseOffering,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &PurchaseOfferingInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &PurchaseOfferingOutput{}
+	req.Data = output
+	return
+}
+
+// Immediately purchases offerings for an AWS account. Offerings renew with
+// the latest total purchased quantity for an offering, unless the renewal was
+// overridden. The API returns a NotEligible error if the user is not permitted
+// to invoke the operation. Please contact aws-devicefarm-support@amazon.com
+// (mailto:aws-devicefarm-support@amazon.com) if you believe that you should
+// be able to invoke this operation.
+func (c *DeviceFarm) PurchaseOffering(input *PurchaseOfferingInput) (*PurchaseOfferingOutput, error) {
+	req, out := c.PurchaseOfferingRequest(input)
+	err := req.Send()
+	return out, err
+}
+
+const opRenewOffering = "RenewOffering"
+
+// RenewOfferingRequest generates a "aws/request.Request" representing the
+// client's request for the RenewOffering operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RenewOffering method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RenewOfferingRequest method.
+//    req, resp := client.RenewOfferingRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *DeviceFarm) RenewOfferingRequest(input *RenewOfferingInput) (req *request.Request, output *RenewOfferingOutput) {
+	op := &request.Operation{
+		Name:       opRenewOffering,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &RenewOfferingInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &RenewOfferingOutput{}
+	req.Data = output
+	return
+}
+
+// Explicitly sets the quantity of devices to renew for an offering, starting
+// from the effectiveDate of the next period. The API returns a NotEligible
+// error if the user is not permitted to invoke the operation. Please contact
+// aws-devicefarm-support@amazon.com (mailto:aws-devicefarm-support@amazon.com)
+// if you believe that you should be able to invoke this operation.
+func (c *DeviceFarm) RenewOffering(input *RenewOfferingInput) (*RenewOfferingOutput, error) {
+	req, out := c.RenewOfferingRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opScheduleRun = "ScheduleRun"
 
-// ScheduleRunRequest generates a request for the ScheduleRun operation.
+// ScheduleRunRequest generates a "aws/request.Request" representing the
+// client's request for the ScheduleRun operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ScheduleRun method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ScheduleRunRequest method.
+//    req, resp := client.ScheduleRunRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *DeviceFarm) ScheduleRunRequest(input *ScheduleRunInput) (req *request.Request, output *ScheduleRunOutput) {
 	op := &request.Operation{
 		Name:       opScheduleRun,
@@ -829,19 +2348,218 @@ func (c *DeviceFarm) ScheduleRun(input *ScheduleRunInput) (*ScheduleRunOutput, e
 	return out, err
 }
 
-// A container for account-level settings within AWS Device Farm.
-type AccountSettings struct {
-	// The AWS account number specified in the AccountSettings container.
-	AwsAccountNumber *string `locationName:"awsAccountNumber" type:"string"`
+const opStopRemoteAccessSession = "StopRemoteAccessSession"
 
-	// Returns the unmetered devices you have purchased.
-	UnmeteredDevices map[string]*int64 `locationName:"unmeteredDevices" type:"map"`
+// StopRemoteAccessSessionRequest generates a "aws/request.Request" representing the
+// client's request for the StopRemoteAccessSession operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the StopRemoteAccessSession method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the StopRemoteAccessSessionRequest method.
+//    req, resp := client.StopRemoteAccessSessionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *DeviceFarm) StopRemoteAccessSessionRequest(input *StopRemoteAccessSessionInput) (req *request.Request, output *StopRemoteAccessSessionOutput) {
+	op := &request.Operation{
+		Name:       opStopRemoteAccessSession,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
 
-	metadataAccountSettings `json:"-" xml:"-"`
+	if input == nil {
+		input = &StopRemoteAccessSessionInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &StopRemoteAccessSessionOutput{}
+	req.Data = output
+	return
 }
 
-type metadataAccountSettings struct {
-	SDKShapeTraits bool `type:"structure"`
+// Ends a specified remote access session.
+func (c *DeviceFarm) StopRemoteAccessSession(input *StopRemoteAccessSessionInput) (*StopRemoteAccessSessionOutput, error) {
+	req, out := c.StopRemoteAccessSessionRequest(input)
+	err := req.Send()
+	return out, err
+}
+
+const opStopRun = "StopRun"
+
+// StopRunRequest generates a "aws/request.Request" representing the
+// client's request for the StopRun operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the StopRun method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the StopRunRequest method.
+//    req, resp := client.StopRunRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *DeviceFarm) StopRunRequest(input *StopRunInput) (req *request.Request, output *StopRunOutput) {
+	op := &request.Operation{
+		Name:       opStopRun,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &StopRunInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &StopRunOutput{}
+	req.Data = output
+	return
+}
+
+// Initiates a stop request for the current test run. AWS Device Farm will immediately
+// stop the run on devices where tests have not started executing, and you will
+// not be billed for these devices. On devices where tests have started executing,
+// Setup Suite and Teardown Suite tests will run to completion before stopping
+// execution on those devices. You will be billed for Setup, Teardown, and any
+// tests that were in progress or already completed.
+func (c *DeviceFarm) StopRun(input *StopRunInput) (*StopRunOutput, error) {
+	req, out := c.StopRunRequest(input)
+	err := req.Send()
+	return out, err
+}
+
+const opUpdateDevicePool = "UpdateDevicePool"
+
+// UpdateDevicePoolRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateDevicePool operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateDevicePool method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateDevicePoolRequest method.
+//    req, resp := client.UpdateDevicePoolRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *DeviceFarm) UpdateDevicePoolRequest(input *UpdateDevicePoolInput) (req *request.Request, output *UpdateDevicePoolOutput) {
+	op := &request.Operation{
+		Name:       opUpdateDevicePool,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &UpdateDevicePoolInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &UpdateDevicePoolOutput{}
+	req.Data = output
+	return
+}
+
+// Modifies the name, description, and rules in a device pool given the attributes
+// and the pool ARN. Rule updates are all-or-nothing, meaning they can only
+// be updated as a whole (or not at all).
+func (c *DeviceFarm) UpdateDevicePool(input *UpdateDevicePoolInput) (*UpdateDevicePoolOutput, error) {
+	req, out := c.UpdateDevicePoolRequest(input)
+	err := req.Send()
+	return out, err
+}
+
+const opUpdateProject = "UpdateProject"
+
+// UpdateProjectRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateProject operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateProject method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateProjectRequest method.
+//    req, resp := client.UpdateProjectRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *DeviceFarm) UpdateProjectRequest(input *UpdateProjectInput) (req *request.Request, output *UpdateProjectOutput) {
+	op := &request.Operation{
+		Name:       opUpdateProject,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &UpdateProjectInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &UpdateProjectOutput{}
+	req.Data = output
+	return
+}
+
+// Modifies the specified project name, given the project ARN and a new name.
+func (c *DeviceFarm) UpdateProject(input *UpdateProjectInput) (*UpdateProjectOutput, error) {
+	req, out := c.UpdateProjectRequest(input)
+	err := req.Send()
+	return out, err
+}
+
+// A container for account-level settings within AWS Device Farm.
+type AccountSettings struct {
+	_ struct{} `type:"structure"`
+
+	// The AWS account number specified in the AccountSettings container.
+	AwsAccountNumber *string `locationName:"awsAccountNumber" min:"2" type:"string"`
+
+	// Returns the unmetered devices you have purchased or want to purchase.
+	UnmeteredDevices map[string]*int64 `locationName:"unmeteredDevices" type:"map"`
+
+	// Returns the unmetered remote access devices you have purchased or want to
+	// purchase.
+	UnmeteredRemoteAccessDevices map[string]*int64 `locationName:"unmeteredRemoteAccessDevices" type:"map"`
 }
 
 // String returns the string representation
@@ -856,8 +2574,10 @@ func (s AccountSettings) GoString() string {
 
 // Represents the output of a test. Examples of artifacts include logs and screenshots.
 type Artifact struct {
+	_ struct{} `type:"structure"`
+
 	// The artifact's ARN.
-	Arn *string `locationName:"arn" type:"string"`
+	Arn *string `locationName:"arn" min:"32" type:"string"`
 
 	// The artifact's file extension.
 	Extension *string `locationName:"extension" type:"string"`
@@ -869,49 +2589,57 @@ type Artifact struct {
 	//
 	// Allowed values include the following:
 	//
-	//  APPIUM_JAVA_OUTPUT: The Appium Java output type.
+	//  UNKNOWN: An unknown type.
 	//
-	// APPIUM_JAVA_XML_OUTPUT: The Appium Java XML output type.
-	//
-	// APPIUM_SERVER_OUTPUT: The Appium server output type.
-	//
-	// AUTOMATION_OUTPUT: The automation output type.
-	//
-	// CALABASH_JSON_OUTPUT: The Calabash JSON output type.
-	//
-	// CALABASH_JAVA_XML_OUTPUT: The Calabash Java XML output type.
-	//
-	// CALABASH_PRETTY_OUTPUT: The Calabash pretty output type.
-	//
-	// CALABASH_STANDARD_OUTPUT: The Calabash standard output type.
+	// SCREENSHOT: The screenshot type.
 	//
 	// DEVICE_LOG: The device log type.
-	//
-	// EXERCISER_MONKEY_OUTPUT: For Android, the artifact (log) generated by an
-	// Android fuzz test.
-	//
-	// INSTRUMENTATION_OUTPUT: The instrumentation type.
 	//
 	// MESSAGE_LOG: The message log type.
 	//
 	// RESULT_LOG: The result log type.
 	//
-	// SCREENSHOT: The screenshot type.
-	//
 	// SERVICE_LOG: The service log type.
 	//
-	// UNKNOWN: An unknown type.
+	// WEBKIT_LOG: The web kit log type.
+	//
+	// INSTRUMENTATION_OUTPUT: The instrumentation type.
+	//
+	// EXERCISER_MONKEY_OUTPUT: For Android, the artifact (log) generated by an
+	// Android fuzz test.
+	//
+	// CALABASH_JSON_OUTPUT: The Calabash JSON output type.
+	//
+	// CALABASH_PRETTY_OUTPUT: The Calabash pretty output type.
+	//
+	// CALABASH_STANDARD_OUTPUT: The Calabash standard output type.
+	//
+	// CALABASH_JAVA_XML_OUTPUT: The Calabash Java XML output type.
+	//
+	// AUTOMATION_OUTPUT: The automation output type.
+	//
+	// APPIUM_SERVER_OUTPUT: The Appium server output type.
+	//
+	// APPIUM_JAVA_OUTPUT: The Appium Java output type.
+	//
+	// APPIUM_JAVA_XML_OUTPUT: The Appium Java XML output type.
+	//
+	// APPIUM_PYTHON_OUTPUT: The Appium Python output type.
+	//
+	// APPIUM_PYTHON_XML_OUTPUT: The Appium Python XML output type.
+	//
+	// EXPLORER_EVENT_LOG: The Explorer event log output type.
+	//
+	// EXPLORER_SUMMARY_LOG: The Explorer summary log output type.
+	//
+	// APPLICATION_CRASH_REPORT: The application crash report output type.
+	//
+	// XCTEST_LOG: The XCode test output type.
 	Type *string `locationName:"type" type:"string" enum:"ArtifactType"`
 
 	// The pre-signed Amazon S3 URL that can be used with a corresponding GET request
 	// to download the artifact's file.
 	Url *string `locationName:"url" type:"string"`
-
-	metadataArtifact `json:"-" xml:"-"`
-}
-
-type metadataArtifact struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -928,6 +2656,8 @@ func (s Artifact) GoString() string {
 //
 // Note that this does not represent system-wide CPU usage.
 type CPU struct {
+	_ struct{} `type:"structure"`
+
 	// The CPU's architecture, for example x86 or ARM.
 	Architecture *string `locationName:"architecture" type:"string"`
 
@@ -937,12 +2667,6 @@ type CPU struct {
 
 	// The CPU's frequency.
 	Frequency *string `locationName:"frequency" type:"string"`
-
-	metadataCPU `json:"-" xml:"-"`
-}
-
-type metadataCPU struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -957,6 +2681,8 @@ func (s CPU) GoString() string {
 
 // Represents entity counters.
 type Counters struct {
+	_ struct{} `type:"structure"`
+
 	// The number of errored entities.
 	Errored *int64 `locationName:"errored" type:"integer"`
 
@@ -977,12 +2703,6 @@ type Counters struct {
 
 	// The number of warned entities.
 	Warned *int64 `locationName:"warned" type:"integer"`
-
-	metadataCounters `json:"-" xml:"-"`
-}
-
-type metadataCounters struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -997,6 +2717,8 @@ func (s Counters) GoString() string {
 
 // Represents a request to the create device pool operation.
 type CreateDevicePoolInput struct {
+	_ struct{} `type:"structure"`
+
 	// The device pool's description.
 	Description *string `locationName:"description" type:"string"`
 
@@ -1004,16 +2726,10 @@ type CreateDevicePoolInput struct {
 	Name *string `locationName:"name" type:"string" required:"true"`
 
 	// The ARN of the project for the device pool.
-	ProjectArn *string `locationName:"projectArn" type:"string" required:"true"`
+	ProjectArn *string `locationName:"projectArn" min:"32" type:"string" required:"true"`
 
 	// The device pool's rules.
 	Rules []*Rule `locationName:"rules" type:"list" required:"true"`
-
-	metadataCreateDevicePoolInput `json:"-" xml:"-"`
-}
-
-type metadataCreateDevicePoolInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1026,16 +2742,34 @@ func (s CreateDevicePoolInput) GoString() string {
 	return s.String()
 }
 
-// Represents the result of a create device pool request.
-type CreateDevicePoolOutput struct {
-	// The newly created device pool.
-	DevicePool *DevicePool `locationName:"devicePool" type:"structure"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateDevicePoolInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateDevicePoolInput"}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
+	if s.ProjectArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("ProjectArn"))
+	}
+	if s.ProjectArn != nil && len(*s.ProjectArn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("ProjectArn", 32))
+	}
+	if s.Rules == nil {
+		invalidParams.Add(request.NewErrParamRequired("Rules"))
+	}
 
-	metadataCreateDevicePoolOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataCreateDevicePoolOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Represents the result of a create device pool request.
+type CreateDevicePoolOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The newly created device pool.
+	DevicePool *DevicePool `locationName:"devicePool" type:"structure"`
 }
 
 // String returns the string representation
@@ -1050,14 +2784,10 @@ func (s CreateDevicePoolOutput) GoString() string {
 
 // Represents a request to the create project operation.
 type CreateProjectInput struct {
+	_ struct{} `type:"structure"`
+
 	// The project's name.
 	Name *string `locationName:"name" type:"string" required:"true"`
-
-	metadataCreateProjectInput `json:"-" xml:"-"`
-}
-
-type metadataCreateProjectInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1070,16 +2800,25 @@ func (s CreateProjectInput) GoString() string {
 	return s.String()
 }
 
-// Represents the result of a create project request.
-type CreateProjectOutput struct {
-	// The newly created project.
-	Project *Project `locationName:"project" type:"structure"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateProjectInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateProjectInput"}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
 
-	metadataCreateProjectOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataCreateProjectOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Represents the result of a create project request.
+type CreateProjectOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The newly created project.
+	Project *Project `locationName:"project" type:"structure"`
 }
 
 // String returns the string representation
@@ -1092,16 +2831,107 @@ func (s CreateProjectOutput) GoString() string {
 	return s.String()
 }
 
+// Creates the configuration settings for a remote access session, including
+// the device model and type.
+type CreateRemoteAccessSessionConfiguration struct {
+	_ struct{} `type:"structure"`
+
+	// Returns the billing method for purposes of configuring a remote access session.
+	BillingMethod *string `locationName:"billingMethod" type:"string" enum:"BillingMethod"`
+}
+
+// String returns the string representation
+func (s CreateRemoteAccessSessionConfiguration) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CreateRemoteAccessSessionConfiguration) GoString() string {
+	return s.String()
+}
+
+// Creates and submits a request to start a remote access session.
+type CreateRemoteAccessSessionInput struct {
+	_ struct{} `type:"structure"`
+
+	// The configuration information for the remote access session request.
+	Configuration *CreateRemoteAccessSessionConfiguration `locationName:"configuration" type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the device for which you want to create
+	// a remote access session.
+	DeviceArn *string `locationName:"deviceArn" min:"32" type:"string" required:"true"`
+
+	// The name of the remote access session that you wish to create.
+	Name *string `locationName:"name" type:"string"`
+
+	// The Amazon Resource Name (ARN) of the project for which you want to create
+	// a remote access session.
+	ProjectArn *string `locationName:"projectArn" min:"32" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s CreateRemoteAccessSessionInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CreateRemoteAccessSessionInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateRemoteAccessSessionInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateRemoteAccessSessionInput"}
+	if s.DeviceArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("DeviceArn"))
+	}
+	if s.DeviceArn != nil && len(*s.DeviceArn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("DeviceArn", 32))
+	}
+	if s.ProjectArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("ProjectArn"))
+	}
+	if s.ProjectArn != nil && len(*s.ProjectArn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("ProjectArn", 32))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// Represents the server response from a request to create a remote access session.
+type CreateRemoteAccessSessionOutput struct {
+	_ struct{} `type:"structure"`
+
+	// A container that describes the remote access session when the request to
+	// create a remote access session is sent.
+	RemoteAccessSession *RemoteAccessSession `locationName:"remoteAccessSession" type:"structure"`
+}
+
+// String returns the string representation
+func (s CreateRemoteAccessSessionOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CreateRemoteAccessSessionOutput) GoString() string {
+	return s.String()
+}
+
 // Represents a request to the create upload operation.
 type CreateUploadInput struct {
+	_ struct{} `type:"structure"`
+
 	// The upload's content type (for example, "application/octet-stream").
 	ContentType *string `locationName:"contentType" type:"string"`
 
-	// The upload's file name.
+	// The upload's file name. The name should not contain the '/' character.
 	Name *string `locationName:"name" type:"string" required:"true"`
 
 	// The ARN of the project for the upload.
-	ProjectArn *string `locationName:"projectArn" type:"string" required:"true"`
+	ProjectArn *string `locationName:"projectArn" min:"32" type:"string" required:"true"`
 
 	// The upload's upload type.
 	//
@@ -1111,26 +2941,38 @@ type CreateUploadInput struct {
 	//
 	// IOS_APP: An iOS upload.
 	//
+	// WEB_APP: A web appliction upload.
+	//
 	// EXTERNAL_DATA: An external data upload.
 	//
 	// APPIUM_JAVA_JUNIT_TEST_PACKAGE: An Appium Java JUnit test package upload.
 	//
 	// APPIUM_JAVA_TESTNG_TEST_PACKAGE: An Appium Java TestNG test package upload.
 	//
+	// APPIUM_PYTHON_TEST_PACKAGE: An Appium Python test package upload.
+	//
+	// APPIUM_WEB_JAVA_JUNIT_TEST_PACKAGE: An Appium Java JUnit test package upload.
+	//
+	// APPIUM_WEB_JAVA_TESTNG_TEST_PACKAGE: An Appium Java TestNG test package
+	// upload.
+	//
+	// APPIUM_WEB_PYTHON_TEST_PACKAGE: An Appium Python test package upload.
+	//
 	// CALABASH_TEST_PACKAGE: A Calabash test package upload.
 	//
 	// INSTRUMENTATION_TEST_PACKAGE: An instrumentation upload.
 	//
+	// UIAUTOMATION_TEST_PACKAGE: A uiautomation test package upload.
+	//
 	// UIAUTOMATOR_TEST_PACKAGE: A uiautomator test package upload.
 	//
 	// XCTEST_TEST_PACKAGE: An XCode test package upload.
+	//
+	// XCTEST_UI_TEST_PACKAGE: An XCode UI test package upload.
+	//
+	//  Note If you call CreateUpload with WEB_APP specified, AWS Device Farm throws
+	// an ArgumentException error.
 	Type *string `locationName:"type" type:"string" required:"true" enum:"UploadType"`
-
-	metadataCreateUploadInput `json:"-" xml:"-"`
-}
-
-type metadataCreateUploadInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1143,16 +2985,34 @@ func (s CreateUploadInput) GoString() string {
 	return s.String()
 }
 
-// Represents the result of a create upload request.
-type CreateUploadOutput struct {
-	// The newly created upload.
-	Upload *Upload `locationName:"upload" type:"structure"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateUploadInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateUploadInput"}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
+	if s.ProjectArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("ProjectArn"))
+	}
+	if s.ProjectArn != nil && len(*s.ProjectArn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("ProjectArn", 32))
+	}
+	if s.Type == nil {
+		invalidParams.Add(request.NewErrParamRequired("Type"))
+	}
 
-	metadataCreateUploadOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataCreateUploadOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Represents the result of a create upload request.
+type CreateUploadOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The newly created upload.
+	Upload *Upload `locationName:"upload" type:"structure"`
 }
 
 // String returns the string representation
@@ -1165,16 +3025,275 @@ func (s CreateUploadOutput) GoString() string {
 	return s.String()
 }
 
+// Represents a request to the delete device pool operation.
+type DeleteDevicePoolInput struct {
+	_ struct{} `type:"structure"`
+
+	// Represents the Amazon Resource Name (ARN) of the Device Farm device pool
+	// you wish to delete.
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s DeleteDevicePoolInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeleteDevicePoolInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteDevicePoolInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteDevicePoolInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// Represents the result of a delete device pool request.
+type DeleteDevicePoolOutput struct {
+	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation
+func (s DeleteDevicePoolOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeleteDevicePoolOutput) GoString() string {
+	return s.String()
+}
+
+// Represents a request to the delete project operation.
+type DeleteProjectInput struct {
+	_ struct{} `type:"structure"`
+
+	// Represents the Amazon Resource Name (ARN) of the Device Farm project you
+	// wish to delete.
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s DeleteProjectInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeleteProjectInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteProjectInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteProjectInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// Represents the result of a delete project request.
+type DeleteProjectOutput struct {
+	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation
+func (s DeleteProjectOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeleteProjectOutput) GoString() string {
+	return s.String()
+}
+
+// Represents the request to delete the specified remote access session.
+type DeleteRemoteAccessSessionInput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the sesssion for which you want to delete
+	// remote access.
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s DeleteRemoteAccessSessionInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeleteRemoteAccessSessionInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteRemoteAccessSessionInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteRemoteAccessSessionInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// The response from the server when a request is made to delete the remote
+// access session.
+type DeleteRemoteAccessSessionOutput struct {
+	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation
+func (s DeleteRemoteAccessSessionOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeleteRemoteAccessSessionOutput) GoString() string {
+	return s.String()
+}
+
+// Represents a request to the delete run operation.
+type DeleteRunInput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) for the run you wish to delete.
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s DeleteRunInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeleteRunInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteRunInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteRunInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// Represents the result of a delete run request.
+type DeleteRunOutput struct {
+	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation
+func (s DeleteRunOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeleteRunOutput) GoString() string {
+	return s.String()
+}
+
+// Represents a request to the delete upload operation.
+type DeleteUploadInput struct {
+	_ struct{} `type:"structure"`
+
+	// Represents the Amazon Resource Name (ARN) of the Device Farm upload you wish
+	// to delete.
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s DeleteUploadInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeleteUploadInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteUploadInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteUploadInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// Represents the result of a delete upload request.
+type DeleteUploadOutput struct {
+	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation
+func (s DeleteUploadOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeleteUploadOutput) GoString() string {
+	return s.String()
+}
+
 // Represents a device type that an app is tested against.
 type Device struct {
+	_ struct{} `type:"structure"`
+
 	// The device's ARN.
-	Arn *string `locationName:"arn" type:"string"`
+	Arn *string `locationName:"arn" min:"32" type:"string"`
 
 	// The device's carrier.
 	Carrier *string `locationName:"carrier" type:"string"`
 
 	// Information about the device's CPU.
 	Cpu *CPU `locationName:"cpu" type:"structure"`
+
+	// The name of the fleet to which this device belongs.
+	FleetName *string `locationName:"fleetName" type:"string"`
+
+	// The type of fleet to which this device belongs. Possible values for fleet
+	// type are PRIVATE and PUBLIC.
+	FleetType *string `locationName:"fleetType" type:"string"`
 
 	// The device's form factor.
 	//
@@ -1218,15 +3337,12 @@ type Device struct {
 	// The device's radio.
 	Radio *string `locationName:"radio" type:"string"`
 
+	// Specifies whether remote access has been enabled for the specified device.
+	RemoteAccessEnabled *bool `locationName:"remoteAccessEnabled" type:"boolean"`
+
 	// Represents the screen resolution of a device in height and width, expressed
 	// in pixels.
 	Resolution *Resolution `locationName:"resolution" type:"structure"`
-
-	metadataDevice `json:"-" xml:"-"`
-}
-
-type metadataDevice struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1239,10 +3355,40 @@ func (s Device) GoString() string {
 	return s.String()
 }
 
+// Represents the total (metered or unmetered) minutes used by the resource
+// to run tests. Contains the sum of minutes consumed by all children.
+type DeviceMinutes struct {
+	_ struct{} `type:"structure"`
+
+	// When specified, represents only the sum of metered minutes used by the resource
+	// to run tests.
+	Metered *float64 `locationName:"metered" type:"double"`
+
+	// When specified, represents the total minutes used by the resource to run
+	// tests.
+	Total *float64 `locationName:"total" type:"double"`
+
+	// When specified, represents only the sum of unmetered minutes used by the
+	// resource to run tests.
+	Unmetered *float64 `locationName:"unmetered" type:"double"`
+}
+
+// String returns the string representation
+func (s DeviceMinutes) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeviceMinutes) GoString() string {
+	return s.String()
+}
+
 // Represents a collection of device types.
 type DevicePool struct {
+	_ struct{} `type:"structure"`
+
 	// The device pool's ARN.
-	Arn *string `locationName:"arn" type:"string"`
+	Arn *string `locationName:"arn" min:"32" type:"string"`
 
 	// The device pool's description.
 	Description *string `locationName:"description" type:"string"`
@@ -1261,12 +3407,6 @@ type DevicePool struct {
 	//
 	// PRIVATE: A device pool that is created and managed by the device pool developer.
 	Type *string `locationName:"type" type:"string" enum:"DevicePoolType"`
-
-	metadataDevicePool `json:"-" xml:"-"`
-}
-
-type metadataDevicePool struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1281,6 +3421,8 @@ func (s DevicePool) GoString() string {
 
 // Represents a device pool compatibility result.
 type DevicePoolCompatibilityResult struct {
+	_ struct{} `type:"structure"`
+
 	// Whether the result was compatible with the device pool.
 	Compatible *bool `locationName:"compatible" type:"boolean"`
 
@@ -1289,12 +3431,6 @@ type DevicePoolCompatibilityResult struct {
 
 	// Information about the compatibility.
 	IncompatibilityMessages []*IncompatibilityMessage `locationName:"incompatibilityMessages" type:"list"`
-
-	metadataDevicePoolCompatibilityResult `json:"-" xml:"-"`
-}
-
-type metadataDevicePoolCompatibilityResult struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1307,12 +3443,9 @@ func (s DevicePoolCompatibilityResult) GoString() string {
 	return s.String()
 }
 
+// Represents the request sent to retrieve the account settings.
 type GetAccountSettingsInput struct {
-	metadataGetAccountSettingsInput `json:"-" xml:"-"`
-}
-
-type metadataGetAccountSettingsInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1325,15 +3458,13 @@ func (s GetAccountSettingsInput) GoString() string {
 	return s.String()
 }
 
+// Represents the account settings return values from the GetAccountSettings
+// request.
 type GetAccountSettingsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// A container for account-level settings within AWS Device Farm.
 	AccountSettings *AccountSettings `locationName:"accountSettings" type:"structure"`
-
-	metadataGetAccountSettingsOutput `json:"-" xml:"-"`
-}
-
-type metadataGetAccountSettingsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1348,14 +3479,10 @@ func (s GetAccountSettingsOutput) GoString() string {
 
 // Represents a request to the get device request.
 type GetDeviceInput struct {
+	_ struct{} `type:"structure"`
+
 	// The device type's ARN.
-	Arn *string `locationName:"arn" type:"string" required:"true"`
-
-	metadataGetDeviceInput `json:"-" xml:"-"`
-}
-
-type metadataGetDeviceInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1368,16 +3495,28 @@ func (s GetDeviceInput) GoString() string {
 	return s.String()
 }
 
-// Represents the result of a get device request.
-type GetDeviceOutput struct {
-	// Represents a device type that an app is tested against.
-	Device *Device `locationName:"device" type:"structure"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetDeviceInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetDeviceInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
 
-	metadataGetDeviceOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataGetDeviceOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Represents the result of a get device request.
+type GetDeviceOutput struct {
+	_ struct{} `type:"structure"`
+
+	// Represents a device type that an app is tested against.
+	Device *Device `locationName:"device" type:"structure"`
 }
 
 // String returns the string representation
@@ -1392,11 +3531,13 @@ func (s GetDeviceOutput) GoString() string {
 
 // Represents a request to the get device pool compatibility operation.
 type GetDevicePoolCompatibilityInput struct {
+	_ struct{} `type:"structure"`
+
 	// The ARN of the app that is associated with the specified device pool.
-	AppArn *string `locationName:"appArn" type:"string" required:"true"`
+	AppArn *string `locationName:"appArn" min:"32" type:"string"`
 
 	// The device pool's ARN.
-	DevicePoolArn *string `locationName:"devicePoolArn" type:"string" required:"true"`
+	DevicePoolArn *string `locationName:"devicePoolArn" min:"32" type:"string" required:"true"`
 
 	// The test type for the specified device pool.
 	//
@@ -1411,6 +3552,14 @@ type GetDevicePoolCompatibilityInput struct {
 	//
 	// APPIUM_JAVA_TESTNG: The Appium Java TestNG type.
 	//
+	// APPIUM_PYTHON: The Appium Python type.
+	//
+	// APPIUM_WEB_JAVA_JUNIT: The Appium Java JUnit type for Web apps.
+	//
+	// APPIUM_WEB_JAVA_TESTNG: The Appium Java TestNG type for Web apps.
+	//
+	// APPIUM_WEB_PYTHON: The Appium Python type for Web apps.
+	//
 	// CALABASH: The Calabash type.
 	//
 	// INSTRUMENTATION: The Instrumentation type.
@@ -1420,13 +3569,9 @@ type GetDevicePoolCompatibilityInput struct {
 	// UIAUTOMATOR: The uiautomator type.
 	//
 	// XCTEST: The XCode test type.
+	//
+	// XCTEST_UI: The XCode UI test type.
 	TestType *string `locationName:"testType" type:"string" enum:"TestType"`
-
-	metadataGetDevicePoolCompatibilityInput `json:"-" xml:"-"`
-}
-
-type metadataGetDevicePoolCompatibilityInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1439,19 +3584,34 @@ func (s GetDevicePoolCompatibilityInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetDevicePoolCompatibilityInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetDevicePoolCompatibilityInput"}
+	if s.AppArn != nil && len(*s.AppArn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("AppArn", 32))
+	}
+	if s.DevicePoolArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("DevicePoolArn"))
+	}
+	if s.DevicePoolArn != nil && len(*s.DevicePoolArn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("DevicePoolArn", 32))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Represents the result of describe device pool compatibility request.
 type GetDevicePoolCompatibilityOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Information about compatible devices.
 	CompatibleDevices []*DevicePoolCompatibilityResult `locationName:"compatibleDevices" type:"list"`
 
 	// Information about incompatible devices.
 	IncompatibleDevices []*DevicePoolCompatibilityResult `locationName:"incompatibleDevices" type:"list"`
-
-	metadataGetDevicePoolCompatibilityOutput `json:"-" xml:"-"`
-}
-
-type metadataGetDevicePoolCompatibilityOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1466,14 +3626,10 @@ func (s GetDevicePoolCompatibilityOutput) GoString() string {
 
 // Represents a request to the get device pool operation.
 type GetDevicePoolInput struct {
+	_ struct{} `type:"structure"`
+
 	// The device pool's ARN.
-	Arn *string `locationName:"arn" type:"string" required:"true"`
-
-	metadataGetDevicePoolInput `json:"-" xml:"-"`
-}
-
-type metadataGetDevicePoolInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1486,16 +3642,28 @@ func (s GetDevicePoolInput) GoString() string {
 	return s.String()
 }
 
-// Represents the result of a get device pool request.
-type GetDevicePoolOutput struct {
-	// Represents a collection of device types.
-	DevicePool *DevicePool `locationName:"devicePool" type:"structure"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetDevicePoolInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetDevicePoolInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
 
-	metadataGetDevicePoolOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataGetDevicePoolOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Represents the result of a get device pool request.
+type GetDevicePoolOutput struct {
+	_ struct{} `type:"structure"`
+
+	// Represents a collection of device types.
+	DevicePool *DevicePool `locationName:"devicePool" type:"structure"`
 }
 
 // String returns the string representation
@@ -1510,14 +3678,10 @@ func (s GetDevicePoolOutput) GoString() string {
 
 // Represents a request to the get job operation.
 type GetJobInput struct {
+	_ struct{} `type:"structure"`
+
 	// The job's ARN.
-	Arn *string `locationName:"arn" type:"string" required:"true"`
-
-	metadataGetJobInput `json:"-" xml:"-"`
-}
-
-type metadataGetJobInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1530,16 +3694,28 @@ func (s GetJobInput) GoString() string {
 	return s.String()
 }
 
-// Represents the result of a get job request.
-type GetJobOutput struct {
-	// Represents a device.
-	Job *Job `locationName:"job" type:"structure"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetJobInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetJobInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
 
-	metadataGetJobOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataGetJobOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Represents the result of a get job request.
+type GetJobOutput struct {
+	_ struct{} `type:"structure"`
+
+	// Represents a device.
+	Job *Job `locationName:"job" type:"structure"`
 }
 
 // String returns the string representation
@@ -1552,16 +3728,70 @@ func (s GetJobOutput) GoString() string {
 	return s.String()
 }
 
-// Represents a request to the get project operation.
-type GetProjectInput struct {
-	// The project's ARN.
-	Arn *string `locationName:"arn" type:"string" required:"true"`
+// Represents the request to retrieve the offering status for the specified
+// customer or account.
+type GetOfferingStatusInput struct {
+	_ struct{} `type:"structure"`
 
-	metadataGetProjectInput `json:"-" xml:"-"`
+	// An identifier that was returned from the previous call to this operation,
+	// which can be used to return the next set of items in the list.
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 }
 
-type metadataGetProjectInput struct {
-	SDKShapeTraits bool `type:"structure"`
+// String returns the string representation
+func (s GetOfferingStatusInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetOfferingStatusInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetOfferingStatusInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetOfferingStatusInput"}
+	if s.NextToken != nil && len(*s.NextToken) < 4 {
+		invalidParams.Add(request.NewErrParamMinLen("NextToken", 4))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// Returns the status result for a device offering.
+type GetOfferingStatusOutput struct {
+	_ struct{} `type:"structure"`
+
+	// When specified, gets the offering status for the current period.
+	Current map[string]*OfferingStatus `locationName:"current" type:"map"`
+
+	// When specified, gets the offering status for the next period.
+	NextPeriod map[string]*OfferingStatus `locationName:"nextPeriod" type:"map"`
+
+	// An identifier that was returned from the previous call to this operation,
+	// which can be used to return the next set of items in the list.
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
+}
+
+// String returns the string representation
+func (s GetOfferingStatusOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetOfferingStatusOutput) GoString() string {
+	return s.String()
+}
+
+// Represents a request to the get project operation.
+type GetProjectInput struct {
+	_ struct{} `type:"structure"`
+
+	// The project's ARN.
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1574,17 +3804,29 @@ func (s GetProjectInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetProjectInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetProjectInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Represents the result of a get project request.
 type GetProjectOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Represents an operating-system neutral workspace for running and managing
 	// tests.
 	Project *Project `locationName:"project" type:"structure"`
-
-	metadataGetProjectOutput `json:"-" xml:"-"`
-}
-
-type metadataGetProjectOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1597,16 +3839,67 @@ func (s GetProjectOutput) GoString() string {
 	return s.String()
 }
 
-// Represents a request to the get run operation.
-type GetRunInput struct {
-	// The run's ARN.
-	Arn *string `locationName:"arn" type:"string" required:"true"`
+// Represents the request to get information about the specified remote access
+// session.
+type GetRemoteAccessSessionInput struct {
+	_ struct{} `type:"structure"`
 
-	metadataGetRunInput `json:"-" xml:"-"`
+	// The Amazon Resource Name (ARN) of the remote access session about which you
+	// want to get session information.
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
 }
 
-type metadataGetRunInput struct {
-	SDKShapeTraits bool `type:"structure"`
+// String returns the string representation
+func (s GetRemoteAccessSessionInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRemoteAccessSessionInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetRemoteAccessSessionInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetRemoteAccessSessionInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// Represents the response from the server that lists detailed information about
+// the remote access session.
+type GetRemoteAccessSessionOutput struct {
+	_ struct{} `type:"structure"`
+
+	// A container that lists detailed information about the remote access session.
+	RemoteAccessSession *RemoteAccessSession `locationName:"remoteAccessSession" type:"structure"`
+}
+
+// String returns the string representation
+func (s GetRemoteAccessSessionOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetRemoteAccessSessionOutput) GoString() string {
+	return s.String()
+}
+
+// Represents a request to the get run operation.
+type GetRunInput struct {
+	_ struct{} `type:"structure"`
+
+	// The run's ARN.
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1619,16 +3912,28 @@ func (s GetRunInput) GoString() string {
 	return s.String()
 }
 
-// Represents the result of a get run request.
-type GetRunOutput struct {
-	// Represents an app on a set of devices with a specific test and configuration.
-	Run *Run `locationName:"run" type:"structure"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetRunInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetRunInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
 
-	metadataGetRunOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataGetRunOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Represents the result of a get run request.
+type GetRunOutput struct {
+	_ struct{} `type:"structure"`
+
+	// Represents an app on a set of devices with a specific test and configuration.
+	Run *Run `locationName:"run" type:"structure"`
 }
 
 // String returns the string representation
@@ -1643,14 +3948,10 @@ func (s GetRunOutput) GoString() string {
 
 // Represents a request to the get suite operation.
 type GetSuiteInput struct {
+	_ struct{} `type:"structure"`
+
 	// The suite's ARN.
-	Arn *string `locationName:"arn" type:"string" required:"true"`
-
-	metadataGetSuiteInput `json:"-" xml:"-"`
-}
-
-type metadataGetSuiteInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1663,16 +3964,28 @@ func (s GetSuiteInput) GoString() string {
 	return s.String()
 }
 
-// Represents the result of a get suite request.
-type GetSuiteOutput struct {
-	// Represents a collection of one or more tests.
-	Suite *Suite `locationName:"suite" type:"structure"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetSuiteInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetSuiteInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
 
-	metadataGetSuiteOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataGetSuiteOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Represents the result of a get suite request.
+type GetSuiteOutput struct {
+	_ struct{} `type:"structure"`
+
+	// Represents a collection of one or more tests.
+	Suite *Suite `locationName:"suite" type:"structure"`
 }
 
 // String returns the string representation
@@ -1687,14 +4000,10 @@ func (s GetSuiteOutput) GoString() string {
 
 // Represents a request to the get test operation.
 type GetTestInput struct {
+	_ struct{} `type:"structure"`
+
 	// The test's ARN.
-	Arn *string `locationName:"arn" type:"string" required:"true"`
-
-	metadataGetTestInput `json:"-" xml:"-"`
-}
-
-type metadataGetTestInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1707,16 +4016,28 @@ func (s GetTestInput) GoString() string {
 	return s.String()
 }
 
-// Represents the result of a get test request.
-type GetTestOutput struct {
-	// Represents a condition that is evaluated.
-	Test *Test `locationName:"test" type:"structure"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetTestInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetTestInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
 
-	metadataGetTestOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataGetTestOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Represents the result of a get test request.
+type GetTestOutput struct {
+	_ struct{} `type:"structure"`
+
+	// Represents a condition that is evaluated.
+	Test *Test `locationName:"test" type:"structure"`
 }
 
 // String returns the string representation
@@ -1731,14 +4052,10 @@ func (s GetTestOutput) GoString() string {
 
 // Represents a request to the get upload operation.
 type GetUploadInput struct {
+	_ struct{} `type:"structure"`
+
 	// The upload's ARN.
-	Arn *string `locationName:"arn" type:"string" required:"true"`
-
-	metadataGetUploadInput `json:"-" xml:"-"`
-}
-
-type metadataGetUploadInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1751,16 +4068,28 @@ func (s GetUploadInput) GoString() string {
 	return s.String()
 }
 
-// Represents the result of a get upload request.
-type GetUploadOutput struct {
-	// An app or a set of one or more tests to upload or that have been uploaded.
-	Upload *Upload `locationName:"upload" type:"structure"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetUploadInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetUploadInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
 
-	metadataGetUploadOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataGetUploadOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Represents the result of a get upload request.
+type GetUploadOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An app or a set of one or more tests to upload or that have been uploaded.
+	Upload *Upload `locationName:"upload" type:"structure"`
 }
 
 // String returns the string representation
@@ -1775,6 +4104,8 @@ func (s GetUploadOutput) GoString() string {
 
 // Represents information about incompatibility.
 type IncompatibilityMessage struct {
+	_ struct{} `type:"structure"`
+
 	// A message about the incompatibility.
 	Message *string `locationName:"message" type:"string"`
 
@@ -1790,12 +4121,6 @@ type IncompatibilityMessage struct {
 	//
 	// PLATFORM: The platform (for example, Android or iOS).
 	Type *string `locationName:"type" type:"string" enum:"DeviceAttribute"`
-
-	metadataIncompatibilityMessage `json:"-" xml:"-"`
-}
-
-type metadataIncompatibilityMessage struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1808,10 +4133,77 @@ func (s IncompatibilityMessage) GoString() string {
 	return s.String()
 }
 
+// Represents the request to install an Android application (in .apk format)
+// or an iOS application (in .ipa format) as part of a remote access session.
+type InstallToRemoteAccessSessionInput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the app about which you are requesting
+	// information.
+	AppArn *string `locationName:"appArn" min:"32" type:"string" required:"true"`
+
+	// The Amazon Resource Name (ARN) of the remote access session about which you
+	// are requesting information.
+	RemoteAccessSessionArn *string `locationName:"remoteAccessSessionArn" min:"32" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s InstallToRemoteAccessSessionInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s InstallToRemoteAccessSessionInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *InstallToRemoteAccessSessionInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "InstallToRemoteAccessSessionInput"}
+	if s.AppArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("AppArn"))
+	}
+	if s.AppArn != nil && len(*s.AppArn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("AppArn", 32))
+	}
+	if s.RemoteAccessSessionArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("RemoteAccessSessionArn"))
+	}
+	if s.RemoteAccessSessionArn != nil && len(*s.RemoteAccessSessionArn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("RemoteAccessSessionArn", 32))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// Represents the response from the server after AWS Device Farm makes a request
+// to install to a remote access session.
+type InstallToRemoteAccessSessionOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An app or a set of one or more tests to upload or that have been uploaded.
+	AppUpload *Upload `locationName:"appUpload" type:"structure"`
+}
+
+// String returns the string representation
+func (s InstallToRemoteAccessSessionOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s InstallToRemoteAccessSessionOutput) GoString() string {
+	return s.String()
+}
+
 // Represents a device.
 type Job struct {
+	_ struct{} `type:"structure"`
+
 	// The job's ARN.
-	Arn *string `locationName:"arn" type:"string"`
+	Arn *string `locationName:"arn" min:"32" type:"string"`
 
 	// The job's result counters.
 	Counters *Counters `locationName:"counters" type:"structure"`
@@ -1821,6 +4213,9 @@ type Job struct {
 
 	// Represents a device type that an app is tested against.
 	Device *Device `locationName:"device" type:"structure"`
+
+	// Represents the total (metered or unmetered) minutes used by the job.
+	DeviceMinutes *DeviceMinutes `locationName:"deviceMinutes" type:"structure"`
 
 	// A message about the job's result.
 	Message *string `locationName:"message" type:"string"`
@@ -1832,19 +4227,19 @@ type Job struct {
 	//
 	// Allowed values include:
 	//
-	//  ERRORED: An error condition.
+	//  PENDING: A pending condition.
+	//
+	// PASSED: A passing condition.
+	//
+	// WARNED: A warning condition.
 	//
 	// FAILED: A failed condition.
 	//
 	// SKIPPED: A skipped condition.
 	//
+	// ERRORED: An error condition.
+	//
 	// STOPPED: A stopped condition.
-	//
-	// PASSED: A passing condition.
-	//
-	// PENDING: A pending condition.
-	//
-	// WARNED: A warning condition.
 	Result *string `locationName:"result" type:"string" enum:"ExecutionResult"`
 
 	// The job's start time.
@@ -1854,15 +4249,23 @@ type Job struct {
 	//
 	// Allowed values include:
 	//
-	//  COMPLETED: A completed status.
+	//  PENDING: A pending status.
 	//
-	// PENDING: A pending status.
+	// PENDING_CONCURRENCY: A pending concurrency status.
+	//
+	// PENDING_DEVICE: A pending device status.
 	//
 	// PROCESSING: A processing status.
 	//
+	// SCHEDULING: A scheduling status.
+	//
+	// PREPARING: A preparing status.
+	//
 	// RUNNING: A running status.
 	//
-	// SCHEDULING: A scheduling status.
+	// COMPLETED: A completed status.
+	//
+	// STOPPING: A stopping status.
 	Status *string `locationName:"status" type:"string" enum:"ExecutionStatus"`
 
 	// The job's stop time.
@@ -1881,6 +4284,14 @@ type Job struct {
 	//
 	// APPIUM_JAVA_TESTNG: The Appium Java TestNG type.
 	//
+	// APPIUM_PYTHON: The Appium Python type.
+	//
+	// APPIUM_WEB_JAVA_JUNIT: The Appium Java JUnit type for Web apps.
+	//
+	// APPIUM_WEB_JAVA_TESTNG: The Appium Java TestNG type for Web apps.
+	//
+	// APPIUM_WEB_PYTHON: The Appium Python type for Web apps.
+	//
 	// CALABASH: The Calabash type.
 	//
 	// INSTRUMENTATION: The Instrumentation type.
@@ -1890,13 +4301,9 @@ type Job struct {
 	// UIAUTOMATOR: The uiautomator type.
 	//
 	// XCTEST: The XCode test type.
+	//
+	// XCTEST_UI: The XCode UI test type.
 	Type *string `locationName:"type" type:"string" enum:"TestType"`
-
-	metadataJob `json:"-" xml:"-"`
-}
-
-type metadataJob struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1911,12 +4318,14 @@ func (s Job) GoString() string {
 
 // Represents a request to the list artifacts operation.
 type ListArtifactsInput struct {
-	// The artifacts' ARNs.
-	Arn *string `locationName:"arn" type:"string" required:"true"`
+	_ struct{} `type:"structure"`
+
+	// The Run, Job, Suite, or Test ARN.
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
 
 	// An identifier that was returned from the previous call to this operation,
 	// which can be used to return the next set of items in the list.
-	NextToken *string `locationName:"nextToken" type:"string"`
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 
 	// The artifacts' type.
 	//
@@ -1925,12 +4334,6 @@ type ListArtifactsInput struct {
 	//  FILE: The artifacts are files. LOG: The artifacts are logs. SCREENSHOT:
 	// The artifacts are screenshots.
 	Type *string `locationName:"type" type:"string" required:"true" enum:"ArtifactCategory"`
-
-	metadataListArtifactsInput `json:"-" xml:"-"`
-}
-
-type metadataListArtifactsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1943,21 +4346,39 @@ func (s ListArtifactsInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListArtifactsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListArtifactsInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+	if s.NextToken != nil && len(*s.NextToken) < 4 {
+		invalidParams.Add(request.NewErrParamMinLen("NextToken", 4))
+	}
+	if s.Type == nil {
+		invalidParams.Add(request.NewErrParamRequired("Type"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Represents the result of a list artifacts operation.
 type ListArtifactsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Information about the artifacts.
 	Artifacts []*Artifact `locationName:"artifacts" type:"list"`
 
 	// If the number of items that are returned is significantly large, this is
 	// an identifier that is also returned, which can be used in a subsequent call
 	// to this operation to return the next set of items in the list.
-	NextToken *string `locationName:"nextToken" type:"string"`
-
-	metadataListArtifactsOutput `json:"-" xml:"-"`
-}
-
-type metadataListArtifactsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 }
 
 // String returns the string representation
@@ -1972,12 +4393,14 @@ func (s ListArtifactsOutput) GoString() string {
 
 // Represents the result of a list device pools request.
 type ListDevicePoolsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The project ARN.
-	Arn *string `locationName:"arn" type:"string" required:"true"`
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
 
 	// An identifier that was returned from the previous call to this operation,
 	// which can be used to return the next set of items in the list.
-	NextToken *string `locationName:"nextToken" type:"string"`
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 
 	// The device pools' type.
 	//
@@ -1987,12 +4410,6 @@ type ListDevicePoolsInput struct {
 	//
 	// PRIVATE: A device pool that is created and managed by the device pool developer.
 	Type *string `locationName:"type" type:"string" enum:"DevicePoolType"`
-
-	metadataListDevicePoolsInput `json:"-" xml:"-"`
-}
-
-type metadataListDevicePoolsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2005,21 +4422,36 @@ func (s ListDevicePoolsInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListDevicePoolsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListDevicePoolsInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+	if s.NextToken != nil && len(*s.NextToken) < 4 {
+		invalidParams.Add(request.NewErrParamMinLen("NextToken", 4))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Represents the result of a list device pools request.
 type ListDevicePoolsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Information about the device pools.
 	DevicePools []*DevicePool `locationName:"devicePools" type:"list"`
 
 	// If the number of items that are returned is significantly large, this is
 	// an identifier that is also returned, which can be used in a subsequent call
 	// to this operation to return the next set of items in the list.
-	NextToken *string `locationName:"nextToken" type:"string"`
-
-	metadataListDevicePoolsOutput `json:"-" xml:"-"`
-}
-
-type metadataListDevicePoolsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 }
 
 // String returns the string representation
@@ -2034,18 +4466,14 @@ func (s ListDevicePoolsOutput) GoString() string {
 
 // Represents the result of a list devices request.
 type ListDevicesInput struct {
+	_ struct{} `type:"structure"`
+
 	// The device types' ARNs.
-	Arn *string `locationName:"arn" type:"string"`
+	Arn *string `locationName:"arn" min:"32" type:"string"`
 
 	// An identifier that was returned from the previous call to this operation,
 	// which can be used to return the next set of items in the list.
-	NextToken *string `locationName:"nextToken" type:"string"`
-
-	metadataListDevicesInput `json:"-" xml:"-"`
-}
-
-type metadataListDevicesInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 }
 
 // String returns the string representation
@@ -2058,21 +4486,33 @@ func (s ListDevicesInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListDevicesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListDevicesInput"}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+	if s.NextToken != nil && len(*s.NextToken) < 4 {
+		invalidParams.Add(request.NewErrParamMinLen("NextToken", 4))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Represents the result of a list devices operation.
 type ListDevicesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Information about the devices.
 	Devices []*Device `locationName:"devices" type:"list"`
 
 	// If the number of items that are returned is significantly large, this is
 	// an identifier that is also returned, which can be used in a subsequent call
 	// to this operation to return the next set of items in the list.
-	NextToken *string `locationName:"nextToken" type:"string"`
-
-	metadataListDevicesOutput `json:"-" xml:"-"`
-}
-
-type metadataListDevicesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 }
 
 // String returns the string representation
@@ -2087,18 +4527,14 @@ func (s ListDevicesOutput) GoString() string {
 
 // Represents a request to the list jobs operation.
 type ListJobsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The jobs' ARNs.
-	Arn *string `locationName:"arn" type:"string" required:"true"`
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
 
 	// An identifier that was returned from the previous call to this operation,
 	// which can be used to return the next set of items in the list.
-	NextToken *string `locationName:"nextToken" type:"string"`
-
-	metadataListJobsInput `json:"-" xml:"-"`
-}
-
-type metadataListJobsInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 }
 
 // String returns the string representation
@@ -2111,21 +4547,36 @@ func (s ListJobsInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListJobsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListJobsInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+	if s.NextToken != nil && len(*s.NextToken) < 4 {
+		invalidParams.Add(request.NewErrParamMinLen("NextToken", 4))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Represents the result of a list jobs request.
 type ListJobsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Information about the jobs.
 	Jobs []*Job `locationName:"jobs" type:"list"`
 
 	// If the number of items that are returned is significantly large, this is
 	// an identifier that is also returned, which can be used in a subsequent call
 	// to this operation to return the next set of items in the list.
-	NextToken *string `locationName:"nextToken" type:"string"`
-
-	metadataListJobsOutput `json:"-" xml:"-"`
-}
-
-type metadataListJobsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 }
 
 // String returns the string representation
@@ -2138,20 +4589,125 @@ func (s ListJobsOutput) GoString() string {
 	return s.String()
 }
 
-// Represents a request to the list projects operation.
-type ListProjectsInput struct {
-	// The projects' ARNs.
-	Arn *string `locationName:"arn" type:"string"`
+// Represents the request to list the offering transaction history.
+type ListOfferingTransactionsInput struct {
+	_ struct{} `type:"structure"`
 
 	// An identifier that was returned from the previous call to this operation,
 	// which can be used to return the next set of items in the list.
-	NextToken *string `locationName:"nextToken" type:"string"`
-
-	metadataListProjectsInput `json:"-" xml:"-"`
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 }
 
-type metadataListProjectsInput struct {
-	SDKShapeTraits bool `type:"structure"`
+// String returns the string representation
+func (s ListOfferingTransactionsInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ListOfferingTransactionsInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListOfferingTransactionsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListOfferingTransactionsInput"}
+	if s.NextToken != nil && len(*s.NextToken) < 4 {
+		invalidParams.Add(request.NewErrParamMinLen("NextToken", 4))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// Returns the transaction log of the specified offerings.
+type ListOfferingTransactionsOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An identifier that was returned from the previous call to this operation,
+	// which can be used to return the next set of items in the list.
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
+
+	// The audit log of subscriptions you have purchased and modified through AWS
+	// Device Farm.
+	OfferingTransactions []*OfferingTransaction `locationName:"offeringTransactions" type:"list"`
+}
+
+// String returns the string representation
+func (s ListOfferingTransactionsOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ListOfferingTransactionsOutput) GoString() string {
+	return s.String()
+}
+
+// Represents the request to list all offerings.
+type ListOfferingsInput struct {
+	_ struct{} `type:"structure"`
+
+	// An identifier that was returned from the previous call to this operation,
+	// which can be used to return the next set of items in the list.
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
+}
+
+// String returns the string representation
+func (s ListOfferingsInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ListOfferingsInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListOfferingsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListOfferingsInput"}
+	if s.NextToken != nil && len(*s.NextToken) < 4 {
+		invalidParams.Add(request.NewErrParamMinLen("NextToken", 4))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// Represents the return values of the list of offerings.
+type ListOfferingsOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An identifier that was returned from the previous call to this operation,
+	// which can be used to return the next set of items in the list.
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
+
+	// A value representing the list offering results.
+	Offerings []*Offering `locationName:"offerings" type:"list"`
+}
+
+// String returns the string representation
+func (s ListOfferingsOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ListOfferingsOutput) GoString() string {
+	return s.String()
+}
+
+// Represents a request to the list projects operation.
+type ListProjectsInput struct {
+	_ struct{} `type:"structure"`
+
+	// The projects' ARNs.
+	Arn *string `locationName:"arn" min:"32" type:"string"`
+
+	// An identifier that was returned from the previous call to this operation,
+	// which can be used to return the next set of items in the list.
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 }
 
 // String returns the string representation
@@ -2164,21 +4720,33 @@ func (s ListProjectsInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListProjectsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListProjectsInput"}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+	if s.NextToken != nil && len(*s.NextToken) < 4 {
+		invalidParams.Add(request.NewErrParamMinLen("NextToken", 4))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Represents the result of a list projects request.
 type ListProjectsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// If the number of items that are returned is significantly large, this is
 	// an identifier that is also returned, which can be used in a subsequent call
 	// to this operation to return the next set of items in the list.
-	NextToken *string `locationName:"nextToken" type:"string"`
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 
 	// Information about the projects.
 	Projects []*Project `locationName:"projects" type:"list"`
-
-	metadataListProjectsOutput `json:"-" xml:"-"`
-}
-
-type metadataListProjectsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2191,20 +4759,82 @@ func (s ListProjectsOutput) GoString() string {
 	return s.String()
 }
 
-// Represents a request to the list runs operation.
-type ListRunsInput struct {
-	// The runs' ARNs.
-	Arn *string `locationName:"arn" type:"string" required:"true"`
+// Represents the request to return information about the remote access session.
+type ListRemoteAccessSessionsInput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the remote access session about which you
+	// are requesting information.
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
 
 	// An identifier that was returned from the previous call to this operation,
 	// which can be used to return the next set of items in the list.
-	NextToken *string `locationName:"nextToken" type:"string"`
-
-	metadataListRunsInput `json:"-" xml:"-"`
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 }
 
-type metadataListRunsInput struct {
-	SDKShapeTraits bool `type:"structure"`
+// String returns the string representation
+func (s ListRemoteAccessSessionsInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ListRemoteAccessSessionsInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListRemoteAccessSessionsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListRemoteAccessSessionsInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+	if s.NextToken != nil && len(*s.NextToken) < 4 {
+		invalidParams.Add(request.NewErrParamMinLen("NextToken", 4))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// Represents the response from the server after AWS Device Farm makes a request
+// to return information about the remote access session.
+type ListRemoteAccessSessionsOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An identifier that was returned from the previous call to this operation,
+	// which can be used to return the next set of items in the list.
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
+
+	// A container representing the metadata from the service about each remote
+	// access session you are requesting.
+	RemoteAccessSessions []*RemoteAccessSession `locationName:"remoteAccessSessions" type:"list"`
+}
+
+// String returns the string representation
+func (s ListRemoteAccessSessionsOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ListRemoteAccessSessionsOutput) GoString() string {
+	return s.String()
+}
+
+// Represents a request to the list runs operation.
+type ListRunsInput struct {
+	_ struct{} `type:"structure"`
+
+	// The runs' ARNs.
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
+
+	// An identifier that was returned from the previous call to this operation,
+	// which can be used to return the next set of items in the list.
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 }
 
 // String returns the string representation
@@ -2217,21 +4847,36 @@ func (s ListRunsInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListRunsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListRunsInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+	if s.NextToken != nil && len(*s.NextToken) < 4 {
+		invalidParams.Add(request.NewErrParamMinLen("NextToken", 4))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Represents the result of a list runs request.
 type ListRunsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// If the number of items that are returned is significantly large, this is
 	// an identifier that is also returned, which can be used in a subsequent call
 	// to this operation to return the next set of items in the list.
-	NextToken *string `locationName:"nextToken" type:"string"`
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 
 	// Information about the runs.
 	Runs []*Run `locationName:"runs" type:"list"`
-
-	metadataListRunsOutput `json:"-" xml:"-"`
-}
-
-type metadataListRunsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2246,18 +4891,14 @@ func (s ListRunsOutput) GoString() string {
 
 // Represents a request to the list samples operation.
 type ListSamplesInput struct {
+	_ struct{} `type:"structure"`
+
 	// The samples' ARNs.
-	Arn *string `locationName:"arn" type:"string" required:"true"`
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
 
 	// An identifier that was returned from the previous call to this operation,
 	// which can be used to return the next set of items in the list.
-	NextToken *string `locationName:"nextToken" type:"string"`
-
-	metadataListSamplesInput `json:"-" xml:"-"`
-}
-
-type metadataListSamplesInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 }
 
 // String returns the string representation
@@ -2270,21 +4911,36 @@ func (s ListSamplesInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListSamplesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListSamplesInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+	if s.NextToken != nil && len(*s.NextToken) < 4 {
+		invalidParams.Add(request.NewErrParamMinLen("NextToken", 4))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Represents the result of a list samples request.
 type ListSamplesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// If the number of items that are returned is significantly large, this is
 	// an identifier that is also returned, which can be used in a subsequent call
 	// to this operation to return the next set of items in the list.
-	NextToken *string `locationName:"nextToken" type:"string"`
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 
 	// Information about the samples.
 	Samples []*Sample `locationName:"samples" type:"list"`
-
-	metadataListSamplesOutput `json:"-" xml:"-"`
-}
-
-type metadataListSamplesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2299,18 +4955,14 @@ func (s ListSamplesOutput) GoString() string {
 
 // Represents a request to the list suites operation.
 type ListSuitesInput struct {
+	_ struct{} `type:"structure"`
+
 	// The suites' ARNs.
-	Arn *string `locationName:"arn" type:"string" required:"true"`
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
 
 	// An identifier that was returned from the previous call to this operation,
 	// which can be used to return the next set of items in the list.
-	NextToken *string `locationName:"nextToken" type:"string"`
-
-	metadataListSuitesInput `json:"-" xml:"-"`
-}
-
-type metadataListSuitesInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 }
 
 // String returns the string representation
@@ -2323,21 +4975,36 @@ func (s ListSuitesInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListSuitesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListSuitesInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+	if s.NextToken != nil && len(*s.NextToken) < 4 {
+		invalidParams.Add(request.NewErrParamMinLen("NextToken", 4))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Represents the result of a list suites request.
 type ListSuitesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// If the number of items that are returned is significantly large, this is
 	// an identifier that is also returned, which can be used in a subsequent call
 	// to this operation to return the next set of items in the list.
-	NextToken *string `locationName:"nextToken" type:"string"`
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 
 	// Information about the suites.
 	Suites []*Suite `locationName:"suites" type:"list"`
-
-	metadataListSuitesOutput `json:"-" xml:"-"`
-}
-
-type metadataListSuitesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2352,18 +5019,14 @@ func (s ListSuitesOutput) GoString() string {
 
 // Represents a request to the list tests operation.
 type ListTestsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The tests' ARNs.
-	Arn *string `locationName:"arn" type:"string" required:"true"`
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
 
 	// An identifier that was returned from the previous call to this operation,
 	// which can be used to return the next set of items in the list.
-	NextToken *string `locationName:"nextToken" type:"string"`
-
-	metadataListTestsInput `json:"-" xml:"-"`
-}
-
-type metadataListTestsInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 }
 
 // String returns the string representation
@@ -2376,21 +5039,36 @@ func (s ListTestsInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListTestsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListTestsInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+	if s.NextToken != nil && len(*s.NextToken) < 4 {
+		invalidParams.Add(request.NewErrParamMinLen("NextToken", 4))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Represents the result of a list tests request.
 type ListTestsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// If the number of items that are returned is significantly large, this is
 	// an identifier that is also returned, which can be used in a subsequent call
 	// to this operation to return the next set of items in the list.
-	NextToken *string `locationName:"nextToken" type:"string"`
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 
 	// Information about the tests.
 	Tests []*Test `locationName:"tests" type:"list"`
-
-	metadataListTestsOutput `json:"-" xml:"-"`
-}
-
-type metadataListTestsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2405,18 +5083,14 @@ func (s ListTestsOutput) GoString() string {
 
 // Represents a request to the list unique problems operation.
 type ListUniqueProblemsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The unique problems' ARNs.
-	Arn *string `locationName:"arn" type:"string" required:"true"`
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
 
 	// An identifier that was returned from the previous call to this operation,
 	// which can be used to return the next set of items in the list.
-	NextToken *string `locationName:"nextToken" type:"string"`
-
-	metadataListUniqueProblemsInput `json:"-" xml:"-"`
-}
-
-type metadataListUniqueProblemsInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 }
 
 // String returns the string representation
@@ -2429,37 +5103,52 @@ func (s ListUniqueProblemsInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListUniqueProblemsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListUniqueProblemsInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+	if s.NextToken != nil && len(*s.NextToken) < 4 {
+		invalidParams.Add(request.NewErrParamMinLen("NextToken", 4))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Represents the result of a list unique problems request.
 type ListUniqueProblemsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// If the number of items that are returned is significantly large, this is
 	// an identifier that is also returned, which can be used in a subsequent call
 	// to this operation to return the next set of items in the list.
-	NextToken *string `locationName:"nextToken" type:"string"`
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 
 	// Information about the unique problems.
 	//
 	// Allowed values include:
 	//
-	//  ERRORED: An error condition.
+	//  PENDING: A pending condition.
+	//
+	// PASSED: A passing condition.
+	//
+	// WARNED: A warning condition.
 	//
 	// FAILED: A failed condition.
 	//
 	// SKIPPED: A skipped condition.
 	//
+	// ERRORED: An error condition.
+	//
 	// STOPPED: A stopped condition.
-	//
-	// PASSED: A passing condition.
-	//
-	// PENDING: A pending condition.
-	//
-	// WARNED: A warning condition.
 	UniqueProblems map[string][]*UniqueProblem `locationName:"uniqueProblems" type:"map"`
-
-	metadataListUniqueProblemsOutput `json:"-" xml:"-"`
-}
-
-type metadataListUniqueProblemsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2474,18 +5163,14 @@ func (s ListUniqueProblemsOutput) GoString() string {
 
 // Represents a request to the list uploads operation.
 type ListUploadsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The uploads' ARNs.
-	Arn *string `locationName:"arn" type:"string" required:"true"`
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
 
 	// An identifier that was returned from the previous call to this operation,
 	// which can be used to return the next set of items in the list.
-	NextToken *string `locationName:"nextToken" type:"string"`
-
-	metadataListUploadsInput `json:"-" xml:"-"`
-}
-
-type metadataListUploadsInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 }
 
 // String returns the string representation
@@ -2498,21 +5183,36 @@ func (s ListUploadsInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListUploadsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListUploadsInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+	if s.NextToken != nil && len(*s.NextToken) < 4 {
+		invalidParams.Add(request.NewErrParamMinLen("NextToken", 4))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Represents the result of a list uploads request.
 type ListUploadsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// If the number of items that are returned is significantly large, this is
 	// an identifier that is also returned, which can be used in a subsequent call
 	// to this operation to return the next set of items in the list.
-	NextToken *string `locationName:"nextToken" type:"string"`
+	NextToken *string `locationName:"nextToken" min:"4" type:"string"`
 
 	// Information about the uploads.
 	Uploads []*Upload `locationName:"uploads" type:"list"`
-
-	metadataListUploadsOutput `json:"-" xml:"-"`
-}
-
-type metadataListUploadsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2530,17 +5230,13 @@ func (s ListUploadsOutput) GoString() string {
 //
 // Elevation is currently not supported.
 type Location struct {
+	_ struct{} `type:"structure"`
+
 	// The latitude.
 	Latitude *float64 `locationName:"latitude" type:"double" required:"true"`
 
 	// The longitude.
 	Longitude *float64 `locationName:"longitude" type:"double" required:"true"`
-
-	metadataLocation `json:"-" xml:"-"`
-}
-
-type metadataLocation struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2553,8 +5249,131 @@ func (s Location) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *Location) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "Location"}
+	if s.Latitude == nil {
+		invalidParams.Add(request.NewErrParamRequired("Latitude"))
+	}
+	if s.Longitude == nil {
+		invalidParams.Add(request.NewErrParamRequired("Longitude"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// A number representing the monetary amount for an offering or transaction.
+type MonetaryAmount struct {
+	_ struct{} `type:"structure"`
+
+	// The numerical amount of an offering or transaction.
+	Amount *float64 `locationName:"amount" type:"double"`
+
+	// The currency code of a monetary amount. For example, USD means "U.S. dollars."
+	CurrencyCode *string `locationName:"currencyCode" type:"string" enum:"CurrencyCode"`
+}
+
+// String returns the string representation
+func (s MonetaryAmount) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s MonetaryAmount) GoString() string {
+	return s.String()
+}
+
+// Represents the metadata of a device offering.
+type Offering struct {
+	_ struct{} `type:"structure"`
+
+	// A string describing the offering.
+	Description *string `locationName:"description" type:"string"`
+
+	// The ID that corresponds to a device offering.
+	Id *string `locationName:"id" min:"32" type:"string"`
+
+	// The platform of the device (e.g., ANDROID or IOS).
+	Platform *string `locationName:"platform" type:"string" enum:"DevicePlatform"`
+
+	// Specifies whether there are recurring charges for the offering.
+	RecurringCharges []*RecurringCharge `locationName:"recurringCharges" type:"list"`
+
+	// The type of offering (e.g., "RECURRING") for a device.
+	Type *string `locationName:"type" type:"string" enum:"OfferingType"`
+}
+
+// String returns the string representation
+func (s Offering) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s Offering) GoString() string {
+	return s.String()
+}
+
+// The status of the offering.
+type OfferingStatus struct {
+	_ struct{} `type:"structure"`
+
+	// The date on which the offering is effective.
+	EffectiveOn *time.Time `locationName:"effectiveOn" type:"timestamp" timestampFormat:"unix"`
+
+	// Represents the metadata of an offering status.
+	Offering *Offering `locationName:"offering" type:"structure"`
+
+	// The number of available devices in the offering.
+	Quantity *int64 `locationName:"quantity" type:"integer"`
+
+	// The type specified for the offering status.
+	Type *string `locationName:"type" type:"string" enum:"OfferingTransactionType"`
+}
+
+// String returns the string representation
+func (s OfferingStatus) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s OfferingStatus) GoString() string {
+	return s.String()
+}
+
+// Represents the metadata of an offering transaction.
+type OfferingTransaction struct {
+	_ struct{} `type:"structure"`
+
+	// The cost of an offering transaction.
+	Cost *MonetaryAmount `locationName:"cost" type:"structure"`
+
+	// The date on which an offering transaction was created.
+	CreatedOn *time.Time `locationName:"createdOn" type:"timestamp" timestampFormat:"unix"`
+
+	// The status of an offering transaction.
+	OfferingStatus *OfferingStatus `locationName:"offeringStatus" type:"structure"`
+
+	// The transaction ID of the offering transaction.
+	TransactionId *string `locationName:"transactionId" min:"32" type:"string"`
+}
+
+// String returns the string representation
+func (s OfferingTransaction) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s OfferingTransaction) GoString() string {
+	return s.String()
+}
+
 // Represents a specific warning or failure.
 type Problem struct {
+	_ struct{} `type:"structure"`
+
 	// Information about the associated device.
 	Device *Device `locationName:"device" type:"structure"`
 
@@ -2568,19 +5387,19 @@ type Problem struct {
 	//
 	// Allowed values include:
 	//
-	//  ERRORED: An error condition.
+	//  PENDING: A pending condition.
+	//
+	// PASSED: A passing condition.
+	//
+	// WARNED: A warning condition.
 	//
 	// FAILED: A failed condition.
 	//
 	// SKIPPED: A skipped condition.
 	//
+	// ERRORED: An error condition.
+	//
 	// STOPPED: A stopped condition.
-	//
-	// PASSED: A passing condition.
-	//
-	// PENDING: A pending condition.
-	//
-	// WARNED: A warning condition.
 	Result *string `locationName:"result" type:"string" enum:"ExecutionResult"`
 
 	// Information about the associated run.
@@ -2591,12 +5410,6 @@ type Problem struct {
 
 	// Information about the associated test.
 	Test *ProblemDetail `locationName:"test" type:"structure"`
-
-	metadataProblem `json:"-" xml:"-"`
-}
-
-type metadataProblem struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2611,17 +5424,13 @@ func (s Problem) GoString() string {
 
 // Information about a problem detail.
 type ProblemDetail struct {
+	_ struct{} `type:"structure"`
+
 	// The problem detail's ARN.
-	Arn *string `locationName:"arn" type:"string"`
+	Arn *string `locationName:"arn" min:"32" type:"string"`
 
 	// The problem detail's name.
 	Name *string `locationName:"name" type:"string"`
-
-	metadataProblemDetail `json:"-" xml:"-"`
-}
-
-type metadataProblemDetail struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2637,20 +5446,16 @@ func (s ProblemDetail) GoString() string {
 // Represents an operating-system neutral workspace for running and managing
 // tests.
 type Project struct {
+	_ struct{} `type:"structure"`
+
 	// The project's ARN.
-	Arn *string `locationName:"arn" type:"string"`
+	Arn *string `locationName:"arn" min:"32" type:"string"`
 
 	// When the project was created.
 	Created *time.Time `locationName:"created" type:"timestamp" timestampFormat:"unix"`
 
 	// The project's name.
 	Name *string `locationName:"name" type:"string"`
-
-	metadataProject `json:"-" xml:"-"`
-}
-
-type metadataProject struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2663,9 +5468,63 @@ func (s Project) GoString() string {
 	return s.String()
 }
 
+// Represents a request for a purchase offering.
+type PurchaseOfferingInput struct {
+	_ struct{} `type:"structure"`
+
+	// The ID of the offering.
+	OfferingId *string `locationName:"offeringId" min:"32" type:"string"`
+
+	// The number of device slots you wish to purchase in an offering request.
+	Quantity *int64 `locationName:"quantity" type:"integer"`
+}
+
+// String returns the string representation
+func (s PurchaseOfferingInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s PurchaseOfferingInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *PurchaseOfferingInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "PurchaseOfferingInput"}
+	if s.OfferingId != nil && len(*s.OfferingId) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("OfferingId", 32))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// The result of the purchase offering (e.g., success or failure).
+type PurchaseOfferingOutput struct {
+	_ struct{} `type:"structure"`
+
+	// Represents the offering transaction for the purchase result.
+	OfferingTransaction *OfferingTransaction `locationName:"offeringTransaction" type:"structure"`
+}
+
+// String returns the string representation
+func (s PurchaseOfferingOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s PurchaseOfferingOutput) GoString() string {
+	return s.String()
+}
+
 // Represents the set of radios and their states on a device. Examples of radios
 // include Wi-Fi, GPS, Bluetooth, and NFC.
 type Radios struct {
+	_ struct{} `type:"structure"`
+
 	// True if Bluetooth is enabled at the beginning of the test; otherwise, false.
 	Bluetooth *bool `locationName:"bluetooth" type:"boolean"`
 
@@ -2677,12 +5536,6 @@ type Radios struct {
 
 	// True if Wi-Fi is enabled at the beginning of the test; otherwise, false.
 	Wifi *bool `locationName:"wifi" type:"boolean"`
-
-	metadataRadios `json:"-" xml:"-"`
-}
-
-type metadataRadios struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2695,20 +5548,175 @@ func (s Radios) GoString() string {
 	return s.String()
 }
 
+// Specifies whether charges for devices will be recurring.
+type RecurringCharge struct {
+	_ struct{} `type:"structure"`
+
+	// The cost of the recurring charge.
+	Cost *MonetaryAmount `locationName:"cost" type:"structure"`
+
+	// The frequency in which charges will recur.
+	Frequency *string `locationName:"frequency" type:"string" enum:"RecurringChargeFrequency"`
+}
+
+// String returns the string representation
+func (s RecurringCharge) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s RecurringCharge) GoString() string {
+	return s.String()
+}
+
+// Represents information about the remote access session.
+type RemoteAccessSession struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the remote access session.
+	Arn *string `locationName:"arn" min:"32" type:"string"`
+
+	// The billing method of the remote access session. Possible values include
+	// METERED or UNMETERED. For more information about metered devices, see AWS
+	// Device Farm terminology (http://docs.aws.amazon.com/devicefarm/latest/developerguide/welcome.html#welcome-terminology)."
+	BillingMethod *string `locationName:"billingMethod" type:"string" enum:"BillingMethod"`
+
+	// The date and time the remote access session was created.
+	Created *time.Time `locationName:"created" type:"timestamp" timestampFormat:"unix"`
+
+	// Represents a device type that an app is tested against.
+	Device *Device `locationName:"device" type:"structure"`
+
+	// Represents the total (metered or unmetered) minutes used by the resource
+	// to run tests. Contains the sum of minutes consumed by all children.
+	DeviceMinutes *DeviceMinutes `locationName:"deviceMinutes" type:"structure"`
+
+	// The endpoint for the remote access sesssion.
+	Endpoint *string `locationName:"endpoint" type:"string"`
+
+	// A message about the remote access session.
+	Message *string `locationName:"message" type:"string"`
+
+	// The name of the remote access session.
+	Name *string `locationName:"name" type:"string"`
+
+	// The result of the remote access session. Can be any of the following:
+	//
+	//  PENDING: A pending condition.
+	//
+	// PASSED: A passing condition.
+	//
+	// WARNED: A warning condition.
+	//
+	// FAILED: A failed condition.
+	//
+	// SKIPPED: A skipped condition.
+	//
+	// ERRORED: An error condition.
+	//
+	// STOPPED: A stopped condition.
+	Result *string `locationName:"result" type:"string" enum:"ExecutionResult"`
+
+	// The date and time the remote access session was started.
+	Started *time.Time `locationName:"started" type:"timestamp" timestampFormat:"unix"`
+
+	// The status of the remote access session. Can be any of the following:
+	//
+	//  PENDING: A pending status.
+	//
+	// PENDING_CONCURRENCY: A pending concurrency status.
+	//
+	// PENDING_DEVICE: A pending device status.
+	//
+	// PROCESSING: A processing status.
+	//
+	// SCHEDULING: A scheduling status.
+	//
+	// PREPARING: A preparing status.
+	//
+	// RUNNING: A running status.
+	//
+	// COMPLETED: A completed status.
+	//
+	// STOPPING: A stopping status.
+	Status *string `locationName:"status" type:"string" enum:"ExecutionStatus"`
+
+	// The date and time the remote access session was stopped.
+	Stopped *time.Time `locationName:"stopped" type:"timestamp" timestampFormat:"unix"`
+}
+
+// String returns the string representation
+func (s RemoteAccessSession) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s RemoteAccessSession) GoString() string {
+	return s.String()
+}
+
+// A request representing an offering renewal.
+type RenewOfferingInput struct {
+	_ struct{} `type:"structure"`
+
+	// The ID of a request to renew an offering.
+	OfferingId *string `locationName:"offeringId" min:"32" type:"string"`
+
+	// The quantity requested in an offering renewal.
+	Quantity *int64 `locationName:"quantity" type:"integer"`
+}
+
+// String returns the string representation
+func (s RenewOfferingInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s RenewOfferingInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RenewOfferingInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RenewOfferingInput"}
+	if s.OfferingId != nil && len(*s.OfferingId) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("OfferingId", 32))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// The result of a renewal offering.
+type RenewOfferingOutput struct {
+	_ struct{} `type:"structure"`
+
+	// Represents the status of the offering transaction for the renewal.
+	OfferingTransaction *OfferingTransaction `locationName:"offeringTransaction" type:"structure"`
+}
+
+// String returns the string representation
+func (s RenewOfferingOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s RenewOfferingOutput) GoString() string {
+	return s.String()
+}
+
 // Represents the screen resolution of a device in height and width, expressed
 // in pixels.
 type Resolution struct {
+	_ struct{} `type:"structure"`
+
 	// The screen resolution's height, expressed in pixels.
 	Height *int64 `locationName:"height" type:"integer"`
 
 	// The screen resolution's width, expressed in pixels.
 	Width *int64 `locationName:"width" type:"integer"`
-
-	metadataResolution `json:"-" xml:"-"`
-}
-
-type metadataResolution struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2723,7 +5731,9 @@ func (s Resolution) GoString() string {
 
 // Represents a condition for a device pool.
 type Rule struct {
-	// The rule's attribute.
+	_ struct{} `type:"structure"`
+
+	// The rule's stringified attribute. For example, specify the value as "\"abc\"".
 	//
 	// Allowed values include:
 	//
@@ -2751,12 +5761,6 @@ type Rule struct {
 
 	// The rule's value.
 	Value *string `locationName:"value" type:"string"`
-
-	metadataRule `json:"-" xml:"-"`
-}
-
-type metadataRule struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2771,8 +5775,10 @@ func (s Rule) GoString() string {
 
 // Represents an app on a set of devices with a specific test and configuration.
 type Run struct {
+	_ struct{} `type:"structure"`
+
 	// The run's ARN.
-	Arn *string `locationName:"arn" type:"string"`
+	Arn *string `locationName:"arn" min:"32" type:"string"`
 
 	// Specifies the billing method for a test run: metered or unmetered. If the
 	// parameter is not specified, the default value is unmetered.
@@ -2786,6 +5792,9 @@ type Run struct {
 
 	// When the run was created.
 	Created *time.Time `locationName:"created" type:"timestamp" timestampFormat:"unix"`
+
+	// Represents the total (metered or unmetered) minutes used by the test run.
+	DeviceMinutes *DeviceMinutes `locationName:"deviceMinutes" type:"structure"`
 
 	// A message about the run's result.
 	Message *string `locationName:"message" type:"string"`
@@ -2806,19 +5815,19 @@ type Run struct {
 	//
 	// Allowed values include:
 	//
-	//  ERRORED: An error condition.
+	//  PENDING: A pending condition.
+	//
+	// PASSED: A passing condition.
+	//
+	// WARNED: A warning condition.
 	//
 	// FAILED: A failed condition.
 	//
 	// SKIPPED: A skipped condition.
 	//
+	// ERRORED: An error condition.
+	//
 	// STOPPED: A stopped condition.
-	//
-	// PASSED: A passing condition.
-	//
-	// PENDING: A pending condition.
-	//
-	// WARNED: A warning condition.
 	Result *string `locationName:"result" type:"string" enum:"ExecutionResult"`
 
 	// The run's start time.
@@ -2828,15 +5837,23 @@ type Run struct {
 	//
 	// Allowed values include:
 	//
-	//  COMPLETED: A completed status.
+	//  PENDING: A pending status.
 	//
-	// PENDING: A pending status.
+	// PENDING_CONCURRENCY: A pending concurrency status.
+	//
+	// PENDING_DEVICE: A pending device status.
 	//
 	// PROCESSING: A processing status.
 	//
+	// SCHEDULING: A scheduling status.
+	//
+	// PREPARING: A preparing status.
+	//
 	// RUNNING: A running status.
 	//
-	// SCHEDULING: A scheduling status.
+	// COMPLETED: A completed status.
+	//
+	// STOPPING: A stopping status.
 	Status *string `locationName:"status" type:"string" enum:"ExecutionStatus"`
 
 	// The run's stop time.
@@ -2858,6 +5875,14 @@ type Run struct {
 	//
 	// APPIUM_JAVA_TESTNG: The Appium Java TestNG type.
 	//
+	// APPIUM_PYTHON: The Appium Python type.
+	//
+	// APPIUM_WEB_JAVA_JUNIT: The Appium Java JUnit type for Web apps.
+	//
+	// APPIUM_WEB_JAVA_TESTNG: The Appium Java TestNG type for Web apps.
+	//
+	// APPIUM_WEB_PYTHON: The Appium Python type for Web apps.
+	//
 	// CALABASH: The Calabash type.
 	//
 	// INSTRUMENTATION: The Instrumentation type.
@@ -2867,13 +5892,9 @@ type Run struct {
 	// UIAUTOMATOR: The uiautomator type.
 	//
 	// XCTEST: The XCode test type.
+	//
+	// XCTEST_UI: The XCode UI test type.
 	Type *string `locationName:"type" type:"string" enum:"TestType"`
-
-	metadataRun `json:"-" xml:"-"`
-}
-
-type metadataRun struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2888,8 +5909,10 @@ func (s Run) GoString() string {
 
 // Represents a sample of performance data.
 type Sample struct {
+	_ struct{} `type:"structure"`
+
 	// The sample's ARN.
-	Arn *string `locationName:"arn" type:"string"`
+	Arn *string `locationName:"arn" min:"32" type:"string"`
 
 	// The sample's type.
 	//
@@ -2938,12 +5961,6 @@ type Sample struct {
 	// The pre-signed Amazon S3 URL that can be used with a corresponding GET request
 	// to download the sample's file.
 	Url *string `locationName:"url" type:"string"`
-
-	metadataSample `json:"-" xml:"-"`
-}
-
-type metadataSample struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2959,6 +5976,8 @@ func (s Sample) GoString() string {
 // Represents the settings for a run. Includes things like location, radio states,
 // auxiliary apps, and network profiles.
 type ScheduleRunConfiguration struct {
+	_ struct{} `type:"structure"`
+
 	// A list of auxiliary apps for the run.
 	AuxiliaryApps []*string `locationName:"auxiliaryApps" type:"list"`
 
@@ -2969,7 +5988,7 @@ type ScheduleRunConfiguration struct {
 	// The ARN of the extra data for the run. The extra data is a .zip file that
 	// AWS Device Farm will extract to external data for Android or the app's sandbox
 	// for iOS.
-	ExtraDataPackageArn *string `locationName:"extraDataPackageArn" type:"string"`
+	ExtraDataPackageArn *string `locationName:"extraDataPackageArn" min:"32" type:"string"`
 
 	// Information about the locale that is used for the run.
 	Locale *string `locationName:"locale" type:"string"`
@@ -2978,16 +5997,10 @@ type ScheduleRunConfiguration struct {
 	Location *Location `locationName:"location" type:"structure"`
 
 	// Reserved for internal use.
-	NetworkProfileArn *string `locationName:"networkProfileArn" type:"string"`
+	NetworkProfileArn *string `locationName:"networkProfileArn" min:"32" type:"string"`
 
 	// Information about the radio states for the run.
 	Radios *Radios `locationName:"radios" type:"structure"`
-
-	metadataScheduleRunConfiguration `json:"-" xml:"-"`
-}
-
-type metadataScheduleRunConfiguration struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3000,31 +6013,48 @@ func (s ScheduleRunConfiguration) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ScheduleRunConfiguration) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ScheduleRunConfiguration"}
+	if s.ExtraDataPackageArn != nil && len(*s.ExtraDataPackageArn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("ExtraDataPackageArn", 32))
+	}
+	if s.NetworkProfileArn != nil && len(*s.NetworkProfileArn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("NetworkProfileArn", 32))
+	}
+	if s.Location != nil {
+		if err := s.Location.Validate(); err != nil {
+			invalidParams.AddNested("Location", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Represents a request to the schedule run operation.
 type ScheduleRunInput struct {
+	_ struct{} `type:"structure"`
+
 	// The ARN of the app to schedule a run.
-	AppArn *string `locationName:"appArn" type:"string" required:"true"`
+	AppArn *string `locationName:"appArn" min:"32" type:"string"`
 
 	// Information about the settings for the run to be scheduled.
 	Configuration *ScheduleRunConfiguration `locationName:"configuration" type:"structure"`
 
 	// The ARN of the device pool for the run to be scheduled.
-	DevicePoolArn *string `locationName:"devicePoolArn" type:"string" required:"true"`
+	DevicePoolArn *string `locationName:"devicePoolArn" min:"32" type:"string" required:"true"`
 
 	// The name for the run to be scheduled.
 	Name *string `locationName:"name" type:"string"`
 
 	// The ARN of the project for the run to be scheduled.
-	ProjectArn *string `locationName:"projectArn" type:"string" required:"true"`
+	ProjectArn *string `locationName:"projectArn" min:"32" type:"string" required:"true"`
 
 	// Information about the test for the run to be scheduled.
 	Test *ScheduleRunTest `locationName:"test" type:"structure" required:"true"`
-
-	metadataScheduleRunInput `json:"-" xml:"-"`
-}
-
-type metadataScheduleRunInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3037,16 +6067,50 @@ func (s ScheduleRunInput) GoString() string {
 	return s.String()
 }
 
-// Represents the result of a schedule run request.
-type ScheduleRunOutput struct {
-	// Information about the scheduled run.
-	Run *Run `locationName:"run" type:"structure"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ScheduleRunInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ScheduleRunInput"}
+	if s.AppArn != nil && len(*s.AppArn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("AppArn", 32))
+	}
+	if s.DevicePoolArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("DevicePoolArn"))
+	}
+	if s.DevicePoolArn != nil && len(*s.DevicePoolArn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("DevicePoolArn", 32))
+	}
+	if s.ProjectArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("ProjectArn"))
+	}
+	if s.ProjectArn != nil && len(*s.ProjectArn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("ProjectArn", 32))
+	}
+	if s.Test == nil {
+		invalidParams.Add(request.NewErrParamRequired("Test"))
+	}
+	if s.Configuration != nil {
+		if err := s.Configuration.Validate(); err != nil {
+			invalidParams.AddNested("Configuration", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.Test != nil {
+		if err := s.Test.Validate(); err != nil {
+			invalidParams.AddNested("Test", err.(request.ErrInvalidParams))
+		}
+	}
 
-	metadataScheduleRunOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataScheduleRunOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// Represents the result of a schedule run request.
+type ScheduleRunOutput struct {
+	_ struct{} `type:"structure"`
+
+	// Information about the scheduled run.
+	Run *Run `locationName:"run" type:"structure"`
 }
 
 // String returns the string representation
@@ -3061,6 +6125,8 @@ func (s ScheduleRunOutput) GoString() string {
 
 // Represents additional test settings.
 type ScheduleRunTest struct {
+	_ struct{} `type:"structure"`
+
 	// The test's filter.
 	Filter *string `locationName:"filter" type:"string"`
 
@@ -3068,7 +6134,7 @@ type ScheduleRunTest struct {
 	Parameters map[string]*string `locationName:"parameters" type:"map"`
 
 	// The ARN of the uploaded test that will be run.
-	TestPackageArn *string `locationName:"testPackageArn" type:"string"`
+	TestPackageArn *string `locationName:"testPackageArn" min:"32" type:"string"`
 
 	// The test's type.
 	//
@@ -3083,6 +6149,14 @@ type ScheduleRunTest struct {
 	//
 	// APPIUM_JAVA_TESTNG: The Appium Java TestNG type.
 	//
+	// APPIUM_PYTHON: The Appium Python type.
+	//
+	// APPIUM_WEB_JAVA_JUNIT: The Appium Java JUnit type for Web apps.
+	//
+	// APPIUM_WEB_JAVA_TESTNG: The Appium Java TestNG type for Web apps.
+	//
+	// APPIUM_WEB_PYTHON: The Appium Python type for Web apps.
+	//
 	// CALABASH: The Calabash type.
 	//
 	// INSTRUMENTATION: The Instrumentation type.
@@ -3092,13 +6166,9 @@ type ScheduleRunTest struct {
 	// UIAUTOMATOR: The uiautomator type.
 	//
 	// XCTEST: The XCode test type.
+	//
+	// XCTEST_UI: The XCode UI test type.
 	Type *string `locationName:"type" type:"string" required:"true" enum:"TestType"`
-
-	metadataScheduleRunTest `json:"-" xml:"-"`
-}
-
-type metadataScheduleRunTest struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3111,16 +6181,144 @@ func (s ScheduleRunTest) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ScheduleRunTest) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ScheduleRunTest"}
+	if s.TestPackageArn != nil && len(*s.TestPackageArn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("TestPackageArn", 32))
+	}
+	if s.Type == nil {
+		invalidParams.Add(request.NewErrParamRequired("Type"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// Represents the request to stop the remote access session.
+type StopRemoteAccessSessionInput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the remote access session you wish to stop.
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s StopRemoteAccessSessionInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s StopRemoteAccessSessionInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *StopRemoteAccessSessionInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "StopRemoteAccessSessionInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// Represents the response from the server that describes the remote access
+// session when AWS Device Farm stops the session.
+type StopRemoteAccessSessionOutput struct {
+	_ struct{} `type:"structure"`
+
+	// A container representing the metadata from the service about the remote access
+	// session you are stopping.
+	RemoteAccessSession *RemoteAccessSession `locationName:"remoteAccessSession" type:"structure"`
+}
+
+// String returns the string representation
+func (s StopRemoteAccessSessionOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s StopRemoteAccessSessionOutput) GoString() string {
+	return s.String()
+}
+
+// Represents the request to stop a specific run.
+type StopRunInput struct {
+	_ struct{} `type:"structure"`
+
+	// Represents the Amazon Resource Name (ARN) of the Device Farm run you wish
+	// to stop.
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s StopRunInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s StopRunInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *StopRunInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "StopRunInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// Represents the results of your stop run attempt.
+type StopRunOutput struct {
+	_ struct{} `type:"structure"`
+
+	// Represents an app on a set of devices with a specific test and configuration.
+	Run *Run `locationName:"run" type:"structure"`
+}
+
+// String returns the string representation
+func (s StopRunOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s StopRunOutput) GoString() string {
+	return s.String()
+}
+
 // Represents a collection of one or more tests.
 type Suite struct {
+	_ struct{} `type:"structure"`
+
 	// The suite's ARN.
-	Arn *string `locationName:"arn" type:"string"`
+	Arn *string `locationName:"arn" min:"32" type:"string"`
 
 	// The suite's result counters.
 	Counters *Counters `locationName:"counters" type:"structure"`
 
 	// When the suite was created.
 	Created *time.Time `locationName:"created" type:"timestamp" timestampFormat:"unix"`
+
+	// Represents the total (metered or unmetered) minutes used by the test suite.
+	DeviceMinutes *DeviceMinutes `locationName:"deviceMinutes" type:"structure"`
 
 	// A message about the suite's result.
 	Message *string `locationName:"message" type:"string"`
@@ -3132,19 +6330,19 @@ type Suite struct {
 	//
 	// Allowed values include:
 	//
-	//  ERRORED: An error condition.
+	//  PENDING: A pending condition.
+	//
+	// PASSED: A passing condition.
+	//
+	// WARNED: A warning condition.
 	//
 	// FAILED: A failed condition.
 	//
 	// SKIPPED: A skipped condition.
 	//
+	// ERRORED: An error condition.
+	//
 	// STOPPED: A stopped condition.
-	//
-	// PASSED: A passing condition.
-	//
-	// PENDING: A pending condition.
-	//
-	// WARNED: A warning condition.
 	Result *string `locationName:"result" type:"string" enum:"ExecutionResult"`
 
 	// The suite's start time.
@@ -3154,15 +6352,23 @@ type Suite struct {
 	//
 	// Allowed values include:
 	//
-	//  COMPLETED: A completed status.
+	//  PENDING: A pending status.
 	//
-	// PENDING: A pending status.
+	// PENDING_CONCURRENCY: A pending concurrency status.
+	//
+	// PENDING_DEVICE: A pending device status.
 	//
 	// PROCESSING: A processing status.
 	//
+	// SCHEDULING: A scheduling status.
+	//
+	// PREPARING: A preparing status.
+	//
 	// RUNNING: A running status.
 	//
-	// SCHEDULING: A scheduling status.
+	// COMPLETED: A completed status.
+	//
+	// STOPPING: A stopping status.
 	Status *string `locationName:"status" type:"string" enum:"ExecutionStatus"`
 
 	// The suite's stop time.
@@ -3181,6 +6387,14 @@ type Suite struct {
 	//
 	// APPIUM_JAVA_TESTNG: The Appium Java TestNG type.
 	//
+	// APPIUM_PYTHON: The Appium Python type.
+	//
+	// APPIUM_WEB_JAVA_JUNIT: The Appium Java JUnit type for Web apps.
+	//
+	// APPIUM_WEB_JAVA_TESTNG: The Appium Java TestNG type for Web apps.
+	//
+	// APPIUM_WEB_PYTHON: The Appium Python type for Web apps.
+	//
 	// CALABASH: The Calabash type.
 	//
 	// INSTRUMENTATION: The Instrumentation type.
@@ -3190,13 +6404,9 @@ type Suite struct {
 	// UIAUTOMATOR: The uiautomator type.
 	//
 	// XCTEST: The XCode test type.
+	//
+	// XCTEST_UI: The XCode UI test type.
 	Type *string `locationName:"type" type:"string" enum:"TestType"`
-
-	metadataSuite `json:"-" xml:"-"`
-}
-
-type metadataSuite struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3211,14 +6421,19 @@ func (s Suite) GoString() string {
 
 // Represents a condition that is evaluated.
 type Test struct {
+	_ struct{} `type:"structure"`
+
 	// The test's ARN.
-	Arn *string `locationName:"arn" type:"string"`
+	Arn *string `locationName:"arn" min:"32" type:"string"`
 
 	// The test's result counters.
 	Counters *Counters `locationName:"counters" type:"structure"`
 
 	// When the test was created.
 	Created *time.Time `locationName:"created" type:"timestamp" timestampFormat:"unix"`
+
+	// Represents the total (metered or unmetered) minutes used by the test.
+	DeviceMinutes *DeviceMinutes `locationName:"deviceMinutes" type:"structure"`
 
 	// A message about the test's result.
 	Message *string `locationName:"message" type:"string"`
@@ -3230,19 +6445,19 @@ type Test struct {
 	//
 	// Allowed values include:
 	//
-	//  ERRORED: An error condition.
+	//  PENDING: A pending condition.
+	//
+	// PASSED: A passing condition.
+	//
+	// WARNED: A warning condition.
 	//
 	// FAILED: A failed condition.
 	//
 	// SKIPPED: A skipped condition.
 	//
+	// ERRORED: An error condition.
+	//
 	// STOPPED: A stopped condition.
-	//
-	// PASSED: A passing condition.
-	//
-	// PENDING: A pending condition.
-	//
-	// WARNED: A warning condition.
 	Result *string `locationName:"result" type:"string" enum:"ExecutionResult"`
 
 	// The test's start time.
@@ -3252,15 +6467,23 @@ type Test struct {
 	//
 	// Allowed values include:
 	//
-	//  COMPLETED: A completed status.
+	//  PENDING: A pending status.
 	//
-	// PENDING: A pending status.
+	// PENDING_CONCURRENCY: A pending concurrency status.
+	//
+	// PENDING_DEVICE: A pending device status.
 	//
 	// PROCESSING: A processing status.
 	//
+	// SCHEDULING: A scheduling status.
+	//
+	// PREPARING: A preparing status.
+	//
 	// RUNNING: A running status.
 	//
-	// SCHEDULING: A scheduling status.
+	// COMPLETED: A completed status.
+	//
+	// STOPPING: A stopping status.
 	Status *string `locationName:"status" type:"string" enum:"ExecutionStatus"`
 
 	// The test's stop time.
@@ -3279,6 +6502,14 @@ type Test struct {
 	//
 	// APPIUM_JAVA_TESTNG: The Appium Java TestNG type.
 	//
+	// APPIUM_PYTHON: The Appium Python type.
+	//
+	// APPIUM_WEB_JAVA_JUNIT: The Appium Java JUnit type for Web apps.
+	//
+	// APPIUM_WEB_JAVA_TESTNG: The Appium Java TestNG type for Web apps.
+	//
+	// APPIUM_WEB_PYTHON: The Appium Python type for Web apps.
+	//
 	// CALABASH: The Calabash type.
 	//
 	// INSTRUMENTATION: The Instrumentation type.
@@ -3288,13 +6519,9 @@ type Test struct {
 	// UIAUTOMATOR: The uiautomator type.
 	//
 	// XCTEST: The XCode test type.
+	//
+	// XCTEST_UI: The XCode UI test type.
 	Type *string `locationName:"type" type:"string" enum:"TestType"`
-
-	metadataTest `json:"-" xml:"-"`
-}
-
-type metadataTest struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3309,17 +6536,13 @@ func (s Test) GoString() string {
 
 // A collection of one or more problems, grouped by their result.
 type UniqueProblem struct {
+	_ struct{} `type:"structure"`
+
 	// A message about the unique problems' result.
 	Message *string `locationName:"message" type:"string"`
 
 	// Information about the problems.
 	Problems []*Problem `locationName:"problems" type:"list"`
-
-	metadataUniqueProblem `json:"-" xml:"-"`
-}
-
-type metadataUniqueProblem struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3332,10 +6555,132 @@ func (s UniqueProblem) GoString() string {
 	return s.String()
 }
 
+// Represents a request to the update device pool operation.
+type UpdateDevicePoolInput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resourc Name (ARN) of the Device Farm device pool you wish to
+	// update.
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
+
+	// A description of the device pool you wish to update.
+	Description *string `locationName:"description" type:"string"`
+
+	// A string representing the name of the device pool you wish to update.
+	Name *string `locationName:"name" type:"string"`
+
+	// Represents the rules you wish to modify for the device pool. Updating rules
+	// is optional; however, if you choose to update rules for your request, the
+	// update will replace the existing rules.
+	Rules []*Rule `locationName:"rules" type:"list"`
+}
+
+// String returns the string representation
+func (s UpdateDevicePoolInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s UpdateDevicePoolInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateDevicePoolInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateDevicePoolInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// Represents the result of an update device pool request.
+type UpdateDevicePoolOutput struct {
+	_ struct{} `type:"structure"`
+
+	// Represents a collection of device types.
+	DevicePool *DevicePool `locationName:"devicePool" type:"structure"`
+}
+
+// String returns the string representation
+func (s UpdateDevicePoolOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s UpdateDevicePoolOutput) GoString() string {
+	return s.String()
+}
+
+// Represents a request to the update project operation.
+type UpdateProjectInput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the project whose name you wish to update.
+	Arn *string `locationName:"arn" min:"32" type:"string" required:"true"`
+
+	// A string representing the new name of the project that you are updating.
+	Name *string `locationName:"name" type:"string"`
+}
+
+// String returns the string representation
+func (s UpdateProjectInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s UpdateProjectInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateProjectInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateProjectInput"}
+	if s.Arn == nil {
+		invalidParams.Add(request.NewErrParamRequired("Arn"))
+	}
+	if s.Arn != nil && len(*s.Arn) < 32 {
+		invalidParams.Add(request.NewErrParamMinLen("Arn", 32))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// Represents the result of an update project request.
+type UpdateProjectOutput struct {
+	_ struct{} `type:"structure"`
+
+	// Represents an operating-system neutral workspace for running and managing
+	// tests.
+	Project *Project `locationName:"project" type:"structure"`
+}
+
+// String returns the string representation
+func (s UpdateProjectOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s UpdateProjectOutput) GoString() string {
+	return s.String()
+}
+
 // An app or a set of one or more tests to upload or that have been uploaded.
 type Upload struct {
+	_ struct{} `type:"structure"`
+
 	// The upload's ARN.
-	Arn *string `locationName:"arn" type:"string"`
+	Arn *string `locationName:"arn" min:"32" type:"string"`
 
 	// The upload's content type (for example, "application/octet-stream").
 	ContentType *string `locationName:"contentType" type:"string"`
@@ -3375,30 +6720,39 @@ type Upload struct {
 	//
 	// IOS_APP: An iOS upload.
 	//
+	// WEB_APP: A web appliction upload.
+	//
 	// EXTERNAL_DATA: An external data upload.
 	//
 	// APPIUM_JAVA_JUNIT_TEST_PACKAGE: An Appium Java JUnit test package upload.
 	//
 	// APPIUM_JAVA_TESTNG_TEST_PACKAGE: An Appium Java TestNG test package upload.
 	//
+	// APPIUM_PYTHON_TEST_PACKAGE: An Appium Python test package upload.
+	//
+	// APPIUM_WEB_JAVA_JUNIT_TEST_PACKAGE: An Appium Java JUnit test package upload.
+	//
+	// APPIUM_WEB_JAVA_TESTNG_TEST_PACKAGE: An Appium Java TestNG test package
+	// upload.
+	//
+	// APPIUM_WEB_PYTHON_TEST_PACKAGE: An Appium Python test package upload.
+	//
 	// CALABASH_TEST_PACKAGE: A Calabash test package upload.
 	//
 	// INSTRUMENTATION_TEST_PACKAGE: An instrumentation upload.
 	//
+	// UIAUTOMATION_TEST_PACKAGE: A uiautomation test package upload.
+	//
 	// UIAUTOMATOR_TEST_PACKAGE: A uiautomator test package upload.
 	//
 	// XCTEST_TEST_PACKAGE: An XCode test package upload.
+	//
+	// XCTEST_UI_TEST_PACKAGE: An XCode UI test package upload.
 	Type *string `locationName:"type" type:"string" enum:"UploadType"`
 
 	// The pre-signed Amazon S3 URL that was used to store a file through a corresponding
 	// PUT request.
 	Url *string `locationName:"url" type:"string"`
-
-	metadataUpload `json:"-" xml:"-"`
-}
-
-type metadataUpload struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3430,9 +6784,13 @@ const (
 	// @enum ArtifactType
 	ArtifactTypeMessageLog = "MESSAGE_LOG"
 	// @enum ArtifactType
+	ArtifactTypeVideoLog = "VIDEO_LOG"
+	// @enum ArtifactType
 	ArtifactTypeResultLog = "RESULT_LOG"
 	// @enum ArtifactType
 	ArtifactTypeServiceLog = "SERVICE_LOG"
+	// @enum ArtifactType
+	ArtifactTypeWebkitLog = "WEBKIT_LOG"
 	// @enum ArtifactType
 	ArtifactTypeInstrumentationOutput = "INSTRUMENTATION_OUTPUT"
 	// @enum ArtifactType
@@ -3453,6 +6811,20 @@ const (
 	ArtifactTypeAppiumJavaOutput = "APPIUM_JAVA_OUTPUT"
 	// @enum ArtifactType
 	ArtifactTypeAppiumJavaXmlOutput = "APPIUM_JAVA_XML_OUTPUT"
+	// @enum ArtifactType
+	ArtifactTypeAppiumPythonOutput = "APPIUM_PYTHON_OUTPUT"
+	// @enum ArtifactType
+	ArtifactTypeAppiumPythonXmlOutput = "APPIUM_PYTHON_XML_OUTPUT"
+	// @enum ArtifactType
+	ArtifactTypeExplorerEventLog = "EXPLORER_EVENT_LOG"
+	// @enum ArtifactType
+	ArtifactTypeExplorerSummaryLog = "EXPLORER_SUMMARY_LOG"
+	// @enum ArtifactType
+	ArtifactTypeApplicationCrashReport = "APPLICATION_CRASH_REPORT"
+	// @enum ArtifactType
+	ArtifactTypeXctestLog = "XCTEST_LOG"
+	// @enum ArtifactType
+	ArtifactTypeVideo = "VIDEO"
 )
 
 const (
@@ -3460,6 +6832,11 @@ const (
 	BillingMethodMetered = "METERED"
 	// @enum BillingMethod
 	BillingMethodUnmetered = "UNMETERED"
+)
+
+const (
+	// @enum CurrencyCode
+	CurrencyCodeUsd = "USD"
 )
 
 const (
@@ -3471,6 +6848,8 @@ const (
 	DeviceAttributeFormFactor = "FORM_FACTOR"
 	// @enum DeviceAttribute
 	DeviceAttributeManufacturer = "MANUFACTURER"
+	// @enum DeviceAttribute
+	DeviceAttributeRemoteAccessEnabled = "REMOTE_ACCESS_ENABLED"
 )
 
 const (
@@ -3515,13 +6894,40 @@ const (
 	// @enum ExecutionStatus
 	ExecutionStatusPending = "PENDING"
 	// @enum ExecutionStatus
+	ExecutionStatusPendingConcurrency = "PENDING_CONCURRENCY"
+	// @enum ExecutionStatus
+	ExecutionStatusPendingDevice = "PENDING_DEVICE"
+	// @enum ExecutionStatus
 	ExecutionStatusProcessing = "PROCESSING"
 	// @enum ExecutionStatus
 	ExecutionStatusScheduling = "SCHEDULING"
 	// @enum ExecutionStatus
+	ExecutionStatusPreparing = "PREPARING"
+	// @enum ExecutionStatus
 	ExecutionStatusRunning = "RUNNING"
 	// @enum ExecutionStatus
 	ExecutionStatusCompleted = "COMPLETED"
+	// @enum ExecutionStatus
+	ExecutionStatusStopping = "STOPPING"
+)
+
+const (
+	// @enum OfferingTransactionType
+	OfferingTransactionTypePurchase = "PURCHASE"
+	// @enum OfferingTransactionType
+	OfferingTransactionTypeRenew = "RENEW"
+	// @enum OfferingTransactionType
+	OfferingTransactionTypeSystem = "SYSTEM"
+)
+
+const (
+	// @enum OfferingType
+	OfferingTypeRecurring = "RECURRING"
+)
+
+const (
+	// @enum RecurringChargeFrequency
+	RecurringChargeFrequencyMonthly = "MONTHLY"
 )
 
 const (
@@ -3584,6 +6990,14 @@ const (
 	// @enum TestType
 	TestTypeAppiumJavaTestng = "APPIUM_JAVA_TESTNG"
 	// @enum TestType
+	TestTypeAppiumPython = "APPIUM_PYTHON"
+	// @enum TestType
+	TestTypeAppiumWebJavaJunit = "APPIUM_WEB_JAVA_JUNIT"
+	// @enum TestType
+	TestTypeAppiumWebJavaTestng = "APPIUM_WEB_JAVA_TESTNG"
+	// @enum TestType
+	TestTypeAppiumWebPython = "APPIUM_WEB_PYTHON"
+	// @enum TestType
 	TestTypeCalabash = "CALABASH"
 	// @enum TestType
 	TestTypeInstrumentation = "INSTRUMENTATION"
@@ -3593,6 +7007,8 @@ const (
 	TestTypeUiautomator = "UIAUTOMATOR"
 	// @enum TestType
 	TestTypeXctest = "XCTEST"
+	// @enum TestType
+	TestTypeXctestUi = "XCTEST_UI"
 )
 
 const (
@@ -3612,11 +7028,21 @@ const (
 	// @enum UploadType
 	UploadTypeIosApp = "IOS_APP"
 	// @enum UploadType
+	UploadTypeWebApp = "WEB_APP"
+	// @enum UploadType
 	UploadTypeExternalData = "EXTERNAL_DATA"
 	// @enum UploadType
 	UploadTypeAppiumJavaJunitTestPackage = "APPIUM_JAVA_JUNIT_TEST_PACKAGE"
 	// @enum UploadType
 	UploadTypeAppiumJavaTestngTestPackage = "APPIUM_JAVA_TESTNG_TEST_PACKAGE"
+	// @enum UploadType
+	UploadTypeAppiumPythonTestPackage = "APPIUM_PYTHON_TEST_PACKAGE"
+	// @enum UploadType
+	UploadTypeAppiumWebJavaJunitTestPackage = "APPIUM_WEB_JAVA_JUNIT_TEST_PACKAGE"
+	// @enum UploadType
+	UploadTypeAppiumWebJavaTestngTestPackage = "APPIUM_WEB_JAVA_TESTNG_TEST_PACKAGE"
+	// @enum UploadType
+	UploadTypeAppiumWebPythonTestPackage = "APPIUM_WEB_PYTHON_TEST_PACKAGE"
 	// @enum UploadType
 	UploadTypeCalabashTestPackage = "CALABASH_TEST_PACKAGE"
 	// @enum UploadType
@@ -3627,4 +7053,6 @@ const (
 	UploadTypeUiautomatorTestPackage = "UIAUTOMATOR_TEST_PACKAGE"
 	// @enum UploadType
 	UploadTypeXctestTestPackage = "XCTEST_TEST_PACKAGE"
+	// @enum UploadType
+	UploadTypeXctestUiTestPackage = "XCTEST_UI_TEST_PACKAGE"
 )

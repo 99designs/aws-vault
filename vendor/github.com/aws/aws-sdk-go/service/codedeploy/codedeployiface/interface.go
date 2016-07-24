@@ -14,9 +14,21 @@ type CodeDeployAPI interface {
 
 	AddTagsToOnPremisesInstances(*codedeploy.AddTagsToOnPremisesInstancesInput) (*codedeploy.AddTagsToOnPremisesInstancesOutput, error)
 
+	BatchGetApplicationRevisionsRequest(*codedeploy.BatchGetApplicationRevisionsInput) (*request.Request, *codedeploy.BatchGetApplicationRevisionsOutput)
+
+	BatchGetApplicationRevisions(*codedeploy.BatchGetApplicationRevisionsInput) (*codedeploy.BatchGetApplicationRevisionsOutput, error)
+
 	BatchGetApplicationsRequest(*codedeploy.BatchGetApplicationsInput) (*request.Request, *codedeploy.BatchGetApplicationsOutput)
 
 	BatchGetApplications(*codedeploy.BatchGetApplicationsInput) (*codedeploy.BatchGetApplicationsOutput, error)
+
+	BatchGetDeploymentGroupsRequest(*codedeploy.BatchGetDeploymentGroupsInput) (*request.Request, *codedeploy.BatchGetDeploymentGroupsOutput)
+
+	BatchGetDeploymentGroups(*codedeploy.BatchGetDeploymentGroupsInput) (*codedeploy.BatchGetDeploymentGroupsOutput, error)
+
+	BatchGetDeploymentInstancesRequest(*codedeploy.BatchGetDeploymentInstancesInput) (*request.Request, *codedeploy.BatchGetDeploymentInstancesOutput)
+
+	BatchGetDeploymentInstances(*codedeploy.BatchGetDeploymentInstancesInput) (*codedeploy.BatchGetDeploymentInstancesOutput, error)
 
 	BatchGetDeploymentsRequest(*codedeploy.BatchGetDeploymentsInput) (*request.Request, *codedeploy.BatchGetDeploymentsOutput)
 
@@ -150,3 +162,5 @@ type CodeDeployAPI interface {
 
 	UpdateDeploymentGroup(*codedeploy.UpdateDeploymentGroupInput) (*codedeploy.UpdateDeploymentGroupOutput, error)
 }
+
+var _ CodeDeployAPI = (*codedeploy.CodeDeploy)(nil)

@@ -14,3 +14,5 @@ type MobileAnalyticsAPI interface {
 
 	PutEvents(*mobileanalytics.PutEventsInput) (*mobileanalytics.PutEventsOutput, error)
 }
+
+var _ MobileAnalyticsAPI = (*mobileanalytics.MobileAnalytics)(nil)

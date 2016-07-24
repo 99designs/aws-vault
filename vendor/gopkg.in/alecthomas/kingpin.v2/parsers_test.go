@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/alecthomas/assert"
 
 	"testing"
 )
@@ -87,4 +87,12 @@ func TestParseTCPAddrList(t *testing.T) {
 	err = p.value.Set("127.0.0.1:1235")
 	assert.NoError(t, err)
 	assert.Equal(t, "127.0.0.1:1234,127.0.0.1:1235", p.value.String())
+}
+
+func TestFloat32(t *testing.T) {
+	p := parserMixin{}
+	v := p.Float32()
+	err := p.value.Set("123.45")
+	assert.NoError(t, err)
+	assert.InEpsilon(t, 123.45, *v, 0.001)
 }

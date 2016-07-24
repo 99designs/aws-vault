@@ -292,3 +292,5 @@ type OpsWorksAPI interface {
 
 	UpdateVolume(*opsworks.UpdateVolumeInput) (*opsworks.UpdateVolumeOutput, error)
 }
+
+var _ OpsWorksAPI = (*opsworks.OpsWorks)(nil)

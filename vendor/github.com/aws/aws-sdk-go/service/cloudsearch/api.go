@@ -12,7 +12,28 @@ import (
 
 const opBuildSuggesters = "BuildSuggesters"
 
-// BuildSuggestersRequest generates a request for the BuildSuggesters operation.
+// BuildSuggestersRequest generates a "aws/request.Request" representing the
+// client's request for the BuildSuggesters operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the BuildSuggesters method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the BuildSuggestersRequest method.
+//    req, resp := client.BuildSuggestersRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) BuildSuggestersRequest(input *BuildSuggestersInput) (req *request.Request, output *BuildSuggestersOutput) {
 	op := &request.Operation{
 		Name:       opBuildSuggesters,
@@ -41,7 +62,28 @@ func (c *CloudSearch) BuildSuggesters(input *BuildSuggestersInput) (*BuildSugges
 
 const opCreateDomain = "CreateDomain"
 
-// CreateDomainRequest generates a request for the CreateDomain operation.
+// CreateDomainRequest generates a "aws/request.Request" representing the
+// client's request for the CreateDomain operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CreateDomain method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CreateDomainRequest method.
+//    req, resp := client.CreateDomainRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) CreateDomainRequest(input *CreateDomainInput) (req *request.Request, output *CreateDomainOutput) {
 	op := &request.Operation{
 		Name:       opCreateDomain,
@@ -70,7 +112,28 @@ func (c *CloudSearch) CreateDomain(input *CreateDomainInput) (*CreateDomainOutpu
 
 const opDefineAnalysisScheme = "DefineAnalysisScheme"
 
-// DefineAnalysisSchemeRequest generates a request for the DefineAnalysisScheme operation.
+// DefineAnalysisSchemeRequest generates a "aws/request.Request" representing the
+// client's request for the DefineAnalysisScheme operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DefineAnalysisScheme method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DefineAnalysisSchemeRequest method.
+//    req, resp := client.DefineAnalysisSchemeRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) DefineAnalysisSchemeRequest(input *DefineAnalysisSchemeInput) (req *request.Request, output *DefineAnalysisSchemeOutput) {
 	op := &request.Operation{
 		Name:       opDefineAnalysisScheme,
@@ -100,7 +163,28 @@ func (c *CloudSearch) DefineAnalysisScheme(input *DefineAnalysisSchemeInput) (*D
 
 const opDefineExpression = "DefineExpression"
 
-// DefineExpressionRequest generates a request for the DefineExpression operation.
+// DefineExpressionRequest generates a "aws/request.Request" representing the
+// client's request for the DefineExpression operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DefineExpression method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DefineExpressionRequest method.
+//    req, resp := client.DefineExpressionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) DefineExpressionRequest(input *DefineExpressionInput) (req *request.Request, output *DefineExpressionOutput) {
 	op := &request.Operation{
 		Name:       opDefineExpression,
@@ -130,7 +214,28 @@ func (c *CloudSearch) DefineExpression(input *DefineExpressionInput) (*DefineExp
 
 const opDefineIndexField = "DefineIndexField"
 
-// DefineIndexFieldRequest generates a request for the DefineIndexField operation.
+// DefineIndexFieldRequest generates a "aws/request.Request" representing the
+// client's request for the DefineIndexField operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DefineIndexField method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DefineIndexFieldRequest method.
+//    req, resp := client.DefineIndexFieldRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) DefineIndexFieldRequest(input *DefineIndexFieldInput) (req *request.Request, output *DefineIndexFieldOutput) {
 	op := &request.Operation{
 		Name:       opDefineIndexField,
@@ -164,7 +269,28 @@ func (c *CloudSearch) DefineIndexField(input *DefineIndexFieldInput) (*DefineInd
 
 const opDefineSuggester = "DefineSuggester"
 
-// DefineSuggesterRequest generates a request for the DefineSuggester operation.
+// DefineSuggesterRequest generates a "aws/request.Request" representing the
+// client's request for the DefineSuggester operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DefineSuggester method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DefineSuggesterRequest method.
+//    req, resp := client.DefineSuggesterRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) DefineSuggesterRequest(input *DefineSuggesterInput) (req *request.Request, output *DefineSuggesterOutput) {
 	op := &request.Operation{
 		Name:       opDefineSuggester,
@@ -196,7 +322,28 @@ func (c *CloudSearch) DefineSuggester(input *DefineSuggesterInput) (*DefineSugge
 
 const opDeleteAnalysisScheme = "DeleteAnalysisScheme"
 
-// DeleteAnalysisSchemeRequest generates a request for the DeleteAnalysisScheme operation.
+// DeleteAnalysisSchemeRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteAnalysisScheme operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteAnalysisScheme method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteAnalysisSchemeRequest method.
+//    req, resp := client.DeleteAnalysisSchemeRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) DeleteAnalysisSchemeRequest(input *DeleteAnalysisSchemeInput) (req *request.Request, output *DeleteAnalysisSchemeOutput) {
 	op := &request.Operation{
 		Name:       opDeleteAnalysisScheme,
@@ -225,7 +372,28 @@ func (c *CloudSearch) DeleteAnalysisScheme(input *DeleteAnalysisSchemeInput) (*D
 
 const opDeleteDomain = "DeleteDomain"
 
-// DeleteDomainRequest generates a request for the DeleteDomain operation.
+// DeleteDomainRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteDomain operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteDomain method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteDomainRequest method.
+//    req, resp := client.DeleteDomainRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) DeleteDomainRequest(input *DeleteDomainInput) (req *request.Request, output *DeleteDomainOutput) {
 	op := &request.Operation{
 		Name:       opDeleteDomain,
@@ -255,7 +423,28 @@ func (c *CloudSearch) DeleteDomain(input *DeleteDomainInput) (*DeleteDomainOutpu
 
 const opDeleteExpression = "DeleteExpression"
 
-// DeleteExpressionRequest generates a request for the DeleteExpression operation.
+// DeleteExpressionRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteExpression operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteExpression method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteExpressionRequest method.
+//    req, resp := client.DeleteExpressionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) DeleteExpressionRequest(input *DeleteExpressionInput) (req *request.Request, output *DeleteExpressionOutput) {
 	op := &request.Operation{
 		Name:       opDeleteExpression,
@@ -284,7 +473,28 @@ func (c *CloudSearch) DeleteExpression(input *DeleteExpressionInput) (*DeleteExp
 
 const opDeleteIndexField = "DeleteIndexField"
 
-// DeleteIndexFieldRequest generates a request for the DeleteIndexField operation.
+// DeleteIndexFieldRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteIndexField operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteIndexField method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteIndexFieldRequest method.
+//    req, resp := client.DeleteIndexFieldRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) DeleteIndexFieldRequest(input *DeleteIndexFieldInput) (req *request.Request, output *DeleteIndexFieldOutput) {
 	op := &request.Operation{
 		Name:       opDeleteIndexField,
@@ -313,7 +523,28 @@ func (c *CloudSearch) DeleteIndexField(input *DeleteIndexFieldInput) (*DeleteInd
 
 const opDeleteSuggester = "DeleteSuggester"
 
-// DeleteSuggesterRequest generates a request for the DeleteSuggester operation.
+// DeleteSuggesterRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteSuggester operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteSuggester method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteSuggesterRequest method.
+//    req, resp := client.DeleteSuggesterRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) DeleteSuggesterRequest(input *DeleteSuggesterInput) (req *request.Request, output *DeleteSuggesterOutput) {
 	op := &request.Operation{
 		Name:       opDeleteSuggester,
@@ -342,7 +573,28 @@ func (c *CloudSearch) DeleteSuggester(input *DeleteSuggesterInput) (*DeleteSugge
 
 const opDescribeAnalysisSchemes = "DescribeAnalysisSchemes"
 
-// DescribeAnalysisSchemesRequest generates a request for the DescribeAnalysisSchemes operation.
+// DescribeAnalysisSchemesRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeAnalysisSchemes operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeAnalysisSchemes method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeAnalysisSchemesRequest method.
+//    req, resp := client.DescribeAnalysisSchemesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) DescribeAnalysisSchemesRequest(input *DescribeAnalysisSchemesInput) (req *request.Request, output *DescribeAnalysisSchemesOutput) {
 	op := &request.Operation{
 		Name:       opDescribeAnalysisSchemes,
@@ -375,7 +627,28 @@ func (c *CloudSearch) DescribeAnalysisSchemes(input *DescribeAnalysisSchemesInpu
 
 const opDescribeAvailabilityOptions = "DescribeAvailabilityOptions"
 
-// DescribeAvailabilityOptionsRequest generates a request for the DescribeAvailabilityOptions operation.
+// DescribeAvailabilityOptionsRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeAvailabilityOptions operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeAvailabilityOptions method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeAvailabilityOptionsRequest method.
+//    req, resp := client.DescribeAvailabilityOptionsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) DescribeAvailabilityOptionsRequest(input *DescribeAvailabilityOptionsInput) (req *request.Request, output *DescribeAvailabilityOptionsOutput) {
 	op := &request.Operation{
 		Name:       opDescribeAvailabilityOptions,
@@ -406,7 +679,28 @@ func (c *CloudSearch) DescribeAvailabilityOptions(input *DescribeAvailabilityOpt
 
 const opDescribeDomains = "DescribeDomains"
 
-// DescribeDomainsRequest generates a request for the DescribeDomains operation.
+// DescribeDomainsRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeDomains operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeDomains method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeDomainsRequest method.
+//    req, resp := client.DescribeDomainsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) DescribeDomainsRequest(input *DescribeDomainsInput) (req *request.Request, output *DescribeDomainsOutput) {
 	op := &request.Operation{
 		Name:       opDescribeDomains,
@@ -438,7 +732,28 @@ func (c *CloudSearch) DescribeDomains(input *DescribeDomainsInput) (*DescribeDom
 
 const opDescribeExpressions = "DescribeExpressions"
 
-// DescribeExpressionsRequest generates a request for the DescribeExpressions operation.
+// DescribeExpressionsRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeExpressions operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeExpressions method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeExpressionsRequest method.
+//    req, resp := client.DescribeExpressionsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) DescribeExpressionsRequest(input *DescribeExpressionsInput) (req *request.Request, output *DescribeExpressionsOutput) {
 	op := &request.Operation{
 		Name:       opDescribeExpressions,
@@ -470,7 +785,28 @@ func (c *CloudSearch) DescribeExpressions(input *DescribeExpressionsInput) (*Des
 
 const opDescribeIndexFields = "DescribeIndexFields"
 
-// DescribeIndexFieldsRequest generates a request for the DescribeIndexFields operation.
+// DescribeIndexFieldsRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeIndexFields operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeIndexFields method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeIndexFieldsRequest method.
+//    req, resp := client.DescribeIndexFieldsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) DescribeIndexFieldsRequest(input *DescribeIndexFieldsInput) (req *request.Request, output *DescribeIndexFieldsOutput) {
 	op := &request.Operation{
 		Name:       opDescribeIndexFields,
@@ -502,7 +838,28 @@ func (c *CloudSearch) DescribeIndexFields(input *DescribeIndexFieldsInput) (*Des
 
 const opDescribeScalingParameters = "DescribeScalingParameters"
 
-// DescribeScalingParametersRequest generates a request for the DescribeScalingParameters operation.
+// DescribeScalingParametersRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeScalingParameters operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeScalingParameters method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeScalingParametersRequest method.
+//    req, resp := client.DescribeScalingParametersRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) DescribeScalingParametersRequest(input *DescribeScalingParametersInput) (req *request.Request, output *DescribeScalingParametersOutput) {
 	op := &request.Operation{
 		Name:       opDescribeScalingParameters,
@@ -532,7 +889,28 @@ func (c *CloudSearch) DescribeScalingParameters(input *DescribeScalingParameters
 
 const opDescribeServiceAccessPolicies = "DescribeServiceAccessPolicies"
 
-// DescribeServiceAccessPoliciesRequest generates a request for the DescribeServiceAccessPolicies operation.
+// DescribeServiceAccessPoliciesRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeServiceAccessPolicies operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeServiceAccessPolicies method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeServiceAccessPoliciesRequest method.
+//    req, resp := client.DescribeServiceAccessPoliciesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) DescribeServiceAccessPoliciesRequest(input *DescribeServiceAccessPoliciesInput) (req *request.Request, output *DescribeServiceAccessPoliciesOutput) {
 	op := &request.Operation{
 		Name:       opDescribeServiceAccessPolicies,
@@ -564,7 +942,28 @@ func (c *CloudSearch) DescribeServiceAccessPolicies(input *DescribeServiceAccess
 
 const opDescribeSuggesters = "DescribeSuggesters"
 
-// DescribeSuggestersRequest generates a request for the DescribeSuggesters operation.
+// DescribeSuggestersRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeSuggesters operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeSuggesters method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeSuggestersRequest method.
+//    req, resp := client.DescribeSuggestersRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) DescribeSuggestersRequest(input *DescribeSuggestersInput) (req *request.Request, output *DescribeSuggestersOutput) {
 	op := &request.Operation{
 		Name:       opDescribeSuggesters,
@@ -597,7 +996,28 @@ func (c *CloudSearch) DescribeSuggesters(input *DescribeSuggestersInput) (*Descr
 
 const opIndexDocuments = "IndexDocuments"
 
-// IndexDocumentsRequest generates a request for the IndexDocuments operation.
+// IndexDocumentsRequest generates a "aws/request.Request" representing the
+// client's request for the IndexDocuments operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the IndexDocuments method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the IndexDocumentsRequest method.
+//    req, resp := client.IndexDocumentsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) IndexDocumentsRequest(input *IndexDocumentsInput) (req *request.Request, output *IndexDocumentsOutput) {
 	op := &request.Operation{
 		Name:       opIndexDocuments,
@@ -626,7 +1046,28 @@ func (c *CloudSearch) IndexDocuments(input *IndexDocumentsInput) (*IndexDocument
 
 const opListDomainNames = "ListDomainNames"
 
-// ListDomainNamesRequest generates a request for the ListDomainNames operation.
+// ListDomainNamesRequest generates a "aws/request.Request" representing the
+// client's request for the ListDomainNames operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListDomainNames method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListDomainNamesRequest method.
+//    req, resp := client.ListDomainNamesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) ListDomainNamesRequest(input *ListDomainNamesInput) (req *request.Request, output *ListDomainNamesOutput) {
 	op := &request.Operation{
 		Name:       opListDomainNames,
@@ -653,7 +1094,28 @@ func (c *CloudSearch) ListDomainNames(input *ListDomainNamesInput) (*ListDomainN
 
 const opUpdateAvailabilityOptions = "UpdateAvailabilityOptions"
 
-// UpdateAvailabilityOptionsRequest generates a request for the UpdateAvailabilityOptions operation.
+// UpdateAvailabilityOptionsRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateAvailabilityOptions operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateAvailabilityOptions method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateAvailabilityOptionsRequest method.
+//    req, resp := client.UpdateAvailabilityOptionsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) UpdateAvailabilityOptionsRequest(input *UpdateAvailabilityOptionsInput) (req *request.Request, output *UpdateAvailabilityOptionsOutput) {
 	op := &request.Operation{
 		Name:       opUpdateAvailabilityOptions,
@@ -685,7 +1147,28 @@ func (c *CloudSearch) UpdateAvailabilityOptions(input *UpdateAvailabilityOptions
 
 const opUpdateScalingParameters = "UpdateScalingParameters"
 
-// UpdateScalingParametersRequest generates a request for the UpdateScalingParameters operation.
+// UpdateScalingParametersRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateScalingParameters operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateScalingParameters method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateScalingParametersRequest method.
+//    req, resp := client.UpdateScalingParametersRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) UpdateScalingParametersRequest(input *UpdateScalingParametersInput) (req *request.Request, output *UpdateScalingParametersOutput) {
 	op := &request.Operation{
 		Name:       opUpdateScalingParameters,
@@ -719,7 +1202,28 @@ func (c *CloudSearch) UpdateScalingParameters(input *UpdateScalingParametersInpu
 
 const opUpdateServiceAccessPolicies = "UpdateServiceAccessPolicies"
 
-// UpdateServiceAccessPoliciesRequest generates a request for the UpdateServiceAccessPolicies operation.
+// UpdateServiceAccessPoliciesRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateServiceAccessPolicies operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateServiceAccessPolicies method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateServiceAccessPoliciesRequest method.
+//    req, resp := client.UpdateServiceAccessPoliciesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *CloudSearch) UpdateServiceAccessPoliciesRequest(input *UpdateServiceAccessPoliciesInput) (req *request.Request, output *UpdateServiceAccessPoliciesOutput) {
 	op := &request.Operation{
 		Name:       opUpdateServiceAccessPolicies,
@@ -750,6 +1254,8 @@ func (c *CloudSearch) UpdateServiceAccessPolicies(input *UpdateServiceAccessPoli
 // The configured access rules for the domain's document and search endpoints,
 // and the current status of those rules.
 type AccessPoliciesStatus struct {
+	_ struct{} `type:"structure"`
+
 	// Access rules for a domain's document or search service endpoints. For more
 	// information, see Configuring Access for a Search Domain (http://docs.aws.amazon.com/cloudsearch/latest/developerguide/configuring-access.html"
 	// target="_blank) in the Amazon CloudSearch Developer Guide. The maximum size
@@ -758,12 +1264,6 @@ type AccessPoliciesStatus struct {
 
 	// The status of domain configuration option.
 	Status *OptionStatus `type:"structure" required:"true"`
-
-	metadataAccessPoliciesStatus `json:"-" xml:"-"`
-}
-
-type metadataAccessPoliciesStatus struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -779,6 +1279,8 @@ func (s AccessPoliciesStatus) GoString() string {
 // Synonyms, stopwords, and stemming options for an analysis scheme. Includes
 // tokenization dictionary for Japanese.
 type AnalysisOptions struct {
+	_ struct{} `type:"structure"`
+
 	// The level of algorithmic stemming to perform: none, minimal, light, or full.
 	// The available levels vary depending on the language. For more information,
 	// see Language Specific Text Processing Settings (http://docs.aws.amazon.com/cloudsearch/latest/developerguide/text-processing.html#text-processing-settings"
@@ -814,12 +1316,6 @@ type AnalysisOptions struct {
 	// about specifying synonyms, see Synonyms (http://docs.aws.amazon.com/cloudsearch/latest/developerguide/configuring-analysis-schemes.html#synonyms)
 	// in the Amazon CloudSearch Developer Guide.
 	Synonyms *string `type:"string"`
-
-	metadataAnalysisOptions `json:"-" xml:"-"`
-}
-
-type metadataAnalysisOptions struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -837,6 +1333,8 @@ func (s AnalysisOptions) GoString() string {
 // following options can be configured for an analysis scheme: Synonyms, Stopwords,
 // StemmingDictionary, JapaneseTokenizationDictionary and AlgorithmicStemming.
 type AnalysisScheme struct {
+	_ struct{} `type:"structure"`
+
 	// Synonyms, stopwords, and stemming options for an analysis scheme. Includes
 	// tokenization dictionary for Japanese.
 	AnalysisOptions *AnalysisOptions `type:"structure"`
@@ -847,13 +1345,7 @@ type AnalysisScheme struct {
 
 	// Names must begin with a letter and can contain the following characters:
 	// a-z (lowercase), 0-9, and _ (underscore).
-	AnalysisSchemeName *string `type:"string" required:"true"`
-
-	metadataAnalysisScheme `json:"-" xml:"-"`
-}
-
-type metadataAnalysisScheme struct {
-	SDKShapeTraits bool `type:"structure"`
+	AnalysisSchemeName *string `min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -866,8 +1358,29 @@ func (s AnalysisScheme) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *AnalysisScheme) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "AnalysisScheme"}
+	if s.AnalysisSchemeLanguage == nil {
+		invalidParams.Add(request.NewErrParamRequired("AnalysisSchemeLanguage"))
+	}
+	if s.AnalysisSchemeName == nil {
+		invalidParams.Add(request.NewErrParamRequired("AnalysisSchemeName"))
+	}
+	if s.AnalysisSchemeName != nil && len(*s.AnalysisSchemeName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("AnalysisSchemeName", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The status and configuration of an AnalysisScheme.
 type AnalysisSchemeStatus struct {
+	_ struct{} `type:"structure"`
+
 	// Configuration information for an analysis scheme. Each analysis scheme has
 	// a unique name and specifies the language of the text to be processed. The
 	// following options can be configured for an analysis scheme: Synonyms, Stopwords,
@@ -876,12 +1389,6 @@ type AnalysisSchemeStatus struct {
 
 	// The status of domain configuration option.
 	Status *OptionStatus `type:"structure" required:"true"`
-
-	metadataAnalysisSchemeStatus `json:"-" xml:"-"`
-}
-
-type metadataAnalysisSchemeStatus struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -896,17 +1403,13 @@ func (s AnalysisSchemeStatus) GoString() string {
 
 // The status and configuration of the domain's availability options.
 type AvailabilityOptionsStatus struct {
+	_ struct{} `type:"structure"`
+
 	// The availability options configured for the domain.
 	Options *bool `type:"boolean" required:"true"`
 
 	// The status of domain configuration option.
 	Status *OptionStatus `type:"structure" required:"true"`
-
-	metadataAvailabilityOptionsStatus `json:"-" xml:"-"`
-}
-
-type metadataAvailabilityOptionsStatus struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -922,17 +1425,13 @@ func (s AvailabilityOptionsStatus) GoString() string {
 // Container for the parameters to the BuildSuggester operation. Specifies the
 // name of the domain you want to update.
 type BuildSuggestersInput struct {
+	_ struct{} `type:"structure"`
+
 	// A string that represents the name of a domain. Domain names are unique across
 	// the domains owned by an account within an AWS region. Domain names start
 	// with a letter or number and can contain the following characters: a-z (lowercase),
 	// 0-9, and - (hyphen).
-	DomainName *string `type:"string" required:"true"`
-
-	metadataBuildSuggestersInput `json:"-" xml:"-"`
-}
-
-type metadataBuildSuggestersInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -945,17 +1444,29 @@ func (s BuildSuggestersInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *BuildSuggestersInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "BuildSuggestersInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DomainName != nil && len(*s.DomainName) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("DomainName", 3))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The result of a BuildSuggester request. Contains a list of the fields used
 // for suggestions.
 type BuildSuggestersOutput struct {
+	_ struct{} `type:"structure"`
+
 	// A list of field names.
 	FieldNames []*string `type:"list"`
-
-	metadataBuildSuggestersOutput `json:"-" xml:"-"`
-}
-
-type metadataBuildSuggestersOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -971,16 +1482,12 @@ func (s BuildSuggestersOutput) GoString() string {
 // Container for the parameters to the CreateDomain operation. Specifies a name
 // for the new search domain.
 type CreateDomainInput struct {
+	_ struct{} `type:"structure"`
+
 	// A name for the domain you are creating. Allowed characters are a-z (lower-case
 	// letters), 0-9, and hyphen (-). Domain names must start with a letter or number
 	// and be at least 3 and no more than 28 characters long.
-	DomainName *string `type:"string" required:"true"`
-
-	metadataCreateDomainInput `json:"-" xml:"-"`
-}
-
-type metadataCreateDomainInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -993,17 +1500,29 @@ func (s CreateDomainInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateDomainInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateDomainInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DomainName != nil && len(*s.DomainName) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("DomainName", 3))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The result of a CreateDomainRequest. Contains the status of a newly created
 // domain.
 type CreateDomainOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The current status of the search domain.
 	DomainStatus *DomainStatus `type:"structure"`
-
-	metadataCreateDomainOutput `json:"-" xml:"-"`
-}
-
-type metadataCreateDomainOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1019,6 +1538,8 @@ func (s CreateDomainOutput) GoString() string {
 // Options for a field that contains an array of dates. Present if IndexFieldType
 // specifies the field is of type date-array. All options are enabled by default.
 type DateArrayOptions struct {
+	_ struct{} `type:"structure"`
+
 	// A value to use for the field if the field isn't specified for a document.
 	DefaultValue *string `type:"string"`
 
@@ -1033,12 +1554,6 @@ type DateArrayOptions struct {
 
 	// A list of source fields to map to the field.
 	SourceFields *string `type:"string"`
-
-	metadataDateArrayOptions `json:"-" xml:"-"`
-}
-
-type metadataDateArrayOptions struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1056,6 +1571,8 @@ func (s DateArrayOptions) GoString() string {
 // if IndexFieldType specifies the field is of type date. All options are enabled
 // by default.
 type DateOptions struct {
+	_ struct{} `type:"structure"`
+
 	// A value to use for the field if the field isn't specified for a document.
 	DefaultValue *string `type:"string"`
 
@@ -1085,13 +1602,7 @@ type DateOptions struct {
 	//
 	// The name score is reserved and cannot be used as a field name. To reference
 	// a document's ID, you can use the name _id.
-	SourceField *string `type:"string"`
-
-	metadataDateOptions `json:"-" xml:"-"`
-}
-
-type metadataDateOptions struct {
-	SDKShapeTraits bool `type:"structure"`
+	SourceField *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -1104,9 +1615,24 @@ func (s DateOptions) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DateOptions) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DateOptions"}
+	if s.SourceField != nil && len(*s.SourceField) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("SourceField", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Container for the parameters to the DefineAnalysisScheme operation. Specifies
 // the name of the domain you want to update and the analysis scheme configuration.
 type DefineAnalysisSchemeInput struct {
+	_ struct{} `type:"structure"`
+
 	// Configuration information for an analysis scheme. Each analysis scheme has
 	// a unique name and specifies the language of the text to be processed. The
 	// following options can be configured for an analysis scheme: Synonyms, Stopwords,
@@ -1117,13 +1643,7 @@ type DefineAnalysisSchemeInput struct {
 	// the domains owned by an account within an AWS region. Domain names start
 	// with a letter or number and can contain the following characters: a-z (lowercase),
 	// 0-9, and - (hyphen).
-	DomainName *string `type:"string" required:"true"`
-
-	metadataDefineAnalysisSchemeInput `json:"-" xml:"-"`
-}
-
-type metadataDefineAnalysisSchemeInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1136,17 +1656,37 @@ func (s DefineAnalysisSchemeInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DefineAnalysisSchemeInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DefineAnalysisSchemeInput"}
+	if s.AnalysisScheme == nil {
+		invalidParams.Add(request.NewErrParamRequired("AnalysisScheme"))
+	}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DomainName != nil && len(*s.DomainName) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("DomainName", 3))
+	}
+	if s.AnalysisScheme != nil {
+		if err := s.AnalysisScheme.Validate(); err != nil {
+			invalidParams.AddNested("AnalysisScheme", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The result of a DefineAnalysisScheme request. Contains the status of the
 // newly-configured analysis scheme.
 type DefineAnalysisSchemeOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The status and configuration of an AnalysisScheme.
 	AnalysisScheme *AnalysisSchemeStatus `type:"structure" required:"true"`
-
-	metadataDefineAnalysisSchemeOutput `json:"-" xml:"-"`
-}
-
-type metadataDefineAnalysisSchemeOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1163,22 +1703,18 @@ func (s DefineAnalysisSchemeOutput) GoString() string {
 // the name of the domain you want to update and the expression you want to
 // configure.
 type DefineExpressionInput struct {
+	_ struct{} `type:"structure"`
+
 	// A string that represents the name of a domain. Domain names are unique across
 	// the domains owned by an account within an AWS region. Domain names start
 	// with a letter or number and can contain the following characters: a-z (lowercase),
 	// 0-9, and - (hyphen).
-	DomainName *string `type:"string" required:"true"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 
 	// A named expression that can be evaluated at search time. Can be used to sort
 	// the search results, define other expressions, or return computed information
 	// in the search results.
 	Expression *Expression `type:"structure" required:"true"`
-
-	metadataDefineExpressionInput `json:"-" xml:"-"`
-}
-
-type metadataDefineExpressionInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1191,17 +1727,37 @@ func (s DefineExpressionInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DefineExpressionInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DefineExpressionInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DomainName != nil && len(*s.DomainName) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("DomainName", 3))
+	}
+	if s.Expression == nil {
+		invalidParams.Add(request.NewErrParamRequired("Expression"))
+	}
+	if s.Expression != nil {
+		if err := s.Expression.Validate(); err != nil {
+			invalidParams.AddNested("Expression", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The result of a DefineExpression request. Contains the status of the newly-configured
 // expression.
 type DefineExpressionOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The value of an Expression and its current status.
 	Expression *ExpressionStatus `type:"structure" required:"true"`
-
-	metadataDefineExpressionOutput `json:"-" xml:"-"`
-}
-
-type metadataDefineExpressionOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1217,20 +1773,16 @@ func (s DefineExpressionOutput) GoString() string {
 // Container for the parameters to the DefineIndexField operation. Specifies
 // the name of the domain you want to update and the index field configuration.
 type DefineIndexFieldInput struct {
+	_ struct{} `type:"structure"`
+
 	// A string that represents the name of a domain. Domain names are unique across
 	// the domains owned by an account within an AWS region. Domain names start
 	// with a letter or number and can contain the following characters: a-z (lowercase),
 	// 0-9, and - (hyphen).
-	DomainName *string `type:"string" required:"true"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 
 	// The index field and field options you want to configure.
 	IndexField *IndexField `type:"structure" required:"true"`
-
-	metadataDefineIndexFieldInput `json:"-" xml:"-"`
-}
-
-type metadataDefineIndexFieldInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1243,17 +1795,37 @@ func (s DefineIndexFieldInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DefineIndexFieldInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DefineIndexFieldInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DomainName != nil && len(*s.DomainName) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("DomainName", 3))
+	}
+	if s.IndexField == nil {
+		invalidParams.Add(request.NewErrParamRequired("IndexField"))
+	}
+	if s.IndexField != nil {
+		if err := s.IndexField.Validate(); err != nil {
+			invalidParams.AddNested("IndexField", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The result of a DefineIndexField request. Contains the status of the newly-configured
 // index field.
 type DefineIndexFieldOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The value of an IndexField and its current status.
 	IndexField *IndexFieldStatus `type:"structure" required:"true"`
-
-	metadataDefineIndexFieldOutput `json:"-" xml:"-"`
-}
-
-type metadataDefineIndexFieldOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1269,22 +1841,18 @@ func (s DefineIndexFieldOutput) GoString() string {
 // Container for the parameters to the DefineSuggester operation. Specifies
 // the name of the domain you want to update and the suggester configuration.
 type DefineSuggesterInput struct {
+	_ struct{} `type:"structure"`
+
 	// A string that represents the name of a domain. Domain names are unique across
 	// the domains owned by an account within an AWS region. Domain names start
 	// with a letter or number and can contain the following characters: a-z (lowercase),
 	// 0-9, and - (hyphen).
-	DomainName *string `type:"string" required:"true"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 
 	// Configuration information for a search suggester. Each suggester has a unique
 	// name and specifies the text field you want to use for suggestions. The following
 	// options can be configured for a suggester: FuzzyMatching, SortExpression.
 	Suggester *Suggester `type:"structure" required:"true"`
-
-	metadataDefineSuggesterInput `json:"-" xml:"-"`
-}
-
-type metadataDefineSuggesterInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1297,17 +1865,37 @@ func (s DefineSuggesterInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DefineSuggesterInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DefineSuggesterInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DomainName != nil && len(*s.DomainName) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("DomainName", 3))
+	}
+	if s.Suggester == nil {
+		invalidParams.Add(request.NewErrParamRequired("Suggester"))
+	}
+	if s.Suggester != nil {
+		if err := s.Suggester.Validate(); err != nil {
+			invalidParams.AddNested("Suggester", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The result of a DefineSuggester request. Contains the status of the newly-configured
 // suggester.
 type DefineSuggesterOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The value of a Suggester and its current status.
 	Suggester *SuggesterStatus `type:"structure" required:"true"`
-
-	metadataDefineSuggesterOutput `json:"-" xml:"-"`
-}
-
-type metadataDefineSuggesterOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1324,20 +1912,16 @@ func (s DefineSuggesterOutput) GoString() string {
 // the name of the domain you want to update and the analysis scheme you want
 // to delete.
 type DeleteAnalysisSchemeInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the analysis scheme you want to delete.
-	AnalysisSchemeName *string `type:"string" required:"true"`
+	AnalysisSchemeName *string `min:"1" type:"string" required:"true"`
 
 	// A string that represents the name of a domain. Domain names are unique across
 	// the domains owned by an account within an AWS region. Domain names start
 	// with a letter or number and can contain the following characters: a-z (lowercase),
 	// 0-9, and - (hyphen).
-	DomainName *string `type:"string" required:"true"`
-
-	metadataDeleteAnalysisSchemeInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteAnalysisSchemeInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1350,17 +1934,35 @@ func (s DeleteAnalysisSchemeInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteAnalysisSchemeInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteAnalysisSchemeInput"}
+	if s.AnalysisSchemeName == nil {
+		invalidParams.Add(request.NewErrParamRequired("AnalysisSchemeName"))
+	}
+	if s.AnalysisSchemeName != nil && len(*s.AnalysisSchemeName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("AnalysisSchemeName", 1))
+	}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DomainName != nil && len(*s.DomainName) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("DomainName", 3))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The result of a DeleteAnalysisScheme request. Contains the status of the
 // deleted analysis scheme.
 type DeleteAnalysisSchemeOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The status of the analysis scheme being deleted.
 	AnalysisScheme *AnalysisSchemeStatus `type:"structure" required:"true"`
-
-	metadataDeleteAnalysisSchemeOutput `json:"-" xml:"-"`
-}
-
-type metadataDeleteAnalysisSchemeOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1376,14 +1978,10 @@ func (s DeleteAnalysisSchemeOutput) GoString() string {
 // Container for the parameters to the DeleteDomain operation. Specifies the
 // name of the domain you want to delete.
 type DeleteDomainInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of the domain you want to permanently delete.
-	DomainName *string `type:"string" required:"true"`
-
-	metadataDeleteDomainInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteDomainInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1396,17 +1994,29 @@ func (s DeleteDomainInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteDomainInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteDomainInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DomainName != nil && len(*s.DomainName) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("DomainName", 3))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The result of a DeleteDomain request. Contains the status of a newly deleted
 // domain, or no status if the domain has already been completely deleted.
 type DeleteDomainOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The current status of the search domain.
 	DomainStatus *DomainStatus `type:"structure"`
-
-	metadataDeleteDomainOutput `json:"-" xml:"-"`
-}
-
-type metadataDeleteDomainOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1423,20 +2033,16 @@ func (s DeleteDomainOutput) GoString() string {
 // the name of the domain you want to update and the name of the expression
 // you want to delete.
 type DeleteExpressionInput struct {
+	_ struct{} `type:"structure"`
+
 	// A string that represents the name of a domain. Domain names are unique across
 	// the domains owned by an account within an AWS region. Domain names start
 	// with a letter or number and can contain the following characters: a-z (lowercase),
 	// 0-9, and - (hyphen).
-	DomainName *string `type:"string" required:"true"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 
 	// The name of the Expression to delete.
-	ExpressionName *string `type:"string" required:"true"`
-
-	metadataDeleteExpressionInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteExpressionInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	ExpressionName *string `min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1449,17 +2055,35 @@ func (s DeleteExpressionInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteExpressionInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteExpressionInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DomainName != nil && len(*s.DomainName) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("DomainName", 3))
+	}
+	if s.ExpressionName == nil {
+		invalidParams.Add(request.NewErrParamRequired("ExpressionName"))
+	}
+	if s.ExpressionName != nil && len(*s.ExpressionName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("ExpressionName", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The result of a DeleteExpression request. Specifies the expression being
 // deleted.
 type DeleteExpressionOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The status of the expression being deleted.
 	Expression *ExpressionStatus `type:"structure" required:"true"`
-
-	metadataDeleteExpressionOutput `json:"-" xml:"-"`
-}
-
-type metadataDeleteExpressionOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1476,21 +2100,17 @@ func (s DeleteExpressionOutput) GoString() string {
 // the name of the domain you want to update and the name of the index field
 // you want to delete.
 type DeleteIndexFieldInput struct {
+	_ struct{} `type:"structure"`
+
 	// A string that represents the name of a domain. Domain names are unique across
 	// the domains owned by an account within an AWS region. Domain names start
 	// with a letter or number and can contain the following characters: a-z (lowercase),
 	// 0-9, and - (hyphen).
-	DomainName *string `type:"string" required:"true"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 
 	// The name of the index field your want to remove from the domain's indexing
 	// options.
-	IndexFieldName *string `type:"string" required:"true"`
-
-	metadataDeleteIndexFieldInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteIndexFieldInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	IndexFieldName *string `min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1503,16 +2123,34 @@ func (s DeleteIndexFieldInput) GoString() string {
 	return s.String()
 }
 
-// The result of a DeleteIndexField request.
-type DeleteIndexFieldOutput struct {
-	// The status of the index field being deleted.
-	IndexField *IndexFieldStatus `type:"structure" required:"true"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteIndexFieldInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteIndexFieldInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DomainName != nil && len(*s.DomainName) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("DomainName", 3))
+	}
+	if s.IndexFieldName == nil {
+		invalidParams.Add(request.NewErrParamRequired("IndexFieldName"))
+	}
+	if s.IndexFieldName != nil && len(*s.IndexFieldName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("IndexFieldName", 1))
+	}
 
-	metadataDeleteIndexFieldOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeleteIndexFieldOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// The result of a DeleteIndexField request.
+type DeleteIndexFieldOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The status of the index field being deleted.
+	IndexField *IndexFieldStatus `type:"structure" required:"true"`
 }
 
 // String returns the string representation
@@ -1529,20 +2167,16 @@ func (s DeleteIndexFieldOutput) GoString() string {
 // the name of the domain you want to update and name of the suggester you want
 // to delete.
 type DeleteSuggesterInput struct {
+	_ struct{} `type:"structure"`
+
 	// A string that represents the name of a domain. Domain names are unique across
 	// the domains owned by an account within an AWS region. Domain names start
 	// with a letter or number and can contain the following characters: a-z (lowercase),
 	// 0-9, and - (hyphen).
-	DomainName *string `type:"string" required:"true"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 
 	// Specifies the name of the suggester you want to delete.
-	SuggesterName *string `type:"string" required:"true"`
-
-	metadataDeleteSuggesterInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteSuggesterInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	SuggesterName *string `min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1555,17 +2189,35 @@ func (s DeleteSuggesterInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteSuggesterInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteSuggesterInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DomainName != nil && len(*s.DomainName) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("DomainName", 3))
+	}
+	if s.SuggesterName == nil {
+		invalidParams.Add(request.NewErrParamRequired("SuggesterName"))
+	}
+	if s.SuggesterName != nil && len(*s.SuggesterName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("SuggesterName", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The result of a DeleteSuggester request. Contains the status of the deleted
 // suggester.
 type DeleteSuggesterOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The status of the suggester being deleted.
 	Suggester *SuggesterStatus `type:"structure" required:"true"`
-
-	metadataDeleteSuggesterOutput `json:"-" xml:"-"`
-}
-
-type metadataDeleteSuggesterOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1584,6 +2236,8 @@ func (s DeleteSuggesterOutput) GoString() string {
 // To show the active configuration and exclude any pending changes, set the
 // Deployed option to true.
 type DescribeAnalysisSchemesInput struct {
+	_ struct{} `type:"structure"`
+
 	// The analysis schemes you want to describe.
 	AnalysisSchemeNames []*string `type:"list"`
 
@@ -1592,13 +2246,7 @@ type DescribeAnalysisSchemesInput struct {
 	Deployed *bool `type:"boolean"`
 
 	// The name of the domain you want to describe.
-	DomainName *string `type:"string" required:"true"`
-
-	metadataDescribeAnalysisSchemesInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeAnalysisSchemesInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1611,17 +2259,29 @@ func (s DescribeAnalysisSchemesInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeAnalysisSchemesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeAnalysisSchemesInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DomainName != nil && len(*s.DomainName) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("DomainName", 3))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The result of a DescribeAnalysisSchemes request. Contains the analysis schemes
 // configured for the domain specified in the request.
 type DescribeAnalysisSchemesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The analysis scheme descriptions.
 	AnalysisSchemes []*AnalysisSchemeStatus `type:"list" required:"true"`
-
-	metadataDescribeAnalysisSchemesOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeAnalysisSchemesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1639,18 +2299,14 @@ func (s DescribeAnalysisSchemesOutput) GoString() string {
 // configuration and exclude any pending changes, set the Deployed option to
 // true.
 type DescribeAvailabilityOptionsInput struct {
+	_ struct{} `type:"structure"`
+
 	// Whether to display the deployed configuration (true) or include any pending
 	// changes (false). Defaults to false.
 	Deployed *bool `type:"boolean"`
 
 	// The name of the domain you want to describe.
-	DomainName *string `type:"string" required:"true"`
-
-	metadataDescribeAvailabilityOptionsInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeAvailabilityOptionsInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1663,18 +2319,30 @@ func (s DescribeAvailabilityOptionsInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeAvailabilityOptionsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeAvailabilityOptionsInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DomainName != nil && len(*s.DomainName) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("DomainName", 3))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The result of a DescribeAvailabilityOptions request. Indicates whether or
 // not the Multi-AZ option is enabled for the domain specified in the request.
 type DescribeAvailabilityOptionsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The availability options configured for the domain. Indicates whether Multi-AZ
 	// is enabled for the domain.
 	AvailabilityOptions *AvailabilityOptionsStatus `type:"structure"`
-
-	metadataDescribeAvailabilityOptionsOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeAvailabilityOptionsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1691,14 +2359,10 @@ func (s DescribeAvailabilityOptionsOutput) GoString() string {
 // shows the status of all domains. To restrict the response to particular domains,
 // specify the names of the domains you want to describe.
 type DescribeDomainsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The names of the domains you want to include in the response.
 	DomainNames []*string `type:"list"`
-
-	metadataDescribeDomainsInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeDomainsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1714,14 +2378,10 @@ func (s DescribeDomainsInput) GoString() string {
 // The result of a DescribeDomains request. Contains the status of the domains
 // specified in the request or all domains owned by the account.
 type DescribeDomainsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// A list that contains the status of each requested domain.
 	DomainStatusList []*DomainStatus `type:"list" required:"true"`
-
-	metadataDescribeDomainsOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeDomainsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1740,22 +2400,18 @@ func (s DescribeDomainsOutput) GoString() string {
 // describe. To show the active configuration and exclude any pending changes,
 // set the Deployed option to true.
 type DescribeExpressionsInput struct {
+	_ struct{} `type:"structure"`
+
 	// Whether to display the deployed configuration (true) or include any pending
 	// changes (false). Defaults to false.
 	Deployed *bool `type:"boolean"`
 
 	// The name of the domain you want to describe.
-	DomainName *string `type:"string" required:"true"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 
 	// Limits the DescribeExpressions response to the specified expressions. If
 	// not specified, all expressions are shown.
 	ExpressionNames []*string `type:"list"`
-
-	metadataDescribeExpressionsInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeExpressionsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1768,17 +2424,29 @@ func (s DescribeExpressionsInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeExpressionsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeExpressionsInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DomainName != nil && len(*s.DomainName) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("DomainName", 3))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The result of a DescribeExpressions request. Contains the expressions configured
 // for the domain specified in the request.
 type DescribeExpressionsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The expressions configured for the domain.
 	Expressions []*ExpressionStatus `type:"list" required:"true"`
-
-	metadataDescribeExpressionsOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeExpressionsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1797,22 +2465,18 @@ func (s DescribeExpressionsOutput) GoString() string {
 // describe. To show the active configuration and exclude any pending changes,
 // set the Deployed option to true.
 type DescribeIndexFieldsInput struct {
+	_ struct{} `type:"structure"`
+
 	// Whether to display the deployed configuration (true) or include any pending
 	// changes (false). Defaults to false.
 	Deployed *bool `type:"boolean"`
 
 	// The name of the domain you want to describe.
-	DomainName *string `type:"string" required:"true"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 
 	// A list of the index fields you want to describe. If not specified, information
 	// is returned for all configured index fields.
 	FieldNames []*string `type:"list"`
-
-	metadataDescribeIndexFieldsInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeIndexFieldsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1825,17 +2489,29 @@ func (s DescribeIndexFieldsInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeIndexFieldsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeIndexFieldsInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DomainName != nil && len(*s.DomainName) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("DomainName", 3))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The result of a DescribeIndexFields request. Contains the index fields configured
 // for the domain specified in the request.
 type DescribeIndexFieldsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The index fields configured for the domain.
 	IndexFields []*IndexFieldStatus `type:"list" required:"true"`
-
-	metadataDescribeIndexFieldsOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeIndexFieldsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1851,17 +2527,13 @@ func (s DescribeIndexFieldsOutput) GoString() string {
 // Container for the parameters to the DescribeScalingParameters operation.
 // Specifies the name of the domain you want to describe.
 type DescribeScalingParametersInput struct {
+	_ struct{} `type:"structure"`
+
 	// A string that represents the name of a domain. Domain names are unique across
 	// the domains owned by an account within an AWS region. Domain names start
 	// with a letter or number and can contain the following characters: a-z (lowercase),
 	// 0-9, and - (hyphen).
-	DomainName *string `type:"string" required:"true"`
-
-	metadataDescribeScalingParametersInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeScalingParametersInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1874,17 +2546,29 @@ func (s DescribeScalingParametersInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeScalingParametersInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeScalingParametersInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DomainName != nil && len(*s.DomainName) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("DomainName", 3))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The result of a DescribeScalingParameters request. Contains the scaling parameters
 // configured for the domain specified in the request.
 type DescribeScalingParametersOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The status and configuration of a search domain's scaling parameters.
 	ScalingParameters *ScalingParametersStatus `type:"structure" required:"true"`
-
-	metadataDescribeScalingParametersOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeScalingParametersOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1902,18 +2586,14 @@ func (s DescribeScalingParametersOutput) GoString() string {
 // configuration and exclude any pending changes, set the Deployed option to
 // true.
 type DescribeServiceAccessPoliciesInput struct {
+	_ struct{} `type:"structure"`
+
 	// Whether to display the deployed configuration (true) or include any pending
 	// changes (false). Defaults to false.
 	Deployed *bool `type:"boolean"`
 
 	// The name of the domain you want to describe.
-	DomainName *string `type:"string" required:"true"`
-
-	metadataDescribeServiceAccessPoliciesInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeServiceAccessPoliciesInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1926,16 +2606,28 @@ func (s DescribeServiceAccessPoliciesInput) GoString() string {
 	return s.String()
 }
 
-// The result of a DescribeServiceAccessPolicies request.
-type DescribeServiceAccessPoliciesOutput struct {
-	// The access rules configured for the domain specified in the request.
-	AccessPolicies *AccessPoliciesStatus `type:"structure" required:"true"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeServiceAccessPoliciesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeServiceAccessPoliciesInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DomainName != nil && len(*s.DomainName) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("DomainName", 3))
+	}
 
-	metadataDescribeServiceAccessPoliciesOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDescribeServiceAccessPoliciesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// The result of a DescribeServiceAccessPolicies request.
+type DescribeServiceAccessPoliciesOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The access rules configured for the domain specified in the request.
+	AccessPolicies *AccessPoliciesStatus `type:"structure" required:"true"`
 }
 
 // String returns the string representation
@@ -1954,21 +2646,17 @@ func (s DescribeServiceAccessPoliciesOutput) GoString() string {
 // To show the active configuration and exclude any pending changes, set the
 // Deployed option to true.
 type DescribeSuggestersInput struct {
+	_ struct{} `type:"structure"`
+
 	// Whether to display the deployed configuration (true) or include any pending
 	// changes (false). Defaults to false.
 	Deployed *bool `type:"boolean"`
 
 	// The name of the domain you want to describe.
-	DomainName *string `type:"string" required:"true"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 
 	// The suggesters you want to describe.
 	SuggesterNames []*string `type:"list"`
-
-	metadataDescribeSuggestersInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeSuggestersInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1981,16 +2669,28 @@ func (s DescribeSuggestersInput) GoString() string {
 	return s.String()
 }
 
-// The result of a DescribeSuggesters request.
-type DescribeSuggestersOutput struct {
-	// The suggesters configured for the domain specified in the request.
-	Suggesters []*SuggesterStatus `type:"list" required:"true"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeSuggestersInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeSuggestersInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DomainName != nil && len(*s.DomainName) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("DomainName", 3))
+	}
 
-	metadataDescribeSuggestersOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDescribeSuggestersOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// The result of a DescribeSuggesters request.
+type DescribeSuggestersOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The suggesters configured for the domain specified in the request.
+	Suggesters []*SuggesterStatus `type:"list" required:"true"`
 }
 
 // String returns the string representation
@@ -2005,6 +2705,8 @@ func (s DescribeSuggestersOutput) GoString() string {
 
 // Options for a search suggester.
 type DocumentSuggesterOptions struct {
+	_ struct{} `type:"structure"`
+
 	// The level of fuzziness allowed when suggesting matches for a string: none,
 	// low, or high. With none, the specified string is treated as an exact prefix.
 	// With low, suggestions must differ from the specified string by no more than
@@ -2022,13 +2724,7 @@ type DocumentSuggesterOptions struct {
 	SortExpression *string `type:"string"`
 
 	// The name of the index field you want to use for suggestions.
-	SourceField *string `type:"string" required:"true"`
-
-	metadataDocumentSuggesterOptions `json:"-" xml:"-"`
-}
-
-type metadataDocumentSuggesterOptions struct {
-	SDKShapeTraits bool `type:"structure"`
+	SourceField *string `min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2041,8 +2737,26 @@ func (s DocumentSuggesterOptions) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DocumentSuggesterOptions) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DocumentSuggesterOptions"}
+	if s.SourceField == nil {
+		invalidParams.Add(request.NewErrParamRequired("SourceField"))
+	}
+	if s.SourceField != nil && len(*s.SourceField) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("SourceField", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The current status of the search domain.
 type DomainStatus struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the search domain. See Identifiers for
 	// IAM Entities (http://docs.aws.amazon.com/IAM/latest/UserGuide/index.html?Using_Identifiers.html"
 	// target="_blank) in Using AWS Identity and Access Management for more information.
@@ -2064,13 +2778,13 @@ type DomainStatus struct {
 	DocService *ServiceEndpoint `type:"structure"`
 
 	// An internally generated unique identifier for a domain.
-	DomainId *string `type:"string" required:"true"`
+	DomainId *string `min:"1" type:"string" required:"true"`
 
 	// A string that represents the name of a domain. Domain names are unique across
 	// the domains owned by an account within an AWS region. Domain names start
 	// with a letter or number and can contain the following characters: a-z (lowercase),
 	// 0-9, and - (hyphen).
-	DomainName *string `type:"string" required:"true"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 
 	Limits *Limits `type:"structure"`
 
@@ -2082,22 +2796,16 @@ type DomainStatus struct {
 	RequiresIndexDocuments *bool `type:"boolean" required:"true"`
 
 	// The number of search instances that are available to process search requests.
-	SearchInstanceCount *int64 `type:"integer"`
+	SearchInstanceCount *int64 `min:"1" type:"integer"`
 
 	// The instance type that is being used to process search requests.
 	SearchInstanceType *string `type:"string"`
 
 	// The number of partitions across which the search index is spread.
-	SearchPartitionCount *int64 `type:"integer"`
+	SearchPartitionCount *int64 `min:"1" type:"integer"`
 
 	// The service endpoint for requesting search results from a search domain.
 	SearchService *ServiceEndpoint `type:"structure"`
-
-	metadataDomainStatus `json:"-" xml:"-"`
-}
-
-type metadataDomainStatus struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2114,6 +2822,8 @@ func (s DomainStatus) GoString() string {
 // point values. Present if IndexFieldType specifies the field is of type double-array.
 // All options are enabled by default.
 type DoubleArrayOptions struct {
+	_ struct{} `type:"structure"`
+
 	// A value to use for the field if the field isn't specified for a document.
 	DefaultValue *float64 `type:"double"`
 
@@ -2128,12 +2838,6 @@ type DoubleArrayOptions struct {
 
 	// A list of source fields to map to the field.
 	SourceFields *string `type:"string"`
-
-	metadataDoubleArrayOptions `json:"-" xml:"-"`
-}
-
-type metadataDoubleArrayOptions struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2149,6 +2853,8 @@ func (s DoubleArrayOptions) GoString() string {
 // Options for a double-precision 64-bit floating point field. Present if IndexFieldType
 // specifies the field is of type double. All options are enabled by default.
 type DoubleOptions struct {
+	_ struct{} `type:"structure"`
+
 	// A value to use for the field if the field isn't specified for a document.
 	// This can be important if you are using the field in an expression and that
 	// field is not present in every document.
@@ -2167,13 +2873,7 @@ type DoubleOptions struct {
 	SortEnabled *bool `type:"boolean"`
 
 	// The name of the source field to map to the field.
-	SourceField *string `type:"string"`
-
-	metadataDoubleOptions `json:"-" xml:"-"`
-}
-
-type metadataDoubleOptions struct {
-	SDKShapeTraits bool `type:"structure"`
+	SourceField *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -2186,25 +2886,34 @@ func (s DoubleOptions) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DoubleOptions) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DoubleOptions"}
+	if s.SourceField != nil && len(*s.SourceField) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("SourceField", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // A named expression that can be evaluated at search time. Can be used to sort
 // the search results, define other expressions, or return computed information
 // in the search results.
 type Expression struct {
+	_ struct{} `type:"structure"`
+
 	// Names must begin with a letter and can contain the following characters:
 	// a-z (lowercase), 0-9, and _ (underscore).
-	ExpressionName *string `type:"string" required:"true"`
+	ExpressionName *string `min:"1" type:"string" required:"true"`
 
 	// The expression to evaluate for sorting while processing a search request.
 	// The Expression syntax is based on JavaScript expressions. For more information,
 	// see Configuring Expressions (http://docs.aws.amazon.com/cloudsearch/latest/developerguide/configuring-expressions.html"
 	// target="_blank) in the Amazon CloudSearch Developer Guide.
-	ExpressionValue *string `type:"string" required:"true"`
-
-	metadataExpression `json:"-" xml:"-"`
-}
-
-type metadataExpression struct {
-	SDKShapeTraits bool `type:"structure"`
+	ExpressionValue *string `min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2217,19 +2926,37 @@ func (s Expression) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *Expression) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "Expression"}
+	if s.ExpressionName == nil {
+		invalidParams.Add(request.NewErrParamRequired("ExpressionName"))
+	}
+	if s.ExpressionName != nil && len(*s.ExpressionName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("ExpressionName", 1))
+	}
+	if s.ExpressionValue == nil {
+		invalidParams.Add(request.NewErrParamRequired("ExpressionValue"))
+	}
+	if s.ExpressionValue != nil && len(*s.ExpressionValue) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("ExpressionValue", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The value of an Expression and its current status.
 type ExpressionStatus struct {
+	_ struct{} `type:"structure"`
+
 	// The expression that is evaluated for sorting while processing a search request.
 	Options *Expression `type:"structure" required:"true"`
 
 	// The status of domain configuration option.
 	Status *OptionStatus `type:"structure" required:"true"`
-
-	metadataExpressionStatus `json:"-" xml:"-"`
-}
-
-type metadataExpressionStatus struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2245,17 +2972,13 @@ func (s ExpressionStatus) GoString() string {
 // Container for the parameters to the IndexDocuments operation. Specifies the
 // name of the domain you want to re-index.
 type IndexDocumentsInput struct {
+	_ struct{} `type:"structure"`
+
 	// A string that represents the name of a domain. Domain names are unique across
 	// the domains owned by an account within an AWS region. Domain names start
 	// with a letter or number and can contain the following characters: a-z (lowercase),
 	// 0-9, and - (hyphen).
-	DomainName *string `type:"string" required:"true"`
-
-	metadataIndexDocumentsInput `json:"-" xml:"-"`
-}
-
-type metadataIndexDocumentsInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2268,17 +2991,29 @@ func (s IndexDocumentsInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *IndexDocumentsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "IndexDocumentsInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DomainName != nil && len(*s.DomainName) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("DomainName", 3))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The result of an IndexDocuments request. Contains the status of the indexing
 // operation, including the fields being indexed.
 type IndexDocumentsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The names of the fields that are currently being indexed.
 	FieldNames []*string `type:"list"`
-
-	metadataIndexDocumentsOutput `json:"-" xml:"-"`
-}
-
-type metadataIndexDocumentsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2294,6 +3029,8 @@ func (s IndexDocumentsOutput) GoString() string {
 // Configuration information for a field in the index, including its name, type,
 // and options. The supported options depend on the IndexFieldType.
 type IndexField struct {
+	_ struct{} `type:"structure"`
+
 	// Options for a field that contains an array of dates. Present if IndexFieldType
 	// specifies the field is of type date-array. All options are enabled by default.
 	DateArrayOptions *DateArrayOptions `type:"structure"`
@@ -2327,7 +3064,7 @@ type IndexField struct {
 	//
 	// The name score is reserved and cannot be used as a field name. To reference
 	// a document's ID, you can use the name _id.
-	IndexFieldName *string `type:"string" required:"true"`
+	IndexFieldName *string `min:"1" type:"string" required:"true"`
 
 	// The type of field. The valid options for a field depend on the field type.
 	// For more information about the supported field types, see Configuring Index
@@ -2367,12 +3104,6 @@ type IndexField struct {
 	// of type text. A text field is always searchable. All options are enabled
 	// by default.
 	TextOptions *TextOptions `type:"structure"`
-
-	metadataIndexField `json:"-" xml:"-"`
-}
-
-type metadataIndexField struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2385,20 +3116,65 @@ func (s IndexField) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *IndexField) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "IndexField"}
+	if s.IndexFieldName == nil {
+		invalidParams.Add(request.NewErrParamRequired("IndexFieldName"))
+	}
+	if s.IndexFieldName != nil && len(*s.IndexFieldName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("IndexFieldName", 1))
+	}
+	if s.IndexFieldType == nil {
+		invalidParams.Add(request.NewErrParamRequired("IndexFieldType"))
+	}
+	if s.DateOptions != nil {
+		if err := s.DateOptions.Validate(); err != nil {
+			invalidParams.AddNested("DateOptions", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.DoubleOptions != nil {
+		if err := s.DoubleOptions.Validate(); err != nil {
+			invalidParams.AddNested("DoubleOptions", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.IntOptions != nil {
+		if err := s.IntOptions.Validate(); err != nil {
+			invalidParams.AddNested("IntOptions", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.LatLonOptions != nil {
+		if err := s.LatLonOptions.Validate(); err != nil {
+			invalidParams.AddNested("LatLonOptions", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.LiteralOptions != nil {
+		if err := s.LiteralOptions.Validate(); err != nil {
+			invalidParams.AddNested("LiteralOptions", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.TextOptions != nil {
+		if err := s.TextOptions.Validate(); err != nil {
+			invalidParams.AddNested("TextOptions", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The value of an IndexField and its current status.
 type IndexFieldStatus struct {
+	_ struct{} `type:"structure"`
+
 	// Configuration information for a field in the index, including its name, type,
 	// and options. The supported options depend on the IndexFieldType.
 	Options *IndexField `type:"structure" required:"true"`
 
 	// The status of domain configuration option.
 	Status *OptionStatus `type:"structure" required:"true"`
-
-	metadataIndexFieldStatus `json:"-" xml:"-"`
-}
-
-type metadataIndexFieldStatus struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2415,6 +3191,8 @@ func (s IndexFieldStatus) GoString() string {
 // if IndexFieldType specifies the field is of type int-array. All options are
 // enabled by default.
 type IntArrayOptions struct {
+	_ struct{} `type:"structure"`
+
 	// A value to use for the field if the field isn't specified for a document.
 	DefaultValue *int64 `type:"long"`
 
@@ -2429,12 +3207,6 @@ type IntArrayOptions struct {
 
 	// A list of source fields to map to the field.
 	SourceFields *string `type:"string"`
-
-	metadataIntArrayOptions `json:"-" xml:"-"`
-}
-
-type metadataIntArrayOptions struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2450,6 +3222,8 @@ func (s IntArrayOptions) GoString() string {
 // Options for a 64-bit signed integer field. Present if IndexFieldType specifies
 // the field is of type int. All options are enabled by default.
 type IntOptions struct {
+	_ struct{} `type:"structure"`
+
 	// A value to use for the field if the field isn't specified for a document.
 	// This can be important if you are using the field in an expression and that
 	// field is not present in every document.
@@ -2468,13 +3242,7 @@ type IntOptions struct {
 	SortEnabled *bool `type:"boolean"`
 
 	// The name of the source field to map to the field.
-	SourceField *string `type:"string"`
-
-	metadataIntOptions `json:"-" xml:"-"`
-}
-
-type metadataIntOptions struct {
-	SDKShapeTraits bool `type:"structure"`
+	SourceField *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -2487,10 +3255,25 @@ func (s IntOptions) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *IntOptions) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "IntOptions"}
+	if s.SourceField != nil && len(*s.SourceField) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("SourceField", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Options for a latlon field. A latlon field contains a location stored as
 // a latitude and longitude value pair. Present if IndexFieldType specifies
 // the field is of type latlon. All options are enabled by default.
 type LatLonOptions struct {
+	_ struct{} `type:"structure"`
+
 	// A value to use for the field if the field isn't specified for a document.
 	DefaultValue *string `type:"string"`
 
@@ -2520,13 +3303,7 @@ type LatLonOptions struct {
 	//
 	// The name score is reserved and cannot be used as a field name. To reference
 	// a document's ID, you can use the name _id.
-	SourceField *string `type:"string"`
-
-	metadataLatLonOptions `json:"-" xml:"-"`
-}
-
-type metadataLatLonOptions struct {
-	SDKShapeTraits bool `type:"structure"`
+	SourceField *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -2539,16 +3316,25 @@ func (s LatLonOptions) GoString() string {
 	return s.String()
 }
 
-type Limits struct {
-	MaximumPartitionCount *int64 `type:"integer" required:"true"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *LatLonOptions) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "LatLonOptions"}
+	if s.SourceField != nil && len(*s.SourceField) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("SourceField", 1))
+	}
 
-	MaximumReplicationCount *int64 `type:"integer" required:"true"`
-
-	metadataLimits `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataLimits struct {
-	SDKShapeTraits bool `type:"structure"`
+type Limits struct {
+	_ struct{} `type:"structure"`
+
+	MaximumPartitionCount *int64 `min:"1" type:"integer" required:"true"`
+
+	MaximumReplicationCount *int64 `min:"1" type:"integer" required:"true"`
 }
 
 // String returns the string representation
@@ -2562,11 +3348,7 @@ func (s Limits) GoString() string {
 }
 
 type ListDomainNamesInput struct {
-	metadataListDomainNamesInput `json:"-" xml:"-"`
-}
-
-type metadataListDomainNamesInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -2582,14 +3364,10 @@ func (s ListDomainNamesInput) GoString() string {
 // The result of a ListDomainNames request. Contains a list of the domains owned
 // by an account.
 type ListDomainNamesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The names of the search domains owned by an account.
 	DomainNames map[string]*string `type:"map"`
-
-	metadataListDomainNamesOutput `json:"-" xml:"-"`
-}
-
-type metadataListDomainNamesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2606,6 +3384,8 @@ func (s ListDomainNamesOutput) GoString() string {
 // IndexFieldType specifies the field is of type literal-array. All options
 // are enabled by default.
 type LiteralArrayOptions struct {
+	_ struct{} `type:"structure"`
+
 	// A value to use for the field if the field isn't specified for a document.
 	DefaultValue *string `type:"string"`
 
@@ -2620,12 +3400,6 @@ type LiteralArrayOptions struct {
 
 	// A list of source fields to map to the field.
 	SourceFields *string `type:"string"`
-
-	metadataLiteralArrayOptions `json:"-" xml:"-"`
-}
-
-type metadataLiteralArrayOptions struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2641,6 +3415,8 @@ func (s LiteralArrayOptions) GoString() string {
 // Options for literal field. Present if IndexFieldType specifies the field
 // is of type literal. All options are enabled by default.
 type LiteralOptions struct {
+	_ struct{} `type:"structure"`
+
 	// A value to use for the field if the field isn't specified for a document.
 	DefaultValue *string `type:"string"`
 
@@ -2670,13 +3446,7 @@ type LiteralOptions struct {
 	//
 	// The name score is reserved and cannot be used as a field name. To reference
 	// a document's ID, you can use the name _id.
-	SourceField *string `type:"string"`
-
-	metadataLiteralOptions `json:"-" xml:"-"`
-}
-
-type metadataLiteralOptions struct {
-	SDKShapeTraits bool `type:"structure"`
+	SourceField *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -2689,8 +3459,23 @@ func (s LiteralOptions) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *LiteralOptions) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "LiteralOptions"}
+	if s.SourceField != nil && len(*s.SourceField) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("SourceField", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The status of domain configuration option.
 type OptionStatus struct {
+	_ struct{} `type:"structure"`
+
 	// A timestamp for when this option was created.
 	CreationDate *time.Time `type:"timestamp" timestampFormat:"iso8601" required:"true"`
 
@@ -2713,12 +3498,6 @@ type OptionStatus struct {
 
 	// A unique integer that indicates when this option was last updated.
 	UpdateVersion *int64 `type:"integer"`
-
-	metadataOptionStatus `json:"-" xml:"-"`
-}
-
-type metadataOptionStatus struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2733,6 +3512,8 @@ func (s OptionStatus) GoString() string {
 
 // The desired instance type and desired number of replicas of each index partition.
 type ScalingParameters struct {
+	_ struct{} `type:"structure"`
+
 	// The instance type that you want to preconfigure for your domain. For example,
 	// search.m1.small.
 	DesiredInstanceType *string `type:"string" enum:"PartitionInstanceType"`
@@ -2743,12 +3524,6 @@ type ScalingParameters struct {
 
 	// The number of replicas you want to preconfigure for each index partition.
 	DesiredReplicationCount *int64 `type:"integer"`
-
-	metadataScalingParameters `json:"-" xml:"-"`
-}
-
-type metadataScalingParameters struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2763,17 +3538,13 @@ func (s ScalingParameters) GoString() string {
 
 // The status and configuration of a search domain's scaling parameters.
 type ScalingParametersStatus struct {
+	_ struct{} `type:"structure"`
+
 	// The desired instance type and desired number of replicas of each index partition.
 	Options *ScalingParameters `type:"structure" required:"true"`
 
 	// The status of domain configuration option.
 	Status *OptionStatus `type:"structure" required:"true"`
-
-	metadataScalingParametersStatus `json:"-" xml:"-"`
-}
-
-type metadataScalingParametersStatus struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2788,15 +3559,11 @@ func (s ScalingParametersStatus) GoString() string {
 
 // The endpoint to which service requests can be submitted.
 type ServiceEndpoint struct {
+	_ struct{} `type:"structure"`
+
 	// The endpoint to which service requests can be submitted. For example, search-imdb-movies-oopcnjfn6ugofer3zx5iadxxca.eu-west-1.cloudsearch.amazonaws.com
 	// or doc-imdb-movies-oopcnjfn6ugofer3zx5iadxxca.eu-west-1.cloudsearch.amazonaws.com.
 	Endpoint *string `type:"string"`
-
-	metadataServiceEndpoint `json:"-" xml:"-"`
-}
-
-type metadataServiceEndpoint struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2813,18 +3580,14 @@ func (s ServiceEndpoint) GoString() string {
 // name and specifies the text field you want to use for suggestions. The following
 // options can be configured for a suggester: FuzzyMatching, SortExpression.
 type Suggester struct {
+	_ struct{} `type:"structure"`
+
 	// Options for a search suggester.
 	DocumentSuggesterOptions *DocumentSuggesterOptions `type:"structure" required:"true"`
 
 	// Names must begin with a letter and can contain the following characters:
 	// a-z (lowercase), 0-9, and _ (underscore).
-	SuggesterName *string `type:"string" required:"true"`
-
-	metadataSuggester `json:"-" xml:"-"`
-}
-
-type metadataSuggester struct {
-	SDKShapeTraits bool `type:"structure"`
+	SuggesterName *string `min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2837,8 +3600,34 @@ func (s Suggester) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *Suggester) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "Suggester"}
+	if s.DocumentSuggesterOptions == nil {
+		invalidParams.Add(request.NewErrParamRequired("DocumentSuggesterOptions"))
+	}
+	if s.SuggesterName == nil {
+		invalidParams.Add(request.NewErrParamRequired("SuggesterName"))
+	}
+	if s.SuggesterName != nil && len(*s.SuggesterName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("SuggesterName", 1))
+	}
+	if s.DocumentSuggesterOptions != nil {
+		if err := s.DocumentSuggesterOptions.Validate(); err != nil {
+			invalidParams.AddNested("DocumentSuggesterOptions", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The value of a Suggester and its current status.
 type SuggesterStatus struct {
+	_ struct{} `type:"structure"`
+
 	// Configuration information for a search suggester. Each suggester has a unique
 	// name and specifies the text field you want to use for suggestions. The following
 	// options can be configured for a suggester: FuzzyMatching, SortExpression.
@@ -2846,12 +3635,6 @@ type SuggesterStatus struct {
 
 	// The status of domain configuration option.
 	Status *OptionStatus `type:"structure" required:"true"`
-
-	metadataSuggesterStatus `json:"-" xml:"-"`
-}
-
-type metadataSuggesterStatus struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2868,6 +3651,8 @@ func (s SuggesterStatus) GoString() string {
 // specifies the field is of type text-array. A text-array field is always searchable.
 // All options are enabled by default.
 type TextArrayOptions struct {
+	_ struct{} `type:"structure"`
+
 	// The name of an analysis scheme for a text-array field.
 	AnalysisScheme *string `type:"string"`
 
@@ -2882,12 +3667,6 @@ type TextArrayOptions struct {
 
 	// A list of source fields to map to the field.
 	SourceFields *string `type:"string"`
-
-	metadataTextArrayOptions `json:"-" xml:"-"`
-}
-
-type metadataTextArrayOptions struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2904,6 +3683,8 @@ func (s TextArrayOptions) GoString() string {
 // of type text. A text field is always searchable. All options are enabled
 // by default.
 type TextOptions struct {
+	_ struct{} `type:"structure"`
+
 	// The name of an analysis scheme for a text field.
 	AnalysisScheme *string `type:"string"`
 
@@ -2933,13 +3714,7 @@ type TextOptions struct {
 	//
 	// The name score is reserved and cannot be used as a field name. To reference
 	// a document's ID, you can use the name _id.
-	SourceField *string `type:"string"`
-
-	metadataTextOptions `json:"-" xml:"-"`
-}
-
-type metadataTextOptions struct {
-	SDKShapeTraits bool `type:"structure"`
+	SourceField *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -2952,27 +3727,36 @@ func (s TextOptions) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *TextOptions) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "TextOptions"}
+	if s.SourceField != nil && len(*s.SourceField) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("SourceField", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Container for the parameters to the UpdateAvailabilityOptions operation.
 // Specifies the name of the domain you want to update and the Multi-AZ availability
 // option.
 type UpdateAvailabilityOptionsInput struct {
+	_ struct{} `type:"structure"`
+
 	// A string that represents the name of a domain. Domain names are unique across
 	// the domains owned by an account within an AWS region. Domain names start
 	// with a letter or number and can contain the following characters: a-z (lowercase),
 	// 0-9, and - (hyphen).
-	DomainName *string `type:"string" required:"true"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 
 	// You expand an existing search domain to a second Availability Zone by setting
 	// the Multi-AZ option to true. Similarly, you can turn off the Multi-AZ option
 	// to downgrade the domain to a single Availability Zone by setting the Multi-AZ
 	// option to false.
 	MultiAZ *bool `type:"boolean" required:"true"`
-
-	metadataUpdateAvailabilityOptionsInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateAvailabilityOptionsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2985,18 +3769,33 @@ func (s UpdateAvailabilityOptionsInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateAvailabilityOptionsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateAvailabilityOptionsInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DomainName != nil && len(*s.DomainName) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("DomainName", 3))
+	}
+	if s.MultiAZ == nil {
+		invalidParams.Add(request.NewErrParamRequired("MultiAZ"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The result of a UpdateAvailabilityOptions request. Contains the status of
 // the domain's availability options.
 type UpdateAvailabilityOptionsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The newly-configured availability options. Indicates whether Multi-AZ is
 	// enabled for the domain.
 	AvailabilityOptions *AvailabilityOptionsStatus `type:"structure"`
-
-	metadataUpdateAvailabilityOptionsOutput `json:"-" xml:"-"`
-}
-
-type metadataUpdateAvailabilityOptionsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3013,20 +3812,16 @@ func (s UpdateAvailabilityOptionsOutput) GoString() string {
 // the name of the domain you want to update and the scaling parameters you
 // want to configure.
 type UpdateScalingParametersInput struct {
+	_ struct{} `type:"structure"`
+
 	// A string that represents the name of a domain. Domain names are unique across
 	// the domains owned by an account within an AWS region. Domain names start
 	// with a letter or number and can contain the following characters: a-z (lowercase),
 	// 0-9, and - (hyphen).
-	DomainName *string `type:"string" required:"true"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 
 	// The desired instance type and desired number of replicas of each index partition.
 	ScalingParameters *ScalingParameters `type:"structure" required:"true"`
-
-	metadataUpdateScalingParametersInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateScalingParametersInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3039,17 +3834,32 @@ func (s UpdateScalingParametersInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateScalingParametersInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateScalingParametersInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DomainName != nil && len(*s.DomainName) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("DomainName", 3))
+	}
+	if s.ScalingParameters == nil {
+		invalidParams.Add(request.NewErrParamRequired("ScalingParameters"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The result of a UpdateScalingParameters request. Contains the status of the
 // newly-configured scaling parameters.
 type UpdateScalingParametersOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The status and configuration of a search domain's scaling parameters.
 	ScalingParameters *ScalingParametersStatus `type:"structure" required:"true"`
-
-	metadataUpdateScalingParametersOutput `json:"-" xml:"-"`
-}
-
-type metadataUpdateScalingParametersOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3066,6 +3876,8 @@ func (s UpdateScalingParametersOutput) GoString() string {
 // Specifies the name of the domain you want to update and the access rules
 // you want to configure.
 type UpdateServiceAccessPoliciesInput struct {
+	_ struct{} `type:"structure"`
+
 	// The access rules you want to configure. These rules replace any existing
 	// rules.
 	AccessPolicies *string `type:"string" required:"true"`
@@ -3074,13 +3886,7 @@ type UpdateServiceAccessPoliciesInput struct {
 	// the domains owned by an account within an AWS region. Domain names start
 	// with a letter or number and can contain the following characters: a-z (lowercase),
 	// 0-9, and - (hyphen).
-	DomainName *string `type:"string" required:"true"`
-
-	metadataUpdateServiceAccessPoliciesInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateServiceAccessPoliciesInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	DomainName *string `min:"3" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -3093,17 +3899,32 @@ func (s UpdateServiceAccessPoliciesInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateServiceAccessPoliciesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateServiceAccessPoliciesInput"}
+	if s.AccessPolicies == nil {
+		invalidParams.Add(request.NewErrParamRequired("AccessPolicies"))
+	}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DomainName != nil && len(*s.DomainName) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("DomainName", 3))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The result of an UpdateServiceAccessPolicies request. Contains the new access
 // policies.
 type UpdateServiceAccessPoliciesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The access rules configured for the domain.
 	AccessPolicies *AccessPoliciesStatus `type:"structure" required:"true"`
-
-	metadataUpdateServiceAccessPoliciesOutput `json:"-" xml:"-"`
-}
-
-type metadataUpdateServiceAccessPoliciesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation

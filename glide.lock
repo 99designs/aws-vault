@@ -1,16 +1,16 @@
-hash: 90a5a45c153cf550f5147d1df57e9876fbd792f21b200de7e66103783618f91b
-updated: 2016-07-24T20:52:40.65268732Z
+hash: e5d89510497a9e4b89f59a957ca8448215f5504d8541b04dd65af9d5f3779f3c
+updated: 2016-07-24T21:09:16.867556598Z
 imports:
 - name: github.com/alecthomas/template
-  version: b867cc6ab45cece8143cfcc6fc9c77cf3f2c23c0
+  version: a0175ee3bccc567396460bf5acd36800cb10c49c
   subpackages:
   - parse
 - name: github.com/alecthomas/units
-  version: 6b4e7dc5e3143b85ea77909c72caf89416fc2915
+  version: 2efee857e7cfd4f3d0138cc3cbb1b4966962b93a
 - name: github.com/aulanov/go.dbus
   version: 25c3068a42a0b50b877953fb249dbcffc6bd1bca
 - name: github.com/aws/aws-sdk-go
-  version: 376badeb12ede342ca2f41fd7b45027aa3f00264
+  version: 5fbcfa00ec930ccaa641b404adece72bf96e3667
   subpackages:
   - aws
   - internal/endpoints
@@ -23,14 +23,16 @@ imports:
   - aws/credentials
   - service/iam
   - aws/awsutil
-  - aws/defaults
+  - aws/client
+  - aws/client/metadata
   - aws/request
-  - aws/service
-  - aws/service/serviceinfo
-  - aws/credentials/ec2rolecreds
-  - aws/corehandlers
-  - internal/protocol/query/queryutil
-  - aws/ec2metadata
+  - aws/signer/v4
+  - private/protocol
+  - private/protocol/query
+  - private/waiter
+  - private/protocol/rest
+  - private/protocol/query/queryutil
+  - private/protocol/xml/xmlutil
 - name: github.com/dvsekhvalnov/jose2go
   version: 2a04a552f4a8adf7d51731877b7a2021bab968bb
   subpackages:
@@ -41,8 +43,12 @@ imports:
   - kdf
   - keys/ecc
   - padding
+- name: github.com/go-ini/ini
+  version: cf53f9204df4fbdd7ec4164b57fa6184ba168292
+- name: github.com/jmespath/go-jmespath
+  version: 0b12d6b521d83fc7f755e7cfc1b1fbdd35a01a74
 - name: github.com/skratchdot/open-golang
-  version: c8748311a7528d0ba7330d302adbc5a677ef9c9e
+  version: 75fb7ed4208cf72d323d7d02fd1a5964a7a9073c
   subpackages:
   - open
 - name: github.com/vaughan0/go-ini
@@ -52,5 +58,5 @@ imports:
   subpackages:
   - ssh/terminal
 - name: gopkg.in/alecthomas/kingpin.v2
-  version: 639879d6110b1b0409410c7b737ef0bb18325038
+  version: 92b2733684bc5f1971162349ce098fe0d070e2a9
 devImports: []

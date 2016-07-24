@@ -10,6 +10,10 @@ import (
 
 // CloudHSMAPI is the interface type for cloudhsm.CloudHSM.
 type CloudHSMAPI interface {
+	AddTagsToResourceRequest(*cloudhsm.AddTagsToResourceInput) (*request.Request, *cloudhsm.AddTagsToResourceOutput)
+
+	AddTagsToResource(*cloudhsm.AddTagsToResourceInput) (*cloudhsm.AddTagsToResourceOutput, error)
+
 	CreateHapgRequest(*cloudhsm.CreateHapgInput) (*request.Request, *cloudhsm.CreateHapgOutput)
 
 	CreateHapg(*cloudhsm.CreateHapgInput) (*cloudhsm.CreateHapgOutput, error)
@@ -66,6 +70,10 @@ type CloudHSMAPI interface {
 
 	ListLunaClients(*cloudhsm.ListLunaClientsInput) (*cloudhsm.ListLunaClientsOutput, error)
 
+	ListTagsForResourceRequest(*cloudhsm.ListTagsForResourceInput) (*request.Request, *cloudhsm.ListTagsForResourceOutput)
+
+	ListTagsForResource(*cloudhsm.ListTagsForResourceInput) (*cloudhsm.ListTagsForResourceOutput, error)
+
 	ModifyHapgRequest(*cloudhsm.ModifyHapgInput) (*request.Request, *cloudhsm.ModifyHapgOutput)
 
 	ModifyHapg(*cloudhsm.ModifyHapgInput) (*cloudhsm.ModifyHapgOutput, error)
@@ -77,4 +85,10 @@ type CloudHSMAPI interface {
 	ModifyLunaClientRequest(*cloudhsm.ModifyLunaClientInput) (*request.Request, *cloudhsm.ModifyLunaClientOutput)
 
 	ModifyLunaClient(*cloudhsm.ModifyLunaClientInput) (*cloudhsm.ModifyLunaClientOutput, error)
+
+	RemoveTagsFromResourceRequest(*cloudhsm.RemoveTagsFromResourceInput) (*request.Request, *cloudhsm.RemoveTagsFromResourceOutput)
+
+	RemoveTagsFromResource(*cloudhsm.RemoveTagsFromResourceInput) (*cloudhsm.RemoveTagsFromResourceOutput, error)
 }
+
+var _ CloudHSMAPI = (*cloudhsm.CloudHSM)(nil)

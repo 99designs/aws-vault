@@ -8,14 +8,42 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/machinelearning"
 )
 
 var _ time.Duration
 var _ bytes.Buffer
 
+func ExampleMachineLearning_AddTags() {
+	svc := machinelearning.New(session.New())
+
+	params := &machinelearning.AddTagsInput{
+		ResourceId:   aws.String("EntityId"),             // Required
+		ResourceType: aws.String("TaggableResourceType"), // Required
+		Tags: []*machinelearning.Tag{ // Required
+			{ // Required
+				Key:   aws.String("TagKey"),
+				Value: aws.String("TagValue"),
+			},
+			// More values...
+		},
+	}
+	resp, err := svc.AddTags(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
+}
+
 func ExampleMachineLearning_CreateBatchPrediction() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.CreateBatchPredictionInput{
 		BatchPredictionDataSourceId: aws.String("EntityId"), // Required
@@ -38,7 +66,7 @@ func ExampleMachineLearning_CreateBatchPrediction() {
 }
 
 func ExampleMachineLearning_CreateDataSourceFromRDS() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.CreateDataSourceFromRDSInput{
 		DataSourceId: aws.String("EntityId"), // Required
@@ -82,7 +110,7 @@ func ExampleMachineLearning_CreateDataSourceFromRDS() {
 }
 
 func ExampleMachineLearning_CreateDataSourceFromRedshift() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.CreateDataSourceFromRedshiftInput{
 		DataSourceId: aws.String("EntityId"), // Required
@@ -119,7 +147,7 @@ func ExampleMachineLearning_CreateDataSourceFromRedshift() {
 }
 
 func ExampleMachineLearning_CreateDataSourceFromS3() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.CreateDataSourceFromS3Input{
 		DataSourceId: aws.String("EntityId"), // Required
@@ -146,7 +174,7 @@ func ExampleMachineLearning_CreateDataSourceFromS3() {
 }
 
 func ExampleMachineLearning_CreateEvaluation() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.CreateEvaluationInput{
 		EvaluationDataSourceId: aws.String("EntityId"), // Required
@@ -168,7 +196,7 @@ func ExampleMachineLearning_CreateEvaluation() {
 }
 
 func ExampleMachineLearning_CreateMLModel() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.CreateMLModelInput{
 		MLModelId:            aws.String("EntityId"),    // Required
@@ -196,7 +224,7 @@ func ExampleMachineLearning_CreateMLModel() {
 }
 
 func ExampleMachineLearning_CreateRealtimeEndpoint() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.CreateRealtimeEndpointInput{
 		MLModelId: aws.String("EntityId"), // Required
@@ -215,7 +243,7 @@ func ExampleMachineLearning_CreateRealtimeEndpoint() {
 }
 
 func ExampleMachineLearning_DeleteBatchPrediction() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.DeleteBatchPredictionInput{
 		BatchPredictionId: aws.String("EntityId"), // Required
@@ -234,7 +262,7 @@ func ExampleMachineLearning_DeleteBatchPrediction() {
 }
 
 func ExampleMachineLearning_DeleteDataSource() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.DeleteDataSourceInput{
 		DataSourceId: aws.String("EntityId"), // Required
@@ -253,7 +281,7 @@ func ExampleMachineLearning_DeleteDataSource() {
 }
 
 func ExampleMachineLearning_DeleteEvaluation() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.DeleteEvaluationInput{
 		EvaluationId: aws.String("EntityId"), // Required
@@ -272,7 +300,7 @@ func ExampleMachineLearning_DeleteEvaluation() {
 }
 
 func ExampleMachineLearning_DeleteMLModel() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.DeleteMLModelInput{
 		MLModelId: aws.String("EntityId"), // Required
@@ -291,7 +319,7 @@ func ExampleMachineLearning_DeleteMLModel() {
 }
 
 func ExampleMachineLearning_DeleteRealtimeEndpoint() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.DeleteRealtimeEndpointInput{
 		MLModelId: aws.String("EntityId"), // Required
@@ -309,8 +337,32 @@ func ExampleMachineLearning_DeleteRealtimeEndpoint() {
 	fmt.Println(resp)
 }
 
+func ExampleMachineLearning_DeleteTags() {
+	svc := machinelearning.New(session.New())
+
+	params := &machinelearning.DeleteTagsInput{
+		ResourceId:   aws.String("EntityId"),             // Required
+		ResourceType: aws.String("TaggableResourceType"), // Required
+		TagKeys: []*string{ // Required
+			aws.String("TagKey"), // Required
+			// More values...
+		},
+	}
+	resp, err := svc.DeleteTags(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
+}
+
 func ExampleMachineLearning_DescribeBatchPredictions() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.DescribeBatchPredictionsInput{
 		EQ:             aws.String("ComparatorValue"),
@@ -339,7 +391,7 @@ func ExampleMachineLearning_DescribeBatchPredictions() {
 }
 
 func ExampleMachineLearning_DescribeDataSources() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.DescribeDataSourcesInput{
 		EQ:             aws.String("ComparatorValue"),
@@ -368,7 +420,7 @@ func ExampleMachineLearning_DescribeDataSources() {
 }
 
 func ExampleMachineLearning_DescribeEvaluations() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.DescribeEvaluationsInput{
 		EQ:             aws.String("ComparatorValue"),
@@ -397,7 +449,7 @@ func ExampleMachineLearning_DescribeEvaluations() {
 }
 
 func ExampleMachineLearning_DescribeMLModels() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.DescribeMLModelsInput{
 		EQ:             aws.String("ComparatorValue"),
@@ -425,8 +477,28 @@ func ExampleMachineLearning_DescribeMLModels() {
 	fmt.Println(resp)
 }
 
+func ExampleMachineLearning_DescribeTags() {
+	svc := machinelearning.New(session.New())
+
+	params := &machinelearning.DescribeTagsInput{
+		ResourceId:   aws.String("EntityId"),             // Required
+		ResourceType: aws.String("TaggableResourceType"), // Required
+	}
+	resp, err := svc.DescribeTags(params)
+
+	if err != nil {
+		// Print the error, cast err to awserr.Error to get the Code and
+		// Message from an error.
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Pretty-print the response data.
+	fmt.Println(resp)
+}
+
 func ExampleMachineLearning_GetBatchPrediction() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.GetBatchPredictionInput{
 		BatchPredictionId: aws.String("EntityId"), // Required
@@ -445,7 +517,7 @@ func ExampleMachineLearning_GetBatchPrediction() {
 }
 
 func ExampleMachineLearning_GetDataSource() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.GetDataSourceInput{
 		DataSourceId: aws.String("EntityId"), // Required
@@ -465,7 +537,7 @@ func ExampleMachineLearning_GetDataSource() {
 }
 
 func ExampleMachineLearning_GetEvaluation() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.GetEvaluationInput{
 		EvaluationId: aws.String("EntityId"), // Required
@@ -484,7 +556,7 @@ func ExampleMachineLearning_GetEvaluation() {
 }
 
 func ExampleMachineLearning_GetMLModel() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.GetMLModelInput{
 		MLModelId: aws.String("EntityId"), // Required
@@ -504,7 +576,7 @@ func ExampleMachineLearning_GetMLModel() {
 }
 
 func ExampleMachineLearning_Predict() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.PredictInput{
 		MLModelId:       aws.String("EntityId"), // Required
@@ -528,7 +600,7 @@ func ExampleMachineLearning_Predict() {
 }
 
 func ExampleMachineLearning_UpdateBatchPrediction() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.UpdateBatchPredictionInput{
 		BatchPredictionId:   aws.String("EntityId"),   // Required
@@ -548,7 +620,7 @@ func ExampleMachineLearning_UpdateBatchPrediction() {
 }
 
 func ExampleMachineLearning_UpdateDataSource() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.UpdateDataSourceInput{
 		DataSourceId:   aws.String("EntityId"),   // Required
@@ -568,7 +640,7 @@ func ExampleMachineLearning_UpdateDataSource() {
 }
 
 func ExampleMachineLearning_UpdateEvaluation() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.UpdateEvaluationInput{
 		EvaluationId:   aws.String("EntityId"),   // Required
@@ -588,7 +660,7 @@ func ExampleMachineLearning_UpdateEvaluation() {
 }
 
 func ExampleMachineLearning_UpdateMLModel() {
-	svc := machinelearning.New(nil)
+	svc := machinelearning.New(session.New())
 
 	params := &machinelearning.UpdateMLModelInput{
 		MLModelId:      aws.String("EntityId"), // Required

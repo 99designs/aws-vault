@@ -8,11 +8,88 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/awsutil"
 	"github.com/aws/aws-sdk-go/aws/request"
+	"github.com/aws/aws-sdk-go/private/protocol"
+	"github.com/aws/aws-sdk-go/private/protocol/jsonrpc"
 )
+
+const opCancelKeyDeletion = "CancelKeyDeletion"
+
+// CancelKeyDeletionRequest generates a "aws/request.Request" representing the
+// client's request for the CancelKeyDeletion operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CancelKeyDeletion method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CancelKeyDeletionRequest method.
+//    req, resp := client.CancelKeyDeletionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *KMS) CancelKeyDeletionRequest(input *CancelKeyDeletionInput) (req *request.Request, output *CancelKeyDeletionOutput) {
+	op := &request.Operation{
+		Name:       opCancelKeyDeletion,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &CancelKeyDeletionInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &CancelKeyDeletionOutput{}
+	req.Data = output
+	return
+}
+
+// Cancels the deletion of a customer master key (CMK). When this operation
+// is successful, the CMK is set to the Disabled state. To enable a CMK, use
+// EnableKey.
+//
+// For more information about scheduling and canceling deletion of a CMK, see
+// Deleting Customer Master Keys (http://docs.aws.amazon.com/kms/latest/developerguide/deleting-keys.html)
+// in the AWS Key Management Service Developer Guide.
+func (c *KMS) CancelKeyDeletion(input *CancelKeyDeletionInput) (*CancelKeyDeletionOutput, error) {
+	req, out := c.CancelKeyDeletionRequest(input)
+	err := req.Send()
+	return out, err
+}
 
 const opCreateAlias = "CreateAlias"
 
-// CreateAliasRequest generates a request for the CreateAlias operation.
+// CreateAliasRequest generates a "aws/request.Request" representing the
+// client's request for the CreateAlias operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CreateAlias method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CreateAliasRequest method.
+//    req, resp := client.CreateAliasRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) CreateAliasRequest(input *CreateAliasInput) (req *request.Request, output *CreateAliasOutput) {
 	op := &request.Operation{
 		Name:       opCreateAlias,
@@ -25,6 +102,8 @@ func (c *KMS) CreateAliasRequest(input *CreateAliasInput) (req *request.Request,
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &CreateAliasOutput{}
 	req.Data = output
 	return
@@ -38,10 +117,10 @@ func (c *KMS) CreateAliasRequest(input *CreateAliasInput) (req *request.Request,
 // alias that begins with "aws" after the forward slash (alias/aws...) is reserved
 // by Amazon Web Services (AWS).
 //
-// To associate an alias with a different key, call UpdateAlias.
+// The alias and the key it is mapped to must be in the same AWS account and
+// the same region.
 //
-// Note that you cannot create or update an alias that represents a key in
-// another account.
+// To map an alias to a different key, call UpdateAlias.
 func (c *KMS) CreateAlias(input *CreateAliasInput) (*CreateAliasOutput, error) {
 	req, out := c.CreateAliasRequest(input)
 	err := req.Send()
@@ -50,7 +129,28 @@ func (c *KMS) CreateAlias(input *CreateAliasInput) (*CreateAliasOutput, error) {
 
 const opCreateGrant = "CreateGrant"
 
-// CreateGrantRequest generates a request for the CreateGrant operation.
+// CreateGrantRequest generates a "aws/request.Request" representing the
+// client's request for the CreateGrant operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CreateGrant method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CreateGrantRequest method.
+//    req, resp := client.CreateGrantRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) CreateGrantRequest(input *CreateGrantInput) (req *request.Request, output *CreateGrantOutput) {
 	op := &request.Operation{
 		Name:       opCreateGrant,
@@ -68,11 +168,11 @@ func (c *KMS) CreateGrantRequest(input *CreateGrantInput) (req *request.Request,
 	return
 }
 
-// Adds a grant to a key to specify who can access the key and under what conditions.
-// Grants are alternate permission mechanisms to key policies. For more information
-// about grants, see Grants (http://docs.aws.amazon.com/kms/latest/developerguide/grants.html)
-// in the developer guide. If a grant is absent, access to the key is evaluated
-// based on IAM policies attached to the user.  ListGrants RetireGrant RevokeGrant
+// Adds a grant to a key to specify who can use the key and under what conditions.
+// Grants are alternate permission mechanisms to key policies.
+//
+// For more information about grants, see Grants (http://docs.aws.amazon.com/kms/latest/developerguide/grants.html)
+// in the AWS Key Management Service Developer Guide.
 func (c *KMS) CreateGrant(input *CreateGrantInput) (*CreateGrantOutput, error) {
 	req, out := c.CreateGrantRequest(input)
 	err := req.Send()
@@ -81,7 +181,28 @@ func (c *KMS) CreateGrant(input *CreateGrantInput) (*CreateGrantOutput, error) {
 
 const opCreateKey = "CreateKey"
 
-// CreateKeyRequest generates a request for the CreateKey operation.
+// CreateKeyRequest generates a "aws/request.Request" representing the
+// client's request for the CreateKey operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CreateKey method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CreateKeyRequest method.
+//    req, resp := client.CreateKeyRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) CreateKeyRequest(input *CreateKeyInput) (req *request.Request, output *CreateKeyOutput) {
 	op := &request.Operation{
 		Name:       opCreateKey,
@@ -99,10 +220,17 @@ func (c *KMS) CreateKeyRequest(input *CreateKeyInput) (req *request.Request, out
 	return
 }
 
-// Creates a customer master key. Customer master keys can be used to encrypt
-// small amounts of data (less than 4K) directly, but they are most commonly
-// used to encrypt or envelope data keys that are then used to encrypt customer
-// data. For more information about data keys, see GenerateDataKey and GenerateDataKeyWithoutPlaintext.
+// Creates a customer master key (CMK).
+//
+// You can use a CMK to encrypt small amounts of data (4 KiB or less) directly,
+// but CMKs are more commonly used to encrypt data encryption keys (DEKs), which
+// are used to encrypt raw data. For more information about DEKs and the difference
+// between CMKs and DEKs, see the following:
+//
+//   The GenerateDataKey operation
+//
+//    AWS Key Management Service Concepts (http://docs.aws.amazon.com/kms/latest/developerguide/concepts.html)
+// in the AWS Key Management Service Developer Guide
 func (c *KMS) CreateKey(input *CreateKeyInput) (*CreateKeyOutput, error) {
 	req, out := c.CreateKeyRequest(input)
 	err := req.Send()
@@ -111,7 +239,28 @@ func (c *KMS) CreateKey(input *CreateKeyInput) (*CreateKeyOutput, error) {
 
 const opDecrypt = "Decrypt"
 
-// DecryptRequest generates a request for the Decrypt operation.
+// DecryptRequest generates a "aws/request.Request" representing the
+// client's request for the Decrypt operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the Decrypt method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DecryptRequest method.
+//    req, resp := client.DecryptRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) DecryptRequest(input *DecryptInput) (req *request.Request, output *DecryptOutput) {
 	op := &request.Operation{
 		Name:       opDecrypt,
@@ -130,17 +279,22 @@ func (c *KMS) DecryptRequest(input *DecryptInput) (req *request.Request, output 
 }
 
 // Decrypts ciphertext. Ciphertext is plaintext that has been previously encrypted
-// by using any of the following functions:  GenerateDataKey GenerateDataKeyWithoutPlaintext
-// Encrypt
+// by using any of the following functions:
 //
-// Note that if a caller has been granted access permissions to all keys (through,
-// for example, IAM user policies that grant Decrypt permission on all resources),
-// then ciphertext encrypted by using keys in other accounts where the key grants
-// access to the caller can be decrypted. To remedy this, we recommend that
-// you do not grant Decrypt access in an IAM user policy. Instead grant Decrypt
-// access only in key policies. If you must grant Decrypt access in an IAM user
-// policy, you should scope the resource to specific keys or to specific trusted
-// accounts.
+//    GenerateDataKey
+//
+//    GenerateDataKeyWithoutPlaintext
+//
+//    Encrypt
+//
+//   Note that if a caller has been granted access permissions to all keys
+// (through, for example, IAM user policies that grant Decrypt permission on
+// all resources), then ciphertext encrypted by using keys in other accounts
+// where the key grants access to the caller can be decrypted. To remedy this,
+// we recommend that you do not grant Decrypt access in an IAM user policy.
+// Instead grant Decrypt access only in key policies. If you must grant Decrypt
+// access in an IAM user policy, you should scope the resource to specific keys
+// or to specific trusted accounts.
 func (c *KMS) Decrypt(input *DecryptInput) (*DecryptOutput, error) {
 	req, out := c.DecryptRequest(input)
 	err := req.Send()
@@ -149,7 +303,28 @@ func (c *KMS) Decrypt(input *DecryptInput) (*DecryptOutput, error) {
 
 const opDeleteAlias = "DeleteAlias"
 
-// DeleteAliasRequest generates a request for the DeleteAlias operation.
+// DeleteAliasRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteAlias operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteAlias method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteAliasRequest method.
+//    req, resp := client.DeleteAliasRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) DeleteAliasRequest(input *DeleteAliasInput) (req *request.Request, output *DeleteAliasOutput) {
 	op := &request.Operation{
 		Name:       opDeleteAlias,
@@ -162,13 +337,14 @@ func (c *KMS) DeleteAliasRequest(input *DeleteAliasInput) (req *request.Request,
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DeleteAliasOutput{}
 	req.Data = output
 	return
 }
 
-// Deletes the specified alias. To associate an alias with a different key,
-// call UpdateAlias.
+// Deletes the specified alias. To map an alias to a different key, call UpdateAlias.
 func (c *KMS) DeleteAlias(input *DeleteAliasInput) (*DeleteAliasOutput, error) {
 	req, out := c.DeleteAliasRequest(input)
 	err := req.Send()
@@ -177,7 +353,28 @@ func (c *KMS) DeleteAlias(input *DeleteAliasInput) (*DeleteAliasOutput, error) {
 
 const opDescribeKey = "DescribeKey"
 
-// DescribeKeyRequest generates a request for the DescribeKey operation.
+// DescribeKeyRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeKey operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeKey method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeKeyRequest method.
+//    req, resp := client.DescribeKeyRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) DescribeKeyRequest(input *DescribeKeyInput) (req *request.Request, output *DescribeKeyOutput) {
 	op := &request.Operation{
 		Name:       opDescribeKey,
@@ -204,7 +401,28 @@ func (c *KMS) DescribeKey(input *DescribeKeyInput) (*DescribeKeyOutput, error) {
 
 const opDisableKey = "DisableKey"
 
-// DisableKeyRequest generates a request for the DisableKey operation.
+// DisableKeyRequest generates a "aws/request.Request" representing the
+// client's request for the DisableKey operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DisableKey method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DisableKeyRequest method.
+//    req, resp := client.DisableKeyRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) DisableKeyRequest(input *DisableKeyInput) (req *request.Request, output *DisableKeyOutput) {
 	op := &request.Operation{
 		Name:       opDisableKey,
@@ -217,12 +435,18 @@ func (c *KMS) DisableKeyRequest(input *DisableKeyInput) (req *request.Request, o
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DisableKeyOutput{}
 	req.Data = output
 	return
 }
 
-// Marks a key as disabled, thereby preventing its use.
+// Sets the state of a customer master key (CMK) to disabled, thereby preventing
+// its use for cryptographic operations. For more information about how key
+// state affects the use of a CMK, see How Key State Affects the Use of a Customer
+// Master Key (http://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+// in the AWS Key Management Service Developer Guide.
 func (c *KMS) DisableKey(input *DisableKeyInput) (*DisableKeyOutput, error) {
 	req, out := c.DisableKeyRequest(input)
 	err := req.Send()
@@ -231,7 +455,28 @@ func (c *KMS) DisableKey(input *DisableKeyInput) (*DisableKeyOutput, error) {
 
 const opDisableKeyRotation = "DisableKeyRotation"
 
-// DisableKeyRotationRequest generates a request for the DisableKeyRotation operation.
+// DisableKeyRotationRequest generates a "aws/request.Request" representing the
+// client's request for the DisableKeyRotation operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DisableKeyRotation method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DisableKeyRotationRequest method.
+//    req, resp := client.DisableKeyRotationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) DisableKeyRotationRequest(input *DisableKeyRotationInput) (req *request.Request, output *DisableKeyRotationOutput) {
 	op := &request.Operation{
 		Name:       opDisableKeyRotation,
@@ -244,6 +489,8 @@ func (c *KMS) DisableKeyRotationRequest(input *DisableKeyRotationInput) (req *re
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &DisableKeyRotationOutput{}
 	req.Data = output
 	return
@@ -258,7 +505,28 @@ func (c *KMS) DisableKeyRotation(input *DisableKeyRotationInput) (*DisableKeyRot
 
 const opEnableKey = "EnableKey"
 
-// EnableKeyRequest generates a request for the EnableKey operation.
+// EnableKeyRequest generates a "aws/request.Request" representing the
+// client's request for the EnableKey operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the EnableKey method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the EnableKeyRequest method.
+//    req, resp := client.EnableKeyRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) EnableKeyRequest(input *EnableKeyInput) (req *request.Request, output *EnableKeyOutput) {
 	op := &request.Operation{
 		Name:       opEnableKey,
@@ -271,13 +539,14 @@ func (c *KMS) EnableKeyRequest(input *EnableKeyInput) (req *request.Request, out
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &EnableKeyOutput{}
 	req.Data = output
 	return
 }
 
-// Marks a key as enabled, thereby permitting its use. You can have up to 25
-// enabled keys at one time.
+// Marks a key as enabled, thereby permitting its use.
 func (c *KMS) EnableKey(input *EnableKeyInput) (*EnableKeyOutput, error) {
 	req, out := c.EnableKeyRequest(input)
 	err := req.Send()
@@ -286,7 +555,28 @@ func (c *KMS) EnableKey(input *EnableKeyInput) (*EnableKeyOutput, error) {
 
 const opEnableKeyRotation = "EnableKeyRotation"
 
-// EnableKeyRotationRequest generates a request for the EnableKeyRotation operation.
+// EnableKeyRotationRequest generates a "aws/request.Request" representing the
+// client's request for the EnableKeyRotation operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the EnableKeyRotation method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the EnableKeyRotationRequest method.
+//    req, resp := client.EnableKeyRotationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) EnableKeyRotationRequest(input *EnableKeyRotationInput) (req *request.Request, output *EnableKeyRotationOutput) {
 	op := &request.Operation{
 		Name:       opEnableKeyRotation,
@@ -299,6 +589,8 @@ func (c *KMS) EnableKeyRotationRequest(input *EnableKeyRotationInput) (req *requ
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &EnableKeyRotationOutput{}
 	req.Data = output
 	return
@@ -313,7 +605,28 @@ func (c *KMS) EnableKeyRotation(input *EnableKeyRotationInput) (*EnableKeyRotati
 
 const opEncrypt = "Encrypt"
 
-// EncryptRequest generates a request for the Encrypt operation.
+// EncryptRequest generates a "aws/request.Request" representing the
+// client's request for the Encrypt operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the Encrypt method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the EncryptRequest method.
+//    req, resp := client.EncryptRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) EncryptRequest(input *EncryptInput) (req *request.Request, output *EncryptOutput) {
 	op := &request.Operation{
 		Name:       opEncrypt,
@@ -332,15 +645,18 @@ func (c *KMS) EncryptRequest(input *EncryptInput) (req *request.Request, output 
 }
 
 // Encrypts plaintext into ciphertext by using a customer master key. The Encrypt
-// function has two primary use cases:  You can encrypt up to 4 KB of arbitrary
-// data such as an RSA key, a database password, or other sensitive customer
-// information. If you are moving encrypted data from one region to another,
-// you can use this API to encrypt in the new region the plaintext data key
-// that was used to encrypt the data in the original region. This provides you
-// with an encrypted copy of the data key that can be decrypted in the new region
-// and used there to decrypt the encrypted data.
+// function has two primary use cases:
 //
-// Unless you are moving encrypted data from one region to another, you don't
+//   You can encrypt up to 4 KB of arbitrary data such as an RSA key, a database
+// password, or other sensitive customer information.
+//
+//   If you are moving encrypted data from one region to another, you can use
+// this API to encrypt in the new region the plaintext data key that was used
+// to encrypt the data in the original region. This provides you with an encrypted
+// copy of the data key that can be decrypted in the new region and used there
+// to decrypt the encrypted data.
+//
+//   Unless you are moving encrypted data from one region to another, you don't
 // use this function to encrypt a generated data key within a region. You retrieve
 // data keys already encrypted by calling the GenerateDataKey or GenerateDataKeyWithoutPlaintext
 // function. Data keys don't need to be encrypted again by calling Encrypt.
@@ -356,7 +672,28 @@ func (c *KMS) Encrypt(input *EncryptInput) (*EncryptOutput, error) {
 
 const opGenerateDataKey = "GenerateDataKey"
 
-// GenerateDataKeyRequest generates a request for the GenerateDataKey operation.
+// GenerateDataKeyRequest generates a "aws/request.Request" representing the
+// client's request for the GenerateDataKey operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GenerateDataKey method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GenerateDataKeyRequest method.
+//    req, resp := client.GenerateDataKeyRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) GenerateDataKeyRequest(input *GenerateDataKeyInput) (req *request.Request, output *GenerateDataKeyOutput) {
 	op := &request.Operation{
 		Name:       opGenerateDataKey,
@@ -386,16 +723,18 @@ func (c *KMS) GenerateDataKeyRequest(input *GenerateDataKeyInput) (req *request.
 // memory. Store the encrypted data key (contained in the CiphertextBlob field)
 // alongside of the locally encrypted data.
 //
-// You should not call the Encrypt function to re-encrypt your data keys within
+//  You should not call the Encrypt function to re-encrypt your data keys within
 // a region. GenerateDataKey always returns the data key encrypted and tied
 // to the customer master key that will be used to decrypt it. There is no need
-// to decrypt it twice.  If you decide to use the optional EncryptionContext
-// parameter, you must also store the context in full or at least store enough
-// information along with the encrypted data to be able to reconstruct the context
-// when submitting the ciphertext to the Decrypt API. It is a good practice
-// to choose a context that you can reconstruct on the fly to better secure
-// the ciphertext. For more information about how this parameter is used, see
-// Encryption Context (http://docs.aws.amazon.com/kms/latest/developerguide/encrypt-context.html).
+// to decrypt it twice.
+//
+//  If you decide to use the optional EncryptionContext parameter, you must
+// also store the context in full or at least store enough information along
+// with the encrypted data to be able to reconstruct the context when submitting
+// the ciphertext to the Decrypt API. It is a good practice to choose a context
+// that you can reconstruct on the fly to better secure the ciphertext. For
+// more information about how this parameter is used, see Encryption Context
+// (http://docs.aws.amazon.com/kms/latest/developerguide/encrypt-context.html).
 //
 // To decrypt data, pass the encrypted data key to the Decrypt API. Decrypt
 // uses the associated master key to decrypt the encrypted data key and returns
@@ -412,7 +751,28 @@ func (c *KMS) GenerateDataKey(input *GenerateDataKeyInput) (*GenerateDataKeyOutp
 
 const opGenerateDataKeyWithoutPlaintext = "GenerateDataKeyWithoutPlaintext"
 
-// GenerateDataKeyWithoutPlaintextRequest generates a request for the GenerateDataKeyWithoutPlaintext operation.
+// GenerateDataKeyWithoutPlaintextRequest generates a "aws/request.Request" representing the
+// client's request for the GenerateDataKeyWithoutPlaintext operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GenerateDataKeyWithoutPlaintext method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GenerateDataKeyWithoutPlaintextRequest method.
+//    req, resp := client.GenerateDataKeyWithoutPlaintextRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) GenerateDataKeyWithoutPlaintextRequest(input *GenerateDataKeyWithoutPlaintextInput) (req *request.Request, output *GenerateDataKeyWithoutPlaintextOutput) {
 	op := &request.Operation{
 		Name:       opGenerateDataKeyWithoutPlaintext,
@@ -443,7 +803,28 @@ func (c *KMS) GenerateDataKeyWithoutPlaintext(input *GenerateDataKeyWithoutPlain
 
 const opGenerateRandom = "GenerateRandom"
 
-// GenerateRandomRequest generates a request for the GenerateRandom operation.
+// GenerateRandomRequest generates a "aws/request.Request" representing the
+// client's request for the GenerateRandom operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GenerateRandom method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GenerateRandomRequest method.
+//    req, resp := client.GenerateRandomRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) GenerateRandomRequest(input *GenerateRandomInput) (req *request.Request, output *GenerateRandomOutput) {
 	op := &request.Operation{
 		Name:       opGenerateRandom,
@@ -470,7 +851,28 @@ func (c *KMS) GenerateRandom(input *GenerateRandomInput) (*GenerateRandomOutput,
 
 const opGetKeyPolicy = "GetKeyPolicy"
 
-// GetKeyPolicyRequest generates a request for the GetKeyPolicy operation.
+// GetKeyPolicyRequest generates a "aws/request.Request" representing the
+// client's request for the GetKeyPolicy operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GetKeyPolicy method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GetKeyPolicyRequest method.
+//    req, resp := client.GetKeyPolicyRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) GetKeyPolicyRequest(input *GetKeyPolicyInput) (req *request.Request, output *GetKeyPolicyOutput) {
 	op := &request.Operation{
 		Name:       opGetKeyPolicy,
@@ -497,7 +899,28 @@ func (c *KMS) GetKeyPolicy(input *GetKeyPolicyInput) (*GetKeyPolicyOutput, error
 
 const opGetKeyRotationStatus = "GetKeyRotationStatus"
 
-// GetKeyRotationStatusRequest generates a request for the GetKeyRotationStatus operation.
+// GetKeyRotationStatusRequest generates a "aws/request.Request" representing the
+// client's request for the GetKeyRotationStatus operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GetKeyRotationStatus method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GetKeyRotationStatusRequest method.
+//    req, resp := client.GetKeyRotationStatusRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) GetKeyRotationStatusRequest(input *GetKeyRotationStatusInput) (req *request.Request, output *GetKeyRotationStatusOutput) {
 	op := &request.Operation{
 		Name:       opGetKeyRotationStatus,
@@ -525,7 +948,28 @@ func (c *KMS) GetKeyRotationStatus(input *GetKeyRotationStatusInput) (*GetKeyRot
 
 const opListAliases = "ListAliases"
 
-// ListAliasesRequest generates a request for the ListAliases operation.
+// ListAliasesRequest generates a "aws/request.Request" representing the
+// client's request for the ListAliases operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListAliases method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListAliasesRequest method.
+//    req, resp := client.ListAliasesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) ListAliasesRequest(input *ListAliasesInput) (req *request.Request, output *ListAliasesOutput) {
 	op := &request.Operation{
 		Name:       opListAliases,
@@ -556,8 +1000,26 @@ func (c *KMS) ListAliases(input *ListAliasesInput) (*ListAliasesOutput, error) {
 	return out, err
 }
 
+// ListAliasesPages iterates over the pages of a ListAliases operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListAliases method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListAliases operation.
+//    pageNum := 0
+//    err := client.ListAliasesPages(params,
+//        func(page *ListAliasesOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *KMS) ListAliasesPages(input *ListAliasesInput, fn func(p *ListAliasesOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListAliasesRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListAliasesOutput), lastPage)
 	})
@@ -565,8 +1027,29 @@ func (c *KMS) ListAliasesPages(input *ListAliasesInput, fn func(p *ListAliasesOu
 
 const opListGrants = "ListGrants"
 
-// ListGrantsRequest generates a request for the ListGrants operation.
-func (c *KMS) ListGrantsRequest(input *ListGrantsInput) (req *request.Request, output *ListGrantsOutput) {
+// ListGrantsRequest generates a "aws/request.Request" representing the
+// client's request for the ListGrants operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListGrants method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListGrantsRequest method.
+//    req, resp := client.ListGrantsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *KMS) ListGrantsRequest(input *ListGrantsInput) (req *request.Request, output *ListGrantsResponse) {
 	op := &request.Operation{
 		Name:       opListGrants,
 		HTTPMethod: "POST",
@@ -584,28 +1067,67 @@ func (c *KMS) ListGrantsRequest(input *ListGrantsInput) (req *request.Request, o
 	}
 
 	req = c.newRequest(op, input, output)
-	output = &ListGrantsOutput{}
+	output = &ListGrantsResponse{}
 	req.Data = output
 	return
 }
 
 // List the grants for a specified key.
-func (c *KMS) ListGrants(input *ListGrantsInput) (*ListGrantsOutput, error) {
+func (c *KMS) ListGrants(input *ListGrantsInput) (*ListGrantsResponse, error) {
 	req, out := c.ListGrantsRequest(input)
 	err := req.Send()
 	return out, err
 }
 
-func (c *KMS) ListGrantsPages(input *ListGrantsInput, fn func(p *ListGrantsOutput, lastPage bool) (shouldContinue bool)) error {
+// ListGrantsPages iterates over the pages of a ListGrants operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListGrants method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListGrants operation.
+//    pageNum := 0
+//    err := client.ListGrantsPages(params,
+//        func(page *ListGrantsResponse, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
+func (c *KMS) ListGrantsPages(input *ListGrantsInput, fn func(p *ListGrantsResponse, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListGrantsRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
-		return fn(p.(*ListGrantsOutput), lastPage)
+		return fn(p.(*ListGrantsResponse), lastPage)
 	})
 }
 
 const opListKeyPolicies = "ListKeyPolicies"
 
-// ListKeyPoliciesRequest generates a request for the ListKeyPolicies operation.
+// ListKeyPoliciesRequest generates a "aws/request.Request" representing the
+// client's request for the ListKeyPolicies operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListKeyPolicies method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListKeyPoliciesRequest method.
+//    req, resp := client.ListKeyPoliciesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) ListKeyPoliciesRequest(input *ListKeyPoliciesInput) (req *request.Request, output *ListKeyPoliciesOutput) {
 	op := &request.Operation{
 		Name:       opListKeyPolicies,
@@ -636,8 +1158,26 @@ func (c *KMS) ListKeyPolicies(input *ListKeyPoliciesInput) (*ListKeyPoliciesOutp
 	return out, err
 }
 
+// ListKeyPoliciesPages iterates over the pages of a ListKeyPolicies operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListKeyPolicies method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListKeyPolicies operation.
+//    pageNum := 0
+//    err := client.ListKeyPoliciesPages(params,
+//        func(page *ListKeyPoliciesOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *KMS) ListKeyPoliciesPages(input *ListKeyPoliciesInput, fn func(p *ListKeyPoliciesOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListKeyPoliciesRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListKeyPoliciesOutput), lastPage)
 	})
@@ -645,7 +1185,28 @@ func (c *KMS) ListKeyPoliciesPages(input *ListKeyPoliciesInput, fn func(p *ListK
 
 const opListKeys = "ListKeys"
 
-// ListKeysRequest generates a request for the ListKeys operation.
+// ListKeysRequest generates a "aws/request.Request" representing the
+// client's request for the ListKeys operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListKeys method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListKeysRequest method.
+//    req, resp := client.ListKeysRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) ListKeysRequest(input *ListKeysInput) (req *request.Request, output *ListKeysOutput) {
 	op := &request.Operation{
 		Name:       opListKeys,
@@ -676,16 +1237,107 @@ func (c *KMS) ListKeys(input *ListKeysInput) (*ListKeysOutput, error) {
 	return out, err
 }
 
+// ListKeysPages iterates over the pages of a ListKeys operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListKeys method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListKeys operation.
+//    pageNum := 0
+//    err := client.ListKeysPages(params,
+//        func(page *ListKeysOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *KMS) ListKeysPages(input *ListKeysInput, fn func(p *ListKeysOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListKeysRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListKeysOutput), lastPage)
 	})
 }
 
+const opListRetirableGrants = "ListRetirableGrants"
+
+// ListRetirableGrantsRequest generates a "aws/request.Request" representing the
+// client's request for the ListRetirableGrants operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListRetirableGrants method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListRetirableGrantsRequest method.
+//    req, resp := client.ListRetirableGrantsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *KMS) ListRetirableGrantsRequest(input *ListRetirableGrantsInput) (req *request.Request, output *ListGrantsResponse) {
+	op := &request.Operation{
+		Name:       opListRetirableGrants,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &ListRetirableGrantsInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &ListGrantsResponse{}
+	req.Data = output
+	return
+}
+
+// Returns a list of all grants for which the grant's RetiringPrincipal matches
+// the one specified.
+//
+// A typical use is to list all grants that you are able to retire. To retire
+// a grant, use RetireGrant.
+func (c *KMS) ListRetirableGrants(input *ListRetirableGrantsInput) (*ListGrantsResponse, error) {
+	req, out := c.ListRetirableGrantsRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opPutKeyPolicy = "PutKeyPolicy"
 
-// PutKeyPolicyRequest generates a request for the PutKeyPolicy operation.
+// PutKeyPolicyRequest generates a "aws/request.Request" representing the
+// client's request for the PutKeyPolicy operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the PutKeyPolicy method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the PutKeyPolicyRequest method.
+//    req, resp := client.PutKeyPolicyRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) PutKeyPolicyRequest(input *PutKeyPolicyInput) (req *request.Request, output *PutKeyPolicyOutput) {
 	op := &request.Operation{
 		Name:       opPutKeyPolicy,
@@ -698,12 +1350,17 @@ func (c *KMS) PutKeyPolicyRequest(input *PutKeyPolicyInput) (req *request.Reques
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &PutKeyPolicyOutput{}
 	req.Data = output
 	return
 }
 
-// Attaches a policy to the specified key.
+// Attaches a key policy to the specified customer master key (CMK).
+//
+// For more information about key policies, see Key Policies (http://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html)
+// in the AWS Key Management Service Developer Guide.
 func (c *KMS) PutKeyPolicy(input *PutKeyPolicyInput) (*PutKeyPolicyOutput, error) {
 	req, out := c.PutKeyPolicyRequest(input)
 	err := req.Send()
@@ -712,7 +1369,28 @@ func (c *KMS) PutKeyPolicy(input *PutKeyPolicyInput) (*PutKeyPolicyOutput, error
 
 const opReEncrypt = "ReEncrypt"
 
-// ReEncryptRequest generates a request for the ReEncrypt operation.
+// ReEncryptRequest generates a "aws/request.Request" representing the
+// client's request for the ReEncrypt operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ReEncrypt method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ReEncryptRequest method.
+//    req, resp := client.ReEncryptRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) ReEncryptRequest(input *ReEncryptInput) (req *request.Request, output *ReEncryptOutput) {
 	op := &request.Operation{
 		Name:       opReEncrypt,
@@ -750,7 +1428,28 @@ func (c *KMS) ReEncrypt(input *ReEncryptInput) (*ReEncryptOutput, error) {
 
 const opRetireGrant = "RetireGrant"
 
-// RetireGrantRequest generates a request for the RetireGrant operation.
+// RetireGrantRequest generates a "aws/request.Request" representing the
+// client's request for the RetireGrant operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RetireGrant method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RetireGrantRequest method.
+//    req, resp := client.RetireGrantRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) RetireGrantRequest(input *RetireGrantInput) (req *request.Request, output *RetireGrantOutput) {
 	op := &request.Operation{
 		Name:       opRetireGrant,
@@ -763,6 +1462,8 @@ func (c *KMS) RetireGrantRequest(input *RetireGrantInput) (req *request.Request,
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &RetireGrantOutput{}
 	req.Data = output
 	return
@@ -770,13 +1471,18 @@ func (c *KMS) RetireGrantRequest(input *RetireGrantInput) (req *request.Request,
 
 // Retires a grant. You can retire a grant when you're done using it to clean
 // up. You should revoke a grant when you intend to actively deny operations
-// that depend on it. The following are permitted to call this API:  The account
-// that created the grant The RetiringPrincipal, if present The GranteePrincipal,
-// if RetireGrant is a grantee operation  The grant to retire must be identified
-// by its grant token or by a combination of the key ARN and the grant ID. A
-// grant token is a unique variable-length base64-encoded string. A grant ID
-// is a 64 character unique identifier of a grant. Both are returned by the
-// CreateGrant function.
+// that depend on it. The following are permitted to call this API:
+//
+//   The account that created the grant
+//
+//   The RetiringPrincipal, if present
+//
+//   The GranteePrincipal, if RetireGrant is a grantee operation
+//
+//   The grant to retire must be identified by its grant token or by a combination
+// of the key ARN and the grant ID. A grant token is a unique variable-length
+// base64-encoded string. A grant ID is a 64 character unique identifier of
+// a grant. Both are returned by the CreateGrant function.
 func (c *KMS) RetireGrant(input *RetireGrantInput) (*RetireGrantOutput, error) {
 	req, out := c.RetireGrantRequest(input)
 	err := req.Send()
@@ -785,7 +1491,28 @@ func (c *KMS) RetireGrant(input *RetireGrantInput) (*RetireGrantOutput, error) {
 
 const opRevokeGrant = "RevokeGrant"
 
-// RevokeGrantRequest generates a request for the RevokeGrant operation.
+// RevokeGrantRequest generates a "aws/request.Request" representing the
+// client's request for the RevokeGrant operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RevokeGrant method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RevokeGrantRequest method.
+//    req, resp := client.RevokeGrantRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) RevokeGrantRequest(input *RevokeGrantInput) (req *request.Request, output *RevokeGrantOutput) {
 	op := &request.Operation{
 		Name:       opRevokeGrant,
@@ -798,6 +1525,8 @@ func (c *KMS) RevokeGrantRequest(input *RevokeGrantInput) (req *request.Request,
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &RevokeGrantOutput{}
 	req.Data = output
 	return
@@ -811,9 +1540,93 @@ func (c *KMS) RevokeGrant(input *RevokeGrantInput) (*RevokeGrantOutput, error) {
 	return out, err
 }
 
+const opScheduleKeyDeletion = "ScheduleKeyDeletion"
+
+// ScheduleKeyDeletionRequest generates a "aws/request.Request" representing the
+// client's request for the ScheduleKeyDeletion operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ScheduleKeyDeletion method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ScheduleKeyDeletionRequest method.
+//    req, resp := client.ScheduleKeyDeletionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *KMS) ScheduleKeyDeletionRequest(input *ScheduleKeyDeletionInput) (req *request.Request, output *ScheduleKeyDeletionOutput) {
+	op := &request.Operation{
+		Name:       opScheduleKeyDeletion,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &ScheduleKeyDeletionInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &ScheduleKeyDeletionOutput{}
+	req.Data = output
+	return
+}
+
+// Schedules the deletion of a customer master key (CMK). You may provide a
+// waiting period, specified in days, before deletion occurs. If you do not
+// provide a waiting period, the default period of 30 days is used. When this
+// operation is successful, the state of the CMK changes to PendingDeletion.
+// Before the waiting period ends, you can use CancelKeyDeletion to cancel the
+// deletion of the CMK. After the waiting period ends, AWS KMS deletes the CMK
+// and all AWS KMS data associated with it, including all aliases that point
+// to it.
+//
+//  Deleting a CMK is a destructive and potentially dangerous operation. When
+// a CMK is deleted, all data that was encrypted under the CMK is rendered unrecoverable.
+// To restrict the use of a CMK without deleting it, use DisableKey.
+//
+//  For more information about scheduling a CMK for deletion, see Deleting
+// Customer Master Keys (http://docs.aws.amazon.com/kms/latest/developerguide/deleting-keys.html)
+// in the AWS Key Management Service Developer Guide.
+func (c *KMS) ScheduleKeyDeletion(input *ScheduleKeyDeletionInput) (*ScheduleKeyDeletionOutput, error) {
+	req, out := c.ScheduleKeyDeletionRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opUpdateAlias = "UpdateAlias"
 
-// UpdateAliasRequest generates a request for the UpdateAlias operation.
+// UpdateAliasRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateAlias operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateAlias method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateAliasRequest method.
+//    req, resp := client.UpdateAliasRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) UpdateAliasRequest(input *UpdateAliasInput) (req *request.Request, output *UpdateAliasOutput) {
 	op := &request.Operation{
 		Name:       opUpdateAlias,
@@ -826,24 +1639,26 @@ func (c *KMS) UpdateAliasRequest(input *UpdateAliasInput) (req *request.Request,
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &UpdateAliasOutput{}
 	req.Data = output
 	return
 }
 
-// Updates an alias to associate it with a different key.
+// Updates an alias to map it to a different key.
+//
+// An alias is not a property of a key. Therefore, an alias can be mapped to
+// and unmapped from an existing key without changing the properties of the
+// key.
 //
 // An alias name can contain only alphanumeric characters, forward slashes
 // (/), underscores (_), and dashes (-). An alias must start with the word "alias"
 // followed by a forward slash (alias/). An alias that begins with "aws" after
 // the forward slash (alias/aws...) is reserved by Amazon Web Services (AWS).
 //
-// An alias is not a property of a key. Therefore, an alias can be associated
-// with and disassociated from an existing key without changing the properties
-// of the key.
-//
-// Note that you cannot create or update an alias that represents a key in
-// another account.
+// The alias and the key it is mapped to must be in the same AWS account and
+// the same region.
 func (c *KMS) UpdateAlias(input *UpdateAliasInput) (*UpdateAliasOutput, error) {
 	req, out := c.UpdateAliasRequest(input)
 	err := req.Send()
@@ -852,7 +1667,28 @@ func (c *KMS) UpdateAlias(input *UpdateAliasInput) (*UpdateAliasOutput, error) {
 
 const opUpdateKeyDescription = "UpdateKeyDescription"
 
-// UpdateKeyDescriptionRequest generates a request for the UpdateKeyDescription operation.
+// UpdateKeyDescriptionRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateKeyDescription operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateKeyDescription method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateKeyDescriptionRequest method.
+//    req, resp := client.UpdateKeyDescriptionRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *KMS) UpdateKeyDescriptionRequest(input *UpdateKeyDescriptionInput) (req *request.Request, output *UpdateKeyDescriptionOutput) {
 	op := &request.Operation{
 		Name:       opUpdateKeyDescription,
@@ -865,6 +1701,8 @@ func (c *KMS) UpdateKeyDescriptionRequest(input *UpdateKeyDescriptionInput) (req
 	}
 
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
+	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
 	output = &UpdateKeyDescriptionOutput{}
 	req.Data = output
 	return
@@ -879,20 +1717,16 @@ func (c *KMS) UpdateKeyDescription(input *UpdateKeyDescriptionInput) (*UpdateKey
 
 // Contains information about an alias.
 type AliasListEntry struct {
+	_ struct{} `type:"structure"`
+
 	// String that contains the key ARN.
-	AliasArn *string `type:"string"`
+	AliasArn *string `min:"20" type:"string"`
 
 	// String that contains the alias.
-	AliasName *string `type:"string"`
+	AliasName *string `min:"1" type:"string"`
 
 	// String that contains the key identifier pointed to by the alias.
-	TargetKeyId *string `type:"string"`
-
-	metadataAliasListEntry `json:"-" xml:"-"`
-}
-
-type metadataAliasListEntry struct {
-	SDKShapeTraits bool `type:"structure"`
+	TargetKeyId *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -905,23 +1739,83 @@ func (s AliasListEntry) GoString() string {
 	return s.String()
 }
 
+type CancelKeyDeletionInput struct {
+	_ struct{} `type:"structure"`
+
+	// The unique identifier for the customer master key (CMK) for which to cancel
+	// deletion.
+	//
+	// To specify this value, use the unique key ID or the Amazon Resource Name
+	// (ARN) of the CMK. Examples:
+	//
+	//   Unique key ID: 1234abcd-12ab-34cd-56ef-1234567890ab
+	//
+	//   Key ARN: arn:aws:kms:us-west-2:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab
+	//
+	//   To obtain the unique key ID and key ARN for a given CMK, use ListKeys
+	// or DescribeKey.
+	KeyId *string `min:"1" type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s CancelKeyDeletionInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CancelKeyDeletionInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CancelKeyDeletionInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CancelKeyDeletionInput"}
+	if s.KeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("KeyId"))
+	}
+	if s.KeyId != nil && len(*s.KeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("KeyId", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+type CancelKeyDeletionOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The unique identifier of the master key for which deletion is canceled.
+	KeyId *string `min:"1" type:"string"`
+}
+
+// String returns the string representation
+func (s CancelKeyDeletionOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CancelKeyDeletionOutput) GoString() string {
+	return s.String()
+}
+
 type CreateAliasInput struct {
+	_ struct{} `type:"structure"`
+
 	// String that contains the display name. The name must start with the word
 	// "alias" followed by a forward slash (alias/). Aliases that begin with "alias/AWS"
 	// are reserved.
-	AliasName *string `type:"string" required:"true"`
+	AliasName *string `min:"1" type:"string" required:"true"`
 
 	// An identifier of the key for which you are creating the alias. This value
 	// cannot be another alias but can be a globally unique identifier or a fully
-	// specified ARN to a key.  Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
-	// Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
-	TargetKeyId *string `type:"string" required:"true"`
-
-	metadataCreateAliasInput `json:"-" xml:"-"`
-}
-
-type metadataCreateAliasInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	// specified ARN to a key.
+	//
+	//   Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+	//
+	//   Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
+	TargetKeyId *string `min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -934,12 +1828,30 @@ func (s CreateAliasInput) GoString() string {
 	return s.String()
 }
 
-type CreateAliasOutput struct {
-	metadataCreateAliasOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateAliasInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateAliasInput"}
+	if s.AliasName == nil {
+		invalidParams.Add(request.NewErrParamRequired("AliasName"))
+	}
+	if s.AliasName != nil && len(*s.AliasName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("AliasName", 1))
+	}
+	if s.TargetKeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("TargetKeyId"))
+	}
+	if s.TargetKeyId != nil && len(*s.TargetKeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("TargetKeyId", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataCreateAliasOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type CreateAliasOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -953,37 +1865,90 @@ func (s CreateAliasOutput) GoString() string {
 }
 
 type CreateGrantInput struct {
-	// Specifies the conditions under which the actions specified by the Operations
-	// parameter are allowed.
+	_ struct{} `type:"structure"`
+
+	// The conditions under which the operations permitted by the grant are allowed.
+	//
+	// You can use this value to allow the operations permitted by the grant only
+	// when a specified encryption context is present. For more information, see
+	// Encryption Context (http://docs.aws.amazon.com/kms/latest/developerguide/encrypt-context.html)
+	// in the AWS Key Management Service Developer Guide.
 	Constraints *GrantConstraints `type:"structure"`
 
-	// For more information, see Grant Tokens (http://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token).
+	// A list of grant tokens.
+	//
+	// For more information, see Grant Tokens (http://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
+	// in the AWS Key Management Service Developer Guide.
 	GrantTokens []*string `type:"list"`
 
-	// Principal given permission by the grant to use the key identified by the
-	// keyId parameter.
-	GranteePrincipal *string `type:"string" required:"true"`
+	// The principal that is given permission to perform the operations that the
+	// grant permits.
+	//
+	// To specify the principal, use the Amazon Resource Name (ARN) (http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html)
+	// of an AWS principal. Valid AWS principals include AWS accounts (root), IAM
+	// users, federated users, and assumed role users. For examples of the ARN syntax
+	// to use for specifying a principal, see AWS Identity and Access Management
+	// (IAM) (http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html#arn-syntax-iam)
+	// in the Example ARNs section of the AWS General Reference.
+	GranteePrincipal *string `min:"1" type:"string" required:"true"`
 
-	// A unique identifier for the customer master key. This value can be a globally
-	// unique identifier or the fully specified ARN to a key.  Key ARN Example -
-	// arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
-	// Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
-	KeyId *string `type:"string" required:"true"`
+	// The unique identifier for the customer master key (CMK) that the grant applies
+	// to.
+	//
+	// To specify this value, use the globally unique key ID or the Amazon Resource
+	// Name (ARN) of the key. Examples:
+	//
+	//   Globally unique key ID: 12345678-1234-1234-1234-123456789012
+	//
+	//   Key ARN: arn:aws:kms:us-west-2:123456789012:key/12345678-1234-1234-1234-123456789012
+	KeyId *string `min:"1" type:"string" required:"true"`
 
-	// List of operations permitted by the grant. This can be any combination of
-	// one or more of the following values:  Decrypt Encrypt GenerateDataKey GenerateDataKeyWithoutPlaintext
-	// ReEncryptFrom ReEncryptTo CreateGrant RetireGrant
+	// A friendly name for identifying the grant. Use this value to prevent unintended
+	// creation of duplicate grants when retrying this request.
+	//
+	// When this value is absent, all CreateGrant requests result in a new grant
+	// with a unique GrantId even if all the supplied parameters are identical.
+	// This can result in unintended duplicates when you retry the CreateGrant request.
+	//
+	// When this value is present, you can retry a CreateGrant request with identical
+	// parameters; if the grant already exists, the original GrantId is returned
+	// without creating a new grant. Note that the returned grant token is unique
+	// with every CreateGrant request, even when a duplicate GrantId is returned.
+	// All grant tokens obtained in this way can be used interchangeably.
+	Name *string `min:"1" type:"string"`
+
+	// A list of operations that the grant permits. The list can contain any combination
+	// of one or more of the following values:
+	//
+	//    Decrypt
+	//
+	//    Encrypt
+	//
+	//    GenerateDataKey
+	//
+	//    GenerateDataKeyWithoutPlaintext
+	//
+	//    ReEncryptFrom (http://docs.aws.amazon.com/kms/latest/APIReference/API_ReEncrypt.html)
+	//
+	//    ReEncryptTo (http://docs.aws.amazon.com/kms/latest/APIReference/API_ReEncrypt.html)
+	//
+	//    CreateGrant
+	//
+	//    RetireGrant
+	//
+	//    DescribeKey
 	Operations []*string `type:"list"`
 
-	// Principal given permission to retire the grant. For more information, see
-	// RetireGrant.
-	RetiringPrincipal *string `type:"string"`
-
-	metadataCreateGrantInput `json:"-" xml:"-"`
-}
-
-type metadataCreateGrantInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	// The principal that is given permission to retire the grant by using RetireGrant
+	// operation.
+	//
+	// To specify the principal, use the Amazon Resource Name (ARN) (http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html)
+	// of an AWS principal. Valid AWS principals include AWS accounts (root), IAM
+	// users, federated users, and assumed role users. For examples of the ARN syntax
+	// to use for specifying a principal, see AWS Identity and Access Management
+	// (IAM) (http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html#arn-syntax-iam)
+	// in the Example ARNs section of the AWS General Reference.
+	RetiringPrincipal *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -996,18 +1961,47 @@ func (s CreateGrantInput) GoString() string {
 	return s.String()
 }
 
-type CreateGrantOutput struct {
-	// Unique grant identifier. You can use the GrantId value to revoke a grant.
-	GrantId *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateGrantInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateGrantInput"}
+	if s.GranteePrincipal == nil {
+		invalidParams.Add(request.NewErrParamRequired("GranteePrincipal"))
+	}
+	if s.GranteePrincipal != nil && len(*s.GranteePrincipal) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("GranteePrincipal", 1))
+	}
+	if s.KeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("KeyId"))
+	}
+	if s.KeyId != nil && len(*s.KeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("KeyId", 1))
+	}
+	if s.Name != nil && len(*s.Name) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Name", 1))
+	}
+	if s.RetiringPrincipal != nil && len(*s.RetiringPrincipal) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("RetiringPrincipal", 1))
+	}
 
-	// For more information, see Grant Tokens (http://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token).
-	GrantToken *string `type:"string"`
-
-	metadataCreateGrantOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataCreateGrantOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type CreateGrantOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The unique identifier for the grant.
+	//
+	// You can use the GrantId in a subsequent RetireGrant or RevokeGrant operation.
+	GrantId *string `min:"1" type:"string"`
+
+	// The grant token.
+	//
+	// For more information, see Grant Tokens (http://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
+	// in the AWS Key Management Service Developer Guide.
+	GrantToken *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -1021,23 +2015,58 @@ func (s CreateGrantOutput) GoString() string {
 }
 
 type CreateKeyInput struct {
-	// Description of the key. We recommend that you choose a description that helps
-	// your customer decide whether the key is appropriate for a task.
+	_ struct{} `type:"structure"`
+
+	// A flag to indicate whether to bypass the key policy lockout safety check.
+	//
+	//  Setting this value to true increases the likelihood that the CMK becomes
+	// unmanageable. Do not set this value to true indiscriminately.
+	//
+	// For more information, refer to the scenario in the Default Key Policy (http://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html#key-policy-default-allow-root-enable-iam)
+	// section in the AWS Key Management Service Developer Guide.
+	//
+	//  Use this parameter only when you include a policy in the request and you
+	// intend to prevent the principal making the request from making a subsequent
+	// PutKeyPolicy request on the CMK.
+	//
+	// The default value is false.
+	BypassPolicyLockoutSafetyCheck *bool `type:"boolean"`
+
+	// A description of the CMK.
+	//
+	// Use a description that helps you decide whether the CMK is appropriate for
+	// a task.
 	Description *string `type:"string"`
 
-	// Specifies the intended use of the key. Currently this defaults to ENCRYPT/DECRYPT,
-	// and only symmetric encryption and decryption are supported.
+	// The intended use of the CMK.
+	//
+	// You can use CMKs only for symmetric encryption and decryption.
 	KeyUsage *string `type:"string" enum:"KeyUsageType"`
 
-	// Policy to be attached to the key. This is required and delegates back to
-	// the account. The key is the root of trust.
-	Policy *string `type:"string"`
-
-	metadataCreateKeyInput `json:"-" xml:"-"`
-}
-
-type metadataCreateKeyInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	// The key policy to attach to the CMK.
+	//
+	// If you specify a key policy, it must meet the following criteria:
+	//
+	//   It must allow the principal making the CreateKey request to make a subsequent
+	// PutKeyPolicy request on the CMK. This reduces the likelihood that the CMK
+	// becomes unmanageable. For more information, refer to the scenario in the
+	// Default Key Policy (http://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html#key-policy-default-allow-root-enable-iam)
+	// section in the AWS Key Management Service Developer Guide.
+	//
+	//   The principal(s) specified in the key policy must exist and be visible
+	// to AWS KMS. When you create a new AWS principal (for example, an IAM user
+	// or role), you might need to enforce a delay before specifying the new principal
+	// in a key policy because the new principal might not immediately be visible
+	// to AWS KMS. For more information, see Changes that I make are not always
+	// immediately visible (http://docs.aws.amazon.com/IAM/latest/UserGuide/troubleshoot_general.html#troubleshoot_general_eventual-consistency)
+	// in the IAM User Guide.
+	//
+	//   If you do not specify a policy, AWS KMS attaches a default key policy
+	// to the CMK. For more information, see Default Key Policy (http://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html#key-policy-default)
+	// in the AWS Key Management Service Developer Guide.
+	//
+	// The policy size limit is 32 KiB (32768 bytes).
+	Policy *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -1050,15 +2079,24 @@ func (s CreateKeyInput) GoString() string {
 	return s.String()
 }
 
-type CreateKeyOutput struct {
-	// Metadata associated with the key.
-	KeyMetadata *KeyMetadata `type:"structure"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateKeyInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateKeyInput"}
+	if s.Policy != nil && len(*s.Policy) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Policy", 1))
+	}
 
-	metadataCreateKeyOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataCreateKeyOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type CreateKeyOutput struct {
+	_ struct{} `type:"structure"`
+
+	// Metadata associated with the CMK.
+	KeyMetadata *KeyMetadata `type:"structure"`
 }
 
 // String returns the string representation
@@ -1072,22 +2110,23 @@ func (s CreateKeyOutput) GoString() string {
 }
 
 type DecryptInput struct {
+	_ struct{} `type:"structure"`
+
 	// Ciphertext to be decrypted. The blob includes metadata.
-	CiphertextBlob []byte `type:"blob" required:"true"`
+	//
+	// CiphertextBlob is automatically base64 encoded/decoded by the SDK.
+	CiphertextBlob []byte `min:"1" type:"blob" required:"true"`
 
 	// The encryption context. If this was specified in the Encrypt function, it
 	// must be specified here or the decryption operation will fail. For more information,
 	// see Encryption Context (http://docs.aws.amazon.com/kms/latest/developerguide/encrypt-context.html).
 	EncryptionContext map[string]*string `type:"map"`
 
-	// For more information, see Grant Tokens (http://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token).
+	// A list of grant tokens.
+	//
+	// For more information, see Grant Tokens (http://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
+	// in the AWS Key Management Service Developer Guide.
 	GrantTokens []*string `type:"list"`
-
-	metadataDecryptInput `json:"-" xml:"-"`
-}
-
-type metadataDecryptInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1100,20 +2139,34 @@ func (s DecryptInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DecryptInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DecryptInput"}
+	if s.CiphertextBlob == nil {
+		invalidParams.Add(request.NewErrParamRequired("CiphertextBlob"))
+	}
+	if s.CiphertextBlob != nil && len(s.CiphertextBlob) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("CiphertextBlob", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 type DecryptOutput struct {
+	_ struct{} `type:"structure"`
+
 	// ARN of the key used to perform the decryption. This value is returned if
 	// no errors are encountered during the operation.
-	KeyId *string `type:"string"`
+	KeyId *string `min:"1" type:"string"`
 
 	// Decrypted plaintext data. This value may not be returned if the customer
 	// master key is not available or if you didn't have permission to use it.
-	Plaintext []byte `type:"blob"`
-
-	metadataDecryptOutput `json:"-" xml:"-"`
-}
-
-type metadataDecryptOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// Plaintext is automatically base64 encoded/decoded by the SDK.
+	Plaintext []byte `min:"1" type:"blob"`
 }
 
 // String returns the string representation
@@ -1127,15 +2180,11 @@ func (s DecryptOutput) GoString() string {
 }
 
 type DeleteAliasInput struct {
+	_ struct{} `type:"structure"`
+
 	// The alias to be deleted. The name must start with the word "alias" followed
 	// by a forward slash (alias/). Aliases that begin with "alias/AWS" are reserved.
-	AliasName *string `type:"string" required:"true"`
-
-	metadataDeleteAliasInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteAliasInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	AliasName *string `min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1148,12 +2197,24 @@ func (s DeleteAliasInput) GoString() string {
 	return s.String()
 }
 
-type DeleteAliasOutput struct {
-	metadataDeleteAliasOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteAliasInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteAliasInput"}
+	if s.AliasName == nil {
+		invalidParams.Add(request.NewErrParamRequired("AliasName"))
+	}
+	if s.AliasName != nil && len(*s.AliasName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("AliasName", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeleteAliasOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DeleteAliasOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1167,19 +2228,26 @@ func (s DeleteAliasOutput) GoString() string {
 }
 
 type DescribeKeyInput struct {
+	_ struct{} `type:"structure"`
+
+	// A list of grant tokens.
+	//
+	// For more information, see Grant Tokens (http://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
+	// in the AWS Key Management Service Developer Guide.
+	GrantTokens []*string `type:"list"`
+
 	// A unique identifier for the customer master key. This value can be a globally
 	// unique identifier, a fully specified ARN to either an alias or a key, or
-	// an alias name prefixed by "alias/".  Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
-	// Alias ARN Example - arn:aws:kms:us-east-1:123456789012:alias/MyAliasName
-	// Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012 Alias
-	// Name Example - alias/MyAliasName
-	KeyId *string `type:"string" required:"true"`
-
-	metadataDescribeKeyInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeKeyInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	// an alias name prefixed by "alias/".
+	//
+	//   Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+	//
+	//   Alias ARN Example - arn:aws:kms:us-east-1:123456789012:alias/MyAliasName
+	//
+	//   Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
+	//
+	//   Alias Name Example - alias/MyAliasName
+	KeyId *string `min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1192,15 +2260,27 @@ func (s DescribeKeyInput) GoString() string {
 	return s.String()
 }
 
-type DescribeKeyOutput struct {
-	// Metadata associated with the key.
-	KeyMetadata *KeyMetadata `type:"structure"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeKeyInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeKeyInput"}
+	if s.KeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("KeyId"))
+	}
+	if s.KeyId != nil && len(*s.KeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("KeyId", 1))
+	}
 
-	metadataDescribeKeyOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDescribeKeyOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DescribeKeyOutput struct {
+	_ struct{} `type:"structure"`
+
+	// Metadata associated with the key.
+	KeyMetadata *KeyMetadata `type:"structure"`
 }
 
 // String returns the string representation
@@ -1214,17 +2294,16 @@ func (s DescribeKeyOutput) GoString() string {
 }
 
 type DisableKeyInput struct {
-	// A unique identifier for the customer master key. This value can be a globally
-	// unique identifier or the fully specified ARN to a key.  Key ARN Example -
-	// arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
-	// Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
-	KeyId *string `type:"string" required:"true"`
+	_ struct{} `type:"structure"`
 
-	metadataDisableKeyInput `json:"-" xml:"-"`
-}
-
-type metadataDisableKeyInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	// A unique identifier for the CMK.
+	//
+	// Use the CMK's unique identifier or its Amazon Resource Name (ARN). For example:
+	//
+	//   Unique ID: 1234abcd-12ab-34cd-56ef-1234567890ab
+	//
+	//   ARN: arn:aws:kms:us-west-2:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab
+	KeyId *string `min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1237,12 +2316,24 @@ func (s DisableKeyInput) GoString() string {
 	return s.String()
 }
 
-type DisableKeyOutput struct {
-	metadataDisableKeyOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DisableKeyInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DisableKeyInput"}
+	if s.KeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("KeyId"))
+	}
+	if s.KeyId != nil && len(*s.KeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("KeyId", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDisableKeyOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DisableKeyOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1256,17 +2347,15 @@ func (s DisableKeyOutput) GoString() string {
 }
 
 type DisableKeyRotationInput struct {
+	_ struct{} `type:"structure"`
+
 	// A unique identifier for the customer master key. This value can be a globally
-	// unique identifier or the fully specified ARN to a key.  Key ARN Example -
-	// arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
-	// Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
-	KeyId *string `type:"string" required:"true"`
-
-	metadataDisableKeyRotationInput `json:"-" xml:"-"`
-}
-
-type metadataDisableKeyRotationInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	// unique identifier or the fully specified ARN to a key.
+	//
+	//   Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+	//
+	//   Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
+	KeyId *string `min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1279,12 +2368,24 @@ func (s DisableKeyRotationInput) GoString() string {
 	return s.String()
 }
 
-type DisableKeyRotationOutput struct {
-	metadataDisableKeyRotationOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DisableKeyRotationInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DisableKeyRotationInput"}
+	if s.KeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("KeyId"))
+	}
+	if s.KeyId != nil && len(*s.KeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("KeyId", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDisableKeyRotationOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DisableKeyRotationOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1298,17 +2399,15 @@ func (s DisableKeyRotationOutput) GoString() string {
 }
 
 type EnableKeyInput struct {
+	_ struct{} `type:"structure"`
+
 	// A unique identifier for the customer master key. This value can be a globally
-	// unique identifier or the fully specified ARN to a key.  Key ARN Example -
-	// arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
-	// Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
-	KeyId *string `type:"string" required:"true"`
-
-	metadataEnableKeyInput `json:"-" xml:"-"`
-}
-
-type metadataEnableKeyInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	// unique identifier or the fully specified ARN to a key.
+	//
+	//   Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+	//
+	//   Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
+	KeyId *string `min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1321,12 +2420,24 @@ func (s EnableKeyInput) GoString() string {
 	return s.String()
 }
 
-type EnableKeyOutput struct {
-	metadataEnableKeyOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *EnableKeyInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "EnableKeyInput"}
+	if s.KeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("KeyId"))
+	}
+	if s.KeyId != nil && len(*s.KeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("KeyId", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataEnableKeyOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type EnableKeyOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1340,17 +2451,15 @@ func (s EnableKeyOutput) GoString() string {
 }
 
 type EnableKeyRotationInput struct {
+	_ struct{} `type:"structure"`
+
 	// A unique identifier for the customer master key. This value can be a globally
-	// unique identifier or the fully specified ARN to a key.  Key ARN Example -
-	// arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
-	// Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
-	KeyId *string `type:"string" required:"true"`
-
-	metadataEnableKeyRotationInput `json:"-" xml:"-"`
-}
-
-type metadataEnableKeyRotationInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	// unique identifier or the fully specified ARN to a key.
+	//
+	//   Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+	//
+	//   Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
+	KeyId *string `min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1363,12 +2472,24 @@ func (s EnableKeyRotationInput) GoString() string {
 	return s.String()
 }
 
-type EnableKeyRotationOutput struct {
-	metadataEnableKeyRotationOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *EnableKeyRotationInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "EnableKeyRotationInput"}
+	if s.KeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("KeyId"))
+	}
+	if s.KeyId != nil && len(*s.KeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("KeyId", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataEnableKeyRotationOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type EnableKeyRotationOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1382,31 +2503,37 @@ func (s EnableKeyRotationOutput) GoString() string {
 }
 
 type EncryptInput struct {
+	_ struct{} `type:"structure"`
+
 	// Name/value pair that specifies the encryption context to be used for authenticated
 	// encryption. If used here, the same value must be supplied to the Decrypt
 	// API or decryption will fail. For more information, see Encryption Context
 	// (http://docs.aws.amazon.com/kms/latest/developerguide/encrypt-context.html).
 	EncryptionContext map[string]*string `type:"map"`
 
-	// For more information, see Grant Tokens (http://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token).
+	// A list of grant tokens.
+	//
+	// For more information, see Grant Tokens (http://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
+	// in the AWS Key Management Service Developer Guide.
 	GrantTokens []*string `type:"list"`
 
 	// A unique identifier for the customer master key. This value can be a globally
 	// unique identifier, a fully specified ARN to either an alias or a key, or
-	// an alias name prefixed by "alias/".  Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
-	// Alias ARN Example - arn:aws:kms:us-east-1:123456789012:alias/MyAliasName
-	// Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012 Alias
-	// Name Example - alias/MyAliasName
-	KeyId *string `type:"string" required:"true"`
+	// an alias name prefixed by "alias/".
+	//
+	//   Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+	//
+	//   Alias ARN Example - arn:aws:kms:us-east-1:123456789012:alias/MyAliasName
+	//
+	//   Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
+	//
+	//   Alias Name Example - alias/MyAliasName
+	KeyId *string `min:"1" type:"string" required:"true"`
 
 	// Data to be encrypted.
-	Plaintext []byte `type:"blob" required:"true"`
-
-	metadataEncryptInput `json:"-" xml:"-"`
-}
-
-type metadataEncryptInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// Plaintext is automatically base64 encoded/decoded by the SDK.
+	Plaintext []byte `min:"1" type:"blob" required:"true"`
 }
 
 // String returns the string representation
@@ -1419,19 +2546,39 @@ func (s EncryptInput) GoString() string {
 	return s.String()
 }
 
-type EncryptOutput struct {
-	// The encrypted plaintext. If you are using the CLI, the value is Base64 encoded.
-	// Otherwise, it is not encoded.
-	CiphertextBlob []byte `type:"blob"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *EncryptInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "EncryptInput"}
+	if s.KeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("KeyId"))
+	}
+	if s.KeyId != nil && len(*s.KeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("KeyId", 1))
+	}
+	if s.Plaintext == nil {
+		invalidParams.Add(request.NewErrParamRequired("Plaintext"))
+	}
+	if s.Plaintext != nil && len(s.Plaintext) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Plaintext", 1))
+	}
 
-	// The ID of the key used during encryption.
-	KeyId *string `type:"string"`
-
-	metadataEncryptOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataEncryptOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type EncryptOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The encrypted plaintext. If you are using the CLI, the value is Base64 encoded.
+	// Otherwise, it is not encoded.
+	//
+	// CiphertextBlob is automatically base64 encoded/decoded by the SDK.
+	CiphertextBlob []byte `min:"1" type:"blob"`
+
+	// The ID of the key used during encryption.
+	KeyId *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -1445,21 +2592,31 @@ func (s EncryptOutput) GoString() string {
 }
 
 type GenerateDataKeyInput struct {
+	_ struct{} `type:"structure"`
+
 	// Name/value pair that contains additional data to be authenticated during
 	// the encryption and decryption processes that use the key. This value is logged
 	// by AWS CloudTrail to provide context around the data encrypted by the key.
 	EncryptionContext map[string]*string `type:"map"`
 
-	// For more information, see Grant Tokens (http://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token).
+	// A list of grant tokens.
+	//
+	// For more information, see Grant Tokens (http://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
+	// in the AWS Key Management Service Developer Guide.
 	GrantTokens []*string `type:"list"`
 
 	// A unique identifier for the customer master key. This value can be a globally
 	// unique identifier, a fully specified ARN to either an alias or a key, or
-	// an alias name prefixed by "alias/".  Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
-	// Alias ARN Example - arn:aws:kms:us-east-1:123456789012:alias/MyAliasName
-	// Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012 Alias
-	// Name Example - alias/MyAliasName
-	KeyId *string `type:"string" required:"true"`
+	// an alias name prefixed by "alias/".
+	//
+	//   Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+	//
+	//   Alias ARN Example - arn:aws:kms:us-east-1:123456789012:alias/MyAliasName
+	//
+	//   Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
+	//
+	//   Alias Name Example - alias/MyAliasName
+	KeyId *string `min:"1" type:"string" required:"true"`
 
 	// Value that identifies the encryption algorithm and key size to generate a
 	// data key for. Currently this can be AES_128 or AES_256.
@@ -1468,13 +2625,7 @@ type GenerateDataKeyInput struct {
 	// Integer that contains the number of bytes to generate. Common values are
 	// 128, 256, 512, and 1024. 1024 is the current limit. We recommend that you
 	// use the KeySpec parameter instead.
-	NumberOfBytes *int64 `type:"integer"`
-
-	metadataGenerateDataKeyInput `json:"-" xml:"-"`
-}
-
-type metadataGenerateDataKeyInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	NumberOfBytes *int64 `min:"1" type:"integer"`
 }
 
 // String returns the string representation
@@ -1487,7 +2638,28 @@ func (s GenerateDataKeyInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GenerateDataKeyInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GenerateDataKeyInput"}
+	if s.KeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("KeyId"))
+	}
+	if s.KeyId != nil && len(*s.KeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("KeyId", 1))
+	}
+	if s.NumberOfBytes != nil && *s.NumberOfBytes < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("NumberOfBytes", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 type GenerateDataKeyOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Ciphertext that contains the encrypted data key. You must store the blob
 	// and enough information to reconstruct the encryption context so that the
 	// data encrypted by using the key can later be decrypted. You must provide
@@ -1496,21 +2668,19 @@ type GenerateDataKeyOutput struct {
 	//
 	// If you are using the CLI, the value is Base64 encoded. Otherwise, it is
 	// not encoded.
-	CiphertextBlob []byte `type:"blob"`
+	//
+	// CiphertextBlob is automatically base64 encoded/decoded by the SDK.
+	CiphertextBlob []byte `min:"1" type:"blob"`
 
 	// System generated unique identifier of the key to be used to decrypt the encrypted
 	// copy of the data key.
-	KeyId *string `type:"string"`
+	KeyId *string `min:"1" type:"string"`
 
 	// Plaintext that contains the data key. Use this for encryption and decryption
 	// and then remove it from memory as soon as possible.
-	Plaintext []byte `type:"blob"`
-
-	metadataGenerateDataKeyOutput `json:"-" xml:"-"`
-}
-
-type metadataGenerateDataKeyOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	//
+	// Plaintext is automatically base64 encoded/decoded by the SDK.
+	Plaintext []byte `min:"1" type:"blob"`
 }
 
 // String returns the string representation
@@ -1524,20 +2694,30 @@ func (s GenerateDataKeyOutput) GoString() string {
 }
 
 type GenerateDataKeyWithoutPlaintextInput struct {
+	_ struct{} `type:"structure"`
+
 	// Name:value pair that contains additional data to be authenticated during
 	// the encryption and decryption processes.
 	EncryptionContext map[string]*string `type:"map"`
 
-	// For more information, see Grant Tokens (http://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token).
+	// A list of grant tokens.
+	//
+	// For more information, see Grant Tokens (http://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
+	// in the AWS Key Management Service Developer Guide.
 	GrantTokens []*string `type:"list"`
 
 	// A unique identifier for the customer master key. This value can be a globally
 	// unique identifier, a fully specified ARN to either an alias or a key, or
-	// an alias name prefixed by "alias/".  Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
-	// Alias ARN Example - arn:aws:kms:us-east-1:123456789012:alias/MyAliasName
-	// Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012 Alias
-	// Name Example - alias/MyAliasName
-	KeyId *string `type:"string" required:"true"`
+	// an alias name prefixed by "alias/".
+	//
+	//   Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+	//
+	//   Alias ARN Example - arn:aws:kms:us-east-1:123456789012:alias/MyAliasName
+	//
+	//   Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
+	//
+	//   Alias Name Example - alias/MyAliasName
+	KeyId *string `min:"1" type:"string" required:"true"`
 
 	// Value that identifies the encryption algorithm and key size. Currently this
 	// can be AES_128 or AES_256.
@@ -1546,13 +2726,7 @@ type GenerateDataKeyWithoutPlaintextInput struct {
 	// Integer that contains the number of bytes to generate. Common values are
 	// 128, 256, 512, 1024 and so on. We recommend that you use the KeySpec parameter
 	// instead.
-	NumberOfBytes *int64 `type:"integer"`
-
-	metadataGenerateDataKeyWithoutPlaintextInput `json:"-" xml:"-"`
-}
-
-type metadataGenerateDataKeyWithoutPlaintextInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	NumberOfBytes *int64 `min:"1" type:"integer"`
 }
 
 // String returns the string representation
@@ -1565,23 +2739,40 @@ func (s GenerateDataKeyWithoutPlaintextInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GenerateDataKeyWithoutPlaintextInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GenerateDataKeyWithoutPlaintextInput"}
+	if s.KeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("KeyId"))
+	}
+	if s.KeyId != nil && len(*s.KeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("KeyId", 1))
+	}
+	if s.NumberOfBytes != nil && *s.NumberOfBytes < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("NumberOfBytes", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 type GenerateDataKeyWithoutPlaintextOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Ciphertext that contains the wrapped data key. You must store the blob and
 	// encryption context so that the key can be used in a future decrypt operation.
 	//
 	// If you are using the CLI, the value is Base64 encoded. Otherwise, it is
 	// not encoded.
-	CiphertextBlob []byte `type:"blob"`
+	//
+	// CiphertextBlob is automatically base64 encoded/decoded by the SDK.
+	CiphertextBlob []byte `min:"1" type:"blob"`
 
 	// System generated unique identifier of the key to be used to decrypt the encrypted
 	// copy of the data key.
-	KeyId *string `type:"string"`
-
-	metadataGenerateDataKeyWithoutPlaintextOutput `json:"-" xml:"-"`
-}
-
-type metadataGenerateDataKeyWithoutPlaintextOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	KeyId *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -1595,15 +2786,11 @@ func (s GenerateDataKeyWithoutPlaintextOutput) GoString() string {
 }
 
 type GenerateRandomInput struct {
+	_ struct{} `type:"structure"`
+
 	// Integer that contains the number of bytes to generate. Common values are
 	// 128, 256, 512, 1024 and so on. The current limit is 1024 bytes.
-	NumberOfBytes *int64 `type:"integer"`
-
-	metadataGenerateRandomInput `json:"-" xml:"-"`
-}
-
-type metadataGenerateRandomInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	NumberOfBytes *int64 `min:"1" type:"integer"`
 }
 
 // String returns the string representation
@@ -1616,15 +2803,26 @@ func (s GenerateRandomInput) GoString() string {
 	return s.String()
 }
 
-type GenerateRandomOutput struct {
-	// Plaintext that contains the unpredictable byte string.
-	Plaintext []byte `type:"blob"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GenerateRandomInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GenerateRandomInput"}
+	if s.NumberOfBytes != nil && *s.NumberOfBytes < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("NumberOfBytes", 1))
+	}
 
-	metadataGenerateRandomOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataGenerateRandomOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type GenerateRandomOutput struct {
+	_ struct{} `type:"structure"`
+
+	// Plaintext that contains the unpredictable byte string.
+	//
+	// Plaintext is automatically base64 encoded/decoded by the SDK.
+	Plaintext []byte `min:"1" type:"blob"`
 }
 
 // String returns the string representation
@@ -1638,21 +2836,19 @@ func (s GenerateRandomOutput) GoString() string {
 }
 
 type GetKeyPolicyInput struct {
+	_ struct{} `type:"structure"`
+
 	// A unique identifier for the customer master key. This value can be a globally
-	// unique identifier or the fully specified ARN to a key.  Key ARN Example -
-	// arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
-	// Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
-	KeyId *string `type:"string" required:"true"`
+	// unique identifier or the fully specified ARN to a key.
+	//
+	//   Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+	//
+	//   Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
+	KeyId *string `min:"1" type:"string" required:"true"`
 
 	// String that contains the name of the policy. Currently, this must be "default".
 	// Policy names can be discovered by calling ListKeyPolicies.
-	PolicyName *string `type:"string" required:"true"`
-
-	metadataGetKeyPolicyInput `json:"-" xml:"-"`
-}
-
-type metadataGetKeyPolicyInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	PolicyName *string `min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1665,15 +2861,33 @@ func (s GetKeyPolicyInput) GoString() string {
 	return s.String()
 }
 
-type GetKeyPolicyOutput struct {
-	// A policy document in JSON format.
-	Policy *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetKeyPolicyInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetKeyPolicyInput"}
+	if s.KeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("KeyId"))
+	}
+	if s.KeyId != nil && len(*s.KeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("KeyId", 1))
+	}
+	if s.PolicyName == nil {
+		invalidParams.Add(request.NewErrParamRequired("PolicyName"))
+	}
+	if s.PolicyName != nil && len(*s.PolicyName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("PolicyName", 1))
+	}
 
-	metadataGetKeyPolicyOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataGetKeyPolicyOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type GetKeyPolicyOutput struct {
+	_ struct{} `type:"structure"`
+
+	// A policy document in JSON format.
+	Policy *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -1687,17 +2901,15 @@ func (s GetKeyPolicyOutput) GoString() string {
 }
 
 type GetKeyRotationStatusInput struct {
+	_ struct{} `type:"structure"`
+
 	// A unique identifier for the customer master key. This value can be a globally
-	// unique identifier or the fully specified ARN to a key.  Key ARN Example -
-	// arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
-	// Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
-	KeyId *string `type:"string" required:"true"`
-
-	metadataGetKeyRotationStatusInput `json:"-" xml:"-"`
-}
-
-type metadataGetKeyRotationStatusInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	// unique identifier or the fully specified ARN to a key.
+	//
+	//   Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+	//
+	//   Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
+	KeyId *string `min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1710,15 +2922,27 @@ func (s GetKeyRotationStatusInput) GoString() string {
 	return s.String()
 }
 
-type GetKeyRotationStatusOutput struct {
-	// A Boolean value that specifies whether key rotation is enabled.
-	KeyRotationEnabled *bool `type:"boolean"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetKeyRotationStatusInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetKeyRotationStatusInput"}
+	if s.KeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("KeyId"))
+	}
+	if s.KeyId != nil && len(*s.KeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("KeyId", 1))
+	}
 
-	metadataGetKeyRotationStatusOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataGetKeyRotationStatusOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type GetKeyRotationStatusOutput struct {
+	_ struct{} `type:"structure"`
+
+	// A Boolean value that specifies whether key rotation is enabled.
+	KeyRotationEnabled *bool `type:"boolean"`
 }
 
 // String returns the string representation
@@ -1731,20 +2955,29 @@ func (s GetKeyRotationStatusOutput) GoString() string {
 	return s.String()
 }
 
-// Contains constraints on the grant.
+// A structure for specifying the conditions under which the operations permitted
+// by the grant are allowed.
+//
+// You can use this structure to allow the operations permitted by the grant
+// only when a specified encryption context is present. For more information
+// about encryption context, see Encryption Context (http://docs.aws.amazon.com/kms/latest/developerguide/encrypt-context.html)
+// in the AWS Key Management Service Developer Guide.
 type GrantConstraints struct {
-	// The constraint contains additional key/value pairs that serve to further
-	// limit the grant.
+	_ struct{} `type:"structure"`
+
+	// Contains a list of key-value pairs that must be present in the encryption
+	// context of a subsequent operation permitted by the grant. When a subsequent
+	// operation permitted by the grant includes an encryption context that matches
+	// this list, the grant allows the operation. Otherwise, the operation is not
+	// allowed.
 	EncryptionContextEquals map[string]*string `type:"map"`
 
-	// The constraint equals the full encryption context.
+	// Contains a list of key-value pairs, a subset of which must be present in
+	// the encryption context of a subsequent operation permitted by the grant.
+	// When a subsequent operation permitted by the grant includes an encryption
+	// context that matches this list or is a subset of this list, the grant allows
+	// the operation. Otherwise, the operation is not allowed.
 	EncryptionContextSubset map[string]*string `type:"map"`
-
-	metadataGrantConstraints `json:"-" xml:"-"`
-}
-
-type metadataGrantConstraints struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1757,34 +2990,38 @@ func (s GrantConstraints) GoString() string {
 	return s.String()
 }
 
-// Contains information about each entry in the grant list.
+// Contains information about an entry in a list of grants.
 type GrantListEntry struct {
-	// Specifies the conditions under which the actions specified by the Operations
-	// parameter are allowed.
+	_ struct{} `type:"structure"`
+
+	// The conditions under which the grant's operations are allowed.
 	Constraints *GrantConstraints `type:"structure"`
 
-	// Unique grant identifier.
-	GrantId *string `type:"string"`
+	// The date and time when the grant was created.
+	CreationDate *time.Time `type:"timestamp" timestampFormat:"unix"`
 
-	// The principal that receives the grant permission.
-	GranteePrincipal *string `type:"string"`
+	// The unique identifier for the grant.
+	GrantId *string `min:"1" type:"string"`
 
-	// The account under which the grant was issued.
-	IssuingAccount *string `type:"string"`
+	// The principal that receives the grant's permissions.
+	GranteePrincipal *string `min:"1" type:"string"`
 
-	// List of operations permitted by the grant. This can be any combination of
-	// one or more of the following values:  Decrypt Encrypt GenerateDataKey GenerateDataKeyWithoutPlaintext
-	// ReEncryptFrom ReEncryptTo CreateGrant
+	// The AWS account under which the grant was issued.
+	IssuingAccount *string `min:"1" type:"string"`
+
+	// The unique identifier for the customer master key (CMK) to which the grant
+	// applies.
+	KeyId *string `min:"1" type:"string"`
+
+	// The friendly name that identifies the grant. If a name was provided in the
+	// CreateGrant request, that name is returned. Otherwise this value is null.
+	Name *string `min:"1" type:"string"`
+
+	// The list of operations permitted by the grant.
 	Operations []*string `type:"list"`
 
-	// The principal that can retire the account.
-	RetiringPrincipal *string `type:"string"`
-
-	metadataGrantListEntry `json:"-" xml:"-"`
-}
-
-type metadataGrantListEntry struct {
-	SDKShapeTraits bool `type:"structure"`
+	// The principal that can retire the grant.
+	RetiringPrincipal *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -1799,17 +3036,13 @@ func (s GrantListEntry) GoString() string {
 
 // Contains information about each entry in the key list.
 type KeyListEntry struct {
+	_ struct{} `type:"structure"`
+
 	// ARN of the key.
-	KeyArn *string `type:"string"`
+	KeyArn *string `min:"20" type:"string"`
 
 	// Unique identifier of the key.
-	KeyId *string `type:"string"`
-
-	metadataKeyListEntry `json:"-" xml:"-"`
-}
-
-type metadataKeyListEntry struct {
-	SDKShapeTraits bool `type:"structure"`
+	KeyId *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -1822,34 +3055,50 @@ func (s KeyListEntry) GoString() string {
 	return s.String()
 }
 
-// Contains metadata associated with a specific key.
+// Contains metadata about a customer master key (CMK).
+//
+// This data type is used as a response element for the CreateKey and DescribeKey
+// operations.
 type KeyMetadata struct {
-	// Account ID number.
+	_ struct{} `type:"structure"`
+
+	// The twelve-digit account ID of the AWS account that owns the key.
 	AWSAccountId *string `type:"string"`
 
-	// Key ARN (Amazon Resource Name).
-	Arn *string `type:"string"`
+	// The Amazon Resource Name (ARN) of the key. For examples, see AWS Key Management
+	// Service (AWS KMS) (http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html#arn-syntax-kms)
+	// in the Example ARNs section of the AWS General Reference.
+	Arn *string `min:"20" type:"string"`
 
-	// Date the key was created.
+	// The date and time when the key was created.
 	CreationDate *time.Time `type:"timestamp" timestampFormat:"unix"`
 
-	// The description of the key.
+	// The date and time after which AWS KMS deletes the customer master key (CMK).
+	// This value is present only when KeyState is PendingDeletion, otherwise this
+	// value is null.
+	DeletionDate *time.Time `type:"timestamp" timestampFormat:"unix"`
+
+	// The friendly description of the key.
 	Description *string `type:"string"`
 
-	// Value that specifies whether the key is enabled.
+	// Specifies whether the key is enabled. When KeyState is Enabled this value
+	// is true, otherwise it is false.
 	Enabled *bool `type:"boolean"`
 
-	// Unique identifier for the key.
-	KeyId *string `type:"string" required:"true"`
+	// The globally unique identifier for the key.
+	KeyId *string `min:"1" type:"string" required:"true"`
 
-	// A value that specifies what operation(s) the key can perform.
+	// The state of the customer master key (CMK).
+	//
+	// For more information about how key state affects the use of a CMK, see How
+	// Key State Affects the Use of a Customer Master Key (http://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
+	// in the AWS Key Management Service Developer Guide.
+	KeyState *string `type:"string" enum:"KeyState"`
+
+	// The cryptographic operations for which you can use the key. Currently the
+	// only allowed value is ENCRYPT_DECRYPT, which means you can use the key for
+	// the Encrypt and Decrypt operations.
 	KeyUsage *string `type:"string" enum:"KeyUsageType"`
-
-	metadataKeyMetadata `json:"-" xml:"-"`
-}
-
-type metadataKeyMetadata struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1863,21 +3112,20 @@ func (s KeyMetadata) GoString() string {
 }
 
 type ListAliasesInput struct {
-	// Specify this parameter when paginating results to indicate the maximum number
-	// of aliases you want in each response. If there are additional aliases beyond
-	// the maximum you specify, the Truncated response element will be set to true.
-	Limit *int64 `type:"integer"`
+	_ struct{} `type:"structure"`
 
-	// Use this parameter when paginating results, and only in a subsequent request
-	// after you've received a response where the results are truncated. Set it
-	// to the value of the NextMarker element in the response you just received.
-	Marker *string `type:"string"`
+	// When paginating results, specify the maximum number of items to return in
+	// the response. If additional items exist beyond the number you specify, the
+	// Truncated element in the response is set to true.
+	//
+	// This value is optional. If you include a value, it must be between 1 and
+	// 100, inclusive. If you do not include a value, it defaults to 50.
+	Limit *int64 `min:"1" type:"integer"`
 
-	metadataListAliasesInput `json:"-" xml:"-"`
-}
-
-type metadataListAliasesInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	// Use this parameter only when paginating results and only in a subsequent
+	// request after you receive a response with truncated results. Set it to the
+	// value of NextMarker from the response you just received.
+	Marker *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -1890,24 +3138,36 @@ func (s ListAliasesInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListAliasesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListAliasesInput"}
+	if s.Limit != nil && *s.Limit < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("Limit", 1))
+	}
+	if s.Marker != nil && len(*s.Marker) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Marker", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 type ListAliasesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// A list of key aliases in the user's account.
 	Aliases []*AliasListEntry `type:"list"`
 
-	// If Truncated is true, this value is present and contains the value to use
-	// for the Marker request parameter in a subsequent pagination request.
-	NextMarker *string `type:"string"`
+	// When Truncated is true, this value is present and contains the value to use
+	// for the Marker parameter in a subsequent pagination request.
+	NextMarker *string `min:"1" type:"string"`
 
 	// A flag that indicates whether there are more items in the list. If your results
-	// were truncated, you can make a subsequent pagination request using the Marker
-	// request parameter to retrieve more aliases in the list.
+	// were truncated, you can use the Marker parameter to make a subsequent pagination
+	// request to retrieve more items in the list.
 	Truncated *bool `type:"boolean"`
-
-	metadataListAliasesOutput `json:"-" xml:"-"`
-}
-
-type metadataListAliasesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1921,28 +3181,28 @@ func (s ListAliasesOutput) GoString() string {
 }
 
 type ListGrantsInput struct {
+	_ struct{} `type:"structure"`
+
 	// A unique identifier for the customer master key. This value can be a globally
-	// unique identifier or the fully specified ARN to a key.  Key ARN Example -
-	// arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
-	// Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
-	KeyId *string `type:"string" required:"true"`
+	// unique identifier or the fully specified ARN to a key.
+	//
+	//   Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+	//
+	//   Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
+	KeyId *string `min:"1" type:"string" required:"true"`
 
-	// Specify this parameter only when paginating results to indicate the maximum
-	// number of grants you want listed in the response. If there are additional
-	// grants beyond the maximum you specify, the Truncated response element will
-	// be set to true.
-	Limit *int64 `type:"integer"`
+	// When paginating results, specify the maximum number of items to return in
+	// the response. If additional items exist beyond the number you specify, the
+	// Truncated element in the response is set to true.
+	//
+	// This value is optional. If you include a value, it must be between 1 and
+	// 100, inclusive. If you do not include a value, it defaults to 50.
+	Limit *int64 `min:"1" type:"integer"`
 
-	// Use this parameter only when paginating results, and only in a subsequent
-	// request after you've received a response where the results are truncated.
-	// Set it to the value of the NextMarker in the response you just received.
-	Marker *string `type:"string"`
-
-	metadataListGrantsInput `json:"-" xml:"-"`
-}
-
-type metadataListGrantsInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	// Use this parameter only when paginating results and only in a subsequent
+	// request after you receive a response with truncated results. Set it to the
+	// value of NextMarker from the response you just received.
+	Marker *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -1955,61 +3215,84 @@ func (s ListGrantsInput) GoString() string {
 	return s.String()
 }
 
-type ListGrantsOutput struct {
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListGrantsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListGrantsInput"}
+	if s.KeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("KeyId"))
+	}
+	if s.KeyId != nil && len(*s.KeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("KeyId", 1))
+	}
+	if s.Limit != nil && *s.Limit < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("Limit", 1))
+	}
+	if s.Marker != nil && len(*s.Marker) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Marker", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+type ListGrantsResponse struct {
+	_ struct{} `type:"structure"`
+
 	// A list of grants.
 	Grants []*GrantListEntry `type:"list"`
 
-	// If Truncated is true, this value is present and contains the value to use
-	// for the Marker request parameter in a subsequent pagination request.
-	NextMarker *string `type:"string"`
+	// When Truncated is true, this value is present and contains the value to use
+	// for the Marker parameter in a subsequent pagination request.
+	NextMarker *string `min:"1" type:"string"`
 
 	// A flag that indicates whether there are more items in the list. If your results
-	// were truncated, you can make a subsequent pagination request using the Marker
-	// request parameter to retrieve more grants in the list.
+	// were truncated, you can use the Marker parameter to make a subsequent pagination
+	// request to retrieve more items in the list.
 	Truncated *bool `type:"boolean"`
-
-	metadataListGrantsOutput `json:"-" xml:"-"`
-}
-
-type metadataListGrantsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
-func (s ListGrantsOutput) String() string {
+func (s ListGrantsResponse) String() string {
 	return awsutil.Prettify(s)
 }
 
 // GoString returns the string representation
-func (s ListGrantsOutput) GoString() string {
+func (s ListGrantsResponse) GoString() string {
 	return s.String()
 }
 
 type ListKeyPoliciesInput struct {
+	_ struct{} `type:"structure"`
+
 	// A unique identifier for the customer master key. This value can be a globally
 	// unique identifier, a fully specified ARN to either an alias or a key, or
-	// an alias name prefixed by "alias/".  Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
-	// Alias ARN Example - arn:aws:kms:us-east-1:123456789012:alias/MyAliasName
-	// Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012 Alias
-	// Name Example - alias/MyAliasName
-	KeyId *string `type:"string" required:"true"`
+	// an alias name prefixed by "alias/".
+	//
+	//   Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+	//
+	//   Alias ARN Example - arn:aws:kms:us-east-1:123456789012:alias/MyAliasName
+	//
+	//   Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
+	//
+	//   Alias Name Example - alias/MyAliasName
+	KeyId *string `min:"1" type:"string" required:"true"`
 
-	// Specify this parameter only when paginating results to indicate the maximum
-	// number of policies you want listed in the response. If there are additional
-	// policies beyond the maximum you specify, the Truncated response element will
-	// be set to true.
-	Limit *int64 `type:"integer"`
+	// When paginating results, specify the maximum number of items to return in
+	// the response. If additional items exist beyond the number you specify, the
+	// Truncated element in the response is set to true.
+	//
+	// This value is optional. If you include a value, it must be between 1 and
+	// 1000, inclusive. If you do not include a value, it defaults to 100.
+	//
+	// Currently only 1 policy can be attached to a key.
+	Limit *int64 `min:"1" type:"integer"`
 
-	// Use this parameter only when paginating results, and only in a subsequent
-	// request after you've received a response where the results are truncated.
-	// Set it to the value of the NextMarker in the response you just received.
-	Marker *string `type:"string"`
-
-	metadataListKeyPoliciesInput `json:"-" xml:"-"`
-}
-
-type metadataListKeyPoliciesInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	// Use this parameter only when paginating results and only in a subsequent
+	// request after you receive a response with truncated results. Set it to the
+	// value of NextMarker from the response you just received.
+	Marker *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -2022,25 +3305,43 @@ func (s ListKeyPoliciesInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListKeyPoliciesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListKeyPoliciesInput"}
+	if s.KeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("KeyId"))
+	}
+	if s.KeyId != nil && len(*s.KeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("KeyId", 1))
+	}
+	if s.Limit != nil && *s.Limit < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("Limit", 1))
+	}
+	if s.Marker != nil && len(*s.Marker) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Marker", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 type ListKeyPoliciesOutput struct {
-	// If Truncated is true, this value is present and contains the value to use
-	// for the Marker request parameter in a subsequent pagination request.
-	NextMarker *string `type:"string"`
+	_ struct{} `type:"structure"`
+
+	// When Truncated is true, this value is present and contains the value to use
+	// for the Marker parameter in a subsequent pagination request.
+	NextMarker *string `min:"1" type:"string"`
 
 	// A list of policy names. Currently, there is only one policy and it is named
 	// "Default".
 	PolicyNames []*string `type:"list"`
 
 	// A flag that indicates whether there are more items in the list. If your results
-	// were truncated, you can make a subsequent pagination request using the Marker
-	// request parameter to retrieve more policies in the list.
+	// were truncated, you can use the Marker parameter to make a subsequent pagination
+	// request to retrieve more items in the list.
 	Truncated *bool `type:"boolean"`
-
-	metadataListKeyPoliciesOutput `json:"-" xml:"-"`
-}
-
-type metadataListKeyPoliciesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2054,22 +3355,20 @@ func (s ListKeyPoliciesOutput) GoString() string {
 }
 
 type ListKeysInput struct {
-	// Specify this parameter only when paginating results to indicate the maximum
-	// number of keys you want listed in the response. If there are additional keys
-	// beyond the maximum you specify, the Truncated response element will be set
-	// to true.
-	Limit *int64 `type:"integer"`
+	_ struct{} `type:"structure"`
 
-	// Use this parameter only when paginating results, and only in a subsequent
-	// request after you've received a response where the results are truncated.
-	// Set it to the value of the NextMarker in the response you just received.
-	Marker *string `type:"string"`
+	// When paginating results, specify the maximum number of items to return in
+	// the response. If additional items exist beyond the number you specify, the
+	// Truncated element in the response is set to true.
+	//
+	// This value is optional. If you include a value, it must be between 1 and
+	// 1000, inclusive. If you do not include a value, it defaults to 100.
+	Limit *int64 `min:"1" type:"integer"`
 
-	metadataListKeysInput `json:"-" xml:"-"`
-}
-
-type metadataListKeysInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	// Use this parameter only when paginating results and only in a subsequent
+	// request after you receive a response with truncated results. Set it to the
+	// value of NextMarker from the response you just received.
+	Marker *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -2082,24 +3381,36 @@ func (s ListKeysInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListKeysInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListKeysInput"}
+	if s.Limit != nil && *s.Limit < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("Limit", 1))
+	}
+	if s.Marker != nil && len(*s.Marker) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Marker", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 type ListKeysOutput struct {
+	_ struct{} `type:"structure"`
+
 	// A list of keys.
 	Keys []*KeyListEntry `type:"list"`
 
-	// If Truncated is true, this value is present and contains the value to use
-	// for the Marker request parameter in a subsequent pagination request.
-	NextMarker *string `type:"string"`
+	// When Truncated is true, this value is present and contains the value to use
+	// for the Marker parameter in a subsequent pagination request.
+	NextMarker *string `min:"1" type:"string"`
 
 	// A flag that indicates whether there are more items in the list. If your results
-	// were truncated, you can make a subsequent pagination request using the Marker
-	// request parameter to retrieve more keys in the list.
+	// were truncated, you can use the Marker parameter to make a subsequent pagination
+	// request to retrieve more items in the list.
 	Truncated *bool `type:"boolean"`
-
-	metadataListKeysOutput `json:"-" xml:"-"`
-}
-
-type metadataListKeysOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2112,25 +3423,116 @@ func (s ListKeysOutput) GoString() string {
 	return s.String()
 }
 
-type PutKeyPolicyInput struct {
-	// A unique identifier for the customer master key. This value can be a globally
-	// unique identifier or the fully specified ARN to a key.  Key ARN Example -
-	// arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
-	// Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
-	KeyId *string `type:"string" required:"true"`
+type ListRetirableGrantsInput struct {
+	_ struct{} `type:"structure"`
 
-	// The policy, in JSON format, to be attached to the key.
-	Policy *string `type:"string" required:"true"`
+	// When paginating results, specify the maximum number of items to return in
+	// the response. If additional items exist beyond the number you specify, the
+	// Truncated element in the response is set to true.
+	//
+	// This value is optional. If you include a value, it must be between 1 and
+	// 100, inclusive. If you do not include a value, it defaults to 50.
+	Limit *int64 `min:"1" type:"integer"`
 
-	// Name of the policy to be attached. Currently, the only supported name is
-	// "default".
-	PolicyName *string `type:"string" required:"true"`
+	// Use this parameter only when paginating results and only in a subsequent
+	// request after you receive a response with truncated results. Set it to the
+	// value of NextMarker from the response you just received.
+	Marker *string `min:"1" type:"string"`
 
-	metadataPutKeyPolicyInput `json:"-" xml:"-"`
+	// The retiring principal for which to list grants.
+	//
+	// To specify the retiring principal, use the Amazon Resource Name (ARN) (http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html)
+	// of an AWS principal. Valid AWS principals include AWS accounts (root), IAM
+	// users, federated users, and assumed role users. For examples of the ARN syntax
+	// for specifying a principal, see AWS Identity and Access Management (IAM)
+	// (http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html#arn-syntax-iam)
+	// in the Example ARNs section of the Amazon Web Services General Reference.
+	RetiringPrincipal *string `min:"1" type:"string" required:"true"`
 }
 
-type metadataPutKeyPolicyInput struct {
-	SDKShapeTraits bool `type:"structure"`
+// String returns the string representation
+func (s ListRetirableGrantsInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ListRetirableGrantsInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListRetirableGrantsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListRetirableGrantsInput"}
+	if s.Limit != nil && *s.Limit < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("Limit", 1))
+	}
+	if s.Marker != nil && len(*s.Marker) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Marker", 1))
+	}
+	if s.RetiringPrincipal == nil {
+		invalidParams.Add(request.NewErrParamRequired("RetiringPrincipal"))
+	}
+	if s.RetiringPrincipal != nil && len(*s.RetiringPrincipal) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("RetiringPrincipal", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+type PutKeyPolicyInput struct {
+	_ struct{} `type:"structure"`
+
+	// A flag to indicate whether to bypass the key policy lockout safety check.
+	//
+	//  Setting this value to true increases the likelihood that the CMK becomes
+	// unmanageable. Do not set this value to true indiscriminately.
+	//
+	// For more information, refer to the scenario in the Default Key Policy (http://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html#key-policy-default-allow-root-enable-iam)
+	// section in the AWS Key Management Service Developer Guide.
+	//
+	//  Use this parameter only when you intend to prevent the principal making
+	// the request from making a subsequent PutKeyPolicy request on the CMK.
+	//
+	// The default value is false.
+	BypassPolicyLockoutSafetyCheck *bool `type:"boolean"`
+
+	// A unique identifier for the CMK.
+	//
+	// Use the CMK's unique identifier or its Amazon Resource Name (ARN). For example:
+	//
+	//   Unique ID: 1234abcd-12ab-34cd-56ef-1234567890ab
+	//
+	//   ARN: arn:aws:kms:us-west-2:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab
+	KeyId *string `min:"1" type:"string" required:"true"`
+
+	// The key policy to attach to the CMK.
+	//
+	// The key policy must meet the following criteria:
+	//
+	//   It must allow the principal making the PutKeyPolicy request to make a
+	// subsequent PutKeyPolicy request on the CMK. This reduces the likelihood that
+	// the CMK becomes unmanageable. For more information, refer to the scenario
+	// in the Default Key Policy (http://docs.aws.amazon.com/kms/latest/developerguide/key-policies.html#key-policy-default-allow-root-enable-iam)
+	// section in the AWS Key Management Service Developer Guide.
+	//
+	//   The principal(s) specified in the key policy must exist and be visible
+	// to AWS KMS. When you create a new AWS principal (for example, an IAM user
+	// or role), you might need to enforce a delay before specifying the new principal
+	// in a key policy because the new principal might not immediately be visible
+	// to AWS KMS. For more information, see Changes that I make are not always
+	// immediately visible (http://docs.aws.amazon.com/IAM/latest/UserGuide/troubleshoot_general.html#troubleshoot_general_eventual-consistency)
+	// in the IAM User Guide.
+	//
+	//   The policy size limit is 32 KiB (32768 bytes).
+	Policy *string `min:"1" type:"string" required:"true"`
+
+	// The name of the key policy.
+	//
+	// This value must be default.
+	PolicyName *string `min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2143,12 +3545,36 @@ func (s PutKeyPolicyInput) GoString() string {
 	return s.String()
 }
 
-type PutKeyPolicyOutput struct {
-	metadataPutKeyPolicyOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *PutKeyPolicyInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "PutKeyPolicyInput"}
+	if s.KeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("KeyId"))
+	}
+	if s.KeyId != nil && len(*s.KeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("KeyId", 1))
+	}
+	if s.Policy == nil {
+		invalidParams.Add(request.NewErrParamRequired("Policy"))
+	}
+	if s.Policy != nil && len(*s.Policy) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Policy", 1))
+	}
+	if s.PolicyName == nil {
+		invalidParams.Add(request.NewErrParamRequired("PolicyName"))
+	}
+	if s.PolicyName != nil && len(*s.PolicyName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("PolicyName", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataPutKeyPolicyOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type PutKeyPolicyOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -2162,33 +3588,38 @@ func (s PutKeyPolicyOutput) GoString() string {
 }
 
 type ReEncryptInput struct {
+	_ struct{} `type:"structure"`
+
 	// Ciphertext of the data to re-encrypt.
-	CiphertextBlob []byte `type:"blob" required:"true"`
+	//
+	// CiphertextBlob is automatically base64 encoded/decoded by the SDK.
+	CiphertextBlob []byte `min:"1" type:"blob" required:"true"`
 
 	// Encryption context to be used when the data is re-encrypted.
 	DestinationEncryptionContext map[string]*string `type:"map"`
 
 	// A unique identifier for the customer master key used to re-encrypt the data.
 	// This value can be a globally unique identifier, a fully specified ARN to
-	// either an alias or a key, or an alias name prefixed by "alias/".  Key ARN
-	// Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
-	// Alias ARN Example - arn:aws:kms:us-east-1:123456789012:alias/MyAliasName
-	// Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012 Alias
-	// Name Example - alias/MyAliasName
-	DestinationKeyId *string `type:"string" required:"true"`
+	// either an alias or a key, or an alias name prefixed by "alias/".
+	//
+	//   Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+	//
+	//   Alias ARN Example - arn:aws:kms:us-east-1:123456789012:alias/MyAliasName
+	//
+	//   Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
+	//
+	//   Alias Name Example - alias/MyAliasName
+	DestinationKeyId *string `min:"1" type:"string" required:"true"`
 
-	// For more information, see Grant Tokens (http://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token).
+	// A list of grant tokens.
+	//
+	// For more information, see Grant Tokens (http://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#grant_token)
+	// in the AWS Key Management Service Developer Guide.
 	GrantTokens []*string `type:"list"`
 
 	// Encryption context used to encrypt and decrypt the data specified in the
 	// CiphertextBlob parameter.
 	SourceEncryptionContext map[string]*string `type:"map"`
-
-	metadataReEncryptInput `json:"-" xml:"-"`
-}
-
-type metadataReEncryptInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2201,22 +3632,42 @@ func (s ReEncryptInput) GoString() string {
 	return s.String()
 }
 
-type ReEncryptOutput struct {
-	// The re-encrypted data. If you are using the CLI, the value is Base64 encoded.
-	// Otherwise, it is not encoded.
-	CiphertextBlob []byte `type:"blob"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ReEncryptInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ReEncryptInput"}
+	if s.CiphertextBlob == nil {
+		invalidParams.Add(request.NewErrParamRequired("CiphertextBlob"))
+	}
+	if s.CiphertextBlob != nil && len(s.CiphertextBlob) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("CiphertextBlob", 1))
+	}
+	if s.DestinationKeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("DestinationKeyId"))
+	}
+	if s.DestinationKeyId != nil && len(*s.DestinationKeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("DestinationKeyId", 1))
+	}
 
-	// Unique identifier of the key used to re-encrypt the data.
-	KeyId *string `type:"string"`
-
-	// Unique identifier of the key used to originally encrypt the data.
-	SourceKeyId *string `type:"string"`
-
-	metadataReEncryptOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataReEncryptOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type ReEncryptOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The re-encrypted data. If you are using the CLI, the value is Base64 encoded.
+	// Otherwise, it is not encoded.
+	//
+	// CiphertextBlob is automatically base64 encoded/decoded by the SDK.
+	CiphertextBlob []byte `min:"1" type:"blob"`
+
+	// Unique identifier of the key used to re-encrypt the data.
+	KeyId *string `min:"1" type:"string"`
+
+	// Unique identifier of the key used to originally encrypt the data.
+	SourceKeyId *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -2230,24 +3681,25 @@ func (s ReEncryptOutput) GoString() string {
 }
 
 type RetireGrantInput struct {
+	_ struct{} `type:"structure"`
+
 	// Unique identifier of the grant to be retired. The grant ID is returned by
-	// the CreateGrant function.  Grant ID Example - 0123456789012345678901234567890123456789012345678901234567890123
-	GrantId *string `type:"string"`
+	// the CreateGrant function.
+	//
+	//   Grant ID Example - 0123456789012345678901234567890123456789012345678901234567890123
+	GrantId *string `min:"1" type:"string"`
 
 	// Token that identifies the grant to be retired.
-	GrantToken *string `type:"string"`
+	GrantToken *string `min:"1" type:"string"`
 
 	// A unique identifier for the customer master key associated with the grant.
 	// This value can be a globally unique identifier or a fully specified ARN of
-	// the key.  Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
-	// Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
-	KeyId *string `type:"string"`
-
-	metadataRetireGrantInput `json:"-" xml:"-"`
-}
-
-type metadataRetireGrantInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	// the key.
+	//
+	//   Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+	//
+	//   Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
+	KeyId *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -2260,12 +3712,27 @@ func (s RetireGrantInput) GoString() string {
 	return s.String()
 }
 
-type RetireGrantOutput struct {
-	metadataRetireGrantOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RetireGrantInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RetireGrantInput"}
+	if s.GrantId != nil && len(*s.GrantId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("GrantId", 1))
+	}
+	if s.GrantToken != nil && len(*s.GrantToken) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("GrantToken", 1))
+	}
+	if s.KeyId != nil && len(*s.KeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("KeyId", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataRetireGrantOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type RetireGrantOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -2279,20 +3746,19 @@ func (s RetireGrantOutput) GoString() string {
 }
 
 type RevokeGrantInput struct {
+	_ struct{} `type:"structure"`
+
 	// Identifier of the grant to be revoked.
-	GrantId *string `type:"string" required:"true"`
+	GrantId *string `min:"1" type:"string" required:"true"`
 
 	// A unique identifier for the customer master key associated with the grant.
 	// This value can be a globally unique identifier or the fully specified ARN
-	// to a key.  Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
-	// Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
-	KeyId *string `type:"string" required:"true"`
-
-	metadataRevokeGrantInput `json:"-" xml:"-"`
-}
-
-type metadataRevokeGrantInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	// to a key.
+	//
+	//   Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+	//
+	//   Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
+	KeyId *string `min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2305,12 +3771,30 @@ func (s RevokeGrantInput) GoString() string {
 	return s.String()
 }
 
-type RevokeGrantOutput struct {
-	metadataRevokeGrantOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RevokeGrantInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RevokeGrantInput"}
+	if s.GrantId == nil {
+		invalidParams.Add(request.NewErrParamRequired("GrantId"))
+	}
+	if s.GrantId != nil && len(*s.GrantId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("GrantId", 1))
+	}
+	if s.KeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("KeyId"))
+	}
+	if s.KeyId != nil && len(*s.KeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("KeyId", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataRevokeGrantOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type RevokeGrantOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -2323,23 +3807,99 @@ func (s RevokeGrantOutput) GoString() string {
 	return s.String()
 }
 
-type UpdateAliasInput struct {
-	// String that contains the name of the alias to be modifed. The name must start
-	// with the word "alias" followed by a forward slash (alias/). Aliases that
-	// begin with "alias/AWS" are reserved.
-	AliasName *string `type:"string" required:"true"`
+type ScheduleKeyDeletionInput struct {
+	_ struct{} `type:"structure"`
 
-	// Unique identifier of the customer master key to be associated with the alias.
-	// This value can be a globally unique identifier or the fully specified ARN
-	// of a key.  Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
-	// Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
-	TargetKeyId *string `type:"string" required:"true"`
+	// The unique identifier for the customer master key (CMK) to delete.
+	//
+	// To specify this value, use the unique key ID or the Amazon Resource Name
+	// (ARN) of the CMK. Examples:
+	//
+	//   Unique key ID: 1234abcd-12ab-34cd-56ef-1234567890ab
+	//
+	//   Key ARN: arn:aws:kms:us-west-2:111122223333:key/1234abcd-12ab-34cd-56ef-1234567890ab
+	//
+	//   To obtain the unique key ID and key ARN for a given CMK, use ListKeys
+	// or DescribeKey.
+	KeyId *string `min:"1" type:"string" required:"true"`
 
-	metadataUpdateAliasInput `json:"-" xml:"-"`
+	// The waiting period, specified in number of days. After the waiting period
+	// ends, AWS KMS deletes the customer master key (CMK).
+	//
+	// This value is optional. If you include a value, it must be between 7 and
+	// 30, inclusive. If you do not include a value, it defaults to 30.
+	PendingWindowInDays *int64 `min:"1" type:"integer"`
 }
 
-type metadataUpdateAliasInput struct {
-	SDKShapeTraits bool `type:"structure"`
+// String returns the string representation
+func (s ScheduleKeyDeletionInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ScheduleKeyDeletionInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ScheduleKeyDeletionInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ScheduleKeyDeletionInput"}
+	if s.KeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("KeyId"))
+	}
+	if s.KeyId != nil && len(*s.KeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("KeyId", 1))
+	}
+	if s.PendingWindowInDays != nil && *s.PendingWindowInDays < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("PendingWindowInDays", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+type ScheduleKeyDeletionOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The date and time after which AWS KMS deletes the customer master key (CMK).
+	DeletionDate *time.Time `type:"timestamp" timestampFormat:"unix"`
+
+	// The unique identifier of the customer master key (CMK) for which deletion
+	// is scheduled.
+	KeyId *string `min:"1" type:"string"`
+}
+
+// String returns the string representation
+func (s ScheduleKeyDeletionOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ScheduleKeyDeletionOutput) GoString() string {
+	return s.String()
+}
+
+type UpdateAliasInput struct {
+	_ struct{} `type:"structure"`
+
+	// String that contains the name of the alias to be modified. The name must
+	// start with the word "alias" followed by a forward slash (alias/). Aliases
+	// that begin with "alias/aws" are reserved.
+	AliasName *string `min:"1" type:"string" required:"true"`
+
+	// Unique identifier of the customer master key to be mapped to the alias. This
+	// value can be a globally unique identifier or the fully specified ARN of a
+	// key.
+	//
+	//   Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+	//
+	//   Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
+	//
+	//   You can call ListAliases to verify that the alias is mapped to the correct
+	// TargetKeyId.
+	TargetKeyId *string `min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2352,12 +3912,30 @@ func (s UpdateAliasInput) GoString() string {
 	return s.String()
 }
 
-type UpdateAliasOutput struct {
-	metadataUpdateAliasOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateAliasInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateAliasInput"}
+	if s.AliasName == nil {
+		invalidParams.Add(request.NewErrParamRequired("AliasName"))
+	}
+	if s.AliasName != nil && len(*s.AliasName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("AliasName", 1))
+	}
+	if s.TargetKeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("TargetKeyId"))
+	}
+	if s.TargetKeyId != nil && len(*s.TargetKeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("TargetKeyId", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataUpdateAliasOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type UpdateAliasOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -2371,20 +3949,18 @@ func (s UpdateAliasOutput) GoString() string {
 }
 
 type UpdateKeyDescriptionInput struct {
+	_ struct{} `type:"structure"`
+
 	// New description for the key.
 	Description *string `type:"string" required:"true"`
 
 	// A unique identifier for the customer master key. This value can be a globally
-	// unique identifier or the fully specified ARN to a key.  Key ARN Example -
-	// arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
-	// Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
-	KeyId *string `type:"string" required:"true"`
-
-	metadataUpdateKeyDescriptionInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateKeyDescriptionInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	// unique identifier or the fully specified ARN to a key.
+	//
+	//   Key ARN Example - arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012
+	//
+	//   Globally Unique Key ID Example - 12345678-1234-1234-1234-123456789012
+	KeyId *string `min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2397,12 +3973,27 @@ func (s UpdateKeyDescriptionInput) GoString() string {
 	return s.String()
 }
 
-type UpdateKeyDescriptionOutput struct {
-	metadataUpdateKeyDescriptionOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateKeyDescriptionInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateKeyDescriptionInput"}
+	if s.Description == nil {
+		invalidParams.Add(request.NewErrParamRequired("Description"))
+	}
+	if s.KeyId == nil {
+		invalidParams.Add(request.NewErrParamRequired("KeyId"))
+	}
+	if s.KeyId != nil && len(*s.KeyId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("KeyId", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataUpdateKeyDescriptionOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type UpdateKeyDescriptionOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -2439,6 +4030,17 @@ const (
 	GrantOperationCreateGrant = "CreateGrant"
 	// @enum GrantOperation
 	GrantOperationRetireGrant = "RetireGrant"
+	// @enum GrantOperation
+	GrantOperationDescribeKey = "DescribeKey"
+)
+
+const (
+	// @enum KeyState
+	KeyStateEnabled = "Enabled"
+	// @enum KeyState
+	KeyStateDisabled = "Disabled"
+	// @enum KeyState
+	KeyStatePendingDeletion = "PendingDeletion"
 )
 
 const (

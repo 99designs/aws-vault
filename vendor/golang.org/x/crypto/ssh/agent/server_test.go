@@ -150,6 +150,9 @@ func TestKeyTypes(t *testing.T) {
 		if err := addKeyToAgent(v); err != nil {
 			t.Errorf("error adding key type %s, %v", k, err)
 		}
+		if err := addCertToAgentSock(v, nil); err != nil {
+			t.Errorf("error adding key type %s, %v", k, err)
+		}
 	}
 }
 

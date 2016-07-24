@@ -1,5 +1,5 @@
 hash: 90a5a45c153cf550f5147d1df57e9876fbd792f21b200de7e66103783618f91b
-updated: 2016-07-03T12:49:12.259291805+02:00
+updated: 2016-07-24T20:52:40.65268732Z
 imports:
 - name: github.com/alecthomas/template
   version: b867cc6ab45cece8143cfcc6fc9c77cf3f2c23c0
@@ -48,7 +48,7 @@ imports:
 - name: github.com/vaughan0/go-ini
   version: a98ad7ee00ec53921f08832bc06ecf7fd600e6a1
 - name: golang.org/x/crypto
-  version: 811831de4c4dd03a0b8737233af3b36852386373
+  version: 911fafb28f4ee7c7bd483539a6c96190bbbccc3f
   subpackages:
   - ssh/terminal
 - name: gopkg.in/alecthomas/kingpin.v2

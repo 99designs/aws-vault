@@ -12,8 +12,16 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
+const (
+	KeyringName = "aws-vault"
+)
+
 var (
 	Version string
+
+	keyringImpl       keyring.Keyring
+	promptsAvailable  = prompt.Available()
+	backendsAvailable = keyring.SupportedBackends()
 )
 
 type Ui struct {
@@ -29,43 +37,168 @@ func (w logWriter) Write(b []byte) (int, error) {
 	return len(b), nil
 }
 
+type globalFlags struct {
+	Debug        bool
+	Backend      string
+	PromptDriver string
+}
+
+func configureAddCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
+	input := AddCommandInput{
+		Keyring: keyringImpl,
+	}
+
+	cmd := app.Command("add", "Adds credentials, prompts if none provided")
+	cmd.Arg("profile", "Name of the profile").
+		Required().
+		StringVar(&input.Profile)
+
+	cmd.Flag("env", "Read the credentials from the environment").
+		BoolVar(&input.FromEnv)
+
+	cmd.Action(func(c *kingpin.ParseContext) error {
+		AddCommand(ui, input)
+		return nil
+	})
+}
+
+func configureListCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
+	input := LsCommandInput{
+		Keyring: keyringImpl,
+	}
+
+	cmd := app.Command("ls", "List profiles")
+	cmd.Action(func(c *kingpin.ParseContext) error {
+		LsCommand(ui, input)
+		return nil
+	})
+}
+
+func configureRotateCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
+	input := RotateCommandInput{
+		Keyring: keyringImpl,
+	}
+
+	cmd := app.Command("rotate", "Rotates credentials")
+	cmd.Arg("profile", "Name of the profile").
+		Required().
+		StringVar(&input.Profile)
+
+	cmd.Flag("mfa-token", "The mfa token to use").
+		Short('t').
+		StringVar(&input.MfaToken)
+
+	cmd.Action(func(c *kingpin.ParseContext) error {
+		input.MfaPrompt = prompt.Method(g.PromptDriver)
+		RotateCommand(ui, input)
+		return nil
+	})
+}
+
+func configureExecCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
+	input := ExecCommandInput{
+		Keyring: keyringImpl,
+	}
+
+	cmd := app.Command("exec", "Executes a command with AWS credentials in the environment")
+	cmd.Flag("no-session", "Use root credentials, no session created").
+		Short('n').
+		BoolVar(&input.NoSession)
+
+	cmd.Flag("session-ttl", "Expiration time for aws session").
+		Default("4h").
+		OverrideDefaultFromEnvar("AWS_SESSION_TTL").
+		Short('t').
+		DurationVar(&input.Duration)
+
+	cmd.Flag("assume-role-ttl", "Expiration time for aws assumed role").
+		Default("15m").
+		DurationVar(&input.RoleDuration)
+
+	cmd.Flag("mfa-token", "The mfa token to use").
+		Short('m').
+		StringVar(&input.MfaToken)
+
+	cmd.Flag("server", "Run the server in the background for credentials").
+		Short('s').
+		BoolVar(&input.StartServer)
+
+	cmd.Arg("profile", "Name of the profile").
+		Required().
+		StringVar(&input.Profile)
+
+	cmd.Arg("cmd", "Command to execute").
+		Default(os.Getenv("SHELL")).
+		StringVar(&input.Command)
+
+	cmd.Arg("args", "Command arguments").
+		StringsVar(&input.Args)
+
+	cmd.Action(func(c *kingpin.ParseContext) error {
+		input.MfaPrompt = prompt.Method(g.PromptDriver)
+		input.Signals = make(chan os.Signal)
+		signal.Notify(input.Signals, os.Interrupt, os.Kill)
+		ExecCommand(ui, input)
+		return nil
+	})
+}
+
+func configureRemoveCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
+	input := RemoveCommandInput{
+		Keyring: keyringImpl,
+	}
+
+	cmd := app.Command("rm", "Removes credentials, including sessions")
+	cmd.Arg("profile", "Name of the profile").
+		Required().
+		StringVar(&input.Profile)
+
+	cmd.Flag("sessions-only", "Only remove sessions, leave credentials intact").
+		Short('s').
+		BoolVar(&input.SessionsOnly)
+
+	cmd.Action(func(c *kingpin.ParseContext) error {
+		RemoveCommand(ui, input)
+		return nil
+	})
+}
+
+func configureLoginCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
+	input := LoginCommandInput{
+		Keyring: keyringImpl,
+	}
+
+	cmd := app.Command("login", "Generate a login link for the AWS Console")
+	cmd.Arg("profile", "Name of the profile").
+		Required().
+		StringVar(&input.Profile)
+
+	cmd.Flag("mfa-token", "The mfa token to use").
+		Short('t').
+		StringVar(&input.MfaToken)
+
+	cmd.Flag("stdout", "Print login URL to stdout instead of opening in default browser").
+		Short('s').
+		BoolVar(&input.UseStdout)
+
+	cmd.Action(func(c *kingpin.ParseContext) error {
+		input.MfaPrompt = prompt.Method(g.PromptDriver)
+		LoginCommand(ui, input)
+		return nil
+	})
+}
+
+func configureServerCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
+	input := ServerCommandInput{}
+
+	cmd := app.Command("server", "Run an ec2 instance role server locally")
+	cmd.Action(func(c *kingpin.ParseContext) error {
+		ServerCommand(ui, input)
+		return nil
+	})
+}
+
 func main() {
-	var (
-		prompts  = prompt.Available()
-		backends = keyring.SupportedBackends()
-
-		debug            = kingpin.Flag("debug", "Show debugging output").Bool()
-		backend          = kingpin.Flag("backend", fmt.Sprintf("Secret backend to use %v", backends)).Default(keyring.DefaultBackend).OverrideDefaultFromEnvar("AWS_VAULT_BACKEND").Enum(backends...)
-		promptDriver     = kingpin.Flag("prompt", fmt.Sprintf("Prompt driver to use %v", prompts)).Default("terminal").OverrideDefaultFromEnvar("AWS_VAULT_PROMPT").Enum(prompts...)
-		add              = kingpin.Command("add", "Adds credentials, prompts if none provided")
-		addProfile       = add.Arg("profile", "Name of the profile").Required().String()
-		addFromEnv       = add.Flag("env", "Read the credentials from the environment").Bool()
-		ls               = kingpin.Command("ls", "List profiles")
-		exec             = kingpin.Command("exec", "Executes a command with AWS credentials in the environment")
-		execNoSession    = exec.Flag("no-session", "Use root credentials, no session created").Short('n').Bool()
-		execSessDuration = exec.Flag("session-ttl", "Expiration time for aws session").Default("4h").OverrideDefaultFromEnvar("AWS_SESSION_TTL").Short('t').Duration()
-		execRoleDuration = exec.Flag("assume-role-ttl", "Expiration time for aws assumed role").Default("15m").Duration()
-		execMfaToken     = exec.Flag("mfa-token", "The mfa token to use").Short('m').String()
-		execServer       = exec.Flag("server", "Run the server in the background for credentials").Short('s').Bool()
-		execProfile      = exec.Arg("profile", "Name of the profile").Required().String()
-		execCmd          = exec.Arg("cmd", "Command to execute").Default(os.Getenv("SHELL")).String()
-		execCmdArgs      = exec.Arg("args", "Command arguments").Strings()
-		rotate           = kingpin.Command("rotate", "Rotates credentials")
-		rotateProfile    = rotate.Arg("profile", "Name of the profile").Required().String()
-		rm               = kingpin.Command("rm", "Removes credentials, including sessions")
-		rmProfile        = rm.Arg("profile", "Name of the profile").Required().String()
-		rmSessionsOnly   = rm.Flag("sessions-only", "Only remove sessions, leave credentials intact").Short('s').Bool()
-		login            = kingpin.Command("login", "Generate a login link for the AWS Console")
-		loginProfile     = login.Arg("profile", "Name of the profile").Required().String()
-		loginMfaToken    = login.Flag("mfa-token", "The mfa token to use").Short('t').String()
-		useStdout        = login.Flag("stdout", "Print login URL to stdout instead of opening in default browser").Short('s').Bool()
-		server           = kingpin.Command("server", "Run an ec2 instance role server locally")
-	)
-
-	kingpin.Version(Version)
-	kingpin.CommandLine.Help =
-		`A vault for securely storing and accessing AWS credentials in development environments.`
-
 	ui := Ui{
 		Logger: log.New(os.Stdout, "", 0),
 		Error:  log.New(os.Stderr, "", 0),
@@ -73,77 +206,47 @@ func main() {
 		Exit:   os.Exit,
 	}
 
-	cmd := kingpin.Parse()
+	app := kingpin.New("aws-vault",
+		`A vault for securely storing and accessing AWS credentials in development environments.`)
 
-	keyring, err := keyring.Open("aws-vault", *backend)
-	if err != nil {
-		ui.Error.Fatal(err)
-	}
+	globals := &globalFlags{}
 
-	if *debug {
+	app.Version(Version)
+	app.Writer(os.Stdout)
+
+	app.Flag("debug", "Show debugging output").
+		BoolVar(&globals.Debug)
+
+	app.Flag("backend", fmt.Sprintf("Secret backend to use %v", backendsAvailable)).
+		Default(keyring.DefaultBackend).
+		OverrideDefaultFromEnvar("AWS_VAULT_BACKEND").
+		EnumVar(&globals.Backend, backendsAvailable...)
+
+	app.Flag("prompt", fmt.Sprintf("Prompt driver to use %v", promptsAvailable)).
+		Default("terminal").
+		OverrideDefaultFromEnvar("AWS_VAULT_PROMPT").
+		Enum(promptsAvailable...)
+
+	app.PreAction(func(c *kingpin.ParseContext) (err error) {
+		keyringImpl, err = keyring.Open(KeyringName, globals.Backend)
+		return err
+	})
+
+	configureAddCommand(app, ui, globals)
+	configureListCommand(app, ui, globals)
+	configureRotateCommand(app, ui, globals)
+	configureExecCommand(app, ui, globals)
+	configureRemoveCommand(app, ui, globals)
+	configureLoginCommand(app, ui, globals)
+	configureServerCommand(app, ui, globals)
+
+	kingpin.MustParse(app.Parse(os.Args[1:]))
+
+	if globals.Debug {
 		ui.Debug = log.New(os.Stderr, "DEBUG ", log.LstdFlags)
 		log.SetFlags(0)
 		log.SetOutput(&logWriter{ui.Debug})
 	} else {
 		log.SetOutput(ioutil.Discard)
-	}
-
-	switch cmd {
-	case ls.FullCommand():
-		LsCommand(ui, LsCommandInput{
-			Keyring: keyring,
-		})
-
-	case rm.FullCommand():
-		RemoveCommand(ui, RemoveCommandInput{
-			Profile:      *rmProfile,
-			Keyring:      keyring,
-			SessionsOnly: *rmSessionsOnly,
-		})
-
-	case add.FullCommand():
-		AddCommand(ui, AddCommandInput{
-			Profile: *addProfile,
-			Keyring: keyring,
-			FromEnv: *addFromEnv,
-		})
-
-	case exec.FullCommand():
-		signals := make(chan os.Signal)
-		signal.Notify(signals, os.Interrupt, os.Kill)
-
-		ExecCommand(ui, ExecCommandInput{
-			Profile:      *execProfile,
-			Command:      *execCmd,
-			Args:         *execCmdArgs,
-			Keyring:      keyring,
-			Duration:     *execSessDuration,
-			RoleDuration: *execRoleDuration,
-			Signals:      signals,
-			MfaToken:     *execMfaToken,
-			MfaPrompt:    prompt.Method(*promptDriver),
-			StartServer:  *execServer,
-			NoSession:    *execNoSession,
-		})
-
-	case login.FullCommand():
-		LoginCommand(ui, LoginCommandInput{
-			Profile:   *loginProfile,
-			Keyring:   keyring,
-			MfaToken:  *loginMfaToken,
-			MfaPrompt: prompt.Method(*promptDriver),
-			UseStdout: *useStdout,
-		})
-
-	case server.FullCommand():
-		ServerCommand(ui, ServerCommandInput{})
-
-	case rotate.FullCommand():
-		RotateCommand(ui, RotateCommandInput{
-			Profile:   *rotateProfile,
-			Keyring:   keyring,
-			MfaToken:  *loginMfaToken,
-			MfaPrompt: prompt.Method(*promptDriver),
-		})
 	}
 }

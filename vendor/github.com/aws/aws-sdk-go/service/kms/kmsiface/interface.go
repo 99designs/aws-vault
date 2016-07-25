@@ -10,6 +10,10 @@ import (
 
 // KMSAPI is the interface type for kms.KMS.
 type KMSAPI interface {
+	CancelKeyDeletionRequest(*kms.CancelKeyDeletionInput) (*request.Request, *kms.CancelKeyDeletionOutput)
+
+	CancelKeyDeletion(*kms.CancelKeyDeletionInput) (*kms.CancelKeyDeletionOutput, error)
+
 	CreateAliasRequest(*kms.CreateAliasInput) (*request.Request, *kms.CreateAliasOutput)
 
 	CreateAlias(*kms.CreateAliasInput) (*kms.CreateAliasOutput, error)
@@ -80,11 +84,11 @@ type KMSAPI interface {
 
 	ListAliasesPages(*kms.ListAliasesInput, func(*kms.ListAliasesOutput, bool) bool) error
 
-	ListGrantsRequest(*kms.ListGrantsInput) (*request.Request, *kms.ListGrantsOutput)
+	ListGrantsRequest(*kms.ListGrantsInput) (*request.Request, *kms.ListGrantsResponse)
 
-	ListGrants(*kms.ListGrantsInput) (*kms.ListGrantsOutput, error)
+	ListGrants(*kms.ListGrantsInput) (*kms.ListGrantsResponse, error)
 
-	ListGrantsPages(*kms.ListGrantsInput, func(*kms.ListGrantsOutput, bool) bool) error
+	ListGrantsPages(*kms.ListGrantsInput, func(*kms.ListGrantsResponse, bool) bool) error
 
 	ListKeyPoliciesRequest(*kms.ListKeyPoliciesInput) (*request.Request, *kms.ListKeyPoliciesOutput)
 
@@ -97,6 +101,10 @@ type KMSAPI interface {
 	ListKeys(*kms.ListKeysInput) (*kms.ListKeysOutput, error)
 
 	ListKeysPages(*kms.ListKeysInput, func(*kms.ListKeysOutput, bool) bool) error
+
+	ListRetirableGrantsRequest(*kms.ListRetirableGrantsInput) (*request.Request, *kms.ListGrantsResponse)
+
+	ListRetirableGrants(*kms.ListRetirableGrantsInput) (*kms.ListGrantsResponse, error)
 
 	PutKeyPolicyRequest(*kms.PutKeyPolicyInput) (*request.Request, *kms.PutKeyPolicyOutput)
 
@@ -114,6 +122,10 @@ type KMSAPI interface {
 
 	RevokeGrant(*kms.RevokeGrantInput) (*kms.RevokeGrantOutput, error)
 
+	ScheduleKeyDeletionRequest(*kms.ScheduleKeyDeletionInput) (*request.Request, *kms.ScheduleKeyDeletionOutput)
+
+	ScheduleKeyDeletion(*kms.ScheduleKeyDeletionInput) (*kms.ScheduleKeyDeletionOutput, error)
+
 	UpdateAliasRequest(*kms.UpdateAliasInput) (*request.Request, *kms.UpdateAliasOutput)
 
 	UpdateAlias(*kms.UpdateAliasInput) (*kms.UpdateAliasOutput, error)
@@ -122,3 +134,5 @@ type KMSAPI interface {
 
 	UpdateKeyDescription(*kms.UpdateKeyDescriptionInput) (*kms.UpdateKeyDescriptionOutput, error)
 }
+
+var _ KMSAPI = (*kms.KMS)(nil)

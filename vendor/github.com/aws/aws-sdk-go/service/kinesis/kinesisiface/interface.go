@@ -18,6 +18,10 @@ type KinesisAPI interface {
 
 	CreateStream(*kinesis.CreateStreamInput) (*kinesis.CreateStreamOutput, error)
 
+	DecreaseStreamRetentionPeriodRequest(*kinesis.DecreaseStreamRetentionPeriodInput) (*request.Request, *kinesis.DecreaseStreamRetentionPeriodOutput)
+
+	DecreaseStreamRetentionPeriod(*kinesis.DecreaseStreamRetentionPeriodInput) (*kinesis.DecreaseStreamRetentionPeriodOutput, error)
+
 	DeleteStreamRequest(*kinesis.DeleteStreamInput) (*request.Request, *kinesis.DeleteStreamOutput)
 
 	DeleteStream(*kinesis.DeleteStreamInput) (*kinesis.DeleteStreamOutput, error)
@@ -28,6 +32,14 @@ type KinesisAPI interface {
 
 	DescribeStreamPages(*kinesis.DescribeStreamInput, func(*kinesis.DescribeStreamOutput, bool) bool) error
 
+	DisableEnhancedMonitoringRequest(*kinesis.DisableEnhancedMonitoringInput) (*request.Request, *kinesis.EnhancedMonitoringOutput)
+
+	DisableEnhancedMonitoring(*kinesis.DisableEnhancedMonitoringInput) (*kinesis.EnhancedMonitoringOutput, error)
+
+	EnableEnhancedMonitoringRequest(*kinesis.EnableEnhancedMonitoringInput) (*request.Request, *kinesis.EnhancedMonitoringOutput)
+
+	EnableEnhancedMonitoring(*kinesis.EnableEnhancedMonitoringInput) (*kinesis.EnhancedMonitoringOutput, error)
+
 	GetRecordsRequest(*kinesis.GetRecordsInput) (*request.Request, *kinesis.GetRecordsOutput)
 
 	GetRecords(*kinesis.GetRecordsInput) (*kinesis.GetRecordsOutput, error)
@@ -35,6 +47,10 @@ type KinesisAPI interface {
 	GetShardIteratorRequest(*kinesis.GetShardIteratorInput) (*request.Request, *kinesis.GetShardIteratorOutput)
 
 	GetShardIterator(*kinesis.GetShardIteratorInput) (*kinesis.GetShardIteratorOutput, error)
+
+	IncreaseStreamRetentionPeriodRequest(*kinesis.IncreaseStreamRetentionPeriodInput) (*request.Request, *kinesis.IncreaseStreamRetentionPeriodOutput)
+
+	IncreaseStreamRetentionPeriod(*kinesis.IncreaseStreamRetentionPeriodInput) (*kinesis.IncreaseStreamRetentionPeriodOutput, error)
 
 	ListStreamsRequest(*kinesis.ListStreamsInput) (*request.Request, *kinesis.ListStreamsOutput)
 
@@ -66,3 +82,5 @@ type KinesisAPI interface {
 
 	SplitShard(*kinesis.SplitShardInput) (*kinesis.SplitShardOutput, error)
 }
+
+var _ KinesisAPI = (*kinesis.Kinesis)(nil)

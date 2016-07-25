@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/datapipeline"
 )
 
@@ -15,7 +16,7 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleDataPipeline_ActivatePipeline() {
-	svc := datapipeline.New(nil)
+	svc := datapipeline.New(session.New())
 
 	params := &datapipeline.ActivatePipelineInput{
 		PipelineId: aws.String("id"), // Required
@@ -42,7 +43,7 @@ func ExampleDataPipeline_ActivatePipeline() {
 }
 
 func ExampleDataPipeline_AddTags() {
-	svc := datapipeline.New(nil)
+	svc := datapipeline.New(session.New())
 
 	params := &datapipeline.AddTagsInput{
 		PipelineId: aws.String("id"), // Required
@@ -68,7 +69,7 @@ func ExampleDataPipeline_AddTags() {
 }
 
 func ExampleDataPipeline_CreatePipeline() {
-	svc := datapipeline.New(nil)
+	svc := datapipeline.New(session.New())
 
 	params := &datapipeline.CreatePipelineInput{
 		Name:        aws.String("id"), // Required
@@ -96,7 +97,7 @@ func ExampleDataPipeline_CreatePipeline() {
 }
 
 func ExampleDataPipeline_DeactivatePipeline() {
-	svc := datapipeline.New(nil)
+	svc := datapipeline.New(session.New())
 
 	params := &datapipeline.DeactivatePipelineInput{
 		PipelineId:   aws.String("id"), // Required
@@ -116,7 +117,7 @@ func ExampleDataPipeline_DeactivatePipeline() {
 }
 
 func ExampleDataPipeline_DeletePipeline() {
-	svc := datapipeline.New(nil)
+	svc := datapipeline.New(session.New())
 
 	params := &datapipeline.DeletePipelineInput{
 		PipelineId: aws.String("id"), // Required
@@ -135,7 +136,7 @@ func ExampleDataPipeline_DeletePipeline() {
 }
 
 func ExampleDataPipeline_DescribeObjects() {
-	svc := datapipeline.New(nil)
+	svc := datapipeline.New(session.New())
 
 	params := &datapipeline.DescribeObjectsInput{
 		ObjectIds: []*string{ // Required
@@ -160,7 +161,7 @@ func ExampleDataPipeline_DescribeObjects() {
 }
 
 func ExampleDataPipeline_DescribePipelines() {
-	svc := datapipeline.New(nil)
+	svc := datapipeline.New(session.New())
 
 	params := &datapipeline.DescribePipelinesInput{
 		PipelineIds: []*string{ // Required
@@ -182,7 +183,7 @@ func ExampleDataPipeline_DescribePipelines() {
 }
 
 func ExampleDataPipeline_EvaluateExpression() {
-	svc := datapipeline.New(nil)
+	svc := datapipeline.New(session.New())
 
 	params := &datapipeline.EvaluateExpressionInput{
 		Expression: aws.String("longString"), // Required
@@ -203,7 +204,7 @@ func ExampleDataPipeline_EvaluateExpression() {
 }
 
 func ExampleDataPipeline_GetPipelineDefinition() {
-	svc := datapipeline.New(nil)
+	svc := datapipeline.New(session.New())
 
 	params := &datapipeline.GetPipelineDefinitionInput{
 		PipelineId: aws.String("id"), // Required
@@ -223,7 +224,7 @@ func ExampleDataPipeline_GetPipelineDefinition() {
 }
 
 func ExampleDataPipeline_ListPipelines() {
-	svc := datapipeline.New(nil)
+	svc := datapipeline.New(session.New())
 
 	params := &datapipeline.ListPipelinesInput{
 		Marker: aws.String("string"),
@@ -242,7 +243,7 @@ func ExampleDataPipeline_ListPipelines() {
 }
 
 func ExampleDataPipeline_PollForTask() {
-	svc := datapipeline.New(nil)
+	svc := datapipeline.New(session.New())
 
 	params := &datapipeline.PollForTaskInput{
 		WorkerGroup: aws.String("string"), // Required
@@ -266,7 +267,7 @@ func ExampleDataPipeline_PollForTask() {
 }
 
 func ExampleDataPipeline_PutPipelineDefinition() {
-	svc := datapipeline.New(nil)
+	svc := datapipeline.New(session.New())
 
 	params := &datapipeline.PutPipelineDefinitionInput{
 		PipelineId: aws.String("id"), // Required
@@ -320,7 +321,7 @@ func ExampleDataPipeline_PutPipelineDefinition() {
 }
 
 func ExampleDataPipeline_QueryObjects() {
-	svc := datapipeline.New(nil)
+	svc := datapipeline.New(session.New())
 
 	params := &datapipeline.QueryObjectsInput{
 		PipelineId: aws.String("id"),     // Required
@@ -357,7 +358,7 @@ func ExampleDataPipeline_QueryObjects() {
 }
 
 func ExampleDataPipeline_RemoveTags() {
-	svc := datapipeline.New(nil)
+	svc := datapipeline.New(session.New())
 
 	params := &datapipeline.RemoveTagsInput{
 		PipelineId: aws.String("id"), // Required
@@ -380,7 +381,7 @@ func ExampleDataPipeline_RemoveTags() {
 }
 
 func ExampleDataPipeline_ReportTaskProgress() {
-	svc := datapipeline.New(nil)
+	svc := datapipeline.New(session.New())
 
 	params := &datapipeline.ReportTaskProgressInput{
 		TaskId: aws.String("taskId"), // Required
@@ -407,7 +408,7 @@ func ExampleDataPipeline_ReportTaskProgress() {
 }
 
 func ExampleDataPipeline_ReportTaskRunnerHeartbeat() {
-	svc := datapipeline.New(nil)
+	svc := datapipeline.New(session.New())
 
 	params := &datapipeline.ReportTaskRunnerHeartbeatInput{
 		TaskrunnerId: aws.String("id"), // Required
@@ -428,7 +429,7 @@ func ExampleDataPipeline_ReportTaskRunnerHeartbeat() {
 }
 
 func ExampleDataPipeline_SetStatus() {
-	svc := datapipeline.New(nil)
+	svc := datapipeline.New(session.New())
 
 	params := &datapipeline.SetStatusInput{
 		ObjectIds: []*string{ // Required
@@ -452,7 +453,7 @@ func ExampleDataPipeline_SetStatus() {
 }
 
 func ExampleDataPipeline_SetTaskStatus() {
-	svc := datapipeline.New(nil)
+	svc := datapipeline.New(session.New())
 
 	params := &datapipeline.SetTaskStatusInput{
 		TaskId:          aws.String("taskId"),     // Required
@@ -475,7 +476,7 @@ func ExampleDataPipeline_SetTaskStatus() {
 }
 
 func ExampleDataPipeline_ValidatePipelineDefinition() {
-	svc := datapipeline.New(nil)
+	svc := datapipeline.New(session.New())
 
 	params := &datapipeline.ValidatePipelineDefinitionInput{
 		PipelineId: aws.String("id"), // Required

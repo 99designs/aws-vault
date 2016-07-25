@@ -4,6 +4,7 @@
 package storagegateway
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/awsutil"
@@ -12,7 +13,28 @@ import (
 
 const opActivateGateway = "ActivateGateway"
 
-// ActivateGatewayRequest generates a request for the ActivateGateway operation.
+// ActivateGatewayRequest generates a "aws/request.Request" representing the
+// client's request for the ActivateGateway operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ActivateGateway method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ActivateGatewayRequest method.
+//    req, resp := client.ActivateGatewayRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) ActivateGatewayRequest(input *ActivateGatewayInput) (req *request.Request, output *ActivateGatewayOutput) {
 	op := &request.Operation{
 		Name:       opActivateGateway,
@@ -30,13 +52,13 @@ func (c *StorageGateway) ActivateGatewayRequest(input *ActivateGatewayInput) (re
 	return
 }
 
-// This operation activates the gateway you previously deployed on your host.
-// For more information, see  Activate the AWS Storage Gateway (http://docs.aws.amazon.com/storagegateway/latest/userguide/GettingStartedActivateGateway-common.html).
-// In the activation process, you specify information such as the region you
-// want to use for storing snapshots, the time zone for scheduled snapshots
-// the gateway snapshot schedule window, an activation key, and a name for your
-// gateway. The activation process also associates your gateway with your account;
-// for more information, see UpdateGatewayInformation.
+// Activates the gateway you previously deployed on your host. For more information,
+// see  Activate the AWS Storage Gateway (http://docs.aws.amazon.com/storagegateway/latest/userguide/GettingStartedActivateGateway-common.html).
+// In the activation process, you specify information such as the you want to
+// use for storing snapshots, the time zone for scheduled snapshots the gateway
+// snapshot schedule window, an activation key, and a name for your gateway.
+// The activation process also associates your gateway with your account; for
+// more information, see UpdateGatewayInformation.
 //
 // You must turn on the gateway VM before you can activate your gateway.
 func (c *StorageGateway) ActivateGateway(input *ActivateGatewayInput) (*ActivateGatewayOutput, error) {
@@ -47,7 +69,28 @@ func (c *StorageGateway) ActivateGateway(input *ActivateGatewayInput) (*Activate
 
 const opAddCache = "AddCache"
 
-// AddCacheRequest generates a request for the AddCache operation.
+// AddCacheRequest generates a "aws/request.Request" representing the
+// client's request for the AddCache operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the AddCache method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the AddCacheRequest method.
+//    req, resp := client.AddCacheRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) AddCacheRequest(input *AddCacheInput) (req *request.Request, output *AddCacheOutput) {
 	op := &request.Operation{
 		Name:       opAddCache,
@@ -65,9 +108,9 @@ func (c *StorageGateway) AddCacheRequest(input *AddCacheInput) (req *request.Req
 	return
 }
 
-// This operation configures one or more gateway local disks as cache for a
-// cached-volume gateway. This operation is supported only for the gateway-cached
-// volume architecture (see Storage Gateway Concepts (http://docs.aws.amazon.com/storagegateway/latest/userguide/StorageGatewayConcepts.html)).
+// Configures one or more gateway local disks as cache for a cached-volume gateway.
+// This operation is supported only for the gateway-cached volume architecture
+// (see Storage Gateway Concepts (http://docs.aws.amazon.com/storagegateway/latest/userguide/StorageGatewayConcepts.html)).
 //
 // In the request, you specify the gateway Amazon Resource Name (ARN) to which
 // you want to add cache, and one or more disk IDs that you want to configure
@@ -78,9 +121,91 @@ func (c *StorageGateway) AddCache(input *AddCacheInput) (*AddCacheOutput, error)
 	return out, err
 }
 
+const opAddTagsToResource = "AddTagsToResource"
+
+// AddTagsToResourceRequest generates a "aws/request.Request" representing the
+// client's request for the AddTagsToResource operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the AddTagsToResource method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the AddTagsToResourceRequest method.
+//    req, resp := client.AddTagsToResourceRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *StorageGateway) AddTagsToResourceRequest(input *AddTagsToResourceInput) (req *request.Request, output *AddTagsToResourceOutput) {
+	op := &request.Operation{
+		Name:       opAddTagsToResource,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &AddTagsToResourceInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &AddTagsToResourceOutput{}
+	req.Data = output
+	return
+}
+
+// Adds one or more tags to the specified resource. You use tags to add metadata
+// to resources, which you can use to categorize these resources. For example,
+// you can categorize resources by purpose, owner, environment, or team. Each
+// tag consists of a key and a value, which you define. You can add tags to
+// the following AWS Storage Gateway resources:
+//
+//   Storage gateways of all types
+//
+//     Storage Volumes
+//
+//     Virtual Tapes
+//
+//   You can create a maximum of 10 tags for each resource. Virtual tapes and
+// storage volumes that are recovered to a new gateway maintain their tags.
+func (c *StorageGateway) AddTagsToResource(input *AddTagsToResourceInput) (*AddTagsToResourceOutput, error) {
+	req, out := c.AddTagsToResourceRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opAddUploadBuffer = "AddUploadBuffer"
 
-// AddUploadBufferRequest generates a request for the AddUploadBuffer operation.
+// AddUploadBufferRequest generates a "aws/request.Request" representing the
+// client's request for the AddUploadBuffer operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the AddUploadBuffer method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the AddUploadBufferRequest method.
+//    req, resp := client.AddUploadBufferRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) AddUploadBufferRequest(input *AddUploadBufferInput) (req *request.Request, output *AddUploadBufferOutput) {
 	op := &request.Operation{
 		Name:       opAddUploadBuffer,
@@ -98,11 +223,11 @@ func (c *StorageGateway) AddUploadBufferRequest(input *AddUploadBufferInput) (re
 	return
 }
 
-// This operation configures one or more gateway local disks as upload buffer
-// for a specified gateway. This operation is supported for both the gateway-stored
-// and gateway-cached volume architectures.
+// Configures one or more gateway local disks as upload buffer for a specified
+// gateway. This operation is supported for both the gateway-stored and gateway-cached
+// volume architectures.
 //
-//  In the request, you specify the gateway Amazon Resource Name (ARN) to which
+// In the request, you specify the gateway Amazon Resource Name (ARN) to which
 // you want to add upload buffer, and one or more disk IDs that you want to
 // configure as upload buffer.
 func (c *StorageGateway) AddUploadBuffer(input *AddUploadBufferInput) (*AddUploadBufferOutput, error) {
@@ -113,7 +238,28 @@ func (c *StorageGateway) AddUploadBuffer(input *AddUploadBufferInput) (*AddUploa
 
 const opAddWorkingStorage = "AddWorkingStorage"
 
-// AddWorkingStorageRequest generates a request for the AddWorkingStorage operation.
+// AddWorkingStorageRequest generates a "aws/request.Request" representing the
+// client's request for the AddWorkingStorage operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the AddWorkingStorage method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the AddWorkingStorageRequest method.
+//    req, resp := client.AddWorkingStorageRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) AddWorkingStorageRequest(input *AddWorkingStorageInput) (req *request.Request, output *AddWorkingStorageOutput) {
 	op := &request.Operation{
 		Name:       opAddWorkingStorage,
@@ -131,15 +277,15 @@ func (c *StorageGateway) AddWorkingStorageRequest(input *AddWorkingStorageInput)
 	return
 }
 
-// This operation configures one or more gateway local disks as working storage
-// for a gateway. This operation is supported only for the gateway-stored volume
-// architecture. This operation is deprecated method in cached-volumes API version
-// (20120630). Use AddUploadBuffer instead.
+// Configures one or more gateway local disks as working storage for a gateway.
+// This operation is supported only for the gateway-stored volume architecture.
+// This operation is deprecated in cached-volumes API version 20120630. Use
+// AddUploadBuffer instead.
 //
-// Working storage is also referred to as upload buffer. You can also use the
-// AddUploadBuffer operation to add upload buffer to a stored-volume gateway.
+//  Working storage is also referred to as upload buffer. You can also use
+// the AddUploadBuffer operation to add upload buffer to a stored-volume gateway.
 //
-// In the request, you specify the gateway Amazon Resource Name (ARN) to which
+//  In the request, you specify the gateway Amazon Resource Name (ARN) to which
 // you want to add working storage, and one or more disk IDs that you want to
 // configure as working storage.
 func (c *StorageGateway) AddWorkingStorage(input *AddWorkingStorageInput) (*AddWorkingStorageOutput, error) {
@@ -150,7 +296,28 @@ func (c *StorageGateway) AddWorkingStorage(input *AddWorkingStorageInput) (*AddW
 
 const opCancelArchival = "CancelArchival"
 
-// CancelArchivalRequest generates a request for the CancelArchival operation.
+// CancelArchivalRequest generates a "aws/request.Request" representing the
+// client's request for the CancelArchival operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CancelArchival method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CancelArchivalRequest method.
+//    req, resp := client.CancelArchivalRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) CancelArchivalRequest(input *CancelArchivalInput) (req *request.Request, output *CancelArchivalOutput) {
 	op := &request.Operation{
 		Name:       opCancelArchival,
@@ -178,7 +345,28 @@ func (c *StorageGateway) CancelArchival(input *CancelArchivalInput) (*CancelArch
 
 const opCancelRetrieval = "CancelRetrieval"
 
-// CancelRetrievalRequest generates a request for the CancelRetrieval operation.
+// CancelRetrievalRequest generates a "aws/request.Request" representing the
+// client's request for the CancelRetrieval operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CancelRetrieval method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CancelRetrievalRequest method.
+//    req, resp := client.CancelRetrievalRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) CancelRetrievalRequest(input *CancelRetrievalInput) (req *request.Request, output *CancelRetrievalOutput) {
 	op := &request.Operation{
 		Name:       opCancelRetrieval,
@@ -207,7 +395,28 @@ func (c *StorageGateway) CancelRetrieval(input *CancelRetrievalInput) (*CancelRe
 
 const opCreateCachediSCSIVolume = "CreateCachediSCSIVolume"
 
-// CreateCachediSCSIVolumeRequest generates a request for the CreateCachediSCSIVolume operation.
+// CreateCachediSCSIVolumeRequest generates a "aws/request.Request" representing the
+// client's request for the CreateCachediSCSIVolume operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CreateCachediSCSIVolume method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CreateCachediSCSIVolumeRequest method.
+//    req, resp := client.CreateCachediSCSIVolumeRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) CreateCachediSCSIVolumeRequest(input *CreateCachediSCSIVolumeInput) (req *request.Request, output *CreateCachediSCSIVolumeOutput) {
 	op := &request.Operation{
 		Name:       opCreateCachediSCSIVolume,
@@ -225,17 +434,18 @@ func (c *StorageGateway) CreateCachediSCSIVolumeRequest(input *CreateCachediSCSI
 	return
 }
 
-// This operation creates a cached volume on a specified cached gateway. This
-// operation is supported only for the gateway-cached volume architecture.
+// Creates a cached volume on a specified cached gateway. This operation is
+// supported only for the gateway-cached volume architecture.
 //
 // Cache storage must be allocated to the gateway before you can create a cached
-// volume. Use the AddCache operation to add cache storage to a gateway.  In
-// the request, you must specify the gateway, size of the volume in bytes, the
-// iSCSI target name, an IP address on which to expose the target, and a unique
-// client token. In response, AWS Storage Gateway creates the volume and returns
-// information about it such as the volume Amazon Resource Name (ARN), its size,
-// and the iSCSI target ARN that initiators can use to connect to the volume
-// target.
+// volume. Use the AddCache operation to add cache storage to a gateway.
+//
+//  In the request, you must specify the gateway, size of the volume in bytes,
+// the iSCSI target name, an IP address on which to expose the target, and a
+// unique client token. In response, AWS Storage Gateway creates the volume
+// and returns information about it such as the volume Amazon Resource Name
+// (ARN), its size, and the iSCSI target ARN that initiators can use to connect
+// to the volume target.
 func (c *StorageGateway) CreateCachediSCSIVolume(input *CreateCachediSCSIVolumeInput) (*CreateCachediSCSIVolumeOutput, error) {
 	req, out := c.CreateCachediSCSIVolumeRequest(input)
 	err := req.Send()
@@ -244,7 +454,28 @@ func (c *StorageGateway) CreateCachediSCSIVolume(input *CreateCachediSCSIVolumeI
 
 const opCreateSnapshot = "CreateSnapshot"
 
-// CreateSnapshotRequest generates a request for the CreateSnapshot operation.
+// CreateSnapshotRequest generates a "aws/request.Request" representing the
+// client's request for the CreateSnapshot operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CreateSnapshot method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CreateSnapshotRequest method.
+//    req, resp := client.CreateSnapshotRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) CreateSnapshotRequest(input *CreateSnapshotInput) (req *request.Request, output *CreateSnapshotOutput) {
 	op := &request.Operation{
 		Name:       opCreateSnapshot,
@@ -262,7 +493,7 @@ func (c *StorageGateway) CreateSnapshotRequest(input *CreateSnapshotInput) (req 
 	return
 }
 
-// This operation initiates a snapshot of a volume.
+// Initiates a snapshot of a volume.
 //
 // AWS Storage Gateway provides the ability to back up point-in-time snapshots
 // of your data to Amazon Simple Storage (S3) for durable off-site recovery,
@@ -283,6 +514,10 @@ func (c *StorageGateway) CreateSnapshotRequest(input *CreateSnapshotInput) (req 
 // To list or delete a snapshot, you must use the Amazon EC2 API. For more
 // information, see DescribeSnapshots or DeleteSnapshot in the EC2 API reference
 // (http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_Operations.html).
+//
+//   Volume and snapshot IDs are changing to a longer length ID format. For
+// more information, see the important note on the Welcome (http://docs.aws.amazon.com/storagegateway/latest/APIReference/Welcome.html)
+// page.
 func (c *StorageGateway) CreateSnapshot(input *CreateSnapshotInput) (*CreateSnapshotOutput, error) {
 	req, out := c.CreateSnapshotRequest(input)
 	err := req.Send()
@@ -291,7 +526,28 @@ func (c *StorageGateway) CreateSnapshot(input *CreateSnapshotInput) (*CreateSnap
 
 const opCreateSnapshotFromVolumeRecoveryPoint = "CreateSnapshotFromVolumeRecoveryPoint"
 
-// CreateSnapshotFromVolumeRecoveryPointRequest generates a request for the CreateSnapshotFromVolumeRecoveryPoint operation.
+// CreateSnapshotFromVolumeRecoveryPointRequest generates a "aws/request.Request" representing the
+// client's request for the CreateSnapshotFromVolumeRecoveryPoint operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CreateSnapshotFromVolumeRecoveryPoint method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CreateSnapshotFromVolumeRecoveryPointRequest method.
+//    req, resp := client.CreateSnapshotFromVolumeRecoveryPointRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) CreateSnapshotFromVolumeRecoveryPointRequest(input *CreateSnapshotFromVolumeRecoveryPointInput) (req *request.Request, output *CreateSnapshotFromVolumeRecoveryPointOutput) {
 	op := &request.Operation{
 		Name:       opCreateSnapshotFromVolumeRecoveryPoint,
@@ -309,9 +565,8 @@ func (c *StorageGateway) CreateSnapshotFromVolumeRecoveryPointRequest(input *Cre
 	return
 }
 
-// This operation initiates a snapshot of a gateway from a volume recovery point.
-// This operation is supported only for the gateway-cached volume architecture
-// (see ).
+// Initiates a snapshot of a gateway from a volume recovery point. This operation
+// is supported only for the gateway-cached volume architecture.
 //
 // A volume recovery point is a point in time at which all data of the volume
 // is consistent and from which you can create a snapshot. To get a list of
@@ -335,7 +590,28 @@ func (c *StorageGateway) CreateSnapshotFromVolumeRecoveryPoint(input *CreateSnap
 
 const opCreateStorediSCSIVolume = "CreateStorediSCSIVolume"
 
-// CreateStorediSCSIVolumeRequest generates a request for the CreateStorediSCSIVolume operation.
+// CreateStorediSCSIVolumeRequest generates a "aws/request.Request" representing the
+// client's request for the CreateStorediSCSIVolume operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CreateStorediSCSIVolume method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CreateStorediSCSIVolumeRequest method.
+//    req, resp := client.CreateStorediSCSIVolumeRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) CreateStorediSCSIVolumeRequest(input *CreateStorediSCSIVolumeInput) (req *request.Request, output *CreateStorediSCSIVolumeOutput) {
 	op := &request.Operation{
 		Name:       opCreateStorediSCSIVolume,
@@ -353,8 +629,8 @@ func (c *StorageGateway) CreateStorediSCSIVolumeRequest(input *CreateStorediSCSI
 	return
 }
 
-// This operation creates a volume on a specified gateway. This operation is
-// supported only for the gateway-stored volume architecture.
+// Creates a volume on a specified gateway. This operation is supported only
+// for the gateway-stored volume architecture.
 //
 // The size of the volume to create is inferred from the disk size. You can
 // choose to preserve existing data on the disk, create volume from an existing
@@ -372,9 +648,82 @@ func (c *StorageGateway) CreateStorediSCSIVolume(input *CreateStorediSCSIVolumeI
 	return out, err
 }
 
+const opCreateTapeWithBarcode = "CreateTapeWithBarcode"
+
+// CreateTapeWithBarcodeRequest generates a "aws/request.Request" representing the
+// client's request for the CreateTapeWithBarcode operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CreateTapeWithBarcode method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CreateTapeWithBarcodeRequest method.
+//    req, resp := client.CreateTapeWithBarcodeRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *StorageGateway) CreateTapeWithBarcodeRequest(input *CreateTapeWithBarcodeInput) (req *request.Request, output *CreateTapeWithBarcodeOutput) {
+	op := &request.Operation{
+		Name:       opCreateTapeWithBarcode,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &CreateTapeWithBarcodeInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &CreateTapeWithBarcodeOutput{}
+	req.Data = output
+	return
+}
+
+// Creates a virtual tape by using your own barcode. You write data to the virtual
+// tape and then archive the tape.
+//
+// Cache storage must be allocated to the gateway before you can create a virtual
+// tape. Use the AddCache operation to add cache storage to a gateway.
+func (c *StorageGateway) CreateTapeWithBarcode(input *CreateTapeWithBarcodeInput) (*CreateTapeWithBarcodeOutput, error) {
+	req, out := c.CreateTapeWithBarcodeRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opCreateTapes = "CreateTapes"
 
-// CreateTapesRequest generates a request for the CreateTapes operation.
+// CreateTapesRequest generates a "aws/request.Request" representing the
+// client's request for the CreateTapes operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CreateTapes method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CreateTapesRequest method.
+//    req, resp := client.CreateTapesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) CreateTapesRequest(input *CreateTapesInput) (req *request.Request, output *CreateTapesOutput) {
 	op := &request.Operation{
 		Name:       opCreateTapes,
@@ -405,7 +754,28 @@ func (c *StorageGateway) CreateTapes(input *CreateTapesInput) (*CreateTapesOutpu
 
 const opDeleteBandwidthRateLimit = "DeleteBandwidthRateLimit"
 
-// DeleteBandwidthRateLimitRequest generates a request for the DeleteBandwidthRateLimit operation.
+// DeleteBandwidthRateLimitRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteBandwidthRateLimit operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteBandwidthRateLimit method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteBandwidthRateLimitRequest method.
+//    req, resp := client.DeleteBandwidthRateLimitRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) DeleteBandwidthRateLimitRequest(input *DeleteBandwidthRateLimitInput) (req *request.Request, output *DeleteBandwidthRateLimitOutput) {
 	op := &request.Operation{
 		Name:       opDeleteBandwidthRateLimit,
@@ -423,11 +793,11 @@ func (c *StorageGateway) DeleteBandwidthRateLimitRequest(input *DeleteBandwidthR
 	return
 }
 
-// This operation deletes the bandwidth rate limits of a gateway. You can delete
-// either the upload and download bandwidth rate limit, or you can delete both.
-// If you delete only one of the limits, the other limit remains unchanged.
-// To specify which gateway to work with, use the Amazon Resource Name (ARN)
-// of the gateway in your request.
+// Deletes the bandwidth rate limits of a gateway. You can delete either the
+// upload and download bandwidth rate limit, or you can delete both. If you
+// delete only one of the limits, the other limit remains unchanged. To specify
+// which gateway to work with, use the Amazon Resource Name (ARN) of the gateway
+// in your request.
 func (c *StorageGateway) DeleteBandwidthRateLimit(input *DeleteBandwidthRateLimitInput) (*DeleteBandwidthRateLimitOutput, error) {
 	req, out := c.DeleteBandwidthRateLimitRequest(input)
 	err := req.Send()
@@ -436,7 +806,28 @@ func (c *StorageGateway) DeleteBandwidthRateLimit(input *DeleteBandwidthRateLimi
 
 const opDeleteChapCredentials = "DeleteChapCredentials"
 
-// DeleteChapCredentialsRequest generates a request for the DeleteChapCredentials operation.
+// DeleteChapCredentialsRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteChapCredentials operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteChapCredentials method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteChapCredentialsRequest method.
+//    req, resp := client.DeleteChapCredentialsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) DeleteChapCredentialsRequest(input *DeleteChapCredentialsInput) (req *request.Request, output *DeleteChapCredentialsOutput) {
 	op := &request.Operation{
 		Name:       opDeleteChapCredentials,
@@ -454,8 +845,8 @@ func (c *StorageGateway) DeleteChapCredentialsRequest(input *DeleteChapCredentia
 	return
 }
 
-// This operation deletes Challenge-Handshake Authentication Protocol (CHAP)
-// credentials for a specified iSCSI target and initiator pair.
+// Deletes Challenge-Handshake Authentication Protocol (CHAP) credentials for
+// a specified iSCSI target and initiator pair.
 func (c *StorageGateway) DeleteChapCredentials(input *DeleteChapCredentialsInput) (*DeleteChapCredentialsOutput, error) {
 	req, out := c.DeleteChapCredentialsRequest(input)
 	err := req.Send()
@@ -464,7 +855,28 @@ func (c *StorageGateway) DeleteChapCredentials(input *DeleteChapCredentialsInput
 
 const opDeleteGateway = "DeleteGateway"
 
-// DeleteGatewayRequest generates a request for the DeleteGateway operation.
+// DeleteGatewayRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteGateway operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteGateway method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteGatewayRequest method.
+//    req, resp := client.DeleteGatewayRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) DeleteGatewayRequest(input *DeleteGatewayInput) (req *request.Request, output *DeleteGatewayOutput) {
 	op := &request.Operation{
 		Name:       opDeleteGateway,
@@ -482,10 +894,10 @@ func (c *StorageGateway) DeleteGatewayRequest(input *DeleteGatewayInput) (req *r
 	return
 }
 
-// This operation deletes a gateway. To specify which gateway to delete, use
-// the Amazon Resource Name (ARN) of the gateway in your request. The operation
-// deletes the gateway; however, it does not delete the gateway virtual machine
-// (VM) from your host computer.
+// Deletes a gateway. To specify which gateway to delete, use the Amazon Resource
+// Name (ARN) of the gateway in your request. The operation deletes the gateway;
+// however, it does not delete the gateway virtual machine (VM) from your host
+// computer.
 //
 // After you delete a gateway, you cannot reactivate it. Completed snapshots
 // of the gateway volumes are not deleted upon deleting the gateway, however,
@@ -506,7 +918,28 @@ func (c *StorageGateway) DeleteGateway(input *DeleteGatewayInput) (*DeleteGatewa
 
 const opDeleteSnapshotSchedule = "DeleteSnapshotSchedule"
 
-// DeleteSnapshotScheduleRequest generates a request for the DeleteSnapshotSchedule operation.
+// DeleteSnapshotScheduleRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteSnapshotSchedule operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteSnapshotSchedule method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteSnapshotScheduleRequest method.
+//    req, resp := client.DeleteSnapshotScheduleRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) DeleteSnapshotScheduleRequest(input *DeleteSnapshotScheduleInput) (req *request.Request, output *DeleteSnapshotScheduleOutput) {
 	op := &request.Operation{
 		Name:       opDeleteSnapshotSchedule,
@@ -524,11 +957,11 @@ func (c *StorageGateway) DeleteSnapshotScheduleRequest(input *DeleteSnapshotSche
 	return
 }
 
-// This operation deletes a snapshot of a volume.
+// Deletes a snapshot of a volume.
 //
-//  You can take snapshots of your gateway volumes on a scheduled or ad-hoc
-// basis. This API enables you to delete a snapshot schedule for a volume. For
-// more information, see Working with Snapshots (http://docs.aws.amazon.com/storagegateway/latest/userguide/WorkingWithSnapshots.html).
+// You can take snapshots of your gateway volumes on a scheduled or ad hoc
+// basis. This API action enables you to delete a snapshot schedule for a volume.
+// For more information, see Working with Snapshots (http://docs.aws.amazon.com/storagegateway/latest/userguide/WorkingWithSnapshots.html).
 // In the DeleteSnapshotSchedule request, you identify the volume by providing
 // its Amazon Resource Name (ARN).
 //
@@ -542,7 +975,28 @@ func (c *StorageGateway) DeleteSnapshotSchedule(input *DeleteSnapshotScheduleInp
 
 const opDeleteTape = "DeleteTape"
 
-// DeleteTapeRequest generates a request for the DeleteTape operation.
+// DeleteTapeRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteTape operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteTape method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteTapeRequest method.
+//    req, resp := client.DeleteTapeRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) DeleteTapeRequest(input *DeleteTapeInput) (req *request.Request, output *DeleteTapeOutput) {
 	op := &request.Operation{
 		Name:       opDeleteTape,
@@ -569,7 +1023,28 @@ func (c *StorageGateway) DeleteTape(input *DeleteTapeInput) (*DeleteTapeOutput, 
 
 const opDeleteTapeArchive = "DeleteTapeArchive"
 
-// DeleteTapeArchiveRequest generates a request for the DeleteTapeArchive operation.
+// DeleteTapeArchiveRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteTapeArchive operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteTapeArchive method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteTapeArchiveRequest method.
+//    req, resp := client.DeleteTapeArchiveRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) DeleteTapeArchiveRequest(input *DeleteTapeArchiveInput) (req *request.Request, output *DeleteTapeArchiveOutput) {
 	op := &request.Operation{
 		Name:       opDeleteTapeArchive,
@@ -596,7 +1071,28 @@ func (c *StorageGateway) DeleteTapeArchive(input *DeleteTapeArchiveInput) (*Dele
 
 const opDeleteVolume = "DeleteVolume"
 
-// DeleteVolumeRequest generates a request for the DeleteVolume operation.
+// DeleteVolumeRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteVolume operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteVolume method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteVolumeRequest method.
+//    req, resp := client.DeleteVolumeRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) DeleteVolumeRequest(input *DeleteVolumeInput) (req *request.Request, output *DeleteVolumeOutput) {
 	op := &request.Operation{
 		Name:       opDeleteVolume,
@@ -614,10 +1110,10 @@ func (c *StorageGateway) DeleteVolumeRequest(input *DeleteVolumeInput) (req *req
 	return
 }
 
-// This operation delete the specified gateway volume that you previously created
-// using the CreateStorediSCSIVolume API. For gateway-stored volumes, the local
-// disk that was configured as the storage volume is not deleted. You can reuse
-// the local disk to create another storage volume.
+// Deletes the specified gateway volume that you previously created using the
+// CreateCachediSCSIVolume or CreateStorediSCSIVolume API. For gateway-stored
+// volumes, the local disk that was configured as the storage volume is not
+// deleted. You can reuse the local disk to create another storage volume.
 //
 // Before you delete a gateway volume, make sure there are no iSCSI connections
 // to the volume you are deleting. You should also make sure there is no snapshot
@@ -636,7 +1132,28 @@ func (c *StorageGateway) DeleteVolume(input *DeleteVolumeInput) (*DeleteVolumeOu
 
 const opDescribeBandwidthRateLimit = "DescribeBandwidthRateLimit"
 
-// DescribeBandwidthRateLimitRequest generates a request for the DescribeBandwidthRateLimit operation.
+// DescribeBandwidthRateLimitRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeBandwidthRateLimit operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeBandwidthRateLimit method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeBandwidthRateLimitRequest method.
+//    req, resp := client.DescribeBandwidthRateLimitRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) DescribeBandwidthRateLimitRequest(input *DescribeBandwidthRateLimitInput) (req *request.Request, output *DescribeBandwidthRateLimitOutput) {
 	op := &request.Operation{
 		Name:       opDescribeBandwidthRateLimit,
@@ -654,8 +1171,8 @@ func (c *StorageGateway) DescribeBandwidthRateLimitRequest(input *DescribeBandwi
 	return
 }
 
-// This operation returns the bandwidth rate limits of a gateway. By default,
-// these limits are not set, which means no bandwidth rate limiting is in effect.
+// Returns the bandwidth rate limits of a gateway. By default, these limits
+// are not set, which means no bandwidth rate limiting is in effect.
 //
 // This operation only returns a value for a bandwidth rate limit only if the
 // limit is set. If no limits are set for the gateway, then this operation returns
@@ -669,7 +1186,28 @@ func (c *StorageGateway) DescribeBandwidthRateLimit(input *DescribeBandwidthRate
 
 const opDescribeCache = "DescribeCache"
 
-// DescribeCacheRequest generates a request for the DescribeCache operation.
+// DescribeCacheRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeCache operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeCache method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeCacheRequest method.
+//    req, resp := client.DescribeCacheRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) DescribeCacheRequest(input *DescribeCacheInput) (req *request.Request, output *DescribeCacheOutput) {
 	op := &request.Operation{
 		Name:       opDescribeCache,
@@ -687,10 +1225,10 @@ func (c *StorageGateway) DescribeCacheRequest(input *DescribeCacheInput) (req *r
 	return
 }
 
-// This operation returns information about the cache of a gateway. This operation
-// is supported only for the gateway-cached volume architecture.
+// Returns information about the cache of a gateway. This operation is supported
+// only for the gateway-cached volume architecture.
 //
-//  The response includes disk IDs that are configured as cache, and it includes
+// The response includes disk IDs that are configured as cache, and it includes
 // the amount of cache allocated and used.
 func (c *StorageGateway) DescribeCache(input *DescribeCacheInput) (*DescribeCacheOutput, error) {
 	req, out := c.DescribeCacheRequest(input)
@@ -700,7 +1238,28 @@ func (c *StorageGateway) DescribeCache(input *DescribeCacheInput) (*DescribeCach
 
 const opDescribeCachediSCSIVolumes = "DescribeCachediSCSIVolumes"
 
-// DescribeCachediSCSIVolumesRequest generates a request for the DescribeCachediSCSIVolumes operation.
+// DescribeCachediSCSIVolumesRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeCachediSCSIVolumes operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeCachediSCSIVolumes method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeCachediSCSIVolumesRequest method.
+//    req, resp := client.DescribeCachediSCSIVolumesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) DescribeCachediSCSIVolumesRequest(input *DescribeCachediSCSIVolumesInput) (req *request.Request, output *DescribeCachediSCSIVolumesOutput) {
 	op := &request.Operation{
 		Name:       opDescribeCachediSCSIVolumes,
@@ -718,11 +1277,10 @@ func (c *StorageGateway) DescribeCachediSCSIVolumesRequest(input *DescribeCached
 	return
 }
 
-// This operation returns a description of the gateway volumes specified in
-// the request. This operation is supported only for the gateway-cached volume
-// architecture.
+// Returns a description of the gateway volumes specified in the request. This
+// operation is supported only for the gateway-cached volume architecture.
 //
-//  The list of gateway volumes in the request must be from one gateway. In
+// The list of gateway volumes in the request must be from one gateway. In
 // the response Amazon Storage Gateway returns volume information sorted by
 // volume Amazon Resource Name (ARN).
 func (c *StorageGateway) DescribeCachediSCSIVolumes(input *DescribeCachediSCSIVolumesInput) (*DescribeCachediSCSIVolumesOutput, error) {
@@ -733,7 +1291,28 @@ func (c *StorageGateway) DescribeCachediSCSIVolumes(input *DescribeCachediSCSIVo
 
 const opDescribeChapCredentials = "DescribeChapCredentials"
 
-// DescribeChapCredentialsRequest generates a request for the DescribeChapCredentials operation.
+// DescribeChapCredentialsRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeChapCredentials operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeChapCredentials method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeChapCredentialsRequest method.
+//    req, resp := client.DescribeChapCredentialsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) DescribeChapCredentialsRequest(input *DescribeChapCredentialsInput) (req *request.Request, output *DescribeChapCredentialsOutput) {
 	op := &request.Operation{
 		Name:       opDescribeChapCredentials,
@@ -751,9 +1330,8 @@ func (c *StorageGateway) DescribeChapCredentialsRequest(input *DescribeChapCrede
 	return
 }
 
-// This operation returns an array of Challenge-Handshake Authentication Protocol
-// (CHAP) credentials information for a specified iSCSI target, one for each
-// target-initiator pair.
+// Returns an array of Challenge-Handshake Authentication Protocol (CHAP) credentials
+// information for a specified iSCSI target, one for each target-initiator pair.
 func (c *StorageGateway) DescribeChapCredentials(input *DescribeChapCredentialsInput) (*DescribeChapCredentialsOutput, error) {
 	req, out := c.DescribeChapCredentialsRequest(input)
 	err := req.Send()
@@ -762,7 +1340,28 @@ func (c *StorageGateway) DescribeChapCredentials(input *DescribeChapCredentialsI
 
 const opDescribeGatewayInformation = "DescribeGatewayInformation"
 
-// DescribeGatewayInformationRequest generates a request for the DescribeGatewayInformation operation.
+// DescribeGatewayInformationRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeGatewayInformation operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeGatewayInformation method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeGatewayInformationRequest method.
+//    req, resp := client.DescribeGatewayInformationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) DescribeGatewayInformationRequest(input *DescribeGatewayInformationInput) (req *request.Request, output *DescribeGatewayInformationOutput) {
 	op := &request.Operation{
 		Name:       opDescribeGatewayInformation,
@@ -780,10 +1379,10 @@ func (c *StorageGateway) DescribeGatewayInformationRequest(input *DescribeGatewa
 	return
 }
 
-// This operation returns metadata about a gateway such as its name, network
-// interfaces, configured time zone, and the state (whether the gateway is running
-// or not). To specify which gateway to describe, use the Amazon Resource Name
-// (ARN) of the gateway in your request.
+// Returns metadata about a gateway such as its name, network interfaces, configured
+// time zone, and the state (whether the gateway is running or not). To specify
+// which gateway to describe, use the Amazon Resource Name (ARN) of the gateway
+// in your request.
 func (c *StorageGateway) DescribeGatewayInformation(input *DescribeGatewayInformationInput) (*DescribeGatewayInformationOutput, error) {
 	req, out := c.DescribeGatewayInformationRequest(input)
 	err := req.Send()
@@ -792,7 +1391,28 @@ func (c *StorageGateway) DescribeGatewayInformation(input *DescribeGatewayInform
 
 const opDescribeMaintenanceStartTime = "DescribeMaintenanceStartTime"
 
-// DescribeMaintenanceStartTimeRequest generates a request for the DescribeMaintenanceStartTime operation.
+// DescribeMaintenanceStartTimeRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeMaintenanceStartTime operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeMaintenanceStartTime method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeMaintenanceStartTimeRequest method.
+//    req, resp := client.DescribeMaintenanceStartTimeRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) DescribeMaintenanceStartTimeRequest(input *DescribeMaintenanceStartTimeInput) (req *request.Request, output *DescribeMaintenanceStartTimeOutput) {
 	op := &request.Operation{
 		Name:       opDescribeMaintenanceStartTime,
@@ -810,9 +1430,8 @@ func (c *StorageGateway) DescribeMaintenanceStartTimeRequest(input *DescribeMain
 	return
 }
 
-// This operation returns your gateway's weekly maintenance start time including
-// the day and time of the week. Note that values are in terms of the gateway's
-// time zone.
+// Returns your gateway's weekly maintenance start time including the day and
+// time of the week. Note that values are in terms of the gateway's time zone.
 func (c *StorageGateway) DescribeMaintenanceStartTime(input *DescribeMaintenanceStartTimeInput) (*DescribeMaintenanceStartTimeOutput, error) {
 	req, out := c.DescribeMaintenanceStartTimeRequest(input)
 	err := req.Send()
@@ -821,7 +1440,28 @@ func (c *StorageGateway) DescribeMaintenanceStartTime(input *DescribeMaintenance
 
 const opDescribeSnapshotSchedule = "DescribeSnapshotSchedule"
 
-// DescribeSnapshotScheduleRequest generates a request for the DescribeSnapshotSchedule operation.
+// DescribeSnapshotScheduleRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeSnapshotSchedule operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeSnapshotSchedule method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeSnapshotScheduleRequest method.
+//    req, resp := client.DescribeSnapshotScheduleRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) DescribeSnapshotScheduleRequest(input *DescribeSnapshotScheduleInput) (req *request.Request, output *DescribeSnapshotScheduleOutput) {
 	op := &request.Operation{
 		Name:       opDescribeSnapshotSchedule,
@@ -839,9 +1479,9 @@ func (c *StorageGateway) DescribeSnapshotScheduleRequest(input *DescribeSnapshot
 	return
 }
 
-// This operation describes the snapshot schedule for the specified gateway
-// volume. The snapshot schedule information includes intervals at which snapshots
-// are automatically initiated on the volume.
+// Describes the snapshot schedule for the specified gateway volume. The snapshot
+// schedule information includes intervals at which snapshots are automatically
+// initiated on the volume.
 func (c *StorageGateway) DescribeSnapshotSchedule(input *DescribeSnapshotScheduleInput) (*DescribeSnapshotScheduleOutput, error) {
 	req, out := c.DescribeSnapshotScheduleRequest(input)
 	err := req.Send()
@@ -850,7 +1490,28 @@ func (c *StorageGateway) DescribeSnapshotSchedule(input *DescribeSnapshotSchedul
 
 const opDescribeStorediSCSIVolumes = "DescribeStorediSCSIVolumes"
 
-// DescribeStorediSCSIVolumesRequest generates a request for the DescribeStorediSCSIVolumes operation.
+// DescribeStorediSCSIVolumesRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeStorediSCSIVolumes operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeStorediSCSIVolumes method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeStorediSCSIVolumesRequest method.
+//    req, resp := client.DescribeStorediSCSIVolumesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) DescribeStorediSCSIVolumesRequest(input *DescribeStorediSCSIVolumesInput) (req *request.Request, output *DescribeStorediSCSIVolumesOutput) {
 	op := &request.Operation{
 		Name:       opDescribeStorediSCSIVolumes,
@@ -868,10 +1529,10 @@ func (c *StorageGateway) DescribeStorediSCSIVolumesRequest(input *DescribeStored
 	return
 }
 
-// This operation returns the description of the gateway volumes specified in
-// the request. The list of gateway volumes in the request must be from one
-// gateway. In the response Amazon Storage Gateway returns volume information
-// sorted by volume ARNs.
+// Returns the description of the gateway volumes specified in the request.
+// The list of gateway volumes in the request must be from one gateway. In the
+// response Amazon Storage Gateway returns volume information sorted by volume
+// ARNs.
 func (c *StorageGateway) DescribeStorediSCSIVolumes(input *DescribeStorediSCSIVolumesInput) (*DescribeStorediSCSIVolumesOutput, error) {
 	req, out := c.DescribeStorediSCSIVolumesRequest(input)
 	err := req.Send()
@@ -880,7 +1541,28 @@ func (c *StorageGateway) DescribeStorediSCSIVolumes(input *DescribeStorediSCSIVo
 
 const opDescribeTapeArchives = "DescribeTapeArchives"
 
-// DescribeTapeArchivesRequest generates a request for the DescribeTapeArchives operation.
+// DescribeTapeArchivesRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeTapeArchives operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeTapeArchives method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeTapeArchivesRequest method.
+//    req, resp := client.DescribeTapeArchivesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) DescribeTapeArchivesRequest(input *DescribeTapeArchivesInput) (req *request.Request, output *DescribeTapeArchivesOutput) {
 	op := &request.Operation{
 		Name:       opDescribeTapeArchives,
@@ -915,8 +1597,26 @@ func (c *StorageGateway) DescribeTapeArchives(input *DescribeTapeArchivesInput) 
 	return out, err
 }
 
+// DescribeTapeArchivesPages iterates over the pages of a DescribeTapeArchives operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See DescribeTapeArchives method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a DescribeTapeArchives operation.
+//    pageNum := 0
+//    err := client.DescribeTapeArchivesPages(params,
+//        func(page *DescribeTapeArchivesOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *StorageGateway) DescribeTapeArchivesPages(input *DescribeTapeArchivesInput, fn func(p *DescribeTapeArchivesOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeTapeArchivesRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeTapeArchivesOutput), lastPage)
 	})
@@ -924,7 +1624,28 @@ func (c *StorageGateway) DescribeTapeArchivesPages(input *DescribeTapeArchivesIn
 
 const opDescribeTapeRecoveryPoints = "DescribeTapeRecoveryPoints"
 
-// DescribeTapeRecoveryPointsRequest generates a request for the DescribeTapeRecoveryPoints operation.
+// DescribeTapeRecoveryPointsRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeTapeRecoveryPoints operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeTapeRecoveryPoints method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeTapeRecoveryPointsRequest method.
+//    req, resp := client.DescribeTapeRecoveryPointsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) DescribeTapeRecoveryPointsRequest(input *DescribeTapeRecoveryPointsInput) (req *request.Request, output *DescribeTapeRecoveryPointsOutput) {
 	op := &request.Operation{
 		Name:       opDescribeTapeRecoveryPoints,
@@ -951,7 +1672,7 @@ func (c *StorageGateway) DescribeTapeRecoveryPointsRequest(input *DescribeTapeRe
 // Returns a list of virtual tape recovery points that are available for the
 // specified gateway-VTL.
 //
-// A recovery point is a point in time view of a virtual tape at which all
+// A recovery point is a point-in-time view of a virtual tape at which all
 // the data on the virtual tape is consistent. If your gateway crashes, virtual
 // tapes that have recovery points can be recovered to a new gateway.
 func (c *StorageGateway) DescribeTapeRecoveryPoints(input *DescribeTapeRecoveryPointsInput) (*DescribeTapeRecoveryPointsOutput, error) {
@@ -960,8 +1681,26 @@ func (c *StorageGateway) DescribeTapeRecoveryPoints(input *DescribeTapeRecoveryP
 	return out, err
 }
 
+// DescribeTapeRecoveryPointsPages iterates over the pages of a DescribeTapeRecoveryPoints operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See DescribeTapeRecoveryPoints method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a DescribeTapeRecoveryPoints operation.
+//    pageNum := 0
+//    err := client.DescribeTapeRecoveryPointsPages(params,
+//        func(page *DescribeTapeRecoveryPointsOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *StorageGateway) DescribeTapeRecoveryPointsPages(input *DescribeTapeRecoveryPointsInput, fn func(p *DescribeTapeRecoveryPointsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeTapeRecoveryPointsRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeTapeRecoveryPointsOutput), lastPage)
 	})
@@ -969,7 +1708,28 @@ func (c *StorageGateway) DescribeTapeRecoveryPointsPages(input *DescribeTapeReco
 
 const opDescribeTapes = "DescribeTapes"
 
-// DescribeTapesRequest generates a request for the DescribeTapes operation.
+// DescribeTapesRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeTapes operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeTapes method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeTapesRequest method.
+//    req, resp := client.DescribeTapesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) DescribeTapesRequest(input *DescribeTapesInput) (req *request.Request, output *DescribeTapesOutput) {
 	op := &request.Operation{
 		Name:       opDescribeTapes,
@@ -1002,8 +1762,26 @@ func (c *StorageGateway) DescribeTapes(input *DescribeTapesInput) (*DescribeTape
 	return out, err
 }
 
+// DescribeTapesPages iterates over the pages of a DescribeTapes operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See DescribeTapes method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a DescribeTapes operation.
+//    pageNum := 0
+//    err := client.DescribeTapesPages(params,
+//        func(page *DescribeTapesOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *StorageGateway) DescribeTapesPages(input *DescribeTapesInput, fn func(p *DescribeTapesOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeTapesRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeTapesOutput), lastPage)
 	})
@@ -1011,7 +1789,28 @@ func (c *StorageGateway) DescribeTapesPages(input *DescribeTapesInput, fn func(p
 
 const opDescribeUploadBuffer = "DescribeUploadBuffer"
 
-// DescribeUploadBufferRequest generates a request for the DescribeUploadBuffer operation.
+// DescribeUploadBufferRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeUploadBuffer operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeUploadBuffer method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeUploadBufferRequest method.
+//    req, resp := client.DescribeUploadBufferRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) DescribeUploadBufferRequest(input *DescribeUploadBufferInput) (req *request.Request, output *DescribeUploadBufferOutput) {
 	op := &request.Operation{
 		Name:       opDescribeUploadBuffer,
@@ -1029,11 +1828,10 @@ func (c *StorageGateway) DescribeUploadBufferRequest(input *DescribeUploadBuffer
 	return
 }
 
-// This operation returns information about the upload buffer of a gateway.
-// This operation is supported for both the gateway-stored and gateway-cached
-// volume architectures.
+// Returns information about the upload buffer of a gateway. This operation
+// is supported for both the gateway-stored and gateway-cached volume architectures.
 //
-//  The response includes disk IDs that are configured as upload buffer space,
+// The response includes disk IDs that are configured as upload buffer space,
 // and it includes the amount of upload buffer space allocated and used.
 func (c *StorageGateway) DescribeUploadBuffer(input *DescribeUploadBufferInput) (*DescribeUploadBufferOutput, error) {
 	req, out := c.DescribeUploadBufferRequest(input)
@@ -1043,7 +1841,28 @@ func (c *StorageGateway) DescribeUploadBuffer(input *DescribeUploadBufferInput) 
 
 const opDescribeVTLDevices = "DescribeVTLDevices"
 
-// DescribeVTLDevicesRequest generates a request for the DescribeVTLDevices operation.
+// DescribeVTLDevicesRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeVTLDevices operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeVTLDevices method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeVTLDevicesRequest method.
+//    req, resp := client.DescribeVTLDevicesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) DescribeVTLDevicesRequest(input *DescribeVTLDevicesInput) (req *request.Request, output *DescribeVTLDevicesOutput) {
 	op := &request.Operation{
 		Name:       opDescribeVTLDevices,
@@ -1077,8 +1896,26 @@ func (c *StorageGateway) DescribeVTLDevices(input *DescribeVTLDevicesInput) (*De
 	return out, err
 }
 
+// DescribeVTLDevicesPages iterates over the pages of a DescribeVTLDevices operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See DescribeVTLDevices method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a DescribeVTLDevices operation.
+//    pageNum := 0
+//    err := client.DescribeVTLDevicesPages(params,
+//        func(page *DescribeVTLDevicesOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *StorageGateway) DescribeVTLDevicesPages(input *DescribeVTLDevicesInput, fn func(p *DescribeVTLDevicesOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.DescribeVTLDevicesRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*DescribeVTLDevicesOutput), lastPage)
 	})
@@ -1086,7 +1923,28 @@ func (c *StorageGateway) DescribeVTLDevicesPages(input *DescribeVTLDevicesInput,
 
 const opDescribeWorkingStorage = "DescribeWorkingStorage"
 
-// DescribeWorkingStorageRequest generates a request for the DescribeWorkingStorage operation.
+// DescribeWorkingStorageRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeWorkingStorage operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DescribeWorkingStorage method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DescribeWorkingStorageRequest method.
+//    req, resp := client.DescribeWorkingStorageRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) DescribeWorkingStorageRequest(input *DescribeWorkingStorageInput) (req *request.Request, output *DescribeWorkingStorageOutput) {
 	op := &request.Operation{
 		Name:       opDescribeWorkingStorage,
@@ -1104,16 +1962,17 @@ func (c *StorageGateway) DescribeWorkingStorageRequest(input *DescribeWorkingSto
 	return
 }
 
-// This operation returns information about the working storage of a gateway.
-// This operation is supported only for the gateway-stored volume architecture.
-// This operation is deprecated in cached-volumes API version (20120630). Use
-// DescribeUploadBuffer instead.
+// Returns information about the working storage of a gateway. This operation
+// is supported only for the gateway-stored volume architecture. This operation
+// is deprecated in cached-volumes API version (20120630). Use DescribeUploadBuffer
+// instead.
 //
-// Working storage is also referred to as upload buffer. You can also use the
-// DescribeUploadBuffer operation to add upload buffer to a stored-volume gateway.
+//  Working storage is also referred to as upload buffer. You can also use
+// the DescribeUploadBuffer operation to add upload buffer to a stored-volume
+// gateway.
 //
-// The response includes disk IDs that are configured as working storage, and
-// it includes the amount of working storage allocated and used.
+//  The response includes disk IDs that are configured as working storage,
+// and it includes the amount of working storage allocated and used.
 func (c *StorageGateway) DescribeWorkingStorage(input *DescribeWorkingStorageInput) (*DescribeWorkingStorageOutput, error) {
 	req, out := c.DescribeWorkingStorageRequest(input)
 	err := req.Send()
@@ -1122,7 +1981,28 @@ func (c *StorageGateway) DescribeWorkingStorage(input *DescribeWorkingStorageInp
 
 const opDisableGateway = "DisableGateway"
 
-// DisableGatewayRequest generates a request for the DisableGateway operation.
+// DisableGatewayRequest generates a "aws/request.Request" representing the
+// client's request for the DisableGateway operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DisableGateway method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DisableGatewayRequest method.
+//    req, resp := client.DisableGatewayRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) DisableGatewayRequest(input *DisableGatewayInput) (req *request.Request, output *DisableGatewayOutput) {
 	op := &request.Operation{
 		Name:       opDisableGateway,
@@ -1155,7 +2035,28 @@ func (c *StorageGateway) DisableGateway(input *DisableGatewayInput) (*DisableGat
 
 const opListGateways = "ListGateways"
 
-// ListGatewaysRequest generates a request for the ListGateways operation.
+// ListGatewaysRequest generates a "aws/request.Request" representing the
+// client's request for the ListGateways operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListGateways method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListGatewaysRequest method.
+//    req, resp := client.ListGatewaysRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) ListGatewaysRequest(input *ListGatewaysInput) (req *request.Request, output *ListGatewaysOutput) {
 	op := &request.Operation{
 		Name:       opListGateways,
@@ -1179,25 +2080,43 @@ func (c *StorageGateway) ListGatewaysRequest(input *ListGatewaysInput) (req *req
 	return
 }
 
-// This operation lists gateways owned by an AWS account in a region specified
-// in the request. The returned list is ordered by gateway Amazon Resource Name
-// (ARN).
+// Lists gateways owned by an AWS account in a region specified in the request.
+// The returned list is ordered by gateway Amazon Resource Name (ARN).
 //
 // By default, the operation returns a maximum of 100 gateways. This operation
 // supports pagination that allows you to optionally reduce the number of gateways
 // returned in a response.
 //
-// If you have more gateways than are returned in a response-that is, the response
-// returns only a truncated list of your gateways-the response contains a marker
-// that you can specify in your next request to fetch the next page of gateways.
+// If you have more gateways than are returned in a response (that is, the
+// response returns only a truncated list of your gateways), the response contains
+// a marker that you can specify in your next request to fetch the next page
+// of gateways.
 func (c *StorageGateway) ListGateways(input *ListGatewaysInput) (*ListGatewaysOutput, error) {
 	req, out := c.ListGatewaysRequest(input)
 	err := req.Send()
 	return out, err
 }
 
+// ListGatewaysPages iterates over the pages of a ListGateways operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListGateways method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListGateways operation.
+//    pageNum := 0
+//    err := client.ListGatewaysPages(params,
+//        func(page *ListGatewaysOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *StorageGateway) ListGatewaysPages(input *ListGatewaysInput, fn func(p *ListGatewaysOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListGatewaysRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListGatewaysOutput), lastPage)
 	})
@@ -1205,7 +2124,28 @@ func (c *StorageGateway) ListGatewaysPages(input *ListGatewaysInput, fn func(p *
 
 const opListLocalDisks = "ListLocalDisks"
 
-// ListLocalDisksRequest generates a request for the ListLocalDisks operation.
+// ListLocalDisksRequest generates a "aws/request.Request" representing the
+// client's request for the ListLocalDisks operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListLocalDisks method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListLocalDisksRequest method.
+//    req, resp := client.ListLocalDisksRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) ListLocalDisksRequest(input *ListLocalDisksInput) (req *request.Request, output *ListLocalDisksOutput) {
 	op := &request.Operation{
 		Name:       opListLocalDisks,
@@ -1223,9 +2163,9 @@ func (c *StorageGateway) ListLocalDisksRequest(input *ListLocalDisksInput) (req 
 	return
 }
 
-// This operation returns a list of the gateway's local disks. To specify which
-// gateway to describe, you use the Amazon Resource Name (ARN) of the gateway
-// in the body of the request.
+// Returns a list of the gateway's local disks. To specify which gateway to
+// describe, you use the Amazon Resource Name (ARN) of the gateway in the body
+// of the request.
 //
 // The request returns a list of all disks, specifying which are configured
 // as working storage, cache storage, or stored volume or not configured at
@@ -1239,9 +2179,136 @@ func (c *StorageGateway) ListLocalDisks(input *ListLocalDisksInput) (*ListLocalD
 	return out, err
 }
 
+const opListTagsForResource = "ListTagsForResource"
+
+// ListTagsForResourceRequest generates a "aws/request.Request" representing the
+// client's request for the ListTagsForResource operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListTagsForResource method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListTagsForResourceRequest method.
+//    req, resp := client.ListTagsForResourceRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *StorageGateway) ListTagsForResourceRequest(input *ListTagsForResourceInput) (req *request.Request, output *ListTagsForResourceOutput) {
+	op := &request.Operation{
+		Name:       opListTagsForResource,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &ListTagsForResourceInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &ListTagsForResourceOutput{}
+	req.Data = output
+	return
+}
+
+// Lists the tags that have been added to the specified resource.
+func (c *StorageGateway) ListTagsForResource(input *ListTagsForResourceInput) (*ListTagsForResourceOutput, error) {
+	req, out := c.ListTagsForResourceRequest(input)
+	err := req.Send()
+	return out, err
+}
+
+const opListTapes = "ListTapes"
+
+// ListTapesRequest generates a "aws/request.Request" representing the
+// client's request for the ListTapes operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListTapes method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListTapesRequest method.
+//    req, resp := client.ListTapesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *StorageGateway) ListTapesRequest(input *ListTapesInput) (req *request.Request, output *ListTapesOutput) {
+	op := &request.Operation{
+		Name:       opListTapes,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &ListTapesInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &ListTapesOutput{}
+	req.Data = output
+	return
+}
+
+// Lists virtual tapes in your virtual tape library (VTL) and your virtual tape
+// shelf (VTS). You specify the tapes to list by specifying one or more tape
+// Amazon Resource Names (ARNs). If you don't specify a tape ARN, the operation
+// lists all virtual tapes in both your VTL and VTS.
+//
+// This operation supports pagination. By default, the operation returns a
+// maximum of up to 100 tapes. You can optionally specify the Limit parameter
+// in the body to limit the number of tapes in the response. If the number of
+// tapes returned in the response is truncated, the response includes a Marker
+// element that you can use in your subsequent request to retrieve the next
+// set of tapes.
+func (c *StorageGateway) ListTapes(input *ListTapesInput) (*ListTapesOutput, error) {
+	req, out := c.ListTapesRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opListVolumeInitiators = "ListVolumeInitiators"
 
-// ListVolumeInitiatorsRequest generates a request for the ListVolumeInitiators operation.
+// ListVolumeInitiatorsRequest generates a "aws/request.Request" representing the
+// client's request for the ListVolumeInitiators operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListVolumeInitiators method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListVolumeInitiatorsRequest method.
+//    req, resp := client.ListVolumeInitiatorsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) ListVolumeInitiatorsRequest(input *ListVolumeInitiatorsInput) (req *request.Request, output *ListVolumeInitiatorsOutput) {
 	op := &request.Operation{
 		Name:       opListVolumeInitiators,
@@ -1259,8 +2326,8 @@ func (c *StorageGateway) ListVolumeInitiatorsRequest(input *ListVolumeInitiators
 	return
 }
 
-// This operation lists iSCSI initiators that are connected to a volume. You
-// can use this operation to determine whether a volume is being used or not.
+// Lists iSCSI initiators that are connected to a volume. You can use this operation
+// to determine whether a volume is being used or not.
 func (c *StorageGateway) ListVolumeInitiators(input *ListVolumeInitiatorsInput) (*ListVolumeInitiatorsOutput, error) {
 	req, out := c.ListVolumeInitiatorsRequest(input)
 	err := req.Send()
@@ -1269,7 +2336,28 @@ func (c *StorageGateway) ListVolumeInitiators(input *ListVolumeInitiatorsInput) 
 
 const opListVolumeRecoveryPoints = "ListVolumeRecoveryPoints"
 
-// ListVolumeRecoveryPointsRequest generates a request for the ListVolumeRecoveryPoints operation.
+// ListVolumeRecoveryPointsRequest generates a "aws/request.Request" representing the
+// client's request for the ListVolumeRecoveryPoints operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListVolumeRecoveryPoints method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListVolumeRecoveryPointsRequest method.
+//    req, resp := client.ListVolumeRecoveryPointsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) ListVolumeRecoveryPointsRequest(input *ListVolumeRecoveryPointsInput) (req *request.Request, output *ListVolumeRecoveryPointsOutput) {
 	op := &request.Operation{
 		Name:       opListVolumeRecoveryPoints,
@@ -1287,8 +2375,8 @@ func (c *StorageGateway) ListVolumeRecoveryPointsRequest(input *ListVolumeRecove
 	return
 }
 
-// This operation lists the recovery points for a specified gateway. This operation
-// is supported only for the gateway-cached volume architecture.
+// Lists the recovery points for a specified gateway. This operation is supported
+// only for the gateway-cached volume architecture.
 //
 // Each gateway-cached volume has one recovery point. A volume recovery point
 // is a point in time at which all data of the volume is consistent and from
@@ -1302,7 +2390,28 @@ func (c *StorageGateway) ListVolumeRecoveryPoints(input *ListVolumeRecoveryPoint
 
 const opListVolumes = "ListVolumes"
 
-// ListVolumesRequest generates a request for the ListVolumes operation.
+// ListVolumesRequest generates a "aws/request.Request" representing the
+// client's request for the ListVolumes operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListVolumes method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListVolumesRequest method.
+//    req, resp := client.ListVolumesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) ListVolumesRequest(input *ListVolumesInput) (req *request.Request, output *ListVolumesOutput) {
 	op := &request.Operation{
 		Name:       opListVolumes,
@@ -1326,9 +2435,9 @@ func (c *StorageGateway) ListVolumesRequest(input *ListVolumesInput) (req *reque
 	return
 }
 
-// This operation lists the iSCSI stored volumes of a gateway. Results are sorted
-// by volume ARN. The response includes only the volume ARNs. If you want additional
-// volume information, use the DescribeStorediSCSIVolumes API.
+// Lists the iSCSI stored volumes of a gateway. Results are sorted by volume
+// ARN. The response includes only the volume ARNs. If you want additional volume
+// information, use the DescribeStorediSCSIVolumes API.
 //
 // The operation supports pagination. By default, the operation returns a maximum
 // of up to 100 volumes. You can optionally specify the Limit field in the body
@@ -1342,16 +2451,103 @@ func (c *StorageGateway) ListVolumes(input *ListVolumesInput) (*ListVolumesOutpu
 	return out, err
 }
 
+// ListVolumesPages iterates over the pages of a ListVolumes operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListVolumes method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListVolumes operation.
+//    pageNum := 0
+//    err := client.ListVolumesPages(params,
+//        func(page *ListVolumesOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *StorageGateway) ListVolumesPages(input *ListVolumesInput, fn func(p *ListVolumesOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListVolumesRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListVolumesOutput), lastPage)
 	})
 }
 
+const opRemoveTagsFromResource = "RemoveTagsFromResource"
+
+// RemoveTagsFromResourceRequest generates a "aws/request.Request" representing the
+// client's request for the RemoveTagsFromResource operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RemoveTagsFromResource method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RemoveTagsFromResourceRequest method.
+//    req, resp := client.RemoveTagsFromResourceRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *StorageGateway) RemoveTagsFromResourceRequest(input *RemoveTagsFromResourceInput) (req *request.Request, output *RemoveTagsFromResourceOutput) {
+	op := &request.Operation{
+		Name:       opRemoveTagsFromResource,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &RemoveTagsFromResourceInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &RemoveTagsFromResourceOutput{}
+	req.Data = output
+	return
+}
+
+// Removes one or more tags from the specified resource.
+func (c *StorageGateway) RemoveTagsFromResource(input *RemoveTagsFromResourceInput) (*RemoveTagsFromResourceOutput, error) {
+	req, out := c.RemoveTagsFromResourceRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opResetCache = "ResetCache"
 
-// ResetCacheRequest generates a request for the ResetCache operation.
+// ResetCacheRequest generates a "aws/request.Request" representing the
+// client's request for the ResetCache operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ResetCache method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ResetCacheRequest method.
+//    req, resp := client.ResetCacheRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) ResetCacheRequest(input *ResetCacheInput) (req *request.Request, output *ResetCacheOutput) {
 	op := &request.Operation{
 		Name:       opResetCache,
@@ -1369,10 +2565,10 @@ func (c *StorageGateway) ResetCacheRequest(input *ResetCacheInput) (req *request
 	return
 }
 
-// This operation resets all cache disks that have encountered a error and makes
-// the disks available for reconfiguration as cache storage. If your cache disk
-// encounters a error, the gateway prevents read and write operations on virtual
-// tapes in the gateway. For example, an error can occur when a disk is corrupted
+// Resets all cache disks that have encountered a error and makes the disks
+// available for reconfiguration as cache storage. If your cache disk encounters
+// a error, the gateway prevents read and write operations on virtual tapes
+// in the gateway. For example, an error can occur when a disk is corrupted
 // or removed from the gateway. When a cache is reset, the gateway loses its
 // cache storage. At this point you can reconfigure the disks as cache disks.
 //
@@ -1388,7 +2584,28 @@ func (c *StorageGateway) ResetCache(input *ResetCacheInput) (*ResetCacheOutput, 
 
 const opRetrieveTapeArchive = "RetrieveTapeArchive"
 
-// RetrieveTapeArchiveRequest generates a request for the RetrieveTapeArchive operation.
+// RetrieveTapeArchiveRequest generates a "aws/request.Request" representing the
+// client's request for the RetrieveTapeArchive operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RetrieveTapeArchive method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RetrieveTapeArchiveRequest method.
+//    req, resp := client.RetrieveTapeArchiveRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) RetrieveTapeArchiveRequest(input *RetrieveTapeArchiveInput) (req *request.Request, output *RetrieveTapeArchiveOutput) {
 	op := &request.Operation{
 		Name:       opRetrieveTapeArchive,
@@ -1422,7 +2639,28 @@ func (c *StorageGateway) RetrieveTapeArchive(input *RetrieveTapeArchiveInput) (*
 
 const opRetrieveTapeRecoveryPoint = "RetrieveTapeRecoveryPoint"
 
-// RetrieveTapeRecoveryPointRequest generates a request for the RetrieveTapeRecoveryPoint operation.
+// RetrieveTapeRecoveryPointRequest generates a "aws/request.Request" representing the
+// client's request for the RetrieveTapeRecoveryPoint operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RetrieveTapeRecoveryPoint method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RetrieveTapeRecoveryPointRequest method.
+//    req, resp := client.RetrieveTapeRecoveryPointRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) RetrieveTapeRecoveryPointRequest(input *RetrieveTapeRecoveryPointInput) (req *request.Request, output *RetrieveTapeRecoveryPointOutput) {
 	op := &request.Operation{
 		Name:       opRetrieveTapeRecoveryPoint,
@@ -1455,9 +2693,81 @@ func (c *StorageGateway) RetrieveTapeRecoveryPoint(input *RetrieveTapeRecoveryPo
 	return out, err
 }
 
+const opSetLocalConsolePassword = "SetLocalConsolePassword"
+
+// SetLocalConsolePasswordRequest generates a "aws/request.Request" representing the
+// client's request for the SetLocalConsolePassword operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the SetLocalConsolePassword method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the SetLocalConsolePasswordRequest method.
+//    req, resp := client.SetLocalConsolePasswordRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *StorageGateway) SetLocalConsolePasswordRequest(input *SetLocalConsolePasswordInput) (req *request.Request, output *SetLocalConsolePasswordOutput) {
+	op := &request.Operation{
+		Name:       opSetLocalConsolePassword,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &SetLocalConsolePasswordInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &SetLocalConsolePasswordOutput{}
+	req.Data = output
+	return
+}
+
+// Sets the password for your VM local console. When you log in to the local
+// console for the first time, you log in to the VM with the default credentials.
+// We recommend that you set a new password. You don't need to know the default
+// password to set a new password.
+func (c *StorageGateway) SetLocalConsolePassword(input *SetLocalConsolePasswordInput) (*SetLocalConsolePasswordOutput, error) {
+	req, out := c.SetLocalConsolePasswordRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opShutdownGateway = "ShutdownGateway"
 
-// ShutdownGatewayRequest generates a request for the ShutdownGateway operation.
+// ShutdownGatewayRequest generates a "aws/request.Request" representing the
+// client's request for the ShutdownGateway operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ShutdownGateway method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ShutdownGatewayRequest method.
+//    req, resp := client.ShutdownGatewayRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) ShutdownGatewayRequest(input *ShutdownGatewayInput) (req *request.Request, output *ShutdownGatewayOutput) {
 	op := &request.Operation{
 		Name:       opShutdownGateway,
@@ -1475,15 +2785,16 @@ func (c *StorageGateway) ShutdownGatewayRequest(input *ShutdownGatewayInput) (re
 	return
 }
 
-// This operation shuts down a gateway. To specify which gateway to shut down,
-// use the Amazon Resource Name (ARN) of the gateway in the body of your request.
+// Shuts down a gateway. To specify which gateway to shut down, use the Amazon
+// Resource Name (ARN) of the gateway in the body of your request.
 //
 // The operation shuts down the gateway service component running in the storage
 // gateway's virtual machine (VM) and not the VM.
 //
 // If you want to shut down the VM, it is recommended that you first shut down
-// the gateway component in the VM to avoid unpredictable conditions. After
-// the gateway is shutdown, you cannot call any other API except StartGateway,
+// the gateway component in the VM to avoid unpredictable conditions.
+//
+//  After the gateway is shutdown, you cannot call any other API except StartGateway,
 // DescribeGatewayInformation, and ListGateways. For more information, see ActivateGateway.
 // Your applications cannot read from or write to the gateway's storage volumes,
 // and there are no snapshots taken.
@@ -1491,9 +2802,11 @@ func (c *StorageGateway) ShutdownGatewayRequest(input *ShutdownGatewayInput) (re
 // When you make a shutdown request, you will get a 200 OK success response
 // immediately. However, it might take some time for the gateway to shut down.
 // You can call the DescribeGatewayInformation API to check the status. For
-// more information, see ActivateGateway. If do not intend to use the gateway
-// again, you must delete the gateway (using DeleteGateway) to no longer pay
-// software charges associated with the gateway.
+// more information, see ActivateGateway.
+//
+//  If do not intend to use the gateway again, you must delete the gateway
+// (using DeleteGateway) to no longer pay software charges associated with the
+// gateway.
 func (c *StorageGateway) ShutdownGateway(input *ShutdownGatewayInput) (*ShutdownGatewayOutput, error) {
 	req, out := c.ShutdownGatewayRequest(input)
 	err := req.Send()
@@ -1502,7 +2815,28 @@ func (c *StorageGateway) ShutdownGateway(input *ShutdownGatewayInput) (*Shutdown
 
 const opStartGateway = "StartGateway"
 
-// StartGatewayRequest generates a request for the StartGateway operation.
+// StartGatewayRequest generates a "aws/request.Request" representing the
+// client's request for the StartGateway operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the StartGateway method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the StartGatewayRequest method.
+//    req, resp := client.StartGatewayRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) StartGatewayRequest(input *StartGatewayInput) (req *request.Request, output *StartGatewayOutput) {
 	op := &request.Operation{
 		Name:       opStartGateway,
@@ -1520,16 +2854,18 @@ func (c *StorageGateway) StartGatewayRequest(input *StartGatewayInput) (req *req
 	return
 }
 
-// This operation starts a gateway that you previously shut down (see ShutdownGateway).
-// After the gateway starts, you can then make other API calls, your applications
+// Starts a gateway that you previously shut down (see ShutdownGateway). After
+// the gateway starts, you can then make other API calls, your applications
 // can read from or write to the gateway's storage volumes and you will be able
 // to take snapshot backups.
 //
 // When you make a request, you will get a 200 OK success response immediately.
 // However, it might take some time for the gateway to be ready. You should
 // call DescribeGatewayInformation and check the status before making any additional
-// API calls. For more information, see ActivateGateway. To specify which gateway
-// to start, use the Amazon Resource Name (ARN) of the gateway in your request.
+// API calls. For more information, see ActivateGateway.
+//
+//  To specify which gateway to start, use the Amazon Resource Name (ARN) of
+// the gateway in your request.
 func (c *StorageGateway) StartGateway(input *StartGatewayInput) (*StartGatewayOutput, error) {
 	req, out := c.StartGatewayRequest(input)
 	err := req.Send()
@@ -1538,7 +2874,28 @@ func (c *StorageGateway) StartGateway(input *StartGatewayInput) (*StartGatewayOu
 
 const opUpdateBandwidthRateLimit = "UpdateBandwidthRateLimit"
 
-// UpdateBandwidthRateLimitRequest generates a request for the UpdateBandwidthRateLimit operation.
+// UpdateBandwidthRateLimitRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateBandwidthRateLimit operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateBandwidthRateLimit method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateBandwidthRateLimitRequest method.
+//    req, resp := client.UpdateBandwidthRateLimitRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) UpdateBandwidthRateLimitRequest(input *UpdateBandwidthRateLimitInput) (req *request.Request, output *UpdateBandwidthRateLimitOutput) {
 	op := &request.Operation{
 		Name:       opUpdateBandwidthRateLimit,
@@ -1556,10 +2913,9 @@ func (c *StorageGateway) UpdateBandwidthRateLimitRequest(input *UpdateBandwidthR
 	return
 }
 
-// This operation updates the bandwidth rate limits of a gateway. You can update
-// both the upload and download bandwidth rate limit or specify only one of
-// the two. If you don't set a bandwidth rate limit, the existing rate limit
-// remains.
+// Updates the bandwidth rate limits of a gateway. You can update both the upload
+// and download bandwidth rate limit or specify only one of the two. If you
+// don't set a bandwidth rate limit, the existing rate limit remains.
 //
 // By default, a gateway's bandwidth rate limits are not set. If you don't
 // set any limit, the gateway does not have any limitations on its bandwidth
@@ -1575,7 +2931,28 @@ func (c *StorageGateway) UpdateBandwidthRateLimit(input *UpdateBandwidthRateLimi
 
 const opUpdateChapCredentials = "UpdateChapCredentials"
 
-// UpdateChapCredentialsRequest generates a request for the UpdateChapCredentials operation.
+// UpdateChapCredentialsRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateChapCredentials operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateChapCredentials method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateChapCredentialsRequest method.
+//    req, resp := client.UpdateChapCredentialsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) UpdateChapCredentialsRequest(input *UpdateChapCredentialsInput) (req *request.Request, output *UpdateChapCredentialsOutput) {
 	op := &request.Operation{
 		Name:       opUpdateChapCredentials,
@@ -1593,9 +2970,9 @@ func (c *StorageGateway) UpdateChapCredentialsRequest(input *UpdateChapCredentia
 	return
 }
 
-// This operation updates the Challenge-Handshake Authentication Protocol (CHAP)
-// credentials for a specified iSCSI target. By default, a gateway does not
-// have CHAP enabled; however, for added security, you might use it.
+// Updates the Challenge-Handshake Authentication Protocol (CHAP) credentials
+// for a specified iSCSI target. By default, a gateway does not have CHAP enabled;
+// however, for added security, you might use it.
 //
 //  When you update CHAP credentials, all existing connections on the target
 // are closed and initiators must reconnect with the new credentials.
@@ -1607,7 +2984,28 @@ func (c *StorageGateway) UpdateChapCredentials(input *UpdateChapCredentialsInput
 
 const opUpdateGatewayInformation = "UpdateGatewayInformation"
 
-// UpdateGatewayInformationRequest generates a request for the UpdateGatewayInformation operation.
+// UpdateGatewayInformationRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateGatewayInformation operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateGatewayInformation method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateGatewayInformationRequest method.
+//    req, resp := client.UpdateGatewayInformationRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) UpdateGatewayInformationRequest(input *UpdateGatewayInformationInput) (req *request.Request, output *UpdateGatewayInformationOutput) {
 	op := &request.Operation{
 		Name:       opUpdateGatewayInformation,
@@ -1625,9 +3023,13 @@ func (c *StorageGateway) UpdateGatewayInformationRequest(input *UpdateGatewayInf
 	return
 }
 
-// This operation updates a gateway's metadata, which includes the gateway's
-// name and time zone. To specify which gateway to update, use the Amazon Resource
-// Name (ARN) of the gateway in your request.
+// Updates a gateway's metadata, which includes the gateway's name and time
+// zone. To specify which gateway to update, use the Amazon Resource Name (ARN)
+// of the gateway in your request.
+//
+// For Gateways activated after September 2, 2015, the gateway's ARN contains
+// the gateway ID rather than the gateway name. However, changing the name of
+// the gateway has no effect on the gateway's ARN.
 func (c *StorageGateway) UpdateGatewayInformation(input *UpdateGatewayInformationInput) (*UpdateGatewayInformationOutput, error) {
 	req, out := c.UpdateGatewayInformationRequest(input)
 	err := req.Send()
@@ -1636,7 +3038,28 @@ func (c *StorageGateway) UpdateGatewayInformation(input *UpdateGatewayInformatio
 
 const opUpdateGatewaySoftwareNow = "UpdateGatewaySoftwareNow"
 
-// UpdateGatewaySoftwareNowRequest generates a request for the UpdateGatewaySoftwareNow operation.
+// UpdateGatewaySoftwareNowRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateGatewaySoftwareNow operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateGatewaySoftwareNow method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateGatewaySoftwareNowRequest method.
+//    req, resp := client.UpdateGatewaySoftwareNowRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) UpdateGatewaySoftwareNowRequest(input *UpdateGatewaySoftwareNowInput) (req *request.Request, output *UpdateGatewaySoftwareNowOutput) {
 	op := &request.Operation{
 		Name:       opUpdateGatewaySoftwareNow,
@@ -1654,17 +3077,19 @@ func (c *StorageGateway) UpdateGatewaySoftwareNowRequest(input *UpdateGatewaySof
 	return
 }
 
-// This operation updates the gateway virtual machine (VM) software. The request
-// immediately triggers the software update.
+// Updates the gateway virtual machine (VM) software. The request immediately
+// triggers the software update.
 //
 // When you make this request, you get a 200 OK success response immediately.
 // However, it might take some time for the update to complete. You can call
 // DescribeGatewayInformation to verify the gateway is in the STATE_RUNNING
-// state. A software update forces a system restart of your gateway. You can
-// minimize the chance of any disruption to your applications by increasing
-// your iSCSI Initiators' timeouts. For more information about increasing iSCSI
-// Initiator timeouts for Windows and Linux, see Customizing Your Windows iSCSI
-// Settings (http://docs.aws.amazon.com/storagegateway/latest/userguide/ConfiguringiSCSIClientInitiatorWindowsClient.html#CustomizeWindowsiSCSISettings)
+// state.
+//
+//  A software update forces a system restart of your gateway. You can minimize
+// the chance of any disruption to your applications by increasing your iSCSI
+// Initiators' timeouts. For more information about increasing iSCSI Initiator
+// timeouts for Windows and Linux, see Customizing Your Windows iSCSI Settings
+// (http://docs.aws.amazon.com/storagegateway/latest/userguide/ConfiguringiSCSIClientInitiatorWindowsClient.html#CustomizeWindowsiSCSISettings)
 // and Customizing Your Linux iSCSI Settings (http://docs.aws.amazon.com/storagegateway/latest/userguide/ConfiguringiSCSIClientInitiatorRedHatClient.html#CustomizeLinuxiSCSISettings),
 // respectively.
 func (c *StorageGateway) UpdateGatewaySoftwareNow(input *UpdateGatewaySoftwareNowInput) (*UpdateGatewaySoftwareNowOutput, error) {
@@ -1675,7 +3100,28 @@ func (c *StorageGateway) UpdateGatewaySoftwareNow(input *UpdateGatewaySoftwareNo
 
 const opUpdateMaintenanceStartTime = "UpdateMaintenanceStartTime"
 
-// UpdateMaintenanceStartTimeRequest generates a request for the UpdateMaintenanceStartTime operation.
+// UpdateMaintenanceStartTimeRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateMaintenanceStartTime operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateMaintenanceStartTime method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateMaintenanceStartTimeRequest method.
+//    req, resp := client.UpdateMaintenanceStartTimeRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) UpdateMaintenanceStartTimeRequest(input *UpdateMaintenanceStartTimeInput) (req *request.Request, output *UpdateMaintenanceStartTimeOutput) {
 	op := &request.Operation{
 		Name:       opUpdateMaintenanceStartTime,
@@ -1693,9 +3139,9 @@ func (c *StorageGateway) UpdateMaintenanceStartTimeRequest(input *UpdateMaintena
 	return
 }
 
-// This operation updates a gateway's weekly maintenance start time information,
-// including day and time of the week. The maintenance time is the time in your
-// gateway's time zone.
+// Updates a gateway's weekly maintenance start time information, including
+// day and time of the week. The maintenance time is the time in your gateway's
+// time zone.
 func (c *StorageGateway) UpdateMaintenanceStartTime(input *UpdateMaintenanceStartTimeInput) (*UpdateMaintenanceStartTimeOutput, error) {
 	req, out := c.UpdateMaintenanceStartTimeRequest(input)
 	err := req.Send()
@@ -1704,7 +3150,28 @@ func (c *StorageGateway) UpdateMaintenanceStartTime(input *UpdateMaintenanceStar
 
 const opUpdateSnapshotSchedule = "UpdateSnapshotSchedule"
 
-// UpdateSnapshotScheduleRequest generates a request for the UpdateSnapshotSchedule operation.
+// UpdateSnapshotScheduleRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateSnapshotSchedule operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateSnapshotSchedule method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateSnapshotScheduleRequest method.
+//    req, resp := client.UpdateSnapshotScheduleRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) UpdateSnapshotScheduleRequest(input *UpdateSnapshotScheduleInput) (req *request.Request, output *UpdateSnapshotScheduleOutput) {
 	op := &request.Operation{
 		Name:       opUpdateSnapshotSchedule,
@@ -1722,7 +3189,7 @@ func (c *StorageGateway) UpdateSnapshotScheduleRequest(input *UpdateSnapshotSche
 	return
 }
 
-// This operation updates a snapshot schedule configured for a gateway volume.
+// Updates a snapshot schedule configured for a gateway volume.
 //
 // The default snapshot schedule for volume is once every 24 hours, starting
 // at the creation time of the volume. You can use this API to change the snapshot
@@ -1739,7 +3206,28 @@ func (c *StorageGateway) UpdateSnapshotSchedule(input *UpdateSnapshotScheduleInp
 
 const opUpdateVTLDeviceType = "UpdateVTLDeviceType"
 
-// UpdateVTLDeviceTypeRequest generates a request for the UpdateVTLDeviceType operation.
+// UpdateVTLDeviceTypeRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateVTLDeviceType operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateVTLDeviceType method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateVTLDeviceTypeRequest method.
+//    req, resp := client.UpdateVTLDeviceTypeRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *StorageGateway) UpdateVTLDeviceTypeRequest(input *UpdateVTLDeviceTypeInput) (req *request.Request, output *UpdateVTLDeviceTypeOutput) {
 	op := &request.Operation{
 		Name:       opUpdateVTLDeviceType,
@@ -1757,10 +3245,10 @@ func (c *StorageGateway) UpdateVTLDeviceTypeRequest(input *UpdateVTLDeviceTypeIn
 	return
 }
 
-// This operation updates the type of medium changer in a gateway-VTL. When
-// you activate a gateway-VTL, you select a medium changer type for the gateway-VTL.
-// This operation enables you to select a different type of medium changer after
-// a gateway-VTL is activated.
+// Updates the type of medium changer in a gateway-VTL. When you activate a
+// gateway-VTL, you select a medium changer type for the gateway-VTL. This operation
+// enables you to select a different type of medium changer after a gateway-VTL
+// is activated.
 func (c *StorageGateway) UpdateVTLDeviceType(input *UpdateVTLDeviceTypeInput) (*UpdateVTLDeviceTypeOutput, error) {
 	req, out := c.UpdateVTLDeviceTypeRequest(input)
 	err := req.Send()
@@ -1769,10 +3257,22 @@ func (c *StorageGateway) UpdateVTLDeviceType(input *UpdateVTLDeviceTypeInput) (*
 
 // A JSON object containing one or more of the following fields:
 //
-//   ActivateGatewayInput$ActivationKey   GatewayName   ActivateGatewayInput$GatewayRegion
-//   ActivateGatewayInput$GatewayTimezone   ActivateGatewayInput$GatewayType
-//   ActivateGatewayInput$TapeDriveType   ActivateGatewayInput$MediumChangerType
+//    ActivateGatewayInput$ActivationKey
+//
+//    ActivateGatewayInput$GatewayName
+//
+//    ActivateGatewayInput$GatewayRegion
+//
+//    ActivateGatewayInput$GatewayTimezone
+//
+//    ActivateGatewayInput$GatewayType
+//
+//    ActivateGatewayInput$TapeDriveType
+//
+//    ActivateGatewayInput$MediumChangerType
 type ActivateGatewayInput struct {
+	_ struct{} `type:"structure"`
+
 	// Your gateway activation key. You can obtain the activation key by sending
 	// an HTTP GET request with redirects enabled to the gateway IP address (port
 	// 80). The redirect URL returned in the response provides you the activation
@@ -1780,50 +3280,42 @@ type ActivateGatewayInput struct {
 	// also include other activation-related parameters, however, these are merely
 	// defaults -- the arguments you pass to the ActivateGateway API call determine
 	// the actual configuration of your gateway.
-	ActivationKey *string `type:"string" required:"true"`
+	ActivationKey *string `min:"1" type:"string" required:"true"`
 
-	// A unique identifier for your gateway. This name becomes part of the gateway
-	// Amazon Resources Name (ARN) which is what you use as an input to other operations.
-	GatewayName *string `type:"string" required:"true"`
+	// The name you configured for your gateway.
+	GatewayName *string `min:"2" type:"string" required:"true"`
 
-	// One of the values that indicates the region where you want to store the snapshot
-	// backups. The gateway region specified must be the same region as the region
-	// in your Host header in the request. For more information about available
-	// regions and endpoints for AWS Storage Gateway, see Regions and Endpoints
-	// (http://docs.aws.amazon.com/general/latest/gr/rande.html#sg_region) in the
-	// Amazon Web Services Glossary.
+	// A value that indicates the region where you want to store the snapshot backups.
+	// The gateway region specified must be the same region as the region in your
+	// Host header in the request. For more information about available regions
+	// and endpoints for AWS Storage Gateway, see Regions and Endpoints (http://docs.aws.amazon.com/general/latest/gr/rande.html#sg_region)
+	// in the Amazon Web Services Glossary.
 	//
-	// Valid Values: "us-east-1", "us-west-1", "us-west-2", "eu-west-1", "eu-central-1",
-	// "ap-northeast-1", "ap-southeast-1", "ap-southeast-2", "sa-east-1"
-	GatewayRegion *string `type:"string" required:"true"`
+	//  Valid Values: "us-east-1", "us-west-1", "us-west-2", "eu-west-1", "eu-central-1",
+	// "ap-northeast-1", "ap-northeast-2", "ap-southeast-1", "ap-southeast-2", "sa-east-1"
+	GatewayRegion *string `min:"1" type:"string" required:"true"`
 
-	// One of the values that indicates the time zone you want to set for the gateway.
-	// The time zone is used, for example, for scheduling snapshots and your gateway's
+	// A value that indicates the time zone you want to set for the gateway. The
+	// time zone is used, for example, for scheduling snapshots and your gateway's
 	// maintenance schedule.
-	GatewayTimezone *string `type:"string" required:"true"`
+	GatewayTimezone *string `min:"3" type:"string" required:"true"`
 
-	// One of the values that defines the type of gateway to activate. The type
-	// specified is critical to all later functions of the gateway and cannot be
-	// changed after activation. The default value is STORED.
-	GatewayType *string `type:"string"`
+	// A value that defines the type of gateway to activate. The type specified
+	// is critical to all later functions of the gateway and cannot be changed after
+	// activation. The default value is STORED.
+	GatewayType *string `min:"2" type:"string"`
 
 	// The value that indicates the type of medium changer to use for gateway-VTL.
 	// This field is optional.
 	//
-	// Valid Values: "STK-L700", "AWS-Gateway-VTL"
-	MediumChangerType *string `type:"string"`
+	//  Valid Values: "STK-L700", "AWS-Gateway-VTL"
+	MediumChangerType *string `min:"2" type:"string"`
 
 	// The value that indicates the type of tape drive to use for gateway-VTL. This
 	// field is optional.
 	//
-	// Valid Values: "IBM-ULT3580-TD5"
-	TapeDriveType *string `type:"string"`
-
-	metadataActivateGatewayInput `json:"-" xml:"-"`
-}
-
-type metadataActivateGatewayInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	//  Valid Values: "IBM-ULT3580-TD5"
+	TapeDriveType *string `min:"2" type:"string"`
 }
 
 // String returns the string representation
@@ -1836,20 +3328,63 @@ func (s ActivateGatewayInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ActivateGatewayInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ActivateGatewayInput"}
+	if s.ActivationKey == nil {
+		invalidParams.Add(request.NewErrParamRequired("ActivationKey"))
+	}
+	if s.ActivationKey != nil && len(*s.ActivationKey) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("ActivationKey", 1))
+	}
+	if s.GatewayName == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayName"))
+	}
+	if s.GatewayName != nil && len(*s.GatewayName) < 2 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayName", 2))
+	}
+	if s.GatewayRegion == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayRegion"))
+	}
+	if s.GatewayRegion != nil && len(*s.GatewayRegion) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayRegion", 1))
+	}
+	if s.GatewayTimezone == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayTimezone"))
+	}
+	if s.GatewayTimezone != nil && len(*s.GatewayTimezone) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayTimezone", 3))
+	}
+	if s.GatewayType != nil && len(*s.GatewayType) < 2 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayType", 2))
+	}
+	if s.MediumChangerType != nil && len(*s.MediumChangerType) < 2 {
+		invalidParams.Add(request.NewErrParamMinLen("MediumChangerType", 2))
+	}
+	if s.TapeDriveType != nil && len(*s.TapeDriveType) < 2 {
+		invalidParams.Add(request.NewErrParamMinLen("TapeDriveType", 2))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // AWS Storage Gateway returns the Amazon Resource Name (ARN) of the activated
 // gateway. It is a string made of information such as your account, gateway
 // name, and region. This ARN is used to reference the gateway in other API
 // operations as well as resource-based authorization.
+//
+// For gateways activated prior to September 02, 2015 the gateway ARN contains
+// the gateway name rather than the gateway id. Changing the name of the gateway
+// has no effect on the gateway ARN.
 type ActivateGatewayOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
-
-	metadataActivateGatewayOutput `json:"-" xml:"-"`
-}
-
-type metadataActivateGatewayOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -1863,17 +3398,13 @@ func (s ActivateGatewayOutput) GoString() string {
 }
 
 type AddCacheInput struct {
+	_ struct{} `type:"structure"`
+
 	DiskIds []*string `type:"list" required:"true"`
 
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
-
-	metadataAddCacheInput `json:"-" xml:"-"`
-}
-
-type metadataAddCacheInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1886,16 +3417,31 @@ func (s AddCacheInput) GoString() string {
 	return s.String()
 }
 
-type AddCacheOutput struct {
-	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
-	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *AddCacheInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "AddCacheInput"}
+	if s.DiskIds == nil {
+		invalidParams.Add(request.NewErrParamRequired("DiskIds"))
+	}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
 
-	metadataAddCacheOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataAddCacheOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type AddCacheOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
+	// to return a list of gateways for your account and region.
+	GatewayARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -1908,18 +3454,86 @@ func (s AddCacheOutput) GoString() string {
 	return s.String()
 }
 
+// AddTagsToResourceInput
+type AddTagsToResourceInput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the resource you want to add tags to.
+	ResourceARN *string `min:"50" type:"string" required:"true"`
+
+	// The key-value pair that represents the tag you want to add to the resource.
+	// The value can be an empty string.
+	//
+	//  Valid characters for key and value are letters, spaces, and numbers representable
+	// in UTF-8 format, and the following special characters: + - = . _ : / @.
+	Tags []*Tag `type:"list" required:"true"`
+}
+
+// String returns the string representation
+func (s AddTagsToResourceInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s AddTagsToResourceInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *AddTagsToResourceInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "AddTagsToResourceInput"}
+	if s.ResourceARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("ResourceARN"))
+	}
+	if s.ResourceARN != nil && len(*s.ResourceARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("ResourceARN", 50))
+	}
+	if s.Tags == nil {
+		invalidParams.Add(request.NewErrParamRequired("Tags"))
+	}
+	if s.Tags != nil {
+		for i, v := range s.Tags {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Tags", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// AddTagsToResourceOutput
+type AddTagsToResourceOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the resource you want to add tags to.
+	ResourceARN *string `min:"50" type:"string"`
+}
+
+// String returns the string representation
+func (s AddTagsToResourceOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s AddTagsToResourceOutput) GoString() string {
+	return s.String()
+}
+
 type AddUploadBufferInput struct {
+	_ struct{} `type:"structure"`
+
 	DiskIds []*string `type:"list" required:"true"`
 
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
-
-	metadataAddUploadBufferInput `json:"-" xml:"-"`
-}
-
-type metadataAddUploadBufferInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1932,16 +3546,31 @@ func (s AddUploadBufferInput) GoString() string {
 	return s.String()
 }
 
-type AddUploadBufferOutput struct {
-	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
-	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *AddUploadBufferInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "AddUploadBufferInput"}
+	if s.DiskIds == nil {
+		invalidParams.Add(request.NewErrParamRequired("DiskIds"))
+	}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
 
-	metadataAddUploadBufferOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataAddUploadBufferOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type AddUploadBufferOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
+	// to return a list of gateways for your account and region.
+	GatewayARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -1956,8 +3585,10 @@ func (s AddUploadBufferOutput) GoString() string {
 
 // A JSON object containing one or more of the following fields:
 //
-//   AddWorkingStorageInput$DiskIds
+//    AddWorkingStorageInput$DiskIds
 type AddWorkingStorageInput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of strings that identify disks that are to be configured as working
 	// storage. Each string have a minimum length of 1 and maximum length of 300.
 	// You can get the disk IDs from the ListLocalDisks API.
@@ -1965,13 +3596,7 @@ type AddWorkingStorageInput struct {
 
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
-
-	metadataAddWorkingStorageInput `json:"-" xml:"-"`
-}
-
-type metadataAddWorkingStorageInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -1984,18 +3609,33 @@ func (s AddWorkingStorageInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *AddWorkingStorageInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "AddWorkingStorageInput"}
+	if s.DiskIds == nil {
+		invalidParams.Add(request.NewErrParamRequired("DiskIds"))
+	}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // A JSON object containing the of the gateway for which working storage was
 // configured.
 type AddWorkingStorageOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
-
-	metadataAddWorkingStorageOutput `json:"-" xml:"-"`
-}
-
-type metadataAddWorkingStorageOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -2009,28 +3649,24 @@ func (s AddWorkingStorageOutput) GoString() string {
 }
 
 type CachediSCSIVolume struct {
+	_ struct{} `type:"structure"`
+
 	SourceSnapshotId *string `type:"string"`
 
-	VolumeARN *string `type:"string"`
+	VolumeARN *string `min:"50" type:"string"`
 
-	VolumeId *string `type:"string"`
+	VolumeId *string `min:"12" type:"string"`
 
 	VolumeProgress *float64 `type:"double"`
 
 	VolumeSizeInBytes *int64 `type:"long"`
 
-	VolumeStatus *string `type:"string"`
+	VolumeStatus *string `min:"3" type:"string"`
 
-	VolumeType *string `type:"string"`
+	VolumeType *string `min:"3" type:"string"`
 
 	// Lists iSCSI information about a volume.
 	VolumeiSCSIAttributes *VolumeiSCSIAttributes `type:"structure"`
-
-	metadataCachediSCSIVolume `json:"-" xml:"-"`
-}
-
-type metadataCachediSCSIVolume struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2045,19 +3681,15 @@ func (s CachediSCSIVolume) GoString() string {
 
 // CancelArchivalInput
 type CancelArchivalInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 
 	// The Amazon Resource Name (ARN) of the virtual tape you want to cancel archiving
 	// for.
-	TapeARN *string `type:"string" required:"true"`
-
-	metadataCancelArchivalInput `json:"-" xml:"-"`
-}
-
-type metadataCancelArchivalInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	TapeARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2070,17 +3702,35 @@ func (s CancelArchivalInput) GoString() string {
 	return s.String()
 }
 
-// CancelArchivalOutput
-type CancelArchivalOutput struct {
-	// The Amazon Resource Name (ARN) of the virtual tape for which archiving was
-	// canceled.
-	TapeARN *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CancelArchivalInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CancelArchivalInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+	if s.TapeARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("TapeARN"))
+	}
+	if s.TapeARN != nil && len(*s.TapeARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("TapeARN", 50))
+	}
 
-	metadataCancelArchivalOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataCancelArchivalOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// CancelArchivalOutput
+type CancelArchivalOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the virtual tape for which archiving was
+	// canceled.
+	TapeARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -2095,19 +3745,15 @@ func (s CancelArchivalOutput) GoString() string {
 
 // CancelRetrievalInput
 type CancelRetrievalInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 
 	// The Amazon Resource Name (ARN) of the virtual tape you want to cancel retrieval
 	// for.
-	TapeARN *string `type:"string" required:"true"`
-
-	metadataCancelRetrievalInput `json:"-" xml:"-"`
-}
-
-type metadataCancelRetrievalInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	TapeARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2120,17 +3766,35 @@ func (s CancelRetrievalInput) GoString() string {
 	return s.String()
 }
 
-// CancelRetrievalOutput
-type CancelRetrievalOutput struct {
-	// The Amazon Resource Name (ARN) of the virtual tape for which retrieval was
-	// canceled.
-	TapeARN *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CancelRetrievalInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CancelRetrievalInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+	if s.TapeARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("TapeARN"))
+	}
+	if s.TapeARN != nil && len(*s.TapeARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("TapeARN", 50))
+	}
 
-	metadataCancelRetrievalOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataCancelRetrievalOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// CancelRetrievalOutput
+type CancelRetrievalOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the virtual tape for which retrieval was
+	// canceled.
+	TapeARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -2146,28 +3810,24 @@ func (s CancelRetrievalOutput) GoString() string {
 // Describes Challenge-Handshake Authentication Protocol (CHAP) information
 // that supports authentication between your gateway and iSCSI initiators.
 type ChapInfo struct {
+	_ struct{} `type:"structure"`
+
 	// The iSCSI initiator that connects to the target.
-	InitiatorName *string `type:"string"`
+	InitiatorName *string `min:"1" type:"string"`
 
 	// The secret key that the initiator (for example, the Windows client) must
 	// provide to participate in mutual CHAP with the target.
-	SecretToAuthenticateInitiator *string `type:"string"`
+	SecretToAuthenticateInitiator *string `min:"1" type:"string"`
 
 	// The secret key that the target must provide to participate in mutual CHAP
 	// with the initiator (e.g. Windows client).
-	SecretToAuthenticateTarget *string `type:"string"`
+	SecretToAuthenticateTarget *string `min:"1" type:"string"`
 
 	// The Amazon Resource Name (ARN) of the volume.
 	//
-	// Valid Values: 50 to 500 lowercase letters, numbers, periods (.), and hyphens
+	//  Valid Values: 50 to 500 lowercase letters, numbers, periods (.), and hyphens
 	// (-).
-	TargetARN *string `type:"string"`
-
-	metadataChapInfo `json:"-" xml:"-"`
-}
-
-type metadataChapInfo struct {
-	SDKShapeTraits bool `type:"structure"`
+	TargetARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -2181,25 +3841,21 @@ func (s ChapInfo) GoString() string {
 }
 
 type CreateCachediSCSIVolumeInput struct {
-	ClientToken *string `type:"string" required:"true"`
+	_ struct{} `type:"structure"`
+
+	ClientToken *string `min:"5" type:"string" required:"true"`
 
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 
 	NetworkInterfaceId *string `type:"string" required:"true"`
 
 	SnapshotId *string `type:"string"`
 
-	TargetName *string `type:"string" required:"true"`
+	TargetName *string `min:"1" type:"string" required:"true"`
 
 	VolumeSizeInBytes *int64 `type:"long" required:"true"`
-
-	metadataCreateCachediSCSIVolumeInput `json:"-" xml:"-"`
-}
-
-type metadataCreateCachediSCSIVolumeInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2212,16 +3868,46 @@ func (s CreateCachediSCSIVolumeInput) GoString() string {
 	return s.String()
 }
 
-type CreateCachediSCSIVolumeOutput struct {
-	TargetARN *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateCachediSCSIVolumeInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateCachediSCSIVolumeInput"}
+	if s.ClientToken == nil {
+		invalidParams.Add(request.NewErrParamRequired("ClientToken"))
+	}
+	if s.ClientToken != nil && len(*s.ClientToken) < 5 {
+		invalidParams.Add(request.NewErrParamMinLen("ClientToken", 5))
+	}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+	if s.NetworkInterfaceId == nil {
+		invalidParams.Add(request.NewErrParamRequired("NetworkInterfaceId"))
+	}
+	if s.TargetName == nil {
+		invalidParams.Add(request.NewErrParamRequired("TargetName"))
+	}
+	if s.TargetName != nil && len(*s.TargetName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("TargetName", 1))
+	}
+	if s.VolumeSizeInBytes == nil {
+		invalidParams.Add(request.NewErrParamRequired("VolumeSizeInBytes"))
+	}
 
-	VolumeARN *string `type:"string"`
-
-	metadataCreateCachediSCSIVolumeOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataCreateCachediSCSIVolumeOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type CreateCachediSCSIVolumeOutput struct {
+	_ struct{} `type:"structure"`
+
+	TargetARN *string `min:"50" type:"string"`
+
+	VolumeARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -2235,15 +3921,11 @@ func (s CreateCachediSCSIVolumeOutput) GoString() string {
 }
 
 type CreateSnapshotFromVolumeRecoveryPointInput struct {
-	SnapshotDescription *string `type:"string" required:"true"`
+	_ struct{} `type:"structure"`
 
-	VolumeARN *string `type:"string" required:"true"`
+	SnapshotDescription *string `min:"1" type:"string" required:"true"`
 
-	metadataCreateSnapshotFromVolumeRecoveryPointInput `json:"-" xml:"-"`
-}
-
-type metadataCreateSnapshotFromVolumeRecoveryPointInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	VolumeARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2256,18 +3938,36 @@ func (s CreateSnapshotFromVolumeRecoveryPointInput) GoString() string {
 	return s.String()
 }
 
-type CreateSnapshotFromVolumeRecoveryPointOutput struct {
-	SnapshotId *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateSnapshotFromVolumeRecoveryPointInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateSnapshotFromVolumeRecoveryPointInput"}
+	if s.SnapshotDescription == nil {
+		invalidParams.Add(request.NewErrParamRequired("SnapshotDescription"))
+	}
+	if s.SnapshotDescription != nil && len(*s.SnapshotDescription) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("SnapshotDescription", 1))
+	}
+	if s.VolumeARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("VolumeARN"))
+	}
+	if s.VolumeARN != nil && len(*s.VolumeARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("VolumeARN", 50))
+	}
 
-	VolumeARN *string `type:"string"`
-
-	VolumeRecoveryPointTime *string `type:"string"`
-
-	metadataCreateSnapshotFromVolumeRecoveryPointOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataCreateSnapshotFromVolumeRecoveryPointOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type CreateSnapshotFromVolumeRecoveryPointOutput struct {
+	_ struct{} `type:"structure"`
+
+	SnapshotId *string `type:"string"`
+
+	VolumeARN *string `min:"50" type:"string"`
+
+	VolumeRecoveryPointTime *string `type:"string"`
 }
 
 // String returns the string representation
@@ -2282,22 +3982,20 @@ func (s CreateSnapshotFromVolumeRecoveryPointOutput) GoString() string {
 
 // A JSON object containing one or more of the following fields:
 //
-//   CreateSnapshotInput$SnapshotDescription   CreateSnapshotInput$VolumeARN
+//    CreateSnapshotInput$SnapshotDescription
+//
+//    CreateSnapshotInput$VolumeARN
 type CreateSnapshotInput struct {
+	_ struct{} `type:"structure"`
+
 	// Textual description of the snapshot that appears in the Amazon EC2 console,
 	// Elastic Block Store snapshots panel in the Description field, and in the
 	// AWS Storage Gateway snapshot Details pane, Description field
-	SnapshotDescription *string `type:"string" required:"true"`
+	SnapshotDescription *string `min:"1" type:"string" required:"true"`
 
 	// The Amazon Resource Name (ARN) of the volume. Use the ListVolumes operation
 	// to return a list of gateway volumes.
-	VolumeARN *string `type:"string" required:"true"`
-
-	metadataCreateSnapshotInput `json:"-" xml:"-"`
-}
-
-type metadataCreateSnapshotInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	VolumeARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2310,21 +4008,39 @@ func (s CreateSnapshotInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateSnapshotInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateSnapshotInput"}
+	if s.SnapshotDescription == nil {
+		invalidParams.Add(request.NewErrParamRequired("SnapshotDescription"))
+	}
+	if s.SnapshotDescription != nil && len(*s.SnapshotDescription) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("SnapshotDescription", 1))
+	}
+	if s.VolumeARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("VolumeARN"))
+	}
+	if s.VolumeARN != nil && len(*s.VolumeARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("VolumeARN", 50))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // A JSON object containing the following fields:
 type CreateSnapshotOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The snapshot ID that is used to refer to the snapshot in future operations
 	// such as describing snapshots (Amazon Elastic Compute Cloud API DescribeSnapshots)
 	// or creating a volume from a snapshot (CreateStorediSCSIVolume).
 	SnapshotId *string `type:"string"`
 
 	// The Amazon Resource Name (ARN) of the volume of which the snapshot was taken.
-	VolumeARN *string `type:"string"`
-
-	metadataCreateSnapshotOutput `json:"-" xml:"-"`
-}
-
-type metadataCreateSnapshotOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	VolumeARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -2339,30 +4055,38 @@ func (s CreateSnapshotOutput) GoString() string {
 
 // A JSON object containing one or more of the following fields:
 //
-//   CreateStorediSCSIVolumeInput$DiskId   CreateStorediSCSIVolumeInput$NetworkInterfaceId
-//   CreateStorediSCSIVolumeInput$PreserveExistingData   CreateStorediSCSIVolumeInput$SnapshotId
-//   CreateStorediSCSIVolumeInput$TargetName
+//    CreateStorediSCSIVolumeInput$DiskId
+//
+//    CreateStorediSCSIVolumeInput$NetworkInterfaceId
+//
+//    CreateStorediSCSIVolumeInput$PreserveExistingData
+//
+//    CreateStorediSCSIVolumeInput$SnapshotId
+//
+//    CreateStorediSCSIVolumeInput$TargetName
 type CreateStorediSCSIVolumeInput struct {
+	_ struct{} `type:"structure"`
+
 	// The unique identifier for the gateway local disk that is configured as a
 	// stored volume. Use ListLocalDisks (http://docs.aws.amazon.com/storagegateway/latest/userguide/API_ListLocalDisks.html)
 	// to list disk IDs for a gateway.
-	DiskId *string `type:"string" required:"true"`
+	DiskId *string `min:"1" type:"string" required:"true"`
 
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 
 	// The network interface of the gateway on which to expose the iSCSI target.
 	// Only IPv4 addresses are accepted. Use DescribeGatewayInformation to get a
 	// list of the network interfaces available on a gateway.
 	//
-	// Valid Values: A valid IP address.
+	//  Valid Values: A valid IP address.
 	NetworkInterfaceId *string `type:"string" required:"true"`
 
 	// Specify this field as true if you want to preserve the data on the local
 	// disk. Otherwise, specifying this field as false creates an empty volume.
 	//
-	// Valid Values: true, false
+	//  Valid Values: true, false
 	PreserveExistingData *bool `type:"boolean" required:"true"`
 
 	// The snapshot ID (e.g. "snap-1122aabb") of the snapshot to restore as the
@@ -2374,15 +4098,9 @@ type CreateStorediSCSIVolumeInput struct {
 
 	// The name of the iSCSI target used by initiators to connect to the target
 	// and as a suffix for the target ARN. For example, specifying TargetName as
-	// myvolume results in the target ARN of arn:aws:storagegateway:us-east-1:111122223333:gateway/mygateway/target/iqn.1997-05.com.amazon:myvolume.
+	// myvolume results in the target ARN of arn:aws:storagegateway:us-east-1:111122223333:gateway/sgw-12A3456B/target/iqn.1997-05.com.amazon:myvolume.
 	// The target name must be unique across all volumes of a gateway.
-	TargetName *string `type:"string" required:"true"`
-
-	metadataCreateStorediSCSIVolumeInput `json:"-" xml:"-"`
-}
-
-type metadataCreateStorediSCSIVolumeInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	TargetName *string `min:"1" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2395,23 +4113,53 @@ func (s CreateStorediSCSIVolumeInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateStorediSCSIVolumeInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateStorediSCSIVolumeInput"}
+	if s.DiskId == nil {
+		invalidParams.Add(request.NewErrParamRequired("DiskId"))
+	}
+	if s.DiskId != nil && len(*s.DiskId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("DiskId", 1))
+	}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+	if s.NetworkInterfaceId == nil {
+		invalidParams.Add(request.NewErrParamRequired("NetworkInterfaceId"))
+	}
+	if s.PreserveExistingData == nil {
+		invalidParams.Add(request.NewErrParamRequired("PreserveExistingData"))
+	}
+	if s.TargetName == nil {
+		invalidParams.Add(request.NewErrParamRequired("TargetName"))
+	}
+	if s.TargetName != nil && len(*s.TargetName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("TargetName", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // A JSON object containing the following fields:
 type CreateStorediSCSIVolumeOutput struct {
+	_ struct{} `type:"structure"`
+
 	// he Amazon Resource Name (ARN) of the volume target that includes the iSCSI
 	// name that initiators can use to connect to the target.
-	TargetARN *string `type:"string"`
+	TargetARN *string `min:"50" type:"string"`
 
 	// The Amazon Resource Name (ARN) of the configured volume.
-	VolumeARN *string `type:"string"`
+	VolumeARN *string `min:"50" type:"string"`
 
 	// The size of the volume in bytes.
 	VolumeSizeInBytes *int64 `type:"long"`
-
-	metadataCreateStorediSCSIVolumeOutput `json:"-" xml:"-"`
-}
-
-type metadataCreateStorediSCSIVolumeOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2424,39 +4172,107 @@ func (s CreateStorediSCSIVolumeOutput) GoString() string {
 	return s.String()
 }
 
+// CreateTapeWithBarcodeInput
+type CreateTapeWithBarcodeInput struct {
+	_ struct{} `type:"structure"`
+
+	// The unique Amazon Resource Name (ARN) that represents the gateway to associate
+	// the virtual tape with. Use the ListGateways operation to return a list of
+	// gateways for your account and region.
+	GatewayARN *string `min:"50" type:"string" required:"true"`
+
+	// The barcode that you want to assign to the tape.
+	TapeBarcode *string `min:"7" type:"string" required:"true"`
+
+	// The size, in bytes, of the virtual tape that you want to create.
+	//
+	// The size must be aligned by gigabyte (1024*1024*1024 byte).
+	TapeSizeInBytes *int64 `type:"long" required:"true"`
+}
+
+// String returns the string representation
+func (s CreateTapeWithBarcodeInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CreateTapeWithBarcodeInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateTapeWithBarcodeInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateTapeWithBarcodeInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+	if s.TapeBarcode == nil {
+		invalidParams.Add(request.NewErrParamRequired("TapeBarcode"))
+	}
+	if s.TapeBarcode != nil && len(*s.TapeBarcode) < 7 {
+		invalidParams.Add(request.NewErrParamMinLen("TapeBarcode", 7))
+	}
+	if s.TapeSizeInBytes == nil {
+		invalidParams.Add(request.NewErrParamRequired("TapeSizeInBytes"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// CreateTapeOutput
+type CreateTapeWithBarcodeOutput struct {
+	_ struct{} `type:"structure"`
+
+	// A unique Amazon Resource Name (ARN) that represents the virtual tape that
+	// was created.
+	TapeARN *string `min:"50" type:"string"`
+}
+
+// String returns the string representation
+func (s CreateTapeWithBarcodeOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CreateTapeWithBarcodeOutput) GoString() string {
+	return s.String()
+}
+
 // CreateTapesInput
 type CreateTapesInput struct {
+	_ struct{} `type:"structure"`
+
 	// A unique identifier that you use to retry a request. If you retry a request,
 	// use the same ClientToken you specified in the initial request.
 	//
 	// Using the same ClientToken prevents creating the tape multiple times.
-	ClientToken *string `type:"string" required:"true"`
+	ClientToken *string `min:"5" type:"string" required:"true"`
 
-	// The unique Amazon Resource Name(ARN) that represents the gateway to associate
+	// The unique Amazon Resource Name (ARN) that represents the gateway to associate
 	// the virtual tapes with. Use the ListGateways operation to return a list of
 	// gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 
-	// The number of virtual tapes you want to create.
-	NumTapesToCreate *int64 `type:"integer" required:"true"`
+	// The number of virtual tapes that you want to create.
+	NumTapesToCreate *int64 `min:"1" type:"integer" required:"true"`
 
-	// A prefix you append to the barcode of the virtual tape you are creating.
-	// This makes a barcode unique.
+	// A prefix that you append to the barcode of the virtual tape you are creating.
+	// This prefix makes the barcode unique.
 	//
-	// The prefix must be 1 to 4 characters in length and must be upper-case letters
-	// A-Z.
-	TapeBarcodePrefix *string `type:"string" required:"true"`
+	// The prefix must be 1 to 4 characters in length and must be one of the uppercase
+	// letters from A to Z.
+	TapeBarcodePrefix *string `min:"1" type:"string" required:"true"`
 
-	// The size, in bytes, of the virtual tapes you want to create.
+	// The size, in bytes, of the virtual tapes that you want to create.
 	//
-	// The size must be gigabyte (1024*1024*1024 byte) aligned.
+	// The size must be aligned by gigabyte (1024*1024*1024 byte).
 	TapeSizeInBytes *int64 `type:"long" required:"true"`
-
-	metadataCreateTapesInput `json:"-" xml:"-"`
-}
-
-type metadataCreateTapesInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2469,17 +4285,50 @@ func (s CreateTapesInput) GoString() string {
 	return s.String()
 }
 
-// CreateTapeOutput
-type CreateTapesOutput struct {
-	// A list of unique Amazon Resource Named (ARN) the represents the virtual tapes
-	// that were created.
-	TapeARNs []*string `type:"list"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateTapesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateTapesInput"}
+	if s.ClientToken == nil {
+		invalidParams.Add(request.NewErrParamRequired("ClientToken"))
+	}
+	if s.ClientToken != nil && len(*s.ClientToken) < 5 {
+		invalidParams.Add(request.NewErrParamMinLen("ClientToken", 5))
+	}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+	if s.NumTapesToCreate == nil {
+		invalidParams.Add(request.NewErrParamRequired("NumTapesToCreate"))
+	}
+	if s.NumTapesToCreate != nil && *s.NumTapesToCreate < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("NumTapesToCreate", 1))
+	}
+	if s.TapeBarcodePrefix == nil {
+		invalidParams.Add(request.NewErrParamRequired("TapeBarcodePrefix"))
+	}
+	if s.TapeBarcodePrefix != nil && len(*s.TapeBarcodePrefix) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("TapeBarcodePrefix", 1))
+	}
+	if s.TapeSizeInBytes == nil {
+		invalidParams.Add(request.NewErrParamRequired("TapeSizeInBytes"))
+	}
 
-	metadataCreateTapesOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataCreateTapesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// CreateTapeOutput
+type CreateTapesOutput struct {
+	_ struct{} `type:"structure"`
+
+	// A list of unique Amazon Resource Names (ARNs) that represents the virtual
+	// tapes that were created.
+	TapeARNs []*string `type:"list"`
 }
 
 // String returns the string representation
@@ -2493,17 +4342,13 @@ func (s CreateTapesOutput) GoString() string {
 }
 
 type DeleteBandwidthRateLimitInput struct {
-	BandwidthType *string `type:"string" required:"true"`
+	_ struct{} `type:"structure"`
+
+	BandwidthType *string `min:"3" type:"string" required:"true"`
 
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
-
-	metadataDeleteBandwidthRateLimitInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteBandwidthRateLimitInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2516,18 +4361,36 @@ func (s DeleteBandwidthRateLimitInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteBandwidthRateLimitInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteBandwidthRateLimitInput"}
+	if s.BandwidthType == nil {
+		invalidParams.Add(request.NewErrParamRequired("BandwidthType"))
+	}
+	if s.BandwidthType != nil && len(*s.BandwidthType) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("BandwidthType", 3))
+	}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // A JSON object containing the of the gateway whose bandwidth rate information
 // was deleted.
 type DeleteBandwidthRateLimitOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
-
-	metadataDeleteBandwidthRateLimitOutput `json:"-" xml:"-"`
-}
-
-type metadataDeleteBandwidthRateLimitOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -2542,20 +4405,18 @@ func (s DeleteBandwidthRateLimitOutput) GoString() string {
 
 // A JSON object containing one or more of the following fields:
 //
-//   DeleteChapCredentialsInput$InitiatorName   DeleteChapCredentialsInput$TargetARN
+//    DeleteChapCredentialsInput$InitiatorName
+//
+//    DeleteChapCredentialsInput$TargetARN
 type DeleteChapCredentialsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The iSCSI initiator that connects to the target.
-	InitiatorName *string `type:"string" required:"true"`
+	InitiatorName *string `min:"1" type:"string" required:"true"`
 
 	// The Amazon Resource Name (ARN) of the iSCSI volume target. Use the DescribeStorediSCSIVolumes
 	// operation to return to retrieve the TargetARN for specified VolumeARN.
-	TargetARN *string `type:"string" required:"true"`
-
-	metadataDeleteChapCredentialsInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteChapCredentialsInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	TargetARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2568,19 +4429,37 @@ func (s DeleteChapCredentialsInput) GoString() string {
 	return s.String()
 }
 
-// A JSON object containing the following fields:
-type DeleteChapCredentialsOutput struct {
-	// The iSCSI initiator that connects to the target.
-	InitiatorName *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteChapCredentialsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteChapCredentialsInput"}
+	if s.InitiatorName == nil {
+		invalidParams.Add(request.NewErrParamRequired("InitiatorName"))
+	}
+	if s.InitiatorName != nil && len(*s.InitiatorName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("InitiatorName", 1))
+	}
+	if s.TargetARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("TargetARN"))
+	}
+	if s.TargetARN != nil && len(*s.TargetARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("TargetARN", 50))
+	}
 
-	// The Amazon Resource Name (ARN) of the target.
-	TargetARN *string `type:"string"`
-
-	metadataDeleteChapCredentialsOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeleteChapCredentialsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// A JSON object containing the following fields:
+type DeleteChapCredentialsOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The iSCSI initiator that connects to the target.
+	InitiatorName *string `min:"1" type:"string"`
+
+	// The Amazon Resource Name (ARN) of the target.
+	TargetARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -2595,15 +4474,11 @@ func (s DeleteChapCredentialsOutput) GoString() string {
 
 // A JSON object containing the id of the gateway to delete.
 type DeleteGatewayInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
-
-	metadataDeleteGatewayInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteGatewayInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2616,17 +4491,29 @@ func (s DeleteGatewayInput) GoString() string {
 	return s.String()
 }
 
-// A JSON object containing the id of the deleted gateway.
-type DeleteGatewayOutput struct {
-	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
-	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteGatewayInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteGatewayInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
 
-	metadataDeleteGatewayOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeleteGatewayOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// A JSON object containing the id of the deleted gateway.
+type DeleteGatewayOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
+	// to return a list of gateways for your account and region.
+	GatewayARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -2640,13 +4527,9 @@ func (s DeleteGatewayOutput) GoString() string {
 }
 
 type DeleteSnapshotScheduleInput struct {
-	VolumeARN *string `type:"string" required:"true"`
+	_ struct{} `type:"structure"`
 
-	metadataDeleteSnapshotScheduleInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteSnapshotScheduleInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	VolumeARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2659,14 +4542,26 @@ func (s DeleteSnapshotScheduleInput) GoString() string {
 	return s.String()
 }
 
-type DeleteSnapshotScheduleOutput struct {
-	VolumeARN *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteSnapshotScheduleInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteSnapshotScheduleInput"}
+	if s.VolumeARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("VolumeARN"))
+	}
+	if s.VolumeARN != nil && len(*s.VolumeARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("VolumeARN", 50))
+	}
 
-	metadataDeleteSnapshotScheduleOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeleteSnapshotScheduleOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DeleteSnapshotScheduleOutput struct {
+	_ struct{} `type:"structure"`
+
+	VolumeARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -2681,15 +4576,11 @@ func (s DeleteSnapshotScheduleOutput) GoString() string {
 
 // DeleteTapeArchiveInput
 type DeleteTapeArchiveInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the virtual tape to delete from the virtual
 	// tape shelf (VTS).
-	TapeARN *string `type:"string" required:"true"`
-
-	metadataDeleteTapeArchiveInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteTapeArchiveInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	TapeARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2702,17 +4593,29 @@ func (s DeleteTapeArchiveInput) GoString() string {
 	return s.String()
 }
 
-// DeleteTapeArchiveOutput
-type DeleteTapeArchiveOutput struct {
-	// The Amazon Resource Name (ARN) of the virtual tape that was deleted from
-	// the virtual tape shelf (VTS).
-	TapeARN *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteTapeArchiveInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteTapeArchiveInput"}
+	if s.TapeARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("TapeARN"))
+	}
+	if s.TapeARN != nil && len(*s.TapeARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("TapeARN", 50))
+	}
 
-	metadataDeleteTapeArchiveOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeleteTapeArchiveOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// DeleteTapeArchiveOutput
+type DeleteTapeArchiveOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the virtual tape that was deleted from
+	// the virtual tape shelf (VTS).
+	TapeARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -2727,19 +4630,15 @@ func (s DeleteTapeArchiveOutput) GoString() string {
 
 // DeleteTapeInput
 type DeleteTapeInput struct {
+	_ struct{} `type:"structure"`
+
 	// The unique Amazon Resource Name (ARN) of the gateway that the virtual tape
 	// to delete is associated with. Use the ListGateways operation to return a
 	// list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 
 	// The Amazon Resource Name (ARN) of the virtual tape to delete.
-	TapeARN *string `type:"string" required:"true"`
-
-	metadataDeleteTapeInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteTapeInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	TapeARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2752,16 +4651,34 @@ func (s DeleteTapeInput) GoString() string {
 	return s.String()
 }
 
-// DeleteTapeOutput
-type DeleteTapeOutput struct {
-	// The Amazon Resource Name (ARN) of the deleted virtual tape.
-	TapeARN *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteTapeInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteTapeInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+	if s.TapeARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("TapeARN"))
+	}
+	if s.TapeARN != nil && len(*s.TapeARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("TapeARN", 50))
+	}
 
-	metadataDeleteTapeOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeleteTapeOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// DeleteTapeOutput
+type DeleteTapeOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the deleted virtual tape.
+	TapeARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -2776,15 +4693,11 @@ func (s DeleteTapeOutput) GoString() string {
 
 // A JSON object containing the DeleteVolumeInput$VolumeARN to delete.
 type DeleteVolumeInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the volume. Use the ListVolumes operation
 	// to return a list of gateway volumes.
-	VolumeARN *string `type:"string" required:"true"`
-
-	metadataDeleteVolumeInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteVolumeInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	VolumeARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2797,17 +4710,29 @@ func (s DeleteVolumeInput) GoString() string {
 	return s.String()
 }
 
-// A JSON object containing the of the storage volume that was deleted
-type DeleteVolumeOutput struct {
-	// The Amazon Resource Name (ARN) of the storage volume that was deleted. It
-	// is the same ARN you provided in the request.
-	VolumeARN *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteVolumeInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteVolumeInput"}
+	if s.VolumeARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("VolumeARN"))
+	}
+	if s.VolumeARN != nil && len(*s.VolumeARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("VolumeARN", 50))
+	}
 
-	metadataDeleteVolumeOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeleteVolumeOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// A JSON object containing the of the storage volume that was deleted
+type DeleteVolumeOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the storage volume that was deleted. It
+	// is the same ARN you provided in the request.
+	VolumeARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -2822,15 +4747,11 @@ func (s DeleteVolumeOutput) GoString() string {
 
 // A JSON object containing the of the gateway.
 type DescribeBandwidthRateLimitInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
-
-	metadataDescribeBandwidthRateLimitInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeBandwidthRateLimitInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2843,25 +4764,37 @@ func (s DescribeBandwidthRateLimitInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeBandwidthRateLimitInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeBandwidthRateLimitInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // A JSON object containing the following fields:
 type DescribeBandwidthRateLimitOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The average download bandwidth rate limit in bits per second. This field
 	// does not appear in the response if the download rate limit is not set.
-	AverageDownloadRateLimitInBitsPerSec *int64 `type:"long"`
+	AverageDownloadRateLimitInBitsPerSec *int64 `min:"102400" type:"long"`
 
 	// The average upload bandwidth rate limit in bits per second. This field does
 	// not appear in the response if the upload rate limit is not set.
-	AverageUploadRateLimitInBitsPerSec *int64 `type:"long"`
+	AverageUploadRateLimitInBitsPerSec *int64 `min:"51200" type:"long"`
 
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
-
-	metadataDescribeBandwidthRateLimitOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeBandwidthRateLimitOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -2875,15 +4808,11 @@ func (s DescribeBandwidthRateLimitOutput) GoString() string {
 }
 
 type DescribeCacheInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
-
-	metadataDescribeCacheInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeCacheInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2896,7 +4825,25 @@ func (s DescribeCacheInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeCacheInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeCacheInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 type DescribeCacheOutput struct {
+	_ struct{} `type:"structure"`
+
 	CacheAllocatedInBytes *int64 `type:"long"`
 
 	CacheDirtyPercentage *float64 `type:"double"`
@@ -2911,13 +4858,7 @@ type DescribeCacheOutput struct {
 
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
-
-	metadataDescribeCacheOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeCacheOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -2931,13 +4872,9 @@ func (s DescribeCacheOutput) GoString() string {
 }
 
 type DescribeCachediSCSIVolumesInput struct {
+	_ struct{} `type:"structure"`
+
 	VolumeARNs []*string `type:"list" required:"true"`
-
-	metadataDescribeCachediSCSIVolumesInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeCachediSCSIVolumesInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2950,17 +4887,26 @@ func (s DescribeCachediSCSIVolumesInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeCachediSCSIVolumesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeCachediSCSIVolumesInput"}
+	if s.VolumeARNs == nil {
+		invalidParams.Add(request.NewErrParamRequired("VolumeARNs"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // A JSON object containing the following fields:
 type DescribeCachediSCSIVolumesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of objects where each object contains metadata about one cached
 	// volume.
 	CachediSCSIVolumes []*CachediSCSIVolume `type:"list"`
-
-	metadataDescribeCachediSCSIVolumesOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeCachediSCSIVolumesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2976,15 +4922,11 @@ func (s DescribeCachediSCSIVolumesOutput) GoString() string {
 // A JSON object containing the Amazon Resource Name (ARN) of the iSCSI volume
 // target.
 type DescribeChapCredentialsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the iSCSI volume target. Use the DescribeStorediSCSIVolumes
 	// operation to return to retrieve the TargetARN for specified VolumeARN.
-	TargetARN *string `type:"string" required:"true"`
-
-	metadataDescribeChapCredentialsInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeChapCredentialsInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	TargetARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -2997,30 +4939,42 @@ func (s DescribeChapCredentialsInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeChapCredentialsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeChapCredentialsInput"}
+	if s.TargetARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("TargetARN"))
+	}
+	if s.TargetARN != nil && len(*s.TargetARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("TargetARN", 50))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // A JSON object containing a .
 type DescribeChapCredentialsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of ChapInfo objects that represent CHAP credentials. Each object
 	// in the array contains CHAP credential information for one target-initiator
 	// pair. If no CHAP credentials are set, an empty array is returned. CHAP credential
 	// information is provided in a JSON object with the following fields:
 	//
-	//   InitiatorName: The iSCSI initiator that connects to the target.
+	//    InitiatorName: The iSCSI initiator that connects to the target.
 	//
-	//   SecretToAuthenticateInitiator: The secret key that the initiator (for
+	//    SecretToAuthenticateInitiator: The secret key that the initiator (for
 	// example, the Windows client) must provide to participate in mutual CHAP with
 	// the target.
 	//
-	//   SecretToAuthenticateTarget: The secret key that the target must provide
+	//    SecretToAuthenticateTarget: The secret key that the target must provide
 	// to participate in mutual CHAP with the initiator (e.g. Windows client).
 	//
-	//   TargetARN: The Amazon Resource Name (ARN) of the storage volume.
+	//    TargetARN: The Amazon Resource Name (ARN) of the storage volume.
 	ChapCredentials []*ChapInfo `type:"list"`
-
-	metadataDescribeChapCredentialsOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeChapCredentialsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3035,15 +4989,11 @@ func (s DescribeChapCredentialsOutput) GoString() string {
 
 // A JSON object containing the id of the gateway.
 type DescribeGatewayInformationInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
-
-	metadataDescribeGatewayInformationInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeGatewayInformationInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -3056,43 +5006,60 @@ func (s DescribeGatewayInformationInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeGatewayInformationInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeGatewayInformationInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // A JSON object containing the following fields:
 type DescribeGatewayInformationOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
+	GatewayARN *string `min:"50" type:"string"`
 
-	// The gateway ID.
-	GatewayId *string `type:"string"`
+	// The unique identifier assigned to your gateway during activation. This ID
+	// becomes part of the gateway Amazon Resource Name (ARN), which you use as
+	// input for other operations.
+	GatewayId *string `min:"12" type:"string"`
+
+	// The name you configured for your gateway.
+	GatewayName *string `type:"string"`
 
 	// A NetworkInterface array that contains descriptions of the gateway network
 	// interfaces.
 	GatewayNetworkInterfaces []*NetworkInterface `type:"list"`
 
-	// One of the values that indicates the operating state of the gateway.
-	GatewayState *string `type:"string"`
+	// A value that indicates the operating state of the gateway.
+	GatewayState *string `min:"2" type:"string"`
 
-	// One of the values that indicates the time zone configured for the gateway.
-	GatewayTimezone *string `type:"string"`
+	// A value that indicates the time zone configured for the gateway.
+	GatewayTimezone *string `min:"3" type:"string"`
 
 	// The type of the gateway.
-	GatewayType *string `type:"string"`
+	GatewayType *string `min:"2" type:"string"`
 
 	// The date on which the last software update was applied to the gateway. If
 	// the gateway has never been updated, this field does not return a value in
 	// the response.
-	LastSoftwareUpdate *string `type:"string"`
+	LastSoftwareUpdate *string `min:"1" type:"string"`
 
 	// The date on which an update to the gateway is available. This date is in
 	// the time zone of the gateway. If the gateway is not available for an update
 	// this field is not returned in the response.
-	NextUpdateAvailabilityDate *string `type:"string"`
-
-	metadataDescribeGatewayInformationOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeGatewayInformationOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	NextUpdateAvailabilityDate *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -3107,15 +5074,11 @@ func (s DescribeGatewayInformationOutput) GoString() string {
 
 // A JSON object containing the of the gateway.
 type DescribeMaintenanceStartTimeInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
-
-	metadataDescribeMaintenanceStartTimeInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeMaintenanceStartTimeInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -3128,24 +5091,36 @@ func (s DescribeMaintenanceStartTimeInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeMaintenanceStartTimeInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeMaintenanceStartTimeInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 type DescribeMaintenanceStartTimeOutput struct {
+	_ struct{} `type:"structure"`
+
 	DayOfWeek *int64 `type:"integer"`
 
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
+	GatewayARN *string `min:"50" type:"string"`
 
 	HourOfDay *int64 `type:"integer"`
 
 	MinuteOfHour *int64 `type:"integer"`
 
-	Timezone *string `type:"string"`
-
-	metadataDescribeMaintenanceStartTimeOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeMaintenanceStartTimeOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	Timezone *string `min:"3" type:"string"`
 }
 
 // String returns the string representation
@@ -3161,15 +5136,11 @@ func (s DescribeMaintenanceStartTimeOutput) GoString() string {
 // A JSON object containing the DescribeSnapshotScheduleInput$VolumeARN of the
 // volume.
 type DescribeSnapshotScheduleInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the volume. Use the ListVolumes operation
 	// to return a list of gateway volumes.
-	VolumeARN *string `type:"string" required:"true"`
-
-	metadataDescribeSnapshotScheduleInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeSnapshotScheduleInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	VolumeARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -3182,22 +5153,34 @@ func (s DescribeSnapshotScheduleInput) GoString() string {
 	return s.String()
 }
 
-type DescribeSnapshotScheduleOutput struct {
-	Description *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeSnapshotScheduleInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeSnapshotScheduleInput"}
+	if s.VolumeARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("VolumeARN"))
+	}
+	if s.VolumeARN != nil && len(*s.VolumeARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("VolumeARN", 50))
+	}
 
-	RecurrenceInHours *int64 `type:"integer"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+type DescribeSnapshotScheduleOutput struct {
+	_ struct{} `type:"structure"`
+
+	Description *string `min:"1" type:"string"`
+
+	RecurrenceInHours *int64 `min:"1" type:"integer"`
 
 	StartAt *int64 `type:"integer"`
 
-	Timezone *string `type:"string"`
+	Timezone *string `min:"3" type:"string"`
 
-	VolumeARN *string `type:"string"`
-
-	metadataDescribeSnapshotScheduleOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeSnapshotScheduleOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	VolumeARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -3210,18 +5193,14 @@ func (s DescribeSnapshotScheduleOutput) GoString() string {
 	return s.String()
 }
 
-// A JSON Object containing a list of DescribeStorediSCSIVolumesInput$VolumeARNs.
+// A JSON object containing a list of DescribeStorediSCSIVolumesInput$VolumeARNs.
 type DescribeStorediSCSIVolumesInput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of strings where each string represents the Amazon Resource Name
 	// (ARN) of a stored volume. All of the specified stored volumes must from the
 	// same gateway. Use ListVolumes to get volume ARNs for a gateway.
 	VolumeARNs []*string `type:"list" required:"true"`
-
-	metadataDescribeStorediSCSIVolumesInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeStorediSCSIVolumesInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3234,14 +5213,23 @@ func (s DescribeStorediSCSIVolumesInput) GoString() string {
 	return s.String()
 }
 
-type DescribeStorediSCSIVolumesOutput struct {
-	StorediSCSIVolumes []*StorediSCSIVolume `type:"list"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeStorediSCSIVolumesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeStorediSCSIVolumesInput"}
+	if s.VolumeARNs == nil {
+		invalidParams.Add(request.NewErrParamRequired("VolumeARNs"))
+	}
 
-	metadataDescribeStorediSCSIVolumesOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDescribeStorediSCSIVolumesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DescribeStorediSCSIVolumesOutput struct {
+	_ struct{} `type:"structure"`
+
+	StorediSCSIVolumes []*StorediSCSIVolume `type:"list"`
 }
 
 // String returns the string representation
@@ -3256,23 +5244,19 @@ func (s DescribeStorediSCSIVolumesOutput) GoString() string {
 
 // DescribeTapeArchivesInput
 type DescribeTapeArchivesInput struct {
+	_ struct{} `type:"structure"`
+
 	// Specifies that the number of virtual tapes descried be limited to the specified
 	// number.
-	Limit *int64 `type:"integer"`
+	Limit *int64 `min:"1" type:"integer"`
 
 	// An opaque string that indicates the position at which to begin describing
 	// virtual tapes.
-	Marker *string `type:"string"`
+	Marker *string `min:"1" type:"string"`
 
 	// Specifies one or more unique Amazon Resource Names (ARNs) that represent
 	// the virtual tapes you want to describe.
 	TapeARNs []*string `type:"list"`
-
-	metadataDescribeTapeArchivesInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeTapeArchivesInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3285,26 +5269,38 @@ func (s DescribeTapeArchivesInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeTapeArchivesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeTapeArchivesInput"}
+	if s.Limit != nil && *s.Limit < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("Limit", 1))
+	}
+	if s.Marker != nil && len(*s.Marker) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Marker", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // DescribeTapeArchivesOutput
 type DescribeTapeArchivesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// An opaque string that indicates the position at which the virtual tapes that
 	// were fetched for description ended. Use this marker in your next request
 	// to fetch the next set of virtual tapes in the virtual tape shelf (VTS). If
 	// there are no more virtual tapes to describe, this field does not appear in
 	// the response.
-	Marker *string `type:"string"`
+	Marker *string `min:"1" type:"string"`
 
 	// An array of virtual tape objects in the virtual tape shelf (VTS). The description
 	// includes of the Amazon Resource Name(ARN) of the virtual tapes. The information
 	// returned includes the Amazon Resource Names (ARNs) of the tapes, size of
 	// the tapes, status of the tapes, progress of the description and tape barcode.
 	TapeArchives []*TapeArchive `type:"list"`
-
-	metadataDescribeTapeArchivesOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeTapeArchivesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3319,23 +5315,19 @@ func (s DescribeTapeArchivesOutput) GoString() string {
 
 // DescribeTapeRecoveryPointsInput
 type DescribeTapeRecoveryPointsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 
 	// Specifies that the number of virtual tape recovery points that are described
 	// be limited to the specified number.
-	Limit *int64 `type:"integer"`
+	Limit *int64 `min:"1" type:"integer"`
 
 	// An opaque string that indicates the position at which to begin describing
 	// the virtual tape recovery points.
-	Marker *string `type:"string"`
-
-	metadataDescribeTapeRecoveryPointsInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeTapeRecoveryPointsInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	Marker *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -3348,11 +5340,35 @@ func (s DescribeTapeRecoveryPointsInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeTapeRecoveryPointsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeTapeRecoveryPointsInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+	if s.Limit != nil && *s.Limit < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("Limit", 1))
+	}
+	if s.Marker != nil && len(*s.Marker) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Marker", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // DescribeTapeRecoveryPointsOutput
 type DescribeTapeRecoveryPointsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
+	GatewayARN *string `min:"50" type:"string"`
 
 	// An opaque string that indicates the position at which the virtual tape recovery
 	// points that were listed for description ended.
@@ -3360,16 +5376,10 @@ type DescribeTapeRecoveryPointsOutput struct {
 	// Use this marker in your next request to list the next set of virtual tape
 	// recovery points in the list. If there are no more recovery points to describe,
 	// this field does not appear in the response.
-	Marker *string `type:"string"`
+	Marker *string `min:"1" type:"string"`
 
 	// An array of TapeRecoveryPointInfos that are available for the specified gateway.
 	TapeRecoveryPointInfos []*TapeRecoveryPointInfo `type:"list"`
-
-	metadataDescribeTapeRecoveryPointsOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeTapeRecoveryPointsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3384,33 +5394,29 @@ func (s DescribeTapeRecoveryPointsOutput) GoString() string {
 
 // DescribeTapesInput
 type DescribeTapesInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 
 	// Specifies that the number of virtual tapes described be limited to the specified
 	// number.
 	//
 	// Amazon Web Services may impose its own limit, if this field is not set.
-	Limit *int64 `type:"integer"`
+	Limit *int64 `min:"1" type:"integer"`
 
 	// A marker value, obtained in a previous call to DescribeTapes. This marker
 	// indicates which page of results to retrieve.
 	//
 	// If not specified, the first page of results is retrieved.
-	Marker *string `type:"string"`
+	Marker *string `min:"1" type:"string"`
 
 	// Specifies one or more unique Amazon Resource Names (ARNs) that represent
 	// the virtual tapes you want to describe. If this parameter is not specified,
 	// AWS Storage Gateway returns a description of all virtual tapes associated
 	// with the specified gateway.
 	TapeARNs []*string `type:"list"`
-
-	metadataDescribeTapesInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeTapesInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3423,23 +5429,41 @@ func (s DescribeTapesInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeTapesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeTapesInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+	if s.Limit != nil && *s.Limit < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("Limit", 1))
+	}
+	if s.Marker != nil && len(*s.Marker) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Marker", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // DescribeTapesOutput
 type DescribeTapesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// An opaque string which can be used as part of a subsequent DescribeTapes
 	// call to retrieve the next page of results.
 	//
 	// If a response does not contain a marker, then there are no more results
 	// to be retrieved.
-	Marker *string `type:"string"`
+	Marker *string `min:"1" type:"string"`
 
 	// An array of virtual tape descriptions.
 	Tapes []*Tape `type:"list"`
-
-	metadataDescribeTapesOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeTapesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3453,15 +5477,11 @@ func (s DescribeTapesOutput) GoString() string {
 }
 
 type DescribeUploadBufferInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
-
-	metadataDescribeUploadBufferInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeUploadBufferInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -3474,22 +5494,34 @@ func (s DescribeUploadBufferInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeUploadBufferInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeUploadBufferInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 type DescribeUploadBufferOutput struct {
+	_ struct{} `type:"structure"`
+
 	DiskIds []*string `type:"list"`
 
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
+	GatewayARN *string `min:"50" type:"string"`
 
 	UploadBufferAllocatedInBytes *int64 `type:"long"`
 
 	UploadBufferUsedInBytes *int64 `type:"long"`
-
-	metadataDescribeUploadBufferOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeUploadBufferOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3504,17 +5536,19 @@ func (s DescribeUploadBufferOutput) GoString() string {
 
 // DescribeVTLDevicesInput
 type DescribeVTLDevicesInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 
 	// Specifies that the number of VTL devices described be limited to the specified
 	// number.
-	Limit *int64 `type:"integer"`
+	Limit *int64 `min:"1" type:"integer"`
 
 	// An opaque string that indicates the position at which to begin describing
 	// the VTL devices.
-	Marker *string `type:"string"`
+	Marker *string `min:"1" type:"string"`
 
 	// An array of strings, where each string represents the Amazon Resource Name
 	// (ARN) of a VTL device.
@@ -3523,12 +5557,6 @@ type DescribeVTLDevicesInput struct {
 	// devices are specified, the result will contain all devices on the specified
 	// gateway.
 	VTLDeviceARNs []*string `type:"list"`
-
-	metadataDescribeVTLDevicesInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeVTLDevicesInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3541,27 +5569,45 @@ func (s DescribeVTLDevicesInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeVTLDevicesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeVTLDevicesInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+	if s.Limit != nil && *s.Limit < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("Limit", 1))
+	}
+	if s.Marker != nil && len(*s.Marker) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Marker", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // DescribeVTLDevicesOutput
 type DescribeVTLDevicesOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
+	GatewayARN *string `min:"50" type:"string"`
 
 	// An opaque string that indicates the position at which the VTL devices that
 	// were fetched for description ended. Use the marker in your next request to
 	// fetch the next set of VTL devices in the list. If there are no more VTL devices
 	// to describe, this field does not appear in the response.
-	Marker *string `type:"string"`
+	Marker *string `min:"1" type:"string"`
 
 	// An array of VTL device objects composed of the Amazon Resource Name(ARN)
 	// of the VTL devices.
 	VTLDevices []*VTLDevice `type:"list"`
-
-	metadataDescribeVTLDevicesOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeVTLDevicesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3576,15 +5622,11 @@ func (s DescribeVTLDevicesOutput) GoString() string {
 
 // A JSON object containing the of the gateway.
 type DescribeWorkingStorageInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
-
-	metadataDescribeWorkingStorageInput `json:"-" xml:"-"`
-}
-
-type metadataDescribeWorkingStorageInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -3597,8 +5639,26 @@ func (s DescribeWorkingStorageInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DescribeWorkingStorageInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DescribeWorkingStorageInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // A JSON object containing the following fields:
 type DescribeWorkingStorageOutput struct {
+	_ struct{} `type:"structure"`
+
 	// An array of the gateway's local disk IDs that are configured as working storage.
 	// Each local disk ID is specified as a string (minimum length of 1 and maximum
 	// length of 300). If no local disks are configured as working storage, then
@@ -3607,7 +5667,7 @@ type DescribeWorkingStorageOutput struct {
 
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
+	GatewayARN *string `min:"50" type:"string"`
 
 	// The total working storage in bytes allocated for the gateway. If no working
 	// storage is configured for the gateway, this field returns 0.
@@ -3616,12 +5676,6 @@ type DescribeWorkingStorageOutput struct {
 	// The total working storage in bytes in use by the gateway. If no working storage
 	// is configured for the gateway, this field returns 0.
 	WorkingStorageUsedInBytes *int64 `type:"long"`
-
-	metadataDescribeWorkingStorageOutput `json:"-" xml:"-"`
-}
-
-type metadataDescribeWorkingStorageOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3636,6 +5690,8 @@ func (s DescribeWorkingStorageOutput) GoString() string {
 
 // Lists iSCSI information about a VTL device.
 type DeviceiSCSIAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// Indicates whether mutual CHAP is enabled for the iSCSI target.
 	ChapEnabled *bool `type:"boolean"`
 
@@ -3647,13 +5703,7 @@ type DeviceiSCSIAttributes struct {
 
 	// Specifies the unique Amazon Resource Name(ARN) that encodes the iSCSI qualified
 	// name(iqn) of a tape drive or media changer target.
-	TargetARN *string `type:"string"`
-
-	metadataDeviceiSCSIAttributes `json:"-" xml:"-"`
-}
-
-type metadataDeviceiSCSIAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	TargetARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -3668,15 +5718,11 @@ func (s DeviceiSCSIAttributes) GoString() string {
 
 // DisableGatewayInput
 type DisableGatewayInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
-
-	metadataDisableGatewayInput `json:"-" xml:"-"`
-}
-
-type metadataDisableGatewayInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -3689,16 +5735,28 @@ func (s DisableGatewayInput) GoString() string {
 	return s.String()
 }
 
-// DisableGatewayOutput
-type DisableGatewayOutput struct {
-	// The unique Amazon Resource Name of the disabled gateway.
-	GatewayARN *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DisableGatewayInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DisableGatewayInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
 
-	metadataDisableGatewayOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDisableGatewayOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// DisableGatewayOutput
+type DisableGatewayOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The unique Amazon Resource Name of the disabled gateway.
+	GatewayARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -3712,11 +5770,13 @@ func (s DisableGatewayOutput) GoString() string {
 }
 
 type Disk struct {
+	_ struct{} `type:"structure"`
+
 	DiskAllocationResource *string `type:"string"`
 
-	DiskAllocationType *string `type:"string"`
+	DiskAllocationType *string `min:"3" type:"string"`
 
-	DiskId *string `type:"string"`
+	DiskId *string `min:"1" type:"string"`
 
 	DiskNode *string `type:"string"`
 
@@ -3725,12 +5785,6 @@ type Disk struct {
 	DiskSizeInBytes *int64 `type:"long"`
 
 	DiskStatus *string `type:"string"`
-
-	metadataDisk `json:"-" xml:"-"`
-}
-
-type metadataDisk struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3747,17 +5801,13 @@ func (s Disk) GoString() string {
 // as an or. See the errorCode and errorDetails members for more information
 // about the error.
 type Error struct {
+	_ struct{} `type:"structure"`
+
 	// Additional information about the error.
 	ErrorCode *string `locationName:"errorCode" type:"string" enum:"ErrorCode"`
 
 	// Human-readable text that provides detail about the error that occurred.
 	ErrorDetails map[string]*string `locationName:"errorDetails" type:"map"`
-
-	metadataError `json:"-" xml:"-"`
-}
-
-type metadataError struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3770,20 +5820,29 @@ func (s Error) GoString() string {
 	return s.String()
 }
 
+// Describes a gateway object.
 type GatewayInfo struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
+	GatewayARN *string `min:"50" type:"string"`
 
-	GatewayOperationalState *string `type:"string"`
+	// The unique identifier assigned to your gateway during activation. This ID
+	// becomes part of the gateway Amazon Resource Name (ARN), which you use as
+	// input for other operations.
+	GatewayId *string `min:"12" type:"string"`
 
-	GatewayType *string `type:"string"`
+	// The name of the gateway.
+	GatewayName *string `type:"string"`
 
-	metadataGatewayInfo `json:"-" xml:"-"`
-}
+	// The state of the gateway.
+	//
+	// Valid Values: DISABLED or ACTIVE
+	GatewayOperationalState *string `min:"2" type:"string"`
 
-type metadataGatewayInfo struct {
-	SDKShapeTraits bool `type:"structure"`
+	// The type of the gateway.
+	GatewayType *string `min:"2" type:"string"`
 }
 
 // String returns the string representation
@@ -3798,21 +5857,19 @@ func (s GatewayInfo) GoString() string {
 
 // A JSON object containing zero or more of the following fields:
 //
-//   ListGatewaysInput$Limit   ListGatewaysInput$Marker
+//    ListGatewaysInput$Limit
+//
+//    ListGatewaysInput$Marker
 type ListGatewaysInput struct {
+	_ struct{} `type:"structure"`
+
 	// Specifies that the list of gateways returned be limited to the specified
 	// number of items.
-	Limit *int64 `type:"integer"`
+	Limit *int64 `min:"1" type:"integer"`
 
 	// An opaque string that indicates the position at which to begin the returned
 	// list of gateways.
-	Marker *string `type:"string"`
-
-	metadataListGatewaysInput `json:"-" xml:"-"`
-}
-
-type metadataListGatewaysInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	Marker *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -3825,16 +5882,28 @@ func (s ListGatewaysInput) GoString() string {
 	return s.String()
 }
 
-type ListGatewaysOutput struct {
-	Gateways []*GatewayInfo `type:"list"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListGatewaysInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListGatewaysInput"}
+	if s.Limit != nil && *s.Limit < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("Limit", 1))
+	}
+	if s.Marker != nil && len(*s.Marker) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Marker", 1))
+	}
 
-	Marker *string `type:"string"`
-
-	metadataListGatewaysOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataListGatewaysOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type ListGatewaysOutput struct {
+	_ struct{} `type:"structure"`
+
+	Gateways []*GatewayInfo `type:"list"`
+
+	Marker *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -3849,15 +5918,11 @@ func (s ListGatewaysOutput) GoString() string {
 
 // A JSON object containing the of the gateway.
 type ListLocalDisksInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
-
-	metadataListLocalDisksInput `json:"-" xml:"-"`
-}
-
-type metadataListLocalDisksInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -3870,18 +5935,30 @@ func (s ListLocalDisksInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListLocalDisksInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListLocalDisksInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 type ListLocalDisksOutput struct {
+	_ struct{} `type:"structure"`
+
 	Disks []*Disk `type:"list"`
 
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
-
-	metadataListLocalDisksOutput `json:"-" xml:"-"`
-}
-
-type metadataListLocalDisksOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -3894,17 +5971,167 @@ func (s ListLocalDisksOutput) GoString() string {
 	return s.String()
 }
 
-// ListVolumeInitiatorsInput
-type ListVolumeInitiatorsInput struct {
-	// The Amazon Resource Name (ARN) of the volume. Use the ListVolumes operation
-	// to return a list of gateway volumes for the gateway.
-	VolumeARN *string `type:"string" required:"true"`
+// ListTagsForResourceInput
+type ListTagsForResourceInput struct {
+	_ struct{} `type:"structure"`
 
-	metadataListVolumeInitiatorsInput `json:"-" xml:"-"`
+	// Specifies that the list of tags returned be limited to the specified number
+	// of items.
+	Limit *int64 `min:"1" type:"integer"`
+
+	// An opaque string that indicates the position at which to begin returning
+	// the list of tags.
+	Marker *string `min:"1" type:"string"`
+
+	// The Amazon Resource Name (ARN) of the resource for which you want to list
+	// tags.
+	ResourceARN *string `min:"50" type:"string" required:"true"`
 }
 
-type metadataListVolumeInitiatorsInput struct {
-	SDKShapeTraits bool `type:"structure"`
+// String returns the string representation
+func (s ListTagsForResourceInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ListTagsForResourceInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListTagsForResourceInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListTagsForResourceInput"}
+	if s.Limit != nil && *s.Limit < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("Limit", 1))
+	}
+	if s.Marker != nil && len(*s.Marker) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Marker", 1))
+	}
+	if s.ResourceARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("ResourceARN"))
+	}
+	if s.ResourceARN != nil && len(*s.ResourceARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("ResourceARN", 50))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// ListTagsForResourceOutput
+type ListTagsForResourceOutput struct {
+	_ struct{} `type:"structure"`
+
+	// An opaque string that indicates the position at which to stop returning the
+	// list of tags.
+	Marker *string `min:"1" type:"string"`
+
+	// he Amazon Resource Name (ARN) of the resource for which you want to list
+	// tags.
+	ResourceARN *string `min:"50" type:"string"`
+
+	// An array that contains the tags for the specified resource.
+	Tags []*Tag `type:"list"`
+}
+
+// String returns the string representation
+func (s ListTagsForResourceOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ListTagsForResourceOutput) GoString() string {
+	return s.String()
+}
+
+// A JSON object that contains one or more of the following fields:
+//
+//    ListTapesInput$Limit
+//
+//    ListTapesInput$Marker
+//
+//    ListTapesInput$TapeARNs
+type ListTapesInput struct {
+	_ struct{} `type:"structure"`
+
+	// An optional number limit for the tapes in the list returned by this call.
+	Limit *int64 `min:"1" type:"integer"`
+
+	// A string that indicates the position at which to begin the returned list
+	// of tapes.
+	Marker *string `min:"1" type:"string"`
+
+	// The Amazon Resource Name (ARN) of each of the tapes you want to list. If
+	// you don't specify a tape ARN, the response lists all tapes in both your VTL
+	// and VTS.
+	TapeARNs []*string `type:"list"`
+}
+
+// String returns the string representation
+func (s ListTapesInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ListTapesInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListTapesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListTapesInput"}
+	if s.Limit != nil && *s.Limit < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("Limit", 1))
+	}
+	if s.Marker != nil && len(*s.Marker) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Marker", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// A JSON object containing the following fields:
+//
+//    ListTapesOutput$Marker
+//
+//    ListTapesOutput$VolumeInfos
+type ListTapesOutput struct {
+	_ struct{} `type:"structure"`
+
+	// A string that indicates the position at which to begin returning the next
+	// list of tapes. Use the marker in your next request to continue pagination
+	// of tapes. If there are no more tapes to list, this element does not appear
+	// in the response body.
+	Marker *string `min:"1" type:"string"`
+
+	// An array of TapeInfo objects, where each object describes an a single tape.
+	// If there not tapes in the tape library or VTS, then the TapeInfos is an empty
+	// array.
+	TapeInfos []*TapeInfo `type:"list"`
+}
+
+// String returns the string representation
+func (s ListTapesOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ListTapesOutput) GoString() string {
+	return s.String()
+}
+
+// ListVolumeInitiatorsInput
+type ListVolumeInitiatorsInput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the volume. Use the ListVolumes operation
+	// to return a list of gateway volumes for the gateway.
+	VolumeARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -3917,17 +6144,29 @@ func (s ListVolumeInitiatorsInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListVolumeInitiatorsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListVolumeInitiatorsInput"}
+	if s.VolumeARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("VolumeARN"))
+	}
+	if s.VolumeARN != nil && len(*s.VolumeARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("VolumeARN", 50))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // ListVolumeInitiatorsOutput
 type ListVolumeInitiatorsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The host names and port numbers of all iSCSI initiators that are connected
 	// to the gateway.
 	Initiators []*string `type:"list"`
-
-	metadataListVolumeInitiatorsOutput `json:"-" xml:"-"`
-}
-
-type metadataListVolumeInitiatorsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -3941,15 +6180,11 @@ func (s ListVolumeInitiatorsOutput) GoString() string {
 }
 
 type ListVolumeRecoveryPointsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
-
-	metadataListVolumeRecoveryPointsInput `json:"-" xml:"-"`
-}
-
-type metadataListVolumeRecoveryPointsInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -3962,18 +6197,30 @@ func (s ListVolumeRecoveryPointsInput) GoString() string {
 	return s.String()
 }
 
-type ListVolumeRecoveryPointsOutput struct {
-	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
-	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListVolumeRecoveryPointsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListVolumeRecoveryPointsInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
 
-	VolumeRecoveryPointInfos []*VolumeRecoveryPointInfo `type:"list"`
-
-	metadataListVolumeRecoveryPointsOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataListVolumeRecoveryPointsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type ListVolumeRecoveryPointsOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
+	// to return a list of gateways for your account and region.
+	GatewayARN *string `min:"50" type:"string"`
+
+	VolumeRecoveryPointInfos []*VolumeRecoveryPointInfo `type:"list"`
 }
 
 // String returns the string representation
@@ -3988,26 +6235,24 @@ func (s ListVolumeRecoveryPointsOutput) GoString() string {
 
 // A JSON object that contains one or more of the following fields:
 //
-//   ListVolumesInput$Limit   ListVolumesInput$Marker
+//    ListVolumesInput$Limit
+//
+//    ListVolumesInput$Marker
 type ListVolumesInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
+	GatewayARN *string `min:"50" type:"string"`
 
 	// Specifies that the list of volumes returned be limited to the specified number
 	// of items.
-	Limit *int64 `type:"integer"`
+	Limit *int64 `min:"1" type:"integer"`
 
 	// A string that indicates the position at which to begin the returned list
 	// of volumes. Obtain the marker from the response of a previous List iSCSI
 	// Volumes request.
-	Marker *string `type:"string"`
-
-	metadataListVolumesInput `json:"-" xml:"-"`
-}
-
-type metadataListVolumesInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	Marker *string `min:"1" type:"string"`
 }
 
 // String returns the string representation
@@ -4020,20 +6265,35 @@ func (s ListVolumesInput) GoString() string {
 	return s.String()
 }
 
-type ListVolumesOutput struct {
-	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
-	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListVolumesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListVolumesInput"}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+	if s.Limit != nil && *s.Limit < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("Limit", 1))
+	}
+	if s.Marker != nil && len(*s.Marker) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Marker", 1))
+	}
 
-	Marker *string `type:"string"`
-
-	VolumeInfos []*VolumeInfo `type:"list"`
-
-	metadataListVolumesOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataListVolumesOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type ListVolumesOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
+	// to return a list of gateways for your account and region.
+	GatewayARN *string `min:"50" type:"string"`
+
+	Marker *string `min:"1" type:"string"`
+
+	VolumeInfos []*VolumeInfo `type:"list"`
 }
 
 // String returns the string representation
@@ -4048,6 +6308,8 @@ func (s ListVolumesOutput) GoString() string {
 
 // Describes a gateway's network interface.
 type NetworkInterface struct {
+	_ struct{} `type:"structure"`
+
 	// The Internet Protocol version 4 (IPv4) address of the interface.
 	Ipv4Address *string `type:"string"`
 
@@ -4059,12 +6321,6 @@ type NetworkInterface struct {
 	//
 	// This is currently unsupported and will not be returned in output.
 	MacAddress *string `type:"string"`
-
-	metadataNetworkInterface `json:"-" xml:"-"`
-}
-
-type metadataNetworkInterface struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4077,16 +6333,73 @@ func (s NetworkInterface) GoString() string {
 	return s.String()
 }
 
-type ResetCacheInput struct {
-	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
-	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
+// RemoveTagsFromResourceInput
+type RemoveTagsFromResourceInput struct {
+	_ struct{} `type:"structure"`
 
-	metadataResetCacheInput `json:"-" xml:"-"`
+	// The Amazon Resource Name (ARN) of the resource you want to remove the tags
+	// from.
+	ResourceARN *string `min:"50" type:"string" required:"true"`
+
+	// The keys of the tags you want to remove from the specified resource. A tag
+	// is composed of a key/value pair.
+	TagKeys []*string `type:"list" required:"true"`
 }
 
-type metadataResetCacheInput struct {
-	SDKShapeTraits bool `type:"structure"`
+// String returns the string representation
+func (s RemoveTagsFromResourceInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s RemoveTagsFromResourceInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RemoveTagsFromResourceInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RemoveTagsFromResourceInput"}
+	if s.ResourceARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("ResourceARN"))
+	}
+	if s.ResourceARN != nil && len(*s.ResourceARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("ResourceARN", 50))
+	}
+	if s.TagKeys == nil {
+		invalidParams.Add(request.NewErrParamRequired("TagKeys"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// RemoveTagsFromResourceOutput
+type RemoveTagsFromResourceOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the resource that the tags were removed
+	// from.
+	ResourceARN *string `min:"50" type:"string"`
+}
+
+// String returns the string representation
+func (s RemoveTagsFromResourceOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s RemoveTagsFromResourceOutput) GoString() string {
+	return s.String()
+}
+
+type ResetCacheInput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
+	// to return a list of gateways for your account and region.
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -4099,16 +6412,28 @@ func (s ResetCacheInput) GoString() string {
 	return s.String()
 }
 
-type ResetCacheOutput struct {
-	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
-	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ResetCacheInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ResetCacheInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
 
-	metadataResetCacheOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataResetCacheOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type ResetCacheOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
+	// to return a list of gateways for your account and region.
+	GatewayARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -4123,23 +6448,19 @@ func (s ResetCacheOutput) GoString() string {
 
 // RetrieveTapeArchiveInput
 type RetrieveTapeArchiveInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway you want to retrieve the virtual
 	// tape to. Use the ListGateways operation to return a list of gateways for
 	// your account and region.
 	//
 	// You retrieve archived virtual tapes to only one gateway and the gateway
 	// must be a gateway-VTL.
-	GatewayARN *string `type:"string" required:"true"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 
 	// The Amazon Resource Name (ARN) of the virtual tape you want to retrieve from
 	// the virtual tape shelf (VTS).
-	TapeARN *string `type:"string" required:"true"`
-
-	metadataRetrieveTapeArchiveInput `json:"-" xml:"-"`
-}
-
-type metadataRetrieveTapeArchiveInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	TapeARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -4152,16 +6473,34 @@ func (s RetrieveTapeArchiveInput) GoString() string {
 	return s.String()
 }
 
-// RetrieveTapeArchiveOutput
-type RetrieveTapeArchiveOutput struct {
-	// The Amazon Resource Name (ARN) of the retrieved virtual tape.
-	TapeARN *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RetrieveTapeArchiveInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RetrieveTapeArchiveInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+	if s.TapeARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("TapeARN"))
+	}
+	if s.TapeARN != nil && len(*s.TapeARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("TapeARN", 50))
+	}
 
-	metadataRetrieveTapeArchiveOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataRetrieveTapeArchiveOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// RetrieveTapeArchiveOutput
+type RetrieveTapeArchiveOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the retrieved virtual tape.
+	TapeARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -4176,19 +6515,15 @@ func (s RetrieveTapeArchiveOutput) GoString() string {
 
 // RetrieveTapeRecoveryPointInput
 type RetrieveTapeRecoveryPointInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 
 	// The Amazon Resource Name (ARN) of the virtual tape for which you want to
 	// retrieve the recovery point.
-	TapeARN *string `type:"string" required:"true"`
-
-	metadataRetrieveTapeRecoveryPointInput `json:"-" xml:"-"`
-}
-
-type metadataRetrieveTapeRecoveryPointInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	TapeARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -4201,17 +6536,35 @@ func (s RetrieveTapeRecoveryPointInput) GoString() string {
 	return s.String()
 }
 
-// RetrieveTapeRecoveryPointOutput
-type RetrieveTapeRecoveryPointOutput struct {
-	// The Amazon Resource Name (ARN) of the virtual tape for which the recovery
-	// point was retrieved.
-	TapeARN *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RetrieveTapeRecoveryPointInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RetrieveTapeRecoveryPointInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+	if s.TapeARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("TapeARN"))
+	}
+	if s.TapeARN != nil && len(*s.TapeARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("TapeARN", 50))
+	}
 
-	metadataRetrieveTapeRecoveryPointOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataRetrieveTapeRecoveryPointOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// RetrieveTapeRecoveryPointOutput
+type RetrieveTapeRecoveryPointOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the virtual tape for which the recovery
+	// point was retrieved.
+	TapeARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -4224,17 +6577,75 @@ func (s RetrieveTapeRecoveryPointOutput) GoString() string {
 	return s.String()
 }
 
-// A JSON object containing the of the gateway to shut down.
-type ShutdownGatewayInput struct {
+// SetLocalConsolePasswordInput
+type SetLocalConsolePasswordInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 
-	metadataShutdownGatewayInput `json:"-" xml:"-"`
+	// The password you want to set for your VM local console.
+	LocalConsolePassword *string `min:"6" type:"string" required:"true"`
 }
 
-type metadataShutdownGatewayInput struct {
-	SDKShapeTraits bool `type:"structure"`
+// String returns the string representation
+func (s SetLocalConsolePasswordInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s SetLocalConsolePasswordInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *SetLocalConsolePasswordInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "SetLocalConsolePasswordInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+	if s.LocalConsolePassword == nil {
+		invalidParams.Add(request.NewErrParamRequired("LocalConsolePassword"))
+	}
+	if s.LocalConsolePassword != nil && len(*s.LocalConsolePassword) < 6 {
+		invalidParams.Add(request.NewErrParamMinLen("LocalConsolePassword", 6))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+type SetLocalConsolePasswordOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
+	// to return a list of gateways for your account and region.
+	GatewayARN *string `min:"50" type:"string"`
+}
+
+// String returns the string representation
+func (s SetLocalConsolePasswordOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s SetLocalConsolePasswordOutput) GoString() string {
+	return s.String()
+}
+
+// A JSON object containing the of the gateway to shut down.
+type ShutdownGatewayInput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
+	// to return a list of gateways for your account and region.
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -4247,17 +6658,29 @@ func (s ShutdownGatewayInput) GoString() string {
 	return s.String()
 }
 
-// A JSON object containing the of the gateway that was shut down.
-type ShutdownGatewayOutput struct {
-	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
-	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ShutdownGatewayInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ShutdownGatewayInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
 
-	metadataShutdownGatewayOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataShutdownGatewayOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// A JSON object containing the of the gateway that was shut down.
+type ShutdownGatewayOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
+	// to return a list of gateways for your account and region.
+	GatewayARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -4272,15 +6695,11 @@ func (s ShutdownGatewayOutput) GoString() string {
 
 // A JSON object containing the of the gateway to start.
 type StartGatewayInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
-
-	metadataStartGatewayInput `json:"-" xml:"-"`
-}
-
-type metadataStartGatewayInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -4293,17 +6712,29 @@ func (s StartGatewayInput) GoString() string {
 	return s.String()
 }
 
-// A JSON object containing the of the gateway that was restarted.
-type StartGatewayOutput struct {
-	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
-	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *StartGatewayInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "StartGatewayInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
 
-	metadataStartGatewayOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataStartGatewayOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// A JSON object containing the of the gateway that was restarted.
+type StartGatewayOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
+	// to return a list of gateways for your account and region.
+	GatewayARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -4317,32 +6748,28 @@ func (s StartGatewayOutput) GoString() string {
 }
 
 type StorediSCSIVolume struct {
+	_ struct{} `type:"structure"`
+
 	PreservedExistingData *bool `type:"boolean"`
 
 	SourceSnapshotId *string `type:"string"`
 
-	VolumeARN *string `type:"string"`
+	VolumeARN *string `min:"50" type:"string"`
 
-	VolumeDiskId *string `type:"string"`
+	VolumeDiskId *string `min:"1" type:"string"`
 
-	VolumeId *string `type:"string"`
+	VolumeId *string `min:"12" type:"string"`
 
 	VolumeProgress *float64 `type:"double"`
 
 	VolumeSizeInBytes *int64 `type:"long"`
 
-	VolumeStatus *string `type:"string"`
+	VolumeStatus *string `min:"3" type:"string"`
 
-	VolumeType *string `type:"string"`
+	VolumeType *string `min:"3" type:"string"`
 
 	// Lists iSCSI information about a volume.
 	VolumeiSCSIAttributes *VolumeiSCSIAttributes `type:"structure"`
-
-	metadataStorediSCSIVolume `json:"-" xml:"-"`
-}
-
-type metadataStorediSCSIVolume struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4355,8 +6782,47 @@ func (s StorediSCSIVolume) GoString() string {
 	return s.String()
 }
 
+type Tag struct {
+	_ struct{} `type:"structure"`
+
+	Key *string `min:"1" type:"string" required:"true"`
+
+	Value *string `type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s Tag) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s Tag) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *Tag) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "Tag"}
+	if s.Key == nil {
+		invalidParams.Add(request.NewErrParamRequired("Key"))
+	}
+	if s.Key != nil && len(*s.Key) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Key", 1))
+	}
+	if s.Value == nil {
+		invalidParams.Add(request.NewErrParamRequired("Value"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // Describes a virtual tape object.
 type Tape struct {
+	_ struct{} `type:"structure"`
+
 	// For archiving virtual tapes, indicates how much data remains to be uploaded
 	// before archiving is complete.
 	//
@@ -4364,10 +6830,10 @@ type Tape struct {
 	Progress *float64 `type:"double"`
 
 	// The Amazon Resource Name (ARN) of the virtual tape.
-	TapeARN *string `type:"string"`
+	TapeARN *string `min:"50" type:"string"`
 
 	// The barcode that identifies a specific virtual tape.
-	TapeBarcode *string `type:"string"`
+	TapeBarcode *string `min:"7" type:"string"`
 
 	// The size, in bytes, of the virtual tape.
 	TapeSizeInBytes *int64 `type:"long"`
@@ -4377,13 +6843,7 @@ type Tape struct {
 
 	// The virtual tape library (VTL) device that the virtual tape is associated
 	// with.
-	VTLDevice *string `type:"string"`
-
-	metadataTape `json:"-" xml:"-"`
-}
-
-type metadataTape struct {
-	SDKShapeTraits bool `type:"structure"`
+	VTLDevice *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -4398,6 +6858,8 @@ func (s Tape) GoString() string {
 
 // Represents a virtual tape that is archived in the virtual tape shelf (VTS).
 type TapeArchive struct {
+	_ struct{} `type:"structure"`
+
 	// The time that the archiving of the virtual tape was completed.
 	//
 	// The string format of the completion time is in the ISO8601 extended YYYY-MM-DD'T'HH:MM:SS'Z'
@@ -4408,25 +6870,19 @@ type TapeArchive struct {
 	// being retrieved to.
 	//
 	// The virtual tape is retrieved from the virtual tape shelf (VTS).
-	RetrievedTo *string `type:"string"`
+	RetrievedTo *string `min:"50" type:"string"`
 
 	// The Amazon Resource Name (ARN) of an archived virtual tape.
-	TapeARN *string `type:"string"`
+	TapeARN *string `min:"50" type:"string"`
 
 	// The barcode that identifies the archived virtual tape.
-	TapeBarcode *string `type:"string"`
+	TapeBarcode *string `min:"7" type:"string"`
 
 	// The size, in bytes, of the archived virtual tape.
 	TapeSizeInBytes *int64 `type:"long"`
 
 	// The current state of the archived virtual tape.
 	TapeStatus *string `type:"string"`
-
-	metadataTapeArchive `json:"-" xml:"-"`
-}
-
-type metadataTapeArchive struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4439,10 +6895,43 @@ func (s TapeArchive) GoString() string {
 	return s.String()
 }
 
+// Describes a virtual tape.
+type TapeInfo struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
+	// to return a list of gateways for your account and region.
+	GatewayARN *string `min:"50" type:"string"`
+
+	// The Amazon Resource Name (ARN) of a virtual tape.
+	TapeARN *string `min:"50" type:"string"`
+
+	// The barcode that identifies a specific virtual tape.
+	TapeBarcode *string `min:"7" type:"string"`
+
+	// The size, in bytes, of a virtual tape.
+	TapeSizeInBytes *int64 `type:"long"`
+
+	// The status of the tape.
+	TapeStatus *string `type:"string"`
+}
+
+// String returns the string representation
+func (s TapeInfo) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s TapeInfo) GoString() string {
+	return s.String()
+}
+
 // Describes a recovery point.
 type TapeRecoveryPointInfo struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the virtual tape.
-	TapeARN *string `type:"string"`
+	TapeARN *string `min:"50" type:"string"`
 
 	// The time when the point-in-time view of the virtual tape was replicated for
 	// later recovery.
@@ -4455,12 +6944,6 @@ type TapeRecoveryPointInfo struct {
 	TapeSizeInBytes *int64 `type:"long"`
 
 	TapeStatus *string `type:"string"`
-
-	metadataTapeRecoveryPointInfo `json:"-" xml:"-"`
-}
-
-type metadataTapeRecoveryPointInfo struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4475,23 +6958,21 @@ func (s TapeRecoveryPointInfo) GoString() string {
 
 // A JSON object containing one or more of the following fields:
 //
-//   UpdateBandwidthRateLimitInput$AverageDownloadRateLimitInBitsPerSec   UpdateBandwidthRateLimitInput$AverageUploadRateLimitInBitsPerSec
+//    UpdateBandwidthRateLimitInput$AverageDownloadRateLimitInBitsPerSec
+//
+//    UpdateBandwidthRateLimitInput$AverageUploadRateLimitInBitsPerSec
 type UpdateBandwidthRateLimitInput struct {
+	_ struct{} `type:"structure"`
+
 	// The average download bandwidth rate limit in bits per second.
-	AverageDownloadRateLimitInBitsPerSec *int64 `type:"long"`
+	AverageDownloadRateLimitInBitsPerSec *int64 `min:"102400" type:"long"`
 
 	// The average upload bandwidth rate limit in bits per second.
-	AverageUploadRateLimitInBitsPerSec *int64 `type:"long"`
+	AverageUploadRateLimitInBitsPerSec *int64 `min:"51200" type:"long"`
 
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
-
-	metadataUpdateBandwidthRateLimitInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateBandwidthRateLimitInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -4504,18 +6985,36 @@ func (s UpdateBandwidthRateLimitInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateBandwidthRateLimitInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateBandwidthRateLimitInput"}
+	if s.AverageDownloadRateLimitInBitsPerSec != nil && *s.AverageDownloadRateLimitInBitsPerSec < 102400 {
+		invalidParams.Add(request.NewErrParamMinValue("AverageDownloadRateLimitInBitsPerSec", 102400))
+	}
+	if s.AverageUploadRateLimitInBitsPerSec != nil && *s.AverageUploadRateLimitInBitsPerSec < 51200 {
+		invalidParams.Add(request.NewErrParamMinValue("AverageUploadRateLimitInBitsPerSec", 51200))
+	}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // A JSON object containing the of the gateway whose throttle information was
 // updated.
 type UpdateBandwidthRateLimitOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
-
-	metadataUpdateBandwidthRateLimitOutput `json:"-" xml:"-"`
-}
-
-type metadataUpdateBandwidthRateLimitOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -4530,17 +7029,24 @@ func (s UpdateBandwidthRateLimitOutput) GoString() string {
 
 // A JSON object containing one or more of the following fields:
 //
-//   UpdateChapCredentialsInput$InitiatorName   UpdateChapCredentialsInput$SecretToAuthenticateInitiator
-//   UpdateChapCredentialsInput$SecretToAuthenticateTarget   UpdateChapCredentialsInput$TargetARN
+//    UpdateChapCredentialsInput$InitiatorName
+//
+//    UpdateChapCredentialsInput$SecretToAuthenticateInitiator
+//
+//    UpdateChapCredentialsInput$SecretToAuthenticateTarget
+//
+//    UpdateChapCredentialsInput$TargetARN
 type UpdateChapCredentialsInput struct {
+	_ struct{} `type:"structure"`
+
 	// The iSCSI initiator that connects to the target.
-	InitiatorName *string `type:"string" required:"true"`
+	InitiatorName *string `min:"1" type:"string" required:"true"`
 
 	// The secret key that the initiator (for example, the Windows client) must
 	// provide to participate in mutual CHAP with the target.
 	//
 	// The secret key must be between 12 and 16 bytes when encoded in UTF-8.
-	SecretToAuthenticateInitiator *string `type:"string" required:"true"`
+	SecretToAuthenticateInitiator *string `min:"1" type:"string" required:"true"`
 
 	// The secret key that the target must provide to participate in mutual CHAP
 	// with the initiator (e.g. Windows client).
@@ -4548,17 +7054,11 @@ type UpdateChapCredentialsInput struct {
 	// Byte constraints: Minimum bytes of 12. Maximum bytes of 16.
 	//
 	// The secret key must be between 12 and 16 bytes when encoded in UTF-8.
-	SecretToAuthenticateTarget *string `type:"string"`
+	SecretToAuthenticateTarget *string `min:"1" type:"string"`
 
 	// The Amazon Resource Name (ARN) of the iSCSI volume target. Use the DescribeStorediSCSIVolumes
 	// operation to return the TargetARN for specified VolumeARN.
-	TargetARN *string `type:"string" required:"true"`
-
-	metadataUpdateChapCredentialsInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateChapCredentialsInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	TargetARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -4571,21 +7071,48 @@ func (s UpdateChapCredentialsInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateChapCredentialsInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateChapCredentialsInput"}
+	if s.InitiatorName == nil {
+		invalidParams.Add(request.NewErrParamRequired("InitiatorName"))
+	}
+	if s.InitiatorName != nil && len(*s.InitiatorName) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("InitiatorName", 1))
+	}
+	if s.SecretToAuthenticateInitiator == nil {
+		invalidParams.Add(request.NewErrParamRequired("SecretToAuthenticateInitiator"))
+	}
+	if s.SecretToAuthenticateInitiator != nil && len(*s.SecretToAuthenticateInitiator) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("SecretToAuthenticateInitiator", 1))
+	}
+	if s.SecretToAuthenticateTarget != nil && len(*s.SecretToAuthenticateTarget) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("SecretToAuthenticateTarget", 1))
+	}
+	if s.TargetARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("TargetARN"))
+	}
+	if s.TargetARN != nil && len(*s.TargetARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("TargetARN", 50))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // A JSON object containing the following fields:
 type UpdateChapCredentialsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The iSCSI initiator that connects to the target. This is the same initiator
 	// name specified in the request.
-	InitiatorName *string `type:"string"`
+	InitiatorName *string `min:"1" type:"string"`
 
 	// The Amazon Resource Name (ARN) of the target. This is the same target specified
 	// in the request.
-	TargetARN *string `type:"string"`
-
-	metadataUpdateChapCredentialsOutput `json:"-" xml:"-"`
-}
-
-type metadataUpdateChapCredentialsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	TargetARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -4599,21 +7126,16 @@ func (s UpdateChapCredentialsOutput) GoString() string {
 }
 
 type UpdateGatewayInformationInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 
-	// A unique identifier for your gateway. This name becomes part of the gateway
-	// Amazon Resources Name (ARN) which is what you use as an input to other operations.
-	GatewayName *string `type:"string"`
+	// The name you configured for your gateway.
+	GatewayName *string `min:"2" type:"string"`
 
-	GatewayTimezone *string `type:"string"`
-
-	metadataUpdateGatewayInformationInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateGatewayInformationInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayTimezone *string `min:"3" type:"string"`
 }
 
 // String returns the string representation
@@ -4626,17 +7148,37 @@ func (s UpdateGatewayInformationInput) GoString() string {
 	return s.String()
 }
 
-// A JSON object containing the of the gateway that was updated.
-type UpdateGatewayInformationOutput struct {
-	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
-	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateGatewayInformationInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateGatewayInformationInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+	if s.GatewayName != nil && len(*s.GatewayName) < 2 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayName", 2))
+	}
+	if s.GatewayTimezone != nil && len(*s.GatewayTimezone) < 3 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayTimezone", 3))
+	}
 
-	metadataUpdateGatewayInformationOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataUpdateGatewayInformationOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// A JSON object containing the ARN of the gateway that was updated.
+type UpdateGatewayInformationOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
+	// to return a list of gateways for your account and region.
+	GatewayARN *string `min:"50" type:"string"`
+
+	GatewayName *string `type:"string"`
 }
 
 // String returns the string representation
@@ -4651,15 +7193,11 @@ func (s UpdateGatewayInformationOutput) GoString() string {
 
 // A JSON object containing the of the gateway to update.
 type UpdateGatewaySoftwareNowInput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
-
-	metadataUpdateGatewaySoftwareNowInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateGatewaySoftwareNowInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -4672,17 +7210,29 @@ func (s UpdateGatewaySoftwareNowInput) GoString() string {
 	return s.String()
 }
 
-// A JSON object containing the of the gateway that was updated.
-type UpdateGatewaySoftwareNowOutput struct {
-	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
-	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateGatewaySoftwareNowInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateGatewaySoftwareNowInput"}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
 
-	metadataUpdateGatewaySoftwareNowOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataUpdateGatewaySoftwareNowOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// A JSON object containing the of the gateway that was updated.
+type UpdateGatewaySoftwareNowOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
+	// to return a list of gateways for your account and region.
+	GatewayARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -4697,15 +7247,20 @@ func (s UpdateGatewaySoftwareNowOutput) GoString() string {
 
 // A JSON object containing the following fields:
 //
-//   UpdateMaintenanceStartTimeInput$DayOfWeek   UpdateMaintenanceStartTimeInput$HourOfDay
-//   UpdateMaintenanceStartTimeInput$MinuteOfHour
+//    UpdateMaintenanceStartTimeInput$DayOfWeek
+//
+//    UpdateMaintenanceStartTimeInput$HourOfDay
+//
+//    UpdateMaintenanceStartTimeInput$MinuteOfHour
 type UpdateMaintenanceStartTimeInput struct {
+	_ struct{} `type:"structure"`
+
 	// The maintenance start time day of the week.
 	DayOfWeek *int64 `type:"integer" required:"true"`
 
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string" required:"true"`
+	GatewayARN *string `min:"50" type:"string" required:"true"`
 
 	// The hour component of the maintenance start time represented as hh, where
 	// hh is the hour (00 to 23). The hour of the day is in the time zone of the
@@ -4716,12 +7271,6 @@ type UpdateMaintenanceStartTimeInput struct {
 	// mm is the minute (00 to 59). The minute of the hour is in the time zone of
 	// the gateway.
 	MinuteOfHour *int64 `type:"integer" required:"true"`
-
-	metadataUpdateMaintenanceStartTimeInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateMaintenanceStartTimeInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4734,18 +7283,39 @@ func (s UpdateMaintenanceStartTimeInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateMaintenanceStartTimeInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateMaintenanceStartTimeInput"}
+	if s.DayOfWeek == nil {
+		invalidParams.Add(request.NewErrParamRequired("DayOfWeek"))
+	}
+	if s.GatewayARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("GatewayARN"))
+	}
+	if s.GatewayARN != nil && len(*s.GatewayARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("GatewayARN", 50))
+	}
+	if s.HourOfDay == nil {
+		invalidParams.Add(request.NewErrParamRequired("HourOfDay"))
+	}
+	if s.MinuteOfHour == nil {
+		invalidParams.Add(request.NewErrParamRequired("MinuteOfHour"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // A JSON object containing the of the gateway whose maintenance start time
 // is updated.
 type UpdateMaintenanceStartTimeOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
 	// to return a list of gateways for your account and region.
-	GatewayARN *string `type:"string"`
-
-	metadataUpdateMaintenanceStartTimeOutput `json:"-" xml:"-"`
-}
-
-type metadataUpdateMaintenanceStartTimeOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+	GatewayARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -4760,14 +7330,21 @@ func (s UpdateMaintenanceStartTimeOutput) GoString() string {
 
 // A JSON object containing one or more of the following fields:
 //
-//   UpdateSnapshotScheduleInput$Description   UpdateSnapshotScheduleInput$RecurrenceInHours
-//   UpdateSnapshotScheduleInput$StartAt   UpdateSnapshotScheduleInput$VolumeARN
+//    UpdateSnapshotScheduleInput$Description
+//
+//    UpdateSnapshotScheduleInput$RecurrenceInHours
+//
+//    UpdateSnapshotScheduleInput$StartAt
+//
+//    UpdateSnapshotScheduleInput$VolumeARN
 type UpdateSnapshotScheduleInput struct {
+	_ struct{} `type:"structure"`
+
 	// Optional description of the snapshot that overwrites the existing description.
-	Description *string `type:"string"`
+	Description *string `min:"1" type:"string"`
 
 	// Frequency of snapshots. Specify the number of hours between snapshots.
-	RecurrenceInHours *int64 `type:"integer" required:"true"`
+	RecurrenceInHours *int64 `min:"1" type:"integer" required:"true"`
 
 	// The hour of the day at which the snapshot schedule begins represented as
 	// hh, where hh is the hour (0 to 23). The hour of the day is in the time zone
@@ -4776,13 +7353,7 @@ type UpdateSnapshotScheduleInput struct {
 
 	// The Amazon Resource Name (ARN) of the volume. Use the ListVolumes operation
 	// to return a list of gateway volumes.
-	VolumeARN *string `type:"string" required:"true"`
-
-	metadataUpdateSnapshotScheduleInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateSnapshotScheduleInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	VolumeARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -4795,15 +7366,39 @@ func (s UpdateSnapshotScheduleInput) GoString() string {
 	return s.String()
 }
 
-// A JSON object containing the of the updated storage volume.
-type UpdateSnapshotScheduleOutput struct {
-	VolumeARN *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateSnapshotScheduleInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateSnapshotScheduleInput"}
+	if s.Description != nil && len(*s.Description) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Description", 1))
+	}
+	if s.RecurrenceInHours == nil {
+		invalidParams.Add(request.NewErrParamRequired("RecurrenceInHours"))
+	}
+	if s.RecurrenceInHours != nil && *s.RecurrenceInHours < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("RecurrenceInHours", 1))
+	}
+	if s.StartAt == nil {
+		invalidParams.Add(request.NewErrParamRequired("StartAt"))
+	}
+	if s.VolumeARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("VolumeARN"))
+	}
+	if s.VolumeARN != nil && len(*s.VolumeARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("VolumeARN", 50))
+	}
 
-	metadataUpdateSnapshotScheduleOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataUpdateSnapshotScheduleOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// A JSON object containing the of the updated storage volume.
+type UpdateSnapshotScheduleOutput struct {
+	_ struct{} `type:"structure"`
+
+	VolumeARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -4816,21 +7411,16 @@ func (s UpdateSnapshotScheduleOutput) GoString() string {
 	return s.String()
 }
 
-// UpdateVTLDeviceTypeInput
 type UpdateVTLDeviceTypeInput struct {
+	_ struct{} `type:"structure"`
+
 	// The type of medium changer you want to select.
 	//
-	// Valid Values: "STK-L700", "AWS-Gateway-VTL"
-	DeviceType *string `type:"string" required:"true"`
+	//  Valid Values: "STK-L700", "AWS-Gateway-VTL"
+	DeviceType *string `min:"2" type:"string" required:"true"`
 
 	// The Amazon Resource Name (ARN) of the medium changer you want to select.
-	VTLDeviceARN *string `type:"string" required:"true"`
-
-	metadataUpdateVTLDeviceTypeInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateVTLDeviceTypeInput struct {
-	SDKShapeTraits bool `type:"structure"`
+	VTLDeviceARN *string `min:"50" type:"string" required:"true"`
 }
 
 // String returns the string representation
@@ -4843,16 +7433,34 @@ func (s UpdateVTLDeviceTypeInput) GoString() string {
 	return s.String()
 }
 
-// UpdateVTLDeviceTypeOutput
-type UpdateVTLDeviceTypeOutput struct {
-	// The Amazon Resource Name (ARN) of the medium changer you have selected.
-	VTLDeviceARN *string `type:"string"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateVTLDeviceTypeInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateVTLDeviceTypeInput"}
+	if s.DeviceType == nil {
+		invalidParams.Add(request.NewErrParamRequired("DeviceType"))
+	}
+	if s.DeviceType != nil && len(*s.DeviceType) < 2 {
+		invalidParams.Add(request.NewErrParamMinLen("DeviceType", 2))
+	}
+	if s.VTLDeviceARN == nil {
+		invalidParams.Add(request.NewErrParamRequired("VTLDeviceARN"))
+	}
+	if s.VTLDeviceARN != nil && len(*s.VTLDeviceARN) < 50 {
+		invalidParams.Add(request.NewErrParamMinLen("VTLDeviceARN", 50))
+	}
 
-	metadataUpdateVTLDeviceTypeOutput `json:"-" xml:"-"`
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataUpdateVTLDeviceTypeOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+// UpdateVTLDeviceTypeOutput
+type UpdateVTLDeviceTypeOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The Amazon Resource Name (ARN) of the medium changer you have selected.
+	VTLDeviceARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation
@@ -4867,24 +7475,20 @@ func (s UpdateVTLDeviceTypeOutput) GoString() string {
 
 // Represents a device object associated with a gateway-VTL.
 type VTLDevice struct {
+	_ struct{} `type:"structure"`
+
 	// A list of iSCSI information about a VTL device.
 	DeviceiSCSIAttributes *DeviceiSCSIAttributes `type:"structure"`
 
 	// Specifies the unique Amazon Resource Name (ARN) of the device (tape drive
 	// or media changer).
-	VTLDeviceARN *string `type:"string"`
+	VTLDeviceARN *string `min:"50" type:"string"`
 
 	VTLDeviceProductIdentifier *string `type:"string"`
 
 	VTLDeviceType *string `type:"string"`
 
 	VTLDeviceVendor *string `type:"string"`
-
-	metadataVTLDevice `json:"-" xml:"-"`
-}
-
-type metadataVTLDevice struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4897,16 +7501,45 @@ func (s VTLDevice) GoString() string {
 	return s.String()
 }
 
+// Describes a storage volume object.
 type VolumeInfo struct {
-	VolumeARN *string `type:"string"`
+	_ struct{} `type:"structure"`
 
-	VolumeType *string `type:"string"`
+	// The Amazon Resource Name (ARN) of the gateway. Use the ListGateways operation
+	// to return a list of gateways for your account and region.
+	GatewayARN *string `min:"50" type:"string"`
 
-	metadataVolumeInfo `json:"-" xml:"-"`
-}
+	// The unique identifier assigned to your gateway during activation. This ID
+	// becomes part of the gateway Amazon Resource Name (ARN), which you use as
+	// input for other operations.
+	//
+	//  Valid Values: 50 to 500 lowercase letters, numbers, periods (.), and hyphens
+	// (-).
+	GatewayId *string `min:"12" type:"string"`
 
-type metadataVolumeInfo struct {
-	SDKShapeTraits bool `type:"structure"`
+	// The Amazon Resource Name (ARN) for the storage volume. For example, the following
+	// is a valid ARN:
+	//
+	//  arn:aws:storagegateway:us-east-1:111122223333:gateway/sgw-12A3456B/volume/vol-1122AABB
+	//
+	//  Valid Values: 50 to 500 lowercase letters, numbers, periods (.), and hyphens
+	// (-).
+	VolumeARN *string `min:"50" type:"string"`
+
+	// The unique identifier assigned to the volume. This ID becomes part of the
+	// volume Amazon Resource Name (ARN), which you use as input for other operations.
+	//
+	//  Valid Values: 50 to 500 lowercase letters, numbers, periods (.), and hyphens
+	// (-).
+	VolumeId *string `min:"12" type:"string"`
+
+	// The size, in bytes, of the volume.
+	//
+	// Valid Values: 50 to 500 lowercase letters, numbers, periods (.), and hyphens
+	// (-).
+	VolumeSizeInBytes *int64 `type:"long"`
+
+	VolumeType *string `min:"3" type:"string"`
 }
 
 // String returns the string representation
@@ -4920,19 +7553,15 @@ func (s VolumeInfo) GoString() string {
 }
 
 type VolumeRecoveryPointInfo struct {
-	VolumeARN *string `type:"string"`
+	_ struct{} `type:"structure"`
+
+	VolumeARN *string `min:"50" type:"string"`
 
 	VolumeRecoveryPointTime *string `type:"string"`
 
 	VolumeSizeInBytes *int64 `type:"long"`
 
 	VolumeUsageInBytes *int64 `type:"long"`
-
-	metadataVolumeRecoveryPointInfo `json:"-" xml:"-"`
-}
-
-type metadataVolumeRecoveryPointInfo struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -4947,11 +7576,13 @@ func (s VolumeRecoveryPointInfo) GoString() string {
 
 // Lists iSCSI information about a volume.
 type VolumeiSCSIAttributes struct {
+	_ struct{} `type:"structure"`
+
 	// Indicates whether mutual CHAP is enabled for the iSCSI target.
 	ChapEnabled *bool `type:"boolean"`
 
 	// The logical disk number.
-	LunNumber *int64 `type:"integer"`
+	LunNumber *int64 `min:"1" type:"integer"`
 
 	// The network interface identifier.
 	NetworkInterfaceId *string `type:"string"`
@@ -4960,13 +7591,7 @@ type VolumeiSCSIAttributes struct {
 	NetworkInterfacePort *int64 `type:"integer"`
 
 	// The Amazon Resource Name (ARN) of the volume target.
-	TargetARN *string `type:"string"`
-
-	metadataVolumeiSCSIAttributes `json:"-" xml:"-"`
-}
-
-type metadataVolumeiSCSIAttributes struct {
-	SDKShapeTraits bool `type:"structure"`
+	TargetARN *string `min:"50" type:"string"`
 }
 
 // String returns the string representation

@@ -14,13 +14,33 @@ type CloudFormationAPI interface {
 
 	CancelUpdateStack(*cloudformation.CancelUpdateStackInput) (*cloudformation.CancelUpdateStackOutput, error)
 
+	ContinueUpdateRollbackRequest(*cloudformation.ContinueUpdateRollbackInput) (*request.Request, *cloudformation.ContinueUpdateRollbackOutput)
+
+	ContinueUpdateRollback(*cloudformation.ContinueUpdateRollbackInput) (*cloudformation.ContinueUpdateRollbackOutput, error)
+
+	CreateChangeSetRequest(*cloudformation.CreateChangeSetInput) (*request.Request, *cloudformation.CreateChangeSetOutput)
+
+	CreateChangeSet(*cloudformation.CreateChangeSetInput) (*cloudformation.CreateChangeSetOutput, error)
+
 	CreateStackRequest(*cloudformation.CreateStackInput) (*request.Request, *cloudformation.CreateStackOutput)
 
 	CreateStack(*cloudformation.CreateStackInput) (*cloudformation.CreateStackOutput, error)
 
+	DeleteChangeSetRequest(*cloudformation.DeleteChangeSetInput) (*request.Request, *cloudformation.DeleteChangeSetOutput)
+
+	DeleteChangeSet(*cloudformation.DeleteChangeSetInput) (*cloudformation.DeleteChangeSetOutput, error)
+
 	DeleteStackRequest(*cloudformation.DeleteStackInput) (*request.Request, *cloudformation.DeleteStackOutput)
 
 	DeleteStack(*cloudformation.DeleteStackInput) (*cloudformation.DeleteStackOutput, error)
+
+	DescribeAccountLimitsRequest(*cloudformation.DescribeAccountLimitsInput) (*request.Request, *cloudformation.DescribeAccountLimitsOutput)
+
+	DescribeAccountLimits(*cloudformation.DescribeAccountLimitsInput) (*cloudformation.DescribeAccountLimitsOutput, error)
+
+	DescribeChangeSetRequest(*cloudformation.DescribeChangeSetInput) (*request.Request, *cloudformation.DescribeChangeSetOutput)
+
+	DescribeChangeSet(*cloudformation.DescribeChangeSetInput) (*cloudformation.DescribeChangeSetOutput, error)
 
 	DescribeStackEventsRequest(*cloudformation.DescribeStackEventsInput) (*request.Request, *cloudformation.DescribeStackEventsOutput)
 
@@ -46,6 +66,10 @@ type CloudFormationAPI interface {
 
 	EstimateTemplateCost(*cloudformation.EstimateTemplateCostInput) (*cloudformation.EstimateTemplateCostOutput, error)
 
+	ExecuteChangeSetRequest(*cloudformation.ExecuteChangeSetInput) (*request.Request, *cloudformation.ExecuteChangeSetOutput)
+
+	ExecuteChangeSet(*cloudformation.ExecuteChangeSetInput) (*cloudformation.ExecuteChangeSetOutput, error)
+
 	GetStackPolicyRequest(*cloudformation.GetStackPolicyInput) (*request.Request, *cloudformation.GetStackPolicyOutput)
 
 	GetStackPolicy(*cloudformation.GetStackPolicyInput) (*cloudformation.GetStackPolicyOutput, error)
@@ -57,6 +81,10 @@ type CloudFormationAPI interface {
 	GetTemplateSummaryRequest(*cloudformation.GetTemplateSummaryInput) (*request.Request, *cloudformation.GetTemplateSummaryOutput)
 
 	GetTemplateSummary(*cloudformation.GetTemplateSummaryInput) (*cloudformation.GetTemplateSummaryOutput, error)
+
+	ListChangeSetsRequest(*cloudformation.ListChangeSetsInput) (*request.Request, *cloudformation.ListChangeSetsOutput)
+
+	ListChangeSets(*cloudformation.ListChangeSetsInput) (*cloudformation.ListChangeSetsOutput, error)
 
 	ListStackResourcesRequest(*cloudformation.ListStackResourcesInput) (*request.Request, *cloudformation.ListStackResourcesOutput)
 
@@ -86,3 +114,5 @@ type CloudFormationAPI interface {
 
 	ValidateTemplate(*cloudformation.ValidateTemplateInput) (*cloudformation.ValidateTemplateOutput, error)
 }
+
+var _ CloudFormationAPI = (*cloudformation.CloudFormation)(nil)

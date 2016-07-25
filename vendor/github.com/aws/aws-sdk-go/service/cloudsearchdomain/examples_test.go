@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cloudsearchdomain"
 )
 
@@ -15,7 +16,7 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleCloudSearchDomain_Search() {
-	svc := cloudsearchdomain.New(nil)
+	svc := cloudsearchdomain.New(session.New())
 
 	params := &cloudsearchdomain.SearchInput{
 		Query:        aws.String("Query"), // Required
@@ -31,6 +32,7 @@ func ExampleCloudSearchDomain_Search() {
 		Size:         aws.Int64(1),
 		Sort:         aws.String("Sort"),
 		Start:        aws.Int64(1),
+		Stats:        aws.String("Stat"),
 	}
 	resp, err := svc.Search(params)
 
@@ -46,7 +48,7 @@ func ExampleCloudSearchDomain_Search() {
 }
 
 func ExampleCloudSearchDomain_Suggest() {
-	svc := cloudsearchdomain.New(nil)
+	svc := cloudsearchdomain.New(session.New())
 
 	params := &cloudsearchdomain.SuggestInput{
 		Query:     aws.String("Query"),     // Required
@@ -67,7 +69,7 @@ func ExampleCloudSearchDomain_Suggest() {
 }
 
 func ExampleCloudSearchDomain_UploadDocuments() {
-	svc := cloudsearchdomain.New(nil)
+	svc := cloudsearchdomain.New(session.New())
 
 	params := &cloudsearchdomain.UploadDocumentsInput{
 		ContentType: aws.String("ContentType"),          // Required

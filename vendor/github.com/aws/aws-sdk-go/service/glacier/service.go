@@ -4,12 +4,11 @@ package glacier
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/defaults"
+	"github.com/aws/aws-sdk-go/aws/client"
+	"github.com/aws/aws-sdk-go/aws/client/metadata"
 	"github.com/aws/aws-sdk-go/aws/request"
-	"github.com/aws/aws-sdk-go/aws/service"
-	"github.com/aws/aws-sdk-go/aws/service/serviceinfo"
-	"github.com/aws/aws-sdk-go/internal/protocol/restjson"
-	"github.com/aws/aws-sdk-go/internal/signer/v4"
+	"github.com/aws/aws-sdk-go/aws/signer/v4"
+	"github.com/aws/aws-sdk-go/private/protocol/restjson"
 )
 
 // Amazon Glacier is a storage solution for "cold data."
@@ -43,40 +42,64 @@ import (
 // - The Getting Started section walks you through the process of creating a
 // vault, uploading archives, creating jobs to download archives, retrieving
 // the job output, and deleting archives.
+//The service client's operations are safe to be used concurrently.
+// It is not safe to mutate any of the client's properties though.
 type Glacier struct {
-	*service.Service
+	*client.Client
 }
 
-// Used for custom service initialization logic
-var initService func(*service.Service)
+// Used for custom client initialization logic
+var initClient func(*client.Client)
 
 // Used for custom request initialization logic
 var initRequest func(*request.Request)
 
-// New returns a new Glacier client.
-func New(config *aws.Config) *Glacier {
-	service := &service.Service{
-		ServiceInfo: serviceinfo.ServiceInfo{
-			Config:      defaults.DefaultConfig.Merge(config),
-			ServiceName: "glacier",
-			APIVersion:  "2012-06-01",
-		},
+// A ServiceName is the name of the service the client will make API calls to.
+const ServiceName = "glacier"
+
+// New creates a new instance of the Glacier client with a session.
+// If additional configuration is needed for the client instance use the optional
+// aws.Config parameter to add your extra config.
+//
+// Example:
+//     // Create a Glacier client from just a session.
+//     svc := glacier.New(mySession)
+//
+//     // Create a Glacier client with additional configuration
+//     svc := glacier.New(mySession, aws.NewConfig().WithRegion("us-west-2"))
+func New(p client.ConfigProvider, cfgs ...*aws.Config) *Glacier {
+	c := p.ClientConfig(ServiceName, cfgs...)
+	return newClient(*c.Config, c.Handlers, c.Endpoint, c.SigningRegion)
+}
+
+// newClient creates, initializes and returns a new service client instance.
+func newClient(cfg aws.Config, handlers request.Handlers, endpoint, signingRegion string) *Glacier {
+	svc := &Glacier{
+		Client: client.New(
+			cfg,
+			metadata.ClientInfo{
+				ServiceName:   ServiceName,
+				SigningRegion: signingRegion,
+				Endpoint:      endpoint,
+				APIVersion:    "2012-06-01",
+			},
+			handlers,
+		),
 	}
-	service.Initialize()
 
 	// Handlers
-	service.Handlers.Sign.PushBack(v4.Sign)
-	service.Handlers.Build.PushBack(restjson.Build)
-	service.Handlers.Unmarshal.PushBack(restjson.Unmarshal)
-	service.Handlers.UnmarshalMeta.PushBack(restjson.UnmarshalMeta)
-	service.Handlers.UnmarshalError.PushBack(restjson.UnmarshalError)
+	svc.Handlers.Sign.PushBackNamed(v4.SignRequestHandler)
+	svc.Handlers.Build.PushBackNamed(restjson.BuildHandler)
+	svc.Handlers.Unmarshal.PushBackNamed(restjson.UnmarshalHandler)
+	svc.Handlers.UnmarshalMeta.PushBackNamed(restjson.UnmarshalMetaHandler)
+	svc.Handlers.UnmarshalError.PushBackNamed(restjson.UnmarshalErrorHandler)
 
-	// Run custom service initialization if present
-	if initService != nil {
-		initService(service)
+	// Run custom client initialization if present
+	if initClient != nil {
+		initClient(svc.Client)
 	}
 
-	return &Glacier{service}
+	return svc
 }
 
 // newRequest creates a new request for a Glacier operation and runs any

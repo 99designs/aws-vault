@@ -25,7 +25,8 @@ type Account struct {
 	Contact []string
 
 	// The terms user has agreed to.
-	// Zero value indicates that the user hasn't agreed yet.
+	// A value not matching CurrentTerms indicates that the user hasn't agreed
+	// to the actual Terms of Service of the CA.
 	AgreedTerms string
 
 	// Actual terms of a CA.

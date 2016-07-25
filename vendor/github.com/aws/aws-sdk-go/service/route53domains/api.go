@@ -4,6 +4,7 @@
 package route53domains
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/awsutil"
@@ -12,7 +13,28 @@ import (
 
 const opCheckDomainAvailability = "CheckDomainAvailability"
 
-// CheckDomainAvailabilityRequest generates a request for the CheckDomainAvailability operation.
+// CheckDomainAvailabilityRequest generates a "aws/request.Request" representing the
+// client's request for the CheckDomainAvailability operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the CheckDomainAvailability method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the CheckDomainAvailabilityRequest method.
+//    req, resp := client.CheckDomainAvailabilityRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *Route53Domains) CheckDomainAvailabilityRequest(input *CheckDomainAvailabilityInput) (req *request.Request, output *CheckDomainAvailabilityOutput) {
 	op := &request.Operation{
 		Name:       opCheckDomainAvailability,
@@ -30,10 +52,9 @@ func (c *Route53Domains) CheckDomainAvailabilityRequest(input *CheckDomainAvaila
 	return
 }
 
-// This operation checks the availability of one domain name. You can access
-// this API without authenticating. Note that if the availability status of
-// a domain is pending, you must submit another request to determine the availability
-// of the domain name.
+// This operation checks the availability of one domain name. Note that if the
+// availability status of a domain is pending, you must submit another request
+// to determine the availability of the domain name.
 func (c *Route53Domains) CheckDomainAvailability(input *CheckDomainAvailabilityInput) (*CheckDomainAvailabilityOutput, error) {
 	req, out := c.CheckDomainAvailabilityRequest(input)
 	err := req.Send()
@@ -42,7 +63,28 @@ func (c *Route53Domains) CheckDomainAvailability(input *CheckDomainAvailabilityI
 
 const opDeleteTagsForDomain = "DeleteTagsForDomain"
 
-// DeleteTagsForDomainRequest generates a request for the DeleteTagsForDomain operation.
+// DeleteTagsForDomainRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteTagsForDomain operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DeleteTagsForDomain method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DeleteTagsForDomainRequest method.
+//    req, resp := client.DeleteTagsForDomainRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *Route53Domains) DeleteTagsForDomainRequest(input *DeleteTagsForDomainInput) (req *request.Request, output *DeleteTagsForDomainOutput) {
 	op := &request.Operation{
 		Name:       opDeleteTagsForDomain,
@@ -72,7 +114,28 @@ func (c *Route53Domains) DeleteTagsForDomain(input *DeleteTagsForDomainInput) (*
 
 const opDisableDomainAutoRenew = "DisableDomainAutoRenew"
 
-// DisableDomainAutoRenewRequest generates a request for the DisableDomainAutoRenew operation.
+// DisableDomainAutoRenewRequest generates a "aws/request.Request" representing the
+// client's request for the DisableDomainAutoRenew operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DisableDomainAutoRenew method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DisableDomainAutoRenewRequest method.
+//    req, resp := client.DisableDomainAutoRenewRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *Route53Domains) DisableDomainAutoRenewRequest(input *DisableDomainAutoRenewInput) (req *request.Request, output *DisableDomainAutoRenewOutput) {
 	op := &request.Operation{
 		Name:       opDisableDomainAutoRenew,
@@ -105,7 +168,28 @@ func (c *Route53Domains) DisableDomainAutoRenew(input *DisableDomainAutoRenewInp
 
 const opDisableDomainTransferLock = "DisableDomainTransferLock"
 
-// DisableDomainTransferLockRequest generates a request for the DisableDomainTransferLock operation.
+// DisableDomainTransferLockRequest generates a "aws/request.Request" representing the
+// client's request for the DisableDomainTransferLock operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the DisableDomainTransferLock method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the DisableDomainTransferLockRequest method.
+//    req, resp := client.DisableDomainTransferLockRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *Route53Domains) DisableDomainTransferLockRequest(input *DisableDomainTransferLockInput) (req *request.Request, output *DisableDomainTransferLockOutput) {
 	op := &request.Operation{
 		Name:       opDisableDomainTransferLock,
@@ -138,7 +222,28 @@ func (c *Route53Domains) DisableDomainTransferLock(input *DisableDomainTransferL
 
 const opEnableDomainAutoRenew = "EnableDomainAutoRenew"
 
-// EnableDomainAutoRenewRequest generates a request for the EnableDomainAutoRenew operation.
+// EnableDomainAutoRenewRequest generates a "aws/request.Request" representing the
+// client's request for the EnableDomainAutoRenew operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the EnableDomainAutoRenew method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the EnableDomainAutoRenewRequest method.
+//    req, resp := client.EnableDomainAutoRenewRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *Route53Domains) EnableDomainAutoRenewRequest(input *EnableDomainAutoRenewInput) (req *request.Request, output *EnableDomainAutoRenewOutput) {
 	op := &request.Operation{
 		Name:       opEnableDomainAutoRenew,
@@ -174,7 +279,28 @@ func (c *Route53Domains) EnableDomainAutoRenew(input *EnableDomainAutoRenewInput
 
 const opEnableDomainTransferLock = "EnableDomainTransferLock"
 
-// EnableDomainTransferLockRequest generates a request for the EnableDomainTransferLock operation.
+// EnableDomainTransferLockRequest generates a "aws/request.Request" representing the
+// client's request for the EnableDomainTransferLock operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the EnableDomainTransferLock method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the EnableDomainTransferLockRequest method.
+//    req, resp := client.EnableDomainTransferLockRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *Route53Domains) EnableDomainTransferLockRequest(input *EnableDomainTransferLockInput) (req *request.Request, output *EnableDomainTransferLockOutput) {
 	op := &request.Operation{
 		Name:       opEnableDomainTransferLock,
@@ -203,9 +329,83 @@ func (c *Route53Domains) EnableDomainTransferLock(input *EnableDomainTransferLoc
 	return out, err
 }
 
+const opGetContactReachabilityStatus = "GetContactReachabilityStatus"
+
+// GetContactReachabilityStatusRequest generates a "aws/request.Request" representing the
+// client's request for the GetContactReachabilityStatus operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GetContactReachabilityStatus method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GetContactReachabilityStatusRequest method.
+//    req, resp := client.GetContactReachabilityStatusRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *Route53Domains) GetContactReachabilityStatusRequest(input *GetContactReachabilityStatusInput) (req *request.Request, output *GetContactReachabilityStatusOutput) {
+	op := &request.Operation{
+		Name:       opGetContactReachabilityStatus,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &GetContactReachabilityStatusInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &GetContactReachabilityStatusOutput{}
+	req.Data = output
+	return
+}
+
+// For operations that require confirmation that the email address for the registrant
+// contact is valid, such as registering a new domain, this operation returns
+// information about whether the registrant contact has responded.
+//
+// If you want us to resend the email, use the ResendContactReachabilityEmail
+// operation.
+func (c *Route53Domains) GetContactReachabilityStatus(input *GetContactReachabilityStatusInput) (*GetContactReachabilityStatusOutput, error) {
+	req, out := c.GetContactReachabilityStatusRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opGetDomainDetail = "GetDomainDetail"
 
-// GetDomainDetailRequest generates a request for the GetDomainDetail operation.
+// GetDomainDetailRequest generates a "aws/request.Request" representing the
+// client's request for the GetDomainDetail operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GetDomainDetail method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GetDomainDetailRequest method.
+//    req, resp := client.GetDomainDetailRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *Route53Domains) GetDomainDetailRequest(input *GetDomainDetailInput) (req *request.Request, output *GetDomainDetailOutput) {
 	op := &request.Operation{
 		Name:       opGetDomainDetail,
@@ -233,7 +433,28 @@ func (c *Route53Domains) GetDomainDetail(input *GetDomainDetailInput) (*GetDomai
 
 const opGetOperationDetail = "GetOperationDetail"
 
-// GetOperationDetailRequest generates a request for the GetOperationDetail operation.
+// GetOperationDetailRequest generates a "aws/request.Request" representing the
+// client's request for the GetOperationDetail operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the GetOperationDetail method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the GetOperationDetailRequest method.
+//    req, resp := client.GetOperationDetailRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *Route53Domains) GetOperationDetailRequest(input *GetOperationDetailInput) (req *request.Request, output *GetOperationDetailOutput) {
 	op := &request.Operation{
 		Name:       opGetOperationDetail,
@@ -260,7 +481,28 @@ func (c *Route53Domains) GetOperationDetail(input *GetOperationDetailInput) (*Ge
 
 const opListDomains = "ListDomains"
 
-// ListDomainsRequest generates a request for the ListDomains operation.
+// ListDomainsRequest generates a "aws/request.Request" representing the
+// client's request for the ListDomains operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListDomains method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListDomainsRequest method.
+//    req, resp := client.ListDomainsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *Route53Domains) ListDomainsRequest(input *ListDomainsInput) (req *request.Request, output *ListDomainsOutput) {
 	op := &request.Operation{
 		Name:       opListDomains,
@@ -292,8 +534,26 @@ func (c *Route53Domains) ListDomains(input *ListDomainsInput) (*ListDomainsOutpu
 	return out, err
 }
 
+// ListDomainsPages iterates over the pages of a ListDomains operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListDomains method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListDomains operation.
+//    pageNum := 0
+//    err := client.ListDomainsPages(params,
+//        func(page *ListDomainsOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *Route53Domains) ListDomainsPages(input *ListDomainsInput, fn func(p *ListDomainsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListDomainsRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListDomainsOutput), lastPage)
 	})
@@ -301,7 +561,28 @@ func (c *Route53Domains) ListDomainsPages(input *ListDomainsInput, fn func(p *Li
 
 const opListOperations = "ListOperations"
 
-// ListOperationsRequest generates a request for the ListOperations operation.
+// ListOperationsRequest generates a "aws/request.Request" representing the
+// client's request for the ListOperations operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListOperations method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListOperationsRequest method.
+//    req, resp := client.ListOperationsRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *Route53Domains) ListOperationsRequest(input *ListOperationsInput) (req *request.Request, output *ListOperationsOutput) {
 	op := &request.Operation{
 		Name:       opListOperations,
@@ -332,8 +613,26 @@ func (c *Route53Domains) ListOperations(input *ListOperationsInput) (*ListOperat
 	return out, err
 }
 
+// ListOperationsPages iterates over the pages of a ListOperations operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListOperations method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListOperations operation.
+//    pageNum := 0
+//    err := client.ListOperationsPages(params,
+//        func(page *ListOperationsOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
 func (c *Route53Domains) ListOperationsPages(input *ListOperationsInput, fn func(p *ListOperationsOutput, lastPage bool) (shouldContinue bool)) error {
 	page, _ := c.ListOperationsRequest(input)
+	page.Handlers.Build.PushBack(request.MakeAddToUserAgentFreeFormHandler("Paginator"))
 	return page.EachPage(func(p interface{}, lastPage bool) bool {
 		return fn(p.(*ListOperationsOutput), lastPage)
 	})
@@ -341,7 +640,28 @@ func (c *Route53Domains) ListOperationsPages(input *ListOperationsInput, fn func
 
 const opListTagsForDomain = "ListTagsForDomain"
 
-// ListTagsForDomainRequest generates a request for the ListTagsForDomain operation.
+// ListTagsForDomainRequest generates a "aws/request.Request" representing the
+// client's request for the ListTagsForDomain operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ListTagsForDomain method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ListTagsForDomainRequest method.
+//    req, resp := client.ListTagsForDomainRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *Route53Domains) ListTagsForDomainRequest(input *ListTagsForDomainInput) (req *request.Request, output *ListTagsForDomainOutput) {
 	op := &request.Operation{
 		Name:       opListTagsForDomain,
@@ -372,7 +692,28 @@ func (c *Route53Domains) ListTagsForDomain(input *ListTagsForDomainInput) (*List
 
 const opRegisterDomain = "RegisterDomain"
 
-// RegisterDomainRequest generates a request for the RegisterDomain operation.
+// RegisterDomainRequest generates a "aws/request.Request" representing the
+// client's request for the RegisterDomain operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RegisterDomain method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RegisterDomainRequest method.
+//    req, resp := client.RegisterDomainRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *Route53Domains) RegisterDomainRequest(input *RegisterDomainInput) (req *request.Request, output *RegisterDomainOutput) {
 	op := &request.Operation{
 		Name:       opRegisterDomain,
@@ -415,9 +756,80 @@ func (c *Route53Domains) RegisterDomain(input *RegisterDomainInput) (*RegisterDo
 	return out, err
 }
 
+const opResendContactReachabilityEmail = "ResendContactReachabilityEmail"
+
+// ResendContactReachabilityEmailRequest generates a "aws/request.Request" representing the
+// client's request for the ResendContactReachabilityEmail operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the ResendContactReachabilityEmail method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the ResendContactReachabilityEmailRequest method.
+//    req, resp := client.ResendContactReachabilityEmailRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+func (c *Route53Domains) ResendContactReachabilityEmailRequest(input *ResendContactReachabilityEmailInput) (req *request.Request, output *ResendContactReachabilityEmailOutput) {
+	op := &request.Operation{
+		Name:       opResendContactReachabilityEmail,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &ResendContactReachabilityEmailInput{}
+	}
+
+	req = c.newRequest(op, input, output)
+	output = &ResendContactReachabilityEmailOutput{}
+	req.Data = output
+	return
+}
+
+// For operations that require confirmation that the email address for the registrant
+// contact is valid, such as registering a new domain, this operation resends
+// the confirmation email to the current email address for the registrant contact.
+func (c *Route53Domains) ResendContactReachabilityEmail(input *ResendContactReachabilityEmailInput) (*ResendContactReachabilityEmailOutput, error) {
+	req, out := c.ResendContactReachabilityEmailRequest(input)
+	err := req.Send()
+	return out, err
+}
+
 const opRetrieveDomainAuthCode = "RetrieveDomainAuthCode"
 
-// RetrieveDomainAuthCodeRequest generates a request for the RetrieveDomainAuthCode operation.
+// RetrieveDomainAuthCodeRequest generates a "aws/request.Request" representing the
+// client's request for the RetrieveDomainAuthCode operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the RetrieveDomainAuthCode method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the RetrieveDomainAuthCodeRequest method.
+//    req, resp := client.RetrieveDomainAuthCodeRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *Route53Domains) RetrieveDomainAuthCodeRequest(input *RetrieveDomainAuthCodeInput) (req *request.Request, output *RetrieveDomainAuthCodeOutput) {
 	op := &request.Operation{
 		Name:       opRetrieveDomainAuthCode,
@@ -445,7 +857,28 @@ func (c *Route53Domains) RetrieveDomainAuthCode(input *RetrieveDomainAuthCodeInp
 
 const opTransferDomain = "TransferDomain"
 
-// TransferDomainRequest generates a request for the TransferDomain operation.
+// TransferDomainRequest generates a "aws/request.Request" representing the
+// client's request for the TransferDomain operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the TransferDomain method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the TransferDomainRequest method.
+//    req, resp := client.TransferDomainRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *Route53Domains) TransferDomainRequest(input *TransferDomainInput) (req *request.Request, output *TransferDomainOutput) {
 	op := &request.Operation{
 		Name:       opTransferDomain,
@@ -495,7 +928,28 @@ func (c *Route53Domains) TransferDomain(input *TransferDomainInput) (*TransferDo
 
 const opUpdateDomainContact = "UpdateDomainContact"
 
-// UpdateDomainContactRequest generates a request for the UpdateDomainContact operation.
+// UpdateDomainContactRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateDomainContact operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateDomainContact method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateDomainContactRequest method.
+//    req, resp := client.UpdateDomainContactRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *Route53Domains) UpdateDomainContactRequest(input *UpdateDomainContactInput) (req *request.Request, output *UpdateDomainContactOutput) {
 	op := &request.Operation{
 		Name:       opUpdateDomainContact,
@@ -529,7 +983,28 @@ func (c *Route53Domains) UpdateDomainContact(input *UpdateDomainContactInput) (*
 
 const opUpdateDomainContactPrivacy = "UpdateDomainContactPrivacy"
 
-// UpdateDomainContactPrivacyRequest generates a request for the UpdateDomainContactPrivacy operation.
+// UpdateDomainContactPrivacyRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateDomainContactPrivacy operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateDomainContactPrivacy method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateDomainContactPrivacyRequest method.
+//    req, resp := client.UpdateDomainContactPrivacyRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *Route53Domains) UpdateDomainContactPrivacyRequest(input *UpdateDomainContactPrivacyInput) (req *request.Request, output *UpdateDomainContactPrivacyOutput) {
 	op := &request.Operation{
 		Name:       opUpdateDomainContactPrivacy,
@@ -566,7 +1041,28 @@ func (c *Route53Domains) UpdateDomainContactPrivacy(input *UpdateDomainContactPr
 
 const opUpdateDomainNameservers = "UpdateDomainNameservers"
 
-// UpdateDomainNameserversRequest generates a request for the UpdateDomainNameservers operation.
+// UpdateDomainNameserversRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateDomainNameservers operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateDomainNameservers method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateDomainNameserversRequest method.
+//    req, resp := client.UpdateDomainNameserversRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *Route53Domains) UpdateDomainNameserversRequest(input *UpdateDomainNameserversInput) (req *request.Request, output *UpdateDomainNameserversOutput) {
 	op := &request.Operation{
 		Name:       opUpdateDomainNameservers,
@@ -600,7 +1096,28 @@ func (c *Route53Domains) UpdateDomainNameservers(input *UpdateDomainNameserversI
 
 const opUpdateTagsForDomain = "UpdateTagsForDomain"
 
-// UpdateTagsForDomainRequest generates a request for the UpdateTagsForDomain operation.
+// UpdateTagsForDomainRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateTagsForDomain operation. The "output" return
+// value can be used to capture response data after the request's "Send" method
+// is called.
+//
+// Creating a request object using this method should be used when you want to inject
+// custom logic into the request's lifecycle using a custom handler, or if you want to
+// access properties on the request object before or after sending the request. If
+// you just want the service response, call the UpdateTagsForDomain method directly
+// instead.
+//
+// Note: You must call the "Send" method on the returned request object in order
+// to execute the request.
+//
+//    // Example sending a request using the UpdateTagsForDomainRequest method.
+//    req, resp := client.UpdateTagsForDomainRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
 func (c *Route53Domains) UpdateTagsForDomainRequest(input *UpdateTagsForDomainInput) (req *request.Request, output *UpdateTagsForDomainOutput) {
 	op := &request.Operation{
 		Name:       opUpdateTagsForDomain,
@@ -630,6 +1147,8 @@ func (c *Route53Domains) UpdateTagsForDomain(input *UpdateTagsForDomainInput) (*
 
 // The CheckDomainAvailability request contains the following elements.
 type CheckDomainAvailabilityInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of a domain.
 	//
 	// Type: String
@@ -645,12 +1164,6 @@ type CheckDomainAvailabilityInput struct {
 
 	// Reserved for future use.
 	IdnLangCode *string `type:"string"`
-
-	metadataCheckDomainAvailabilityInput `json:"-" xml:"-"`
-}
-
-type metadataCheckDomainAvailabilityInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -663,8 +1176,23 @@ func (s CheckDomainAvailabilityInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CheckDomainAvailabilityInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CheckDomainAvailabilityInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The CheckDomainAvailability response includes the following elements.
 type CheckDomainAvailabilityOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Whether the domain name is available for registering.
 	//
 	//  You can only register domains designated as AVAILABLE.
@@ -673,23 +1201,16 @@ type CheckDomainAvailabilityOutput struct {
 	//
 	// Valid values:
 	//
-	//   AVAILABLE – The domain name is available.  AVAILABLE_RESERVED – The domain
-	// name is reserved under specific conditions.  AVAILABLE_PREORDER – The domain
-	// name is available and can be preordered.  UNAVAILABLE – The domain name is
-	// not available.  UNAVAILABLE_PREMIUM – The domain name is not available.
-	// UNAVAILABLE_RESTRICTED – The domain name is forbidden.  RESERVED – The domain
-	// name has been reserved for another person or organization.  DONT_KNOW – The
-	// TLD registry didn't reply with a definitive answer about whether the domain
-	// name is available. Amazon Route 53 can return this response for a variety
-	// of reasons, for example, the registry is performing maintenance. Try again
-	// later.
+	//  AVAILABLE – The domain name is available. AVAILABLE_RESERVED – The domain
+	// name is reserved under specific conditions. AVAILABLE_PREORDER – The domain
+	// name is available and can be preordered. UNAVAILABLE – The domain name is
+	// not available. UNAVAILABLE_PREMIUM – The domain name is not available. UNAVAILABLE_RESTRICTED
+	// – The domain name is forbidden. RESERVED – The domain name has been reserved
+	// for another person or organization. DONT_KNOW – The TLD registry didn't reply
+	// with a definitive answer about whether the domain name is available. Amazon
+	// Route 53 can return this response for a variety of reasons, for example,
+	// the registry is performing maintenance. Try again later.
 	Availability *string `type:"string" required:"true" enum:"DomainAvailability"`
-
-	metadataCheckDomainAvailabilityOutput `json:"-" xml:"-"`
-}
-
-type metadataCheckDomainAvailabilityOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -704,6 +1225,8 @@ func (s CheckDomainAvailabilityOutput) GoString() string {
 
 // ContactDetail includes the following elements.
 type ContactDetail struct {
+	_ struct{} `type:"structure"`
+
 	// First line of the contact's address.
 	//
 	// Type: String
@@ -893,12 +1416,6 @@ type ContactDetail struct {
 	//
 	// Required: No
 	ZipCode *string `type:"string"`
-
-	metadataContactDetail `json:"-" xml:"-"`
-}
-
-type metadataContactDetail struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -911,8 +1428,30 @@ func (s ContactDetail) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ContactDetail) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ContactDetail"}
+	if s.ExtraParams != nil {
+		for i, v := range s.ExtraParams {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "ExtraParams", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The DeleteTagsForDomainRequest includes the following elements.
 type DeleteTagsForDomainInput struct {
+	_ struct{} `type:"structure"`
+
 	// The domain for which you want to delete one or more tags.
 	//
 	// The name of a domain.
@@ -922,10 +1461,10 @@ type DeleteTagsForDomainInput struct {
 	// Default: None
 	//
 	// Constraints: The domain name can contain only the letters a through z, the
-	// numbers 0 through 9, and hyphen (-). Hyphens are allowed only when theyaposre
-	// surrounded by letters, numbers, or other hyphens. You canapost specify a
-	// hyphen at the beginning or end of a label. To specify an Internationalized
-	// Domain Name, you must convert the name to Punycode.
+	// numbers 0 through 9, and hyphen (-). Hyphens are allowed only when they're
+	// surrounded by letters, numbers, or other hyphens. You can't specify a hyphen
+	// at the beginning or end of a label. To specify an Internationalized Domain
+	// Name, you must convert the name to Punycode.
 	//
 	// Required: Yes
 	DomainName *string `type:"string" required:"true"`
@@ -940,12 +1479,6 @@ type DeleteTagsForDomainInput struct {
 	//
 	// '>
 	TagsToDelete []*string `type:"list" required:"true"`
-
-	metadataDeleteTagsForDomainInput `json:"-" xml:"-"`
-}
-
-type metadataDeleteTagsForDomainInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -958,12 +1491,24 @@ func (s DeleteTagsForDomainInput) GoString() string {
 	return s.String()
 }
 
-type DeleteTagsForDomainOutput struct {
-	metadataDeleteTagsForDomainOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteTagsForDomainInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteTagsForDomainInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.TagsToDelete == nil {
+		invalidParams.Add(request.NewErrParamRequired("TagsToDelete"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDeleteTagsForDomainOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DeleteTagsForDomainOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -977,13 +1522,9 @@ func (s DeleteTagsForDomainOutput) GoString() string {
 }
 
 type DisableDomainAutoRenewInput struct {
+	_ struct{} `type:"structure"`
+
 	DomainName *string `type:"string" required:"true"`
-
-	metadataDisableDomainAutoRenewInput `json:"-" xml:"-"`
-}
-
-type metadataDisableDomainAutoRenewInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -996,12 +1537,21 @@ func (s DisableDomainAutoRenewInput) GoString() string {
 	return s.String()
 }
 
-type DisableDomainAutoRenewOutput struct {
-	metadataDisableDomainAutoRenewOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DisableDomainAutoRenewInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DisableDomainAutoRenewInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataDisableDomainAutoRenewOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type DisableDomainAutoRenewOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1016,6 +1566,8 @@ func (s DisableDomainAutoRenewOutput) GoString() string {
 
 // The DisableDomainTransferLock request includes the following element.
 type DisableDomainTransferLockInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of a domain.
 	//
 	// Type: String
@@ -1028,12 +1580,6 @@ type DisableDomainTransferLockInput struct {
 	//
 	// Required: Yes
 	DomainName *string `type:"string" required:"true"`
-
-	metadataDisableDomainTransferLockInput `json:"-" xml:"-"`
-}
-
-type metadataDisableDomainTransferLockInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1046,8 +1592,23 @@ func (s DisableDomainTransferLockInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DisableDomainTransferLockInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DisableDomainTransferLockInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The DisableDomainTransferLock response includes the following element.
 type DisableDomainTransferLockOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Identifier for tracking the progress of the request. To use this ID to query
 	// the operation status, use GetOperationDetail.
 	//
@@ -1057,12 +1618,6 @@ type DisableDomainTransferLockOutput struct {
 	//
 	// Constraints: Maximum 255 characters.
 	OperationId *string `type:"string" required:"true"`
-
-	metadataDisableDomainTransferLockOutput `json:"-" xml:"-"`
-}
-
-type metadataDisableDomainTransferLockOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1076,6 +1631,8 @@ func (s DisableDomainTransferLockOutput) GoString() string {
 }
 
 type DomainSummary struct {
+	_ struct{} `type:"structure"`
+
 	// Indicates whether the domain is automatically renewed upon expiration.
 	//
 	// Type: Boolean
@@ -1100,12 +1657,6 @@ type DomainSummary struct {
 	//
 	// Valid values: True | False
 	TransferLock *bool `type:"boolean"`
-
-	metadataDomainSummary `json:"-" xml:"-"`
-}
-
-type metadataDomainSummary struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1119,13 +1670,9 @@ func (s DomainSummary) GoString() string {
 }
 
 type EnableDomainAutoRenewInput struct {
+	_ struct{} `type:"structure"`
+
 	DomainName *string `type:"string" required:"true"`
-
-	metadataEnableDomainAutoRenewInput `json:"-" xml:"-"`
-}
-
-type metadataEnableDomainAutoRenewInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1138,12 +1685,21 @@ func (s EnableDomainAutoRenewInput) GoString() string {
 	return s.String()
 }
 
-type EnableDomainAutoRenewOutput struct {
-	metadataEnableDomainAutoRenewOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *EnableDomainAutoRenewInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "EnableDomainAutoRenewInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataEnableDomainAutoRenewOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type EnableDomainAutoRenewOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -1158,6 +1714,8 @@ func (s EnableDomainAutoRenewOutput) GoString() string {
 
 // The EnableDomainTransferLock request includes the following element.
 type EnableDomainTransferLockInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of a domain.
 	//
 	// Type: String
@@ -1170,12 +1728,6 @@ type EnableDomainTransferLockInput struct {
 	//
 	// Required: Yes
 	DomainName *string `type:"string" required:"true"`
-
-	metadataEnableDomainTransferLockInput `json:"-" xml:"-"`
-}
-
-type metadataEnableDomainTransferLockInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1188,8 +1740,23 @@ func (s EnableDomainTransferLockInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *EnableDomainTransferLockInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "EnableDomainTransferLockInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The EnableDomainTransferLock response includes the following elements.
 type EnableDomainTransferLockOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Identifier for tracking the progress of the request. To use this ID to query
 	// the operation status, use GetOperationDetail.
 	//
@@ -1199,12 +1766,6 @@ type EnableDomainTransferLockOutput struct {
 	//
 	// Constraints: Maximum 255 characters.
 	OperationId *string `type:"string" required:"true"`
-
-	metadataEnableDomainTransferLockOutput `json:"-" xml:"-"`
-}
-
-type metadataEnableDomainTransferLockOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1219,6 +1780,8 @@ func (s EnableDomainTransferLockOutput) GoString() string {
 
 // ExtraParam includes the following elements.
 type ExtraParam struct {
+	_ struct{} `type:"structure"`
+
 	// Name of the additional parameter required by the top-level domain.
 	//
 	// Type: String
@@ -1227,9 +1790,9 @@ type ExtraParam struct {
 	//
 	// Valid values: DUNS_NUMBER | BRAND_NUMBER | BIRTH_DEPARTMENT | BIRTH_DATE_IN_YYYY_MM_DD
 	// | BIRTH_COUNTRY | BIRTH_CITY | DOCUMENT_NUMBER | AU_ID_NUMBER | AU_ID_TYPE
-	// | CA_LEGAL_TYPE | ES_IDENTIFICATION | ES_IDENTIFICATION_TYPE | ES_LEGAL_FORM
-	// | FI_BUSINESS_NUMBER | FI_ID_NUMBER | IT_PIN | RU_PASSPORT_DATA | SE_ID_NUMBER
-	// | SG_ID_NUMBER | VAT_NUMBER
+	// | CA_LEGAL_TYPE | CA_BUSINESS_ENTITY_TYPE |ES_IDENTIFICATION | ES_IDENTIFICATION_TYPE
+	// | ES_LEGAL_FORM | FI_BUSINESS_NUMBER | FI_ID_NUMBER | IT_PIN | RU_PASSPORT_DATA
+	// | SE_ID_NUMBER | SG_ID_NUMBER | VAT_NUMBER
 	//
 	// Parent: ExtraParams
 	//
@@ -1249,12 +1812,6 @@ type ExtraParam struct {
 	//
 	// Required: Yes
 	Value *string `type:"string" required:"true"`
-
-	metadataExtraParam `json:"-" xml:"-"`
-}
-
-type metadataExtraParam struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1267,8 +1824,78 @@ func (s ExtraParam) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ExtraParam) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ExtraParam"}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
+	if s.Value == nil {
+		invalidParams.Add(request.NewErrParamRequired("Value"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+type GetContactReachabilityStatusInput struct {
+	_ struct{} `type:"structure"`
+
+	// The name of the domain for which you want to know whether the registrant
+	// contact has confirmed that the email address is valid.
+	//
+	// Type: String
+	//
+	// Default: None
+	//
+	// Required: Yes
+	DomainName *string `locationName:"domainName" type:"string"`
+}
+
+// String returns the string representation
+func (s GetContactReachabilityStatusInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetContactReachabilityStatusInput) GoString() string {
+	return s.String()
+}
+
+type GetContactReachabilityStatusOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The domain name for which you requested the reachability status.
+	DomainName *string `locationName:"domainName" type:"string"`
+
+	// Whether the registrant contact has responded. PENDING indicates that we sent
+	// the confirmation email and haven't received a response yet, DONE indicates
+	// that we sent the email and got confirmation from the registrant contact,
+	// and EXPIRED indicates that the time limit expired before the registrant contact
+	// responded.
+	//
+	// Type: String
+	//
+	// Valid values: PENDING, DONE, EXPIRED
+	Status *string `locationName:"status" type:"string" enum:"ReachabilityStatus"`
+}
+
+// String returns the string representation
+func (s GetContactReachabilityStatusOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s GetContactReachabilityStatusOutput) GoString() string {
+	return s.String()
+}
+
 // The GetDomainDetail request includes the following element.
 type GetDomainDetailInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of a domain.
 	//
 	// Type: String
@@ -1281,12 +1908,6 @@ type GetDomainDetailInput struct {
 	//
 	// Required: Yes
 	DomainName *string `type:"string" required:"true"`
-
-	metadataGetDomainDetailInput `json:"-" xml:"-"`
-}
-
-type metadataGetDomainDetailInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1299,8 +1920,23 @@ func (s GetDomainDetailInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetDomainDetailInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetDomainDetailInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The GetDomainDetail response includes the following elements.
 type GetDomainDetailOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Email address to contact to report incorrect contact information for a domain,
 	// to report that the domain is being used to send spam, to report that someone
 	// is cybersquatting on a domain name, or report some other type of abuse.
@@ -1437,12 +2073,6 @@ type GetDomainDetailOutput struct {
 	//
 	// Type: String
 	WhoIsServer *string `type:"string"`
-
-	metadataGetDomainDetailOutput `json:"-" xml:"-"`
-}
-
-type metadataGetDomainDetailOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1457,6 +2087,8 @@ func (s GetDomainDetailOutput) GoString() string {
 
 // The GetOperationDetail request includes the following element.
 type GetOperationDetailInput struct {
+	_ struct{} `type:"structure"`
+
 	// The identifier for the operation for which you want to get the status. Amazon
 	// Route 53 returned the identifier in the response to the original request.
 	//
@@ -1466,12 +2098,6 @@ type GetOperationDetailInput struct {
 	//
 	// Required: Yes
 	OperationId *string `type:"string" required:"true"`
-
-	metadataGetOperationDetailInput `json:"-" xml:"-"`
-}
-
-type metadataGetOperationDetailInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1484,8 +2110,23 @@ func (s GetOperationDetailInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *GetOperationDetailInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "GetOperationDetailInput"}
+	if s.OperationId == nil {
+		invalidParams.Add(request.NewErrParamRequired("OperationId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The GetOperationDetail response includes the following elements.
 type GetOperationDetailOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of a domain.
 	//
 	// Type: String
@@ -1513,12 +2154,6 @@ type GetOperationDetailOutput struct {
 	//
 	// Type: String
 	Type *string `type:"string" enum:"OperationType"`
-
-	metadataGetOperationDetailOutput `json:"-" xml:"-"`
-}
-
-type metadataGetOperationDetailOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1533,6 +2168,8 @@ func (s GetOperationDetailOutput) GoString() string {
 
 // The ListDomains request includes the following elements.
 type ListDomainsInput struct {
+	_ struct{} `type:"structure"`
+
 	// For an initial request for a list of domains, omit this element. If the number
 	// of domains that are associated with the current AWS account is greater than
 	// the value that you specified for MaxItems, you can use Marker to return additional
@@ -1559,12 +2196,6 @@ type ListDomainsInput struct {
 	//
 	// Required: No
 	MaxItems *int64 `type:"integer"`
-
-	metadataListDomainsInput `json:"-" xml:"-"`
-}
-
-type metadataListDomainsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1579,6 +2210,8 @@ func (s ListDomainsInput) GoString() string {
 
 // The ListDomains response includes the following elements.
 type ListDomainsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// A summary of domains.
 	//
 	// Type: Complex type containing a list of domain summaries.
@@ -1594,12 +2227,6 @@ type ListDomainsOutput struct {
 	//
 	// Parent: Operations
 	NextPageMarker *string `type:"string"`
-
-	metadataListDomainsOutput `json:"-" xml:"-"`
-}
-
-type metadataListDomainsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1614,6 +2241,8 @@ func (s ListDomainsOutput) GoString() string {
 
 // The ListOperations request includes the following elements.
 type ListOperationsInput struct {
+	_ struct{} `type:"structure"`
+
 	// For an initial request for a list of operations, omit this element. If the
 	// number of operations that are not yet complete is greater than the value
 	// that you specified for MaxItems, you can use Marker to return additional
@@ -1638,12 +2267,6 @@ type ListOperationsInput struct {
 	//
 	// Required: No
 	MaxItems *int64 `type:"integer"`
-
-	metadataListOperationsInput `json:"-" xml:"-"`
-}
-
-type metadataListOperationsInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1658,6 +2281,8 @@ func (s ListOperationsInput) GoString() string {
 
 // The ListOperations response includes the following elements.
 type ListOperationsOutput struct {
+	_ struct{} `type:"structure"`
+
 	// If there are more operations than you specified for MaxItems in the request,
 	// submit another request and include the value of NextPageMarker in the value
 	// of Marker.
@@ -1673,12 +2298,6 @@ type ListOperationsOutput struct {
 	//
 	// Children: OperationId, Status, SubmittedDate, Type
 	Operations []*OperationSummary `type:"list" required:"true"`
-
-	metadataListOperationsOutput `json:"-" xml:"-"`
-}
-
-type metadataListOperationsOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1693,14 +2312,10 @@ func (s ListOperationsOutput) GoString() string {
 
 // The ListTagsForDomainRequest includes the following elements.
 type ListTagsForDomainInput struct {
+	_ struct{} `type:"structure"`
+
 	// The domain for which you want to get a list of tags.
 	DomainName *string `type:"string" required:"true"`
-
-	metadataListTagsForDomainInput `json:"-" xml:"-"`
-}
-
-type metadataListTagsForDomainInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1713,32 +2328,41 @@ func (s ListTagsForDomainInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListTagsForDomainInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListTagsForDomainInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The ListTagsForDomain response includes the following elements.
 type ListTagsForDomainOutput struct {
+	_ struct{} `type:"structure"`
+
 	// A list of the tags that are associated with the specified domain.
 	//
 	// Type: A complex type containing a list of tags
 	//
 	// Each tag includes the following elements.
 	//
-	//   Key
+	//  Key
 	//
 	// The key (name) of a tag.
 	//
 	// Type: String
 	//
-	//   Value
+	//  Value
 	//
 	// The value of a tag.
 	//
 	// Type: String
 	TagList []*Tag `type:"list" required:"true"`
-
-	metadataListTagsForDomainOutput `json:"-" xml:"-"`
-}
-
-type metadataListTagsForDomainOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1753,6 +2377,8 @@ func (s ListTagsForDomainOutput) GoString() string {
 
 // Nameserver includes the following elements.
 type Nameserver struct {
+	_ struct{} `type:"structure"`
+
 	// Glue IP address of a name server entry. Glue IP addresses are required only
 	// when the name of the name server is a subdomain of the domain. For example,
 	// if your domain is example.com and the name server for the domain is ns.example.com,
@@ -1773,12 +2399,6 @@ type Nameserver struct {
 	//
 	// Parent: Nameservers
 	Name *string `type:"string" required:"true"`
-
-	metadataNameserver `json:"-" xml:"-"`
-}
-
-type metadataNameserver struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1791,8 +2411,23 @@ func (s Nameserver) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *Nameserver) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "Nameserver"}
+	if s.Name == nil {
+		invalidParams.Add(request.NewErrParamRequired("Name"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // OperationSummary includes the following elements.
 type OperationSummary struct {
+	_ struct{} `type:"structure"`
+
 	// Identifier returned to track the requested action.
 	//
 	// Type: String
@@ -1813,12 +2448,6 @@ type OperationSummary struct {
 	// Valid values: REGISTER_DOMAIN | DELETE_DOMAIN | TRANSFER_IN_DOMAIN | UPDATE_DOMAIN_CONTACT
 	// | UPDATE_NAMESERVER | CHANGE_PRIVACY_PROTECTION | DOMAIN_LOCK
 	Type *string `type:"string" required:"true" enum:"OperationType"`
-
-	metadataOperationSummary `json:"-" xml:"-"`
-}
-
-type metadataOperationSummary struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1833,6 +2462,8 @@ func (s OperationSummary) GoString() string {
 
 // The RegisterDomain request includes the following elements.
 type RegisterDomainInput struct {
+	_ struct{} `type:"structure"`
+
 	// Provides detailed contact information.
 	//
 	// Type: Complex
@@ -1879,7 +2510,7 @@ type RegisterDomainInput struct {
 	// Valid values: Integer from 1 to 10
 	//
 	// Required: Yes
-	DurationInYears *int64 `type:"integer" required:"true"`
+	DurationInYears *int64 `min:"1" type:"integer" required:"true"`
 
 	// Reserved for future use.
 	IdnLangCode *string `type:"string"`
@@ -1947,12 +2578,6 @@ type RegisterDomainInput struct {
 	//
 	// Required: Yes
 	TechContact *ContactDetail `type:"structure" required:"true"`
-
-	metadataRegisterDomainInput `json:"-" xml:"-"`
-}
-
-type metadataRegisterDomainInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1965,8 +2590,53 @@ func (s RegisterDomainInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RegisterDomainInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RegisterDomainInput"}
+	if s.AdminContact == nil {
+		invalidParams.Add(request.NewErrParamRequired("AdminContact"))
+	}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DurationInYears == nil {
+		invalidParams.Add(request.NewErrParamRequired("DurationInYears"))
+	}
+	if s.DurationInYears != nil && *s.DurationInYears < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("DurationInYears", 1))
+	}
+	if s.RegistrantContact == nil {
+		invalidParams.Add(request.NewErrParamRequired("RegistrantContact"))
+	}
+	if s.TechContact == nil {
+		invalidParams.Add(request.NewErrParamRequired("TechContact"))
+	}
+	if s.AdminContact != nil {
+		if err := s.AdminContact.Validate(); err != nil {
+			invalidParams.AddNested("AdminContact", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.RegistrantContact != nil {
+		if err := s.RegistrantContact.Validate(); err != nil {
+			invalidParams.AddNested("RegistrantContact", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.TechContact != nil {
+		if err := s.TechContact.Validate(); err != nil {
+			invalidParams.AddNested("TechContact", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The RegisterDomain response includes the following element.
 type RegisterDomainOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Identifier for tracking the progress of the request. To use this ID to query
 	// the operation status, use GetOperationDetail.
 	//
@@ -1976,12 +2646,6 @@ type RegisterDomainOutput struct {
 	//
 	// Constraints: Maximum 255 characters.
 	OperationId *string `type:"string" required:"true"`
-
-	metadataRegisterDomainOutput `json:"-" xml:"-"`
-}
-
-type metadataRegisterDomainOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -1994,8 +2658,60 @@ func (s RegisterDomainOutput) GoString() string {
 	return s.String()
 }
 
+type ResendContactReachabilityEmailInput struct {
+	_ struct{} `type:"structure"`
+
+	// The name of the domain for which you want Amazon Route 53 to resend a confirmation
+	// email to the registrant contact.
+	//
+	// Type: String
+	//
+	// Default: None
+	//
+	// Required: Yes
+	DomainName *string `locationName:"domainName" type:"string"`
+}
+
+// String returns the string representation
+func (s ResendContactReachabilityEmailInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ResendContactReachabilityEmailInput) GoString() string {
+	return s.String()
+}
+
+type ResendContactReachabilityEmailOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The domain name for which you requested a confirmation email.
+	DomainName *string `locationName:"domainName" type:"string"`
+
+	// The email address for the registrant contact at the time that we sent the
+	// verification email.
+	EmailAddress *string `locationName:"emailAddress" type:"string"`
+
+	// True if the email address for the registrant contact has already been verified,
+	// and false otherwise. If the email address has already been verified, we don't
+	// send another confirmation email.
+	IsAlreadyVerified *bool `locationName:"isAlreadyVerified" type:"boolean"`
+}
+
+// String returns the string representation
+func (s ResendContactReachabilityEmailOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ResendContactReachabilityEmailOutput) GoString() string {
+	return s.String()
+}
+
 // The RetrieveDomainAuthCode request includes the following element.
 type RetrieveDomainAuthCodeInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of a domain.
 	//
 	// Type: String
@@ -2008,12 +2724,6 @@ type RetrieveDomainAuthCodeInput struct {
 	//
 	// Required: Yes
 	DomainName *string `type:"string" required:"true"`
-
-	metadataRetrieveDomainAuthCodeInput `json:"-" xml:"-"`
-}
-
-type metadataRetrieveDomainAuthCodeInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2026,18 +2736,27 @@ func (s RetrieveDomainAuthCodeInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *RetrieveDomainAuthCodeInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "RetrieveDomainAuthCodeInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The RetrieveDomainAuthCode response includes the following element.
 type RetrieveDomainAuthCodeOutput struct {
+	_ struct{} `type:"structure"`
+
 	// The authorization code for the domain.
 	//
 	// Type: String
 	AuthCode *string `type:"string" required:"true"`
-
-	metadataRetrieveDomainAuthCodeOutput `json:"-" xml:"-"`
-}
-
-type metadataRetrieveDomainAuthCodeOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2052,6 +2771,8 @@ func (s RetrieveDomainAuthCodeOutput) GoString() string {
 
 // Each tag includes the following elements.
 type Tag struct {
+	_ struct{} `type:"structure"`
+
 	// The key (name) of a tag.
 	//
 	// Type: String
@@ -2077,12 +2798,6 @@ type Tag struct {
 	//
 	// Required: Yes
 	Value *string `type:"string"`
-
-	metadataTag `json:"-" xml:"-"`
-}
-
-type metadataTag struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2097,6 +2812,8 @@ func (s Tag) GoString() string {
 
 // The TransferDomain request includes the following elements.
 type TransferDomainInput struct {
+	_ struct{} `type:"structure"`
+
 	// Provides detailed contact information.
 	//
 	// Type: Complex
@@ -2151,7 +2868,7 @@ type TransferDomainInput struct {
 	// Valid values: Integer from 1 to 10
 	//
 	// Required: Yes
-	DurationInYears *int64 `type:"integer" required:"true"`
+	DurationInYears *int64 `min:"1" type:"integer" required:"true"`
 
 	// Reserved for future use.
 	IdnLangCode *string `type:"string"`
@@ -2228,12 +2945,6 @@ type TransferDomainInput struct {
 	//
 	// Required: Yes
 	TechContact *ContactDetail `type:"structure" required:"true"`
-
-	metadataTransferDomainInput `json:"-" xml:"-"`
-}
-
-type metadataTransferDomainInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2246,8 +2957,63 @@ func (s TransferDomainInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *TransferDomainInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "TransferDomainInput"}
+	if s.AdminContact == nil {
+		invalidParams.Add(request.NewErrParamRequired("AdminContact"))
+	}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.DurationInYears == nil {
+		invalidParams.Add(request.NewErrParamRequired("DurationInYears"))
+	}
+	if s.DurationInYears != nil && *s.DurationInYears < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("DurationInYears", 1))
+	}
+	if s.RegistrantContact == nil {
+		invalidParams.Add(request.NewErrParamRequired("RegistrantContact"))
+	}
+	if s.TechContact == nil {
+		invalidParams.Add(request.NewErrParamRequired("TechContact"))
+	}
+	if s.AdminContact != nil {
+		if err := s.AdminContact.Validate(); err != nil {
+			invalidParams.AddNested("AdminContact", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.Nameservers != nil {
+		for i, v := range s.Nameservers {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Nameservers", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
+	if s.RegistrantContact != nil {
+		if err := s.RegistrantContact.Validate(); err != nil {
+			invalidParams.AddNested("RegistrantContact", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.TechContact != nil {
+		if err := s.TechContact.Validate(); err != nil {
+			invalidParams.AddNested("TechContact", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The TranserDomain response includes the following element.
 type TransferDomainOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Identifier for tracking the progress of the request. To use this ID to query
 	// the operation status, use GetOperationDetail.
 	//
@@ -2257,12 +3023,6 @@ type TransferDomainOutput struct {
 	//
 	// Constraints: Maximum 255 characters.
 	OperationId *string `type:"string" required:"true"`
-
-	metadataTransferDomainOutput `json:"-" xml:"-"`
-}
-
-type metadataTransferDomainOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2277,6 +3037,8 @@ func (s TransferDomainOutput) GoString() string {
 
 // The UpdateDomainContact request includes the following elements.
 type UpdateDomainContactInput struct {
+	_ struct{} `type:"structure"`
+
 	// Provides detailed contact information.
 	//
 	// Type: Complex
@@ -2322,12 +3084,6 @@ type UpdateDomainContactInput struct {
 	//
 	// Required: Yes
 	TechContact *ContactDetail `type:"structure"`
-
-	metadataUpdateDomainContactInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateDomainContactInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2340,8 +3096,38 @@ func (s UpdateDomainContactInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateDomainContactInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateDomainContactInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.AdminContact != nil {
+		if err := s.AdminContact.Validate(); err != nil {
+			invalidParams.AddNested("AdminContact", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.RegistrantContact != nil {
+		if err := s.RegistrantContact.Validate(); err != nil {
+			invalidParams.AddNested("RegistrantContact", err.(request.ErrInvalidParams))
+		}
+	}
+	if s.TechContact != nil {
+		if err := s.TechContact.Validate(); err != nil {
+			invalidParams.AddNested("TechContact", err.(request.ErrInvalidParams))
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The UpdateDomainContact response includes the following element.
 type UpdateDomainContactOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Identifier for tracking the progress of the request. To use this ID to query
 	// the operation status, use GetOperationDetail.
 	//
@@ -2351,12 +3137,6 @@ type UpdateDomainContactOutput struct {
 	//
 	// Constraints: Maximum 255 characters.
 	OperationId *string `type:"string" required:"true"`
-
-	metadataUpdateDomainContactOutput `json:"-" xml:"-"`
-}
-
-type metadataUpdateDomainContactOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2371,6 +3151,8 @@ func (s UpdateDomainContactOutput) GoString() string {
 
 // The UpdateDomainContactPrivacy request includes the following elements.
 type UpdateDomainContactPrivacyInput struct {
+	_ struct{} `type:"structure"`
+
 	// Whether you want to conceal contact information from WHOIS queries. If you
 	// specify true, WHOIS ("who is") queries will return contact information for
 	// our registrar partner, Gandi, instead of the contact information that you
@@ -2425,12 +3207,6 @@ type UpdateDomainContactPrivacyInput struct {
 	//
 	// Required: No
 	TechPrivacy *bool `type:"boolean"`
-
-	metadataUpdateDomainContactPrivacyInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateDomainContactPrivacyInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2443,8 +3219,23 @@ func (s UpdateDomainContactPrivacyInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateDomainContactPrivacyInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateDomainContactPrivacyInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The UpdateDomainContactPrivacy response includes the following element.
 type UpdateDomainContactPrivacyOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Identifier for tracking the progress of the request. To use this ID to query
 	// the operation status, use GetOperationDetail.
 	//
@@ -2454,12 +3245,6 @@ type UpdateDomainContactPrivacyOutput struct {
 	//
 	// Constraints: Maximum 255 characters.
 	OperationId *string `type:"string" required:"true"`
-
-	metadataUpdateDomainContactPrivacyOutput `json:"-" xml:"-"`
-}
-
-type metadataUpdateDomainContactPrivacyOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2474,6 +3259,8 @@ func (s UpdateDomainContactPrivacyOutput) GoString() string {
 
 // The UpdateDomainNameserver request includes the following elements.
 type UpdateDomainNameserversInput struct {
+	_ struct{} `type:"structure"`
+
 	// The name of a domain.
 	//
 	// Type: String
@@ -2498,12 +3285,6 @@ type UpdateDomainNameserversInput struct {
 	//
 	// Required: Yes
 	Nameservers []*Nameserver `type:"list" required:"true"`
-
-	metadataUpdateDomainNameserversInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateDomainNameserversInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2516,8 +3297,36 @@ func (s UpdateDomainNameserversInput) GoString() string {
 	return s.String()
 }
 
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateDomainNameserversInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateDomainNameserversInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+	if s.Nameservers == nil {
+		invalidParams.Add(request.NewErrParamRequired("Nameservers"))
+	}
+	if s.Nameservers != nil {
+		for i, v := range s.Nameservers {
+			if v == nil {
+				continue
+			}
+			if err := v.Validate(); err != nil {
+				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "Nameservers", i), err.(request.ErrInvalidParams))
+			}
+		}
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
 // The UpdateDomainNameservers response includes the following element.
 type UpdateDomainNameserversOutput struct {
+	_ struct{} `type:"structure"`
+
 	// Identifier for tracking the progress of the request. To use this ID to query
 	// the operation status, use GetOperationDetail.
 	//
@@ -2527,12 +3336,6 @@ type UpdateDomainNameserversOutput struct {
 	//
 	// Constraints: Maximum 255 characters.
 	OperationId *string `type:"string" required:"true"`
-
-	metadataUpdateDomainNameserversOutput `json:"-" xml:"-"`
-}
-
-type metadataUpdateDomainNameserversOutput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2547,6 +3350,8 @@ func (s UpdateDomainNameserversOutput) GoString() string {
 
 // The UpdateTagsForDomainRequest includes the following elements.
 type UpdateTagsForDomainInput struct {
+	_ struct{} `type:"structure"`
+
 	// The domain for which you want to add or update tags.
 	//
 	// The name of a domain.
@@ -2556,10 +3361,10 @@ type UpdateTagsForDomainInput struct {
 	// Default: None
 	//
 	// Constraints: The domain name can contain only the letters a through z, the
-	// numbers 0 through 9, and hyphen (-). Hyphens are allowed only when theyaposre
-	// surrounded by letters, numbers, or other hyphens. You canapost specify a
-	// hyphen at the beginning or end of a label. To specify an Internationalized
-	// Domain Name, you must convert the name to Punycode.
+	// numbers 0 through 9, and hyphen (-). Hyphens are allowed only when they're
+	// surrounded by letters, numbers, or other hyphens. You can't specify a hyphen
+	// at the beginning or end of a label. To specify an Internationalized Domain
+	// Name, you must convert the name to Punycode.
 	//
 	// Required: Yes
 	DomainName *string `type:"string" required:"true"`
@@ -2575,7 +3380,7 @@ type UpdateTagsForDomainInput struct {
 	//
 	// '> Each tag includes the following elements:
 	//
-	//   Key
+	//  Key
 	//
 	// The key (name) of a tag.
 	//
@@ -2589,7 +3394,7 @@ type UpdateTagsForDomainInput struct {
 	//
 	// Required: Yes
 	//
-	//   Value
+	//  Value
 	//
 	// The value of a tag.
 	//
@@ -2603,12 +3408,6 @@ type UpdateTagsForDomainInput struct {
 	//
 	// Required: Yes
 	TagsToUpdate []*Tag `type:"list"`
-
-	metadataUpdateTagsForDomainInput `json:"-" xml:"-"`
-}
-
-type metadataUpdateTagsForDomainInput struct {
-	SDKShapeTraits bool `type:"structure"`
 }
 
 // String returns the string representation
@@ -2621,12 +3420,21 @@ func (s UpdateTagsForDomainInput) GoString() string {
 	return s.String()
 }
 
-type UpdateTagsForDomainOutput struct {
-	metadataUpdateTagsForDomainOutput `json:"-" xml:"-"`
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateTagsForDomainInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateTagsForDomainInput"}
+	if s.DomainName == nil {
+		invalidParams.Add(request.NewErrParamRequired("DomainName"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
 }
 
-type metadataUpdateTagsForDomainOutput struct {
-	SDKShapeTraits bool `type:"structure"`
+type UpdateTagsForDomainOutput struct {
+	_ struct{} `type:"structure"`
 }
 
 // String returns the string representation
@@ -3154,6 +3962,8 @@ const (
 	// @enum ExtraParamName
 	ExtraParamNameCaLegalType = "CA_LEGAL_TYPE"
 	// @enum ExtraParamName
+	ExtraParamNameCaBusinessEntityType = "CA_BUSINESS_ENTITY_TYPE"
+	// @enum ExtraParamName
 	ExtraParamNameEsIdentification = "ES_IDENTIFICATION"
 	// @enum ExtraParamName
 	ExtraParamNameEsIdentificationType = "ES_IDENTIFICATION_TYPE"
@@ -3203,4 +4013,13 @@ const (
 	OperationTypeChangePrivacyProtection = "CHANGE_PRIVACY_PROTECTION"
 	// @enum OperationType
 	OperationTypeDomainLock = "DOMAIN_LOCK"
+)
+
+const (
+	// @enum ReachabilityStatus
+	ReachabilityStatusPending = "PENDING"
+	// @enum ReachabilityStatus
+	ReachabilityStatusDone = "DONE"
+	// @enum ReachabilityStatus
+	ReachabilityStatusExpired = "EXPIRED"
 )

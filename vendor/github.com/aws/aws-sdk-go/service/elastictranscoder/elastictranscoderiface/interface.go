@@ -86,3 +86,5 @@ type ElasticTranscoderAPI interface {
 
 	UpdatePipelineStatus(*elastictranscoder.UpdatePipelineStatusInput) (*elastictranscoder.UpdatePipelineStatusOutput, error)
 }
+
+var _ ElasticTranscoderAPI = (*elastictranscoder.ElasticTranscoder)(nil)

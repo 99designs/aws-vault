@@ -10,6 +10,10 @@ import (
 
 // MachineLearningAPI is the interface type for machinelearning.MachineLearning.
 type MachineLearningAPI interface {
+	AddTagsRequest(*machinelearning.AddTagsInput) (*request.Request, *machinelearning.AddTagsOutput)
+
+	AddTags(*machinelearning.AddTagsInput) (*machinelearning.AddTagsOutput, error)
+
 	CreateBatchPredictionRequest(*machinelearning.CreateBatchPredictionInput) (*request.Request, *machinelearning.CreateBatchPredictionOutput)
 
 	CreateBatchPrediction(*machinelearning.CreateBatchPredictionInput) (*machinelearning.CreateBatchPredictionOutput, error)
@@ -58,6 +62,10 @@ type MachineLearningAPI interface {
 
 	DeleteRealtimeEndpoint(*machinelearning.DeleteRealtimeEndpointInput) (*machinelearning.DeleteRealtimeEndpointOutput, error)
 
+	DeleteTagsRequest(*machinelearning.DeleteTagsInput) (*request.Request, *machinelearning.DeleteTagsOutput)
+
+	DeleteTags(*machinelearning.DeleteTagsInput) (*machinelearning.DeleteTagsOutput, error)
+
 	DescribeBatchPredictionsRequest(*machinelearning.DescribeBatchPredictionsInput) (*request.Request, *machinelearning.DescribeBatchPredictionsOutput)
 
 	DescribeBatchPredictions(*machinelearning.DescribeBatchPredictionsInput) (*machinelearning.DescribeBatchPredictionsOutput, error)
@@ -81,6 +89,10 @@ type MachineLearningAPI interface {
 	DescribeMLModels(*machinelearning.DescribeMLModelsInput) (*machinelearning.DescribeMLModelsOutput, error)
 
 	DescribeMLModelsPages(*machinelearning.DescribeMLModelsInput, func(*machinelearning.DescribeMLModelsOutput, bool) bool) error
+
+	DescribeTagsRequest(*machinelearning.DescribeTagsInput) (*request.Request, *machinelearning.DescribeTagsOutput)
+
+	DescribeTags(*machinelearning.DescribeTagsInput) (*machinelearning.DescribeTagsOutput, error)
 
 	GetBatchPredictionRequest(*machinelearning.GetBatchPredictionInput) (*request.Request, *machinelearning.GetBatchPredictionOutput)
 
@@ -118,3 +130,5 @@ type MachineLearningAPI interface {
 
 	UpdateMLModel(*machinelearning.UpdateMLModelInput) (*machinelearning.UpdateMLModelOutput, error)
 }
+
+var _ MachineLearningAPI = (*machinelearning.MachineLearning)(nil)

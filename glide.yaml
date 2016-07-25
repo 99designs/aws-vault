@@ -1,13 +1,9 @@
 package: github.com/99designs/aws-vault
 import:
 - package: github.com/alecthomas/template
-  version: b867cc6ab45cece8143cfcc6fc9c77cf3f2c23c0
 - package: github.com/alecthomas/units
-  version: 6b4e7dc5e3143b85ea77909c72caf89416fc2915
 - package: github.com/aulanov/go.dbus
-  version: 25c3068a42a0b50b877953fb249dbcffc6bd1bca
 - package: github.com/aws/aws-sdk-go
-  version: 376badeb12ede342ca2f41fd7b45027aa3f00264
   subpackages:
   - aws
   - internal/endpoints
@@ -20,11 +16,8 @@ import:
   - aws/credentials
   - service/iam
 - package: github.com/skratchdot/open-golang
-  version: c8748311a7528d0ba7330d302adbc5a677ef9c9e
   subpackages:
   - open
 - package: github.com/vaughan0/go-ini
-  version: a98ad7ee00ec53921f08832bc06ecf7fd600e6a1
 - package: gopkg.in/alecthomas/kingpin.v2
-  version: 639879d6110b1b0409410c7b737ef0bb18325038
 - package: github.com/dvsekhvalnov/jose2go

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/cognitosync"
 )
 
@@ -15,7 +16,7 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleCognitoSync_BulkPublish() {
-	svc := cognitosync.New(nil)
+	svc := cognitosync.New(session.New())
 
 	params := &cognitosync.BulkPublishInput{
 		IdentityPoolId: aws.String("IdentityPoolId"), // Required
@@ -34,7 +35,7 @@ func ExampleCognitoSync_BulkPublish() {
 }
 
 func ExampleCognitoSync_DeleteDataset() {
-	svc := cognitosync.New(nil)
+	svc := cognitosync.New(session.New())
 
 	params := &cognitosync.DeleteDatasetInput{
 		DatasetName:    aws.String("DatasetName"),    // Required
@@ -55,7 +56,7 @@ func ExampleCognitoSync_DeleteDataset() {
 }
 
 func ExampleCognitoSync_DescribeDataset() {
-	svc := cognitosync.New(nil)
+	svc := cognitosync.New(session.New())
 
 	params := &cognitosync.DescribeDatasetInput{
 		DatasetName:    aws.String("DatasetName"),    // Required
@@ -76,7 +77,7 @@ func ExampleCognitoSync_DescribeDataset() {
 }
 
 func ExampleCognitoSync_DescribeIdentityPoolUsage() {
-	svc := cognitosync.New(nil)
+	svc := cognitosync.New(session.New())
 
 	params := &cognitosync.DescribeIdentityPoolUsageInput{
 		IdentityPoolId: aws.String("IdentityPoolId"), // Required
@@ -95,7 +96,7 @@ func ExampleCognitoSync_DescribeIdentityPoolUsage() {
 }
 
 func ExampleCognitoSync_DescribeIdentityUsage() {
-	svc := cognitosync.New(nil)
+	svc := cognitosync.New(session.New())
 
 	params := &cognitosync.DescribeIdentityUsageInput{
 		IdentityId:     aws.String("IdentityId"),     // Required
@@ -115,7 +116,7 @@ func ExampleCognitoSync_DescribeIdentityUsage() {
 }
 
 func ExampleCognitoSync_GetBulkPublishDetails() {
-	svc := cognitosync.New(nil)
+	svc := cognitosync.New(session.New())
 
 	params := &cognitosync.GetBulkPublishDetailsInput{
 		IdentityPoolId: aws.String("IdentityPoolId"), // Required
@@ -134,7 +135,7 @@ func ExampleCognitoSync_GetBulkPublishDetails() {
 }
 
 func ExampleCognitoSync_GetCognitoEvents() {
-	svc := cognitosync.New(nil)
+	svc := cognitosync.New(session.New())
 
 	params := &cognitosync.GetCognitoEventsInput{
 		IdentityPoolId: aws.String("IdentityPoolId"), // Required
@@ -153,7 +154,7 @@ func ExampleCognitoSync_GetCognitoEvents() {
 }
 
 func ExampleCognitoSync_GetIdentityPoolConfiguration() {
-	svc := cognitosync.New(nil)
+	svc := cognitosync.New(session.New())
 
 	params := &cognitosync.GetIdentityPoolConfigurationInput{
 		IdentityPoolId: aws.String("IdentityPoolId"), // Required
@@ -172,7 +173,7 @@ func ExampleCognitoSync_GetIdentityPoolConfiguration() {
 }
 
 func ExampleCognitoSync_ListDatasets() {
-	svc := cognitosync.New(nil)
+	svc := cognitosync.New(session.New())
 
 	params := &cognitosync.ListDatasetsInput{
 		IdentityId:     aws.String("IdentityId"),     // Required
@@ -194,7 +195,7 @@ func ExampleCognitoSync_ListDatasets() {
 }
 
 func ExampleCognitoSync_ListIdentityPoolUsage() {
-	svc := cognitosync.New(nil)
+	svc := cognitosync.New(session.New())
 
 	params := &cognitosync.ListIdentityPoolUsageInput{
 		MaxResults: aws.Int64(1),
@@ -214,7 +215,7 @@ func ExampleCognitoSync_ListIdentityPoolUsage() {
 }
 
 func ExampleCognitoSync_ListRecords() {
-	svc := cognitosync.New(nil)
+	svc := cognitosync.New(session.New())
 
 	params := &cognitosync.ListRecordsInput{
 		DatasetName:      aws.String("DatasetName"),    // Required
@@ -239,7 +240,7 @@ func ExampleCognitoSync_ListRecords() {
 }
 
 func ExampleCognitoSync_RegisterDevice() {
-	svc := cognitosync.New(nil)
+	svc := cognitosync.New(session.New())
 
 	params := &cognitosync.RegisterDeviceInput{
 		IdentityId:     aws.String("IdentityId"),     // Required
@@ -261,7 +262,7 @@ func ExampleCognitoSync_RegisterDevice() {
 }
 
 func ExampleCognitoSync_SetCognitoEvents() {
-	svc := cognitosync.New(nil)
+	svc := cognitosync.New(session.New())
 
 	params := &cognitosync.SetCognitoEventsInput{
 		Events: map[string]*string{ // Required
@@ -284,7 +285,7 @@ func ExampleCognitoSync_SetCognitoEvents() {
 }
 
 func ExampleCognitoSync_SetIdentityPoolConfiguration() {
-	svc := cognitosync.New(nil)
+	svc := cognitosync.New(session.New())
 
 	params := &cognitosync.SetIdentityPoolConfigurationInput{
 		IdentityPoolId: aws.String("IdentityPoolId"), // Required
@@ -315,7 +316,7 @@ func ExampleCognitoSync_SetIdentityPoolConfiguration() {
 }
 
 func ExampleCognitoSync_SubscribeToDataset() {
-	svc := cognitosync.New(nil)
+	svc := cognitosync.New(session.New())
 
 	params := &cognitosync.SubscribeToDatasetInput{
 		DatasetName:    aws.String("DatasetName"),    // Required
@@ -337,7 +338,7 @@ func ExampleCognitoSync_SubscribeToDataset() {
 }
 
 func ExampleCognitoSync_UnsubscribeFromDataset() {
-	svc := cognitosync.New(nil)
+	svc := cognitosync.New(session.New())
 
 	params := &cognitosync.UnsubscribeFromDatasetInput{
 		DatasetName:    aws.String("DatasetName"),    // Required
@@ -359,7 +360,7 @@ func ExampleCognitoSync_UnsubscribeFromDataset() {
 }
 
 func ExampleCognitoSync_UpdateRecords() {
-	svc := cognitosync.New(nil)
+	svc := cognitosync.New(session.New())
 
 	params := &cognitosync.UpdateRecordsInput{
 		DatasetName:      aws.String("DatasetName"),      // Required

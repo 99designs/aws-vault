@@ -18,6 +18,10 @@ type StorageGatewayAPI interface {
 
 	AddCache(*storagegateway.AddCacheInput) (*storagegateway.AddCacheOutput, error)
 
+	AddTagsToResourceRequest(*storagegateway.AddTagsToResourceInput) (*request.Request, *storagegateway.AddTagsToResourceOutput)
+
+	AddTagsToResource(*storagegateway.AddTagsToResourceInput) (*storagegateway.AddTagsToResourceOutput, error)
+
 	AddUploadBufferRequest(*storagegateway.AddUploadBufferInput) (*request.Request, *storagegateway.AddUploadBufferOutput)
 
 	AddUploadBuffer(*storagegateway.AddUploadBufferInput) (*storagegateway.AddUploadBufferOutput, error)
@@ -49,6 +53,10 @@ type StorageGatewayAPI interface {
 	CreateStorediSCSIVolumeRequest(*storagegateway.CreateStorediSCSIVolumeInput) (*request.Request, *storagegateway.CreateStorediSCSIVolumeOutput)
 
 	CreateStorediSCSIVolume(*storagegateway.CreateStorediSCSIVolumeInput) (*storagegateway.CreateStorediSCSIVolumeOutput, error)
+
+	CreateTapeWithBarcodeRequest(*storagegateway.CreateTapeWithBarcodeInput) (*request.Request, *storagegateway.CreateTapeWithBarcodeOutput)
+
+	CreateTapeWithBarcode(*storagegateway.CreateTapeWithBarcodeInput) (*storagegateway.CreateTapeWithBarcodeOutput, error)
 
 	CreateTapesRequest(*storagegateway.CreateTapesInput) (*request.Request, *storagegateway.CreateTapesOutput)
 
@@ -160,6 +168,14 @@ type StorageGatewayAPI interface {
 
 	ListLocalDisks(*storagegateway.ListLocalDisksInput) (*storagegateway.ListLocalDisksOutput, error)
 
+	ListTagsForResourceRequest(*storagegateway.ListTagsForResourceInput) (*request.Request, *storagegateway.ListTagsForResourceOutput)
+
+	ListTagsForResource(*storagegateway.ListTagsForResourceInput) (*storagegateway.ListTagsForResourceOutput, error)
+
+	ListTapesRequest(*storagegateway.ListTapesInput) (*request.Request, *storagegateway.ListTapesOutput)
+
+	ListTapes(*storagegateway.ListTapesInput) (*storagegateway.ListTapesOutput, error)
+
 	ListVolumeInitiatorsRequest(*storagegateway.ListVolumeInitiatorsInput) (*request.Request, *storagegateway.ListVolumeInitiatorsOutput)
 
 	ListVolumeInitiators(*storagegateway.ListVolumeInitiatorsInput) (*storagegateway.ListVolumeInitiatorsOutput, error)
@@ -174,6 +190,10 @@ type StorageGatewayAPI interface {
 
 	ListVolumesPages(*storagegateway.ListVolumesInput, func(*storagegateway.ListVolumesOutput, bool) bool) error
 
+	RemoveTagsFromResourceRequest(*storagegateway.RemoveTagsFromResourceInput) (*request.Request, *storagegateway.RemoveTagsFromResourceOutput)
+
+	RemoveTagsFromResource(*storagegateway.RemoveTagsFromResourceInput) (*storagegateway.RemoveTagsFromResourceOutput, error)
+
 	ResetCacheRequest(*storagegateway.ResetCacheInput) (*request.Request, *storagegateway.ResetCacheOutput)
 
 	ResetCache(*storagegateway.ResetCacheInput) (*storagegateway.ResetCacheOutput, error)
@@ -185,6 +205,10 @@ type StorageGatewayAPI interface {
 	RetrieveTapeRecoveryPointRequest(*storagegateway.RetrieveTapeRecoveryPointInput) (*request.Request, *storagegateway.RetrieveTapeRecoveryPointOutput)
 
 	RetrieveTapeRecoveryPoint(*storagegateway.RetrieveTapeRecoveryPointInput) (*storagegateway.RetrieveTapeRecoveryPointOutput, error)
+
+	SetLocalConsolePasswordRequest(*storagegateway.SetLocalConsolePasswordInput) (*request.Request, *storagegateway.SetLocalConsolePasswordOutput)
+
+	SetLocalConsolePassword(*storagegateway.SetLocalConsolePasswordInput) (*storagegateway.SetLocalConsolePasswordOutput, error)
 
 	ShutdownGatewayRequest(*storagegateway.ShutdownGatewayInput) (*request.Request, *storagegateway.ShutdownGatewayOutput)
 
@@ -222,3 +246,5 @@ type StorageGatewayAPI interface {
 
 	UpdateVTLDeviceType(*storagegateway.UpdateVTLDeviceTypeInput) (*storagegateway.UpdateVTLDeviceTypeOutput, error)
 }
+
+var _ StorageGatewayAPI = (*storagegateway.StorageGateway)(nil)

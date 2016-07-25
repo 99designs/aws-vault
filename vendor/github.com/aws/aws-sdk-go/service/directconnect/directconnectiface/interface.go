@@ -62,6 +62,10 @@ type DirectConnectAPI interface {
 
 	DeleteVirtualInterface(*directconnect.DeleteVirtualInterfaceInput) (*directconnect.DeleteVirtualInterfaceOutput, error)
 
+	DescribeConnectionLoaRequest(*directconnect.DescribeConnectionLoaInput) (*request.Request, *directconnect.DescribeConnectionLoaOutput)
+
+	DescribeConnectionLoa(*directconnect.DescribeConnectionLoaInput) (*directconnect.DescribeConnectionLoaOutput, error)
+
 	DescribeConnectionsRequest(*directconnect.DescribeConnectionsInput) (*request.Request, *directconnect.Connections)
 
 	DescribeConnections(*directconnect.DescribeConnectionsInput) (*directconnect.Connections, error)
@@ -69,6 +73,10 @@ type DirectConnectAPI interface {
 	DescribeConnectionsOnInterconnectRequest(*directconnect.DescribeConnectionsOnInterconnectInput) (*request.Request, *directconnect.Connections)
 
 	DescribeConnectionsOnInterconnect(*directconnect.DescribeConnectionsOnInterconnectInput) (*directconnect.Connections, error)
+
+	DescribeInterconnectLoaRequest(*directconnect.DescribeInterconnectLoaInput) (*request.Request, *directconnect.DescribeInterconnectLoaOutput)
+
+	DescribeInterconnectLoa(*directconnect.DescribeInterconnectLoaInput) (*directconnect.DescribeInterconnectLoaOutput, error)
 
 	DescribeInterconnectsRequest(*directconnect.DescribeInterconnectsInput) (*request.Request, *directconnect.DescribeInterconnectsOutput)
 
@@ -86,3 +94,5 @@ type DirectConnectAPI interface {
 
 	DescribeVirtualInterfaces(*directconnect.DescribeVirtualInterfacesInput) (*directconnect.DescribeVirtualInterfacesOutput, error)
 }
+
+var _ DirectConnectAPI = (*directconnect.DirectConnect)(nil)

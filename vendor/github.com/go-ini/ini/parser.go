@@ -178,7 +178,7 @@ func hasSurroundedQuote(in string, quote byte) bool {
 		strings.IndexByte(in[1:], quote) == len(in)-2
 }
 
-func (p *parser) readValue(in []byte) (string, error) {
+func (p *parser) readValue(in []byte, ignoreContinuation bool) (string, error) {
 	line := strings.TrimLeftFunc(string(in), unicode.IsSpace)
 	if len(line) == 0 {
 		return "", nil
@@ -205,8 +205,8 @@ func (p *parser) readValue(in []byte) (string, error) {
 	// Won't be able to reach here if value only contains whitespace.
 	line = strings.TrimSpace(line)
 
-	// Check continuation lines
-	if line[len(line)-1] == '\\' {
+	// Check continuation lines when desired.
+	if !ignoreContinuation && line[len(line)-1] == '\\' {
 		return p.readContinuationLines(line[:len(line)-1])
 	}
 
@@ -258,12 +258,14 @@ func (f *File) parse(reader io.Reader) (err error) {
 		// Section
 		if line[0] == '[' {
 			// Read to the next ']' (TODO: support quoted strings)
-			closeIdx := bytes.IndexByte(line, ']')
+			// TODO(unknwon): use LastIndexByte when stop supporting Go1.4
+			closeIdx := bytes.LastIndex(line, []byte("]"))
 			if closeIdx == -1 {
 				return fmt.Errorf("unclosed section: %s", line)
 			}
 
-			section, err = f.NewSection(string(line[1:closeIdx]))
+			name := string(line[1:closeIdx])
+			section, err = f.NewSection(name)
 			if err != nil {
 				return err
 			}
@@ -300,7 +302,7 @@ func (f *File) parse(reader io.Reader) (err error) {
 		}
 		key.isAutoIncr = isAutoIncr
 
-		value, err := p.readValue(line[offset:])
+		value, err := p.readValue(line[offset:], f.options.IgnoreContinuation)
 		if err != nil {
 			return err
 		}

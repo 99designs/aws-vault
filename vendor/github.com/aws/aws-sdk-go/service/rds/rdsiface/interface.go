@@ -26,6 +26,10 @@ type RDSAPI interface {
 
 	AuthorizeDBSecurityGroupIngress(*rds.AuthorizeDBSecurityGroupIngressInput) (*rds.AuthorizeDBSecurityGroupIngressOutput, error)
 
+	CopyDBClusterParameterGroupRequest(*rds.CopyDBClusterParameterGroupInput) (*request.Request, *rds.CopyDBClusterParameterGroupOutput)
+
+	CopyDBClusterParameterGroup(*rds.CopyDBClusterParameterGroupInput) (*rds.CopyDBClusterParameterGroupOutput, error)
+
 	CopyDBClusterSnapshotRequest(*rds.CopyDBClusterSnapshotInput) (*request.Request, *rds.CopyDBClusterSnapshotOutput)
 
 	CopyDBClusterSnapshot(*rds.CopyDBClusterSnapshotInput) (*rds.CopyDBClusterSnapshotOutput, error)
@@ -142,6 +146,10 @@ type RDSAPI interface {
 
 	DescribeDBClusterParameters(*rds.DescribeDBClusterParametersInput) (*rds.DescribeDBClusterParametersOutput, error)
 
+	DescribeDBClusterSnapshotAttributesRequest(*rds.DescribeDBClusterSnapshotAttributesInput) (*request.Request, *rds.DescribeDBClusterSnapshotAttributesOutput)
+
+	DescribeDBClusterSnapshotAttributes(*rds.DescribeDBClusterSnapshotAttributesInput) (*rds.DescribeDBClusterSnapshotAttributesOutput, error)
+
 	DescribeDBClusterSnapshotsRequest(*rds.DescribeDBClusterSnapshotsInput) (*request.Request, *rds.DescribeDBClusterSnapshotsOutput)
 
 	DescribeDBClusterSnapshots(*rds.DescribeDBClusterSnapshotsInput) (*rds.DescribeDBClusterSnapshotsOutput, error)
@@ -185,6 +193,10 @@ type RDSAPI interface {
 	DescribeDBSecurityGroups(*rds.DescribeDBSecurityGroupsInput) (*rds.DescribeDBSecurityGroupsOutput, error)
 
 	DescribeDBSecurityGroupsPages(*rds.DescribeDBSecurityGroupsInput, func(*rds.DescribeDBSecurityGroupsOutput, bool) bool) error
+
+	DescribeDBSnapshotAttributesRequest(*rds.DescribeDBSnapshotAttributesInput) (*request.Request, *rds.DescribeDBSnapshotAttributesOutput)
+
+	DescribeDBSnapshotAttributes(*rds.DescribeDBSnapshotAttributesInput) (*rds.DescribeDBSnapshotAttributesOutput, error)
 
 	DescribeDBSnapshotsRequest(*rds.DescribeDBSnapshotsInput) (*request.Request, *rds.DescribeDBSnapshotsOutput)
 
@@ -280,6 +292,10 @@ type RDSAPI interface {
 
 	ModifyDBClusterParameterGroup(*rds.ModifyDBClusterParameterGroupInput) (*rds.DBClusterParameterGroupNameMessage, error)
 
+	ModifyDBClusterSnapshotAttributeRequest(*rds.ModifyDBClusterSnapshotAttributeInput) (*request.Request, *rds.ModifyDBClusterSnapshotAttributeOutput)
+
+	ModifyDBClusterSnapshotAttribute(*rds.ModifyDBClusterSnapshotAttributeInput) (*rds.ModifyDBClusterSnapshotAttributeOutput, error)
+
 	ModifyDBInstanceRequest(*rds.ModifyDBInstanceInput) (*request.Request, *rds.ModifyDBInstanceOutput)
 
 	ModifyDBInstance(*rds.ModifyDBInstanceInput) (*rds.ModifyDBInstanceOutput, error)
@@ -287,6 +303,10 @@ type RDSAPI interface {
 	ModifyDBParameterGroupRequest(*rds.ModifyDBParameterGroupInput) (*request.Request, *rds.DBParameterGroupNameMessage)
 
 	ModifyDBParameterGroup(*rds.ModifyDBParameterGroupInput) (*rds.DBParameterGroupNameMessage, error)
+
+	ModifyDBSnapshotAttributeRequest(*rds.ModifyDBSnapshotAttributeInput) (*request.Request, *rds.ModifyDBSnapshotAttributeOutput)
+
+	ModifyDBSnapshotAttribute(*rds.ModifyDBSnapshotAttributeInput) (*rds.ModifyDBSnapshotAttributeOutput, error)
 
 	ModifyDBSubnetGroupRequest(*rds.ModifyDBSubnetGroupInput) (*request.Request, *rds.ModifyDBSubnetGroupOutput)
 
@@ -303,6 +323,10 @@ type RDSAPI interface {
 	PromoteReadReplicaRequest(*rds.PromoteReadReplicaInput) (*request.Request, *rds.PromoteReadReplicaOutput)
 
 	PromoteReadReplica(*rds.PromoteReadReplicaInput) (*rds.PromoteReadReplicaOutput, error)
+
+	PromoteReadReplicaDBClusterRequest(*rds.PromoteReadReplicaDBClusterInput) (*request.Request, *rds.PromoteReadReplicaDBClusterOutput)
+
+	PromoteReadReplicaDBCluster(*rds.PromoteReadReplicaDBClusterInput) (*rds.PromoteReadReplicaDBClusterOutput, error)
 
 	PurchaseReservedDBInstancesOfferingRequest(*rds.PurchaseReservedDBInstancesOfferingInput) (*request.Request, *rds.PurchaseReservedDBInstancesOfferingOutput)
 
@@ -348,3 +372,5 @@ type RDSAPI interface {
 
 	RevokeDBSecurityGroupIngress(*rds.RevokeDBSecurityGroupIngressInput) (*rds.RevokeDBSecurityGroupIngressOutput, error)
 }
+
+var _ RDSAPI = (*rds.RDS)(nil)

@@ -59,6 +59,13 @@ func Test_Key(t *testing.T) {
 			}
 		})
 
+		Convey("Get parent-keys that are available to the child section", func() {
+			parentKeys := cfg.Section("package.sub").ParentKeys()
+			for _, k := range parentKeys {
+				So(k.Name(), ShouldEqual, "CLONE_URL")
+			}
+		})
+
 		Convey("Get overwrite value", func() {
 			So(cfg.Section("author").Key("E-MAIL").String(), ShouldEqual, "u@gogs.io")
 		})
@@ -134,15 +141,27 @@ func Test_Key(t *testing.T) {
 					So(sec.Key("BOOL_404").MustBool(true), ShouldBeTrue)
 					So(sec.Key("FLOAT64_404").MustFloat64(2.5), ShouldEqual, 2.5)
 					So(sec.Key("INT_404").MustInt(15), ShouldEqual, 15)
-					So(sec.Key("INT_404").MustInt64(15), ShouldEqual, 15)
+					So(sec.Key("INT64_404").MustInt64(15), ShouldEqual, 15)
 					So(sec.Key("UINT_404").MustUint(6), ShouldEqual, 6)
-					So(sec.Key("UINT_404").MustUint64(6), ShouldEqual, 6)
+					So(sec.Key("UINT64_404").MustUint64(6), ShouldEqual, 6)
 
 					t, err := time.Parse(time.RFC3339, "2014-01-01T20:17:05Z")
 					So(err, ShouldBeNil)
 					So(sec.Key("TIME_404").MustTime(t).String(), ShouldEqual, t.String())
 
 					So(sec.Key("DURATION_404").MustDuration(dur).Seconds(), ShouldEqual, dur.Seconds())
+
+					Convey("Must should set default as key value", func() {
+						So(sec.Key("STRING_404").String(), ShouldEqual, "404")
+						So(sec.Key("BOOL_404").String(), ShouldEqual, "true")
+						So(sec.Key("FLOAT64_404").String(), ShouldEqual, "2.5")
+						So(sec.Key("INT_404").String(), ShouldEqual, "15")
+						So(sec.Key("INT64_404").String(), ShouldEqual, "15")
+						So(sec.Key("UINT_404").String(), ShouldEqual, "6")
+						So(sec.Key("UINT64_404").String(), ShouldEqual, "6")
+						So(sec.Key("TIME_404").String(), ShouldEqual, "2014-01-01T20:17:05Z")
+						So(sec.Key("DURATION_404").String(), ShouldEqual, "2h45m0s")
+					})
 				})
 			})
 		})

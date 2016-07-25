@@ -78,6 +78,10 @@ type CodePipelineAPI interface {
 
 	PutActionRevision(*codepipeline.PutActionRevisionInput) (*codepipeline.PutActionRevisionOutput, error)
 
+	PutApprovalResultRequest(*codepipeline.PutApprovalResultInput) (*request.Request, *codepipeline.PutApprovalResultOutput)
+
+	PutApprovalResult(*codepipeline.PutApprovalResultInput) (*codepipeline.PutApprovalResultOutput, error)
+
 	PutJobFailureResultRequest(*codepipeline.PutJobFailureResultInput) (*request.Request, *codepipeline.PutJobFailureResultOutput)
 
 	PutJobFailureResult(*codepipeline.PutJobFailureResultInput) (*codepipeline.PutJobFailureResultOutput, error)
@@ -94,6 +98,10 @@ type CodePipelineAPI interface {
 
 	PutThirdPartyJobSuccessResult(*codepipeline.PutThirdPartyJobSuccessResultInput) (*codepipeline.PutThirdPartyJobSuccessResultOutput, error)
 
+	RetryStageExecutionRequest(*codepipeline.RetryStageExecutionInput) (*request.Request, *codepipeline.RetryStageExecutionOutput)
+
+	RetryStageExecution(*codepipeline.RetryStageExecutionInput) (*codepipeline.RetryStageExecutionOutput, error)
+
 	StartPipelineExecutionRequest(*codepipeline.StartPipelineExecutionInput) (*request.Request, *codepipeline.StartPipelineExecutionOutput)
 
 	StartPipelineExecution(*codepipeline.StartPipelineExecutionInput) (*codepipeline.StartPipelineExecutionOutput, error)
@@ -102,3 +110,5 @@ type CodePipelineAPI interface {
 
 	UpdatePipeline(*codepipeline.UpdatePipelineInput) (*codepipeline.UpdatePipelineOutput, error)
 }
+
+var _ CodePipelineAPI = (*codepipeline.CodePipeline)(nil)

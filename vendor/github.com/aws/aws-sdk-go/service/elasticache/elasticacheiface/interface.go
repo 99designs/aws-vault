@@ -142,6 +142,10 @@ type ElastiCacheAPI interface {
 
 	DescribeSnapshotsPages(*elasticache.DescribeSnapshotsInput, func(*elasticache.DescribeSnapshotsOutput, bool) bool) error
 
+	ListAllowedNodeTypeModificationsRequest(*elasticache.ListAllowedNodeTypeModificationsInput) (*request.Request, *elasticache.ListAllowedNodeTypeModificationsOutput)
+
+	ListAllowedNodeTypeModifications(*elasticache.ListAllowedNodeTypeModificationsInput) (*elasticache.ListAllowedNodeTypeModificationsOutput, error)
+
 	ListTagsForResourceRequest(*elasticache.ListTagsForResourceInput) (*request.Request, *elasticache.TagListMessage)
 
 	ListTagsForResource(*elasticache.ListTagsForResourceInput) (*elasticache.TagListMessage, error)
@@ -182,3 +186,5 @@ type ElastiCacheAPI interface {
 
 	RevokeCacheSecurityGroupIngress(*elasticache.RevokeCacheSecurityGroupIngressInput) (*elasticache.RevokeCacheSecurityGroupIngressOutput, error)
 }
+
+var _ ElastiCacheAPI = (*elasticache.ElastiCache)(nil)

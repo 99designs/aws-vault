@@ -148,3 +148,5 @@ type SWFAPI interface {
 
 	TerminateWorkflowExecution(*swf.TerminateWorkflowExecutionInput) (*swf.TerminateWorkflowExecutionOutput, error)
 }
+
+var _ SWFAPI = (*swf.SWF)(nil)

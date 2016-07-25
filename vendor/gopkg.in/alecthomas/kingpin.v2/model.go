@@ -37,7 +37,7 @@ type FlagModel struct {
 	Name        string
 	Help        string
 	Short       rune
-	Default     string
+	Default     []string
 	Envar       string
 	PlaceHolder string
 	Required    bool
@@ -60,11 +60,15 @@ func (f *FlagModel) FormatPlaceHolder() string {
 	if f.PlaceHolder != "" {
 		return f.PlaceHolder
 	}
-	if f.Default != "" {
-		if _, ok := f.Value.(*stringValue); ok {
-			return strconv.Quote(f.Default)
+	if len(f.Default) > 0 {
+		ellipsis := ""
+		if len(f.Default) > 1 {
+			ellipsis = "..."
 		}
-		return f.Default
+		if _, ok := f.Value.(*stringValue); ok {
+			return strconv.Quote(f.Default[0]) + ellipsis
+		}
+		return f.Default[0] + ellipsis
 	}
 	return strings.ToUpper(f.Name)
 }
@@ -91,7 +95,8 @@ func (a *ArgGroupModel) ArgSummary() string {
 type ArgModel struct {
 	Name     string
 	Help     string
-	Default  string
+	Default  []string
+	Envar    string
 	Required bool
 	Value    Value
 }
@@ -116,10 +121,12 @@ func (c *CmdGroupModel) FlattenedCommands() (out []*CmdModel) {
 
 type CmdModel struct {
 	Name        string
+	Aliases     []string
 	Help        string
 	FullCommand string
 	Depth       int
 	Hidden      bool
+	Default     bool
 	*FlagGroupModel
 	*ArgGroupModel
 	*CmdGroupModel
@@ -163,7 +170,8 @@ func (a *ArgClause) Model() *ArgModel {
 	return &ArgModel{
 		Name:     a.name,
 		Help:     a.help,
-		Default:  a.defaultValue,
+		Default:  a.defaultValues,
+		Envar:    a.envar,
 		Required: a.required,
 		Value:    a.value,
 	}
@@ -182,7 +190,7 @@ func (f *FlagClause) Model() *FlagModel {
 		Name:        f.name,
 		Help:        f.help,
 		Short:       rune(f.shorthand),
-		Default:     f.defaultValue,
+		Default:     f.defaultValues,
 		Envar:       f.envar,
 		PlaceHolder: f.placeholder,
 		Required:    f.required,
@@ -206,9 +214,11 @@ func (c *CmdClause) Model() *CmdModel {
 	}
 	return &CmdModel{
 		Name:           c.name,
+		Aliases:        c.aliases,
 		Help:           c.help,
 		Depth:          depth,
 		Hidden:         c.hidden,
+		Default:        c.isDefault,
 		FullCommand:    c.FullCommand(),
 		FlagGroupModel: c.flagGroup.Model(),
 		ArgGroupModel:  c.argGroup.Model(),

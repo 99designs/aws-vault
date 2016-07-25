@@ -10,6 +10,22 @@ import (
 
 // SESAPI is the interface type for ses.SES.
 type SESAPI interface {
+	CloneReceiptRuleSetRequest(*ses.CloneReceiptRuleSetInput) (*request.Request, *ses.CloneReceiptRuleSetOutput)
+
+	CloneReceiptRuleSet(*ses.CloneReceiptRuleSetInput) (*ses.CloneReceiptRuleSetOutput, error)
+
+	CreateReceiptFilterRequest(*ses.CreateReceiptFilterInput) (*request.Request, *ses.CreateReceiptFilterOutput)
+
+	CreateReceiptFilter(*ses.CreateReceiptFilterInput) (*ses.CreateReceiptFilterOutput, error)
+
+	CreateReceiptRuleRequest(*ses.CreateReceiptRuleInput) (*request.Request, *ses.CreateReceiptRuleOutput)
+
+	CreateReceiptRule(*ses.CreateReceiptRuleInput) (*ses.CreateReceiptRuleOutput, error)
+
+	CreateReceiptRuleSetRequest(*ses.CreateReceiptRuleSetInput) (*request.Request, *ses.CreateReceiptRuleSetOutput)
+
+	CreateReceiptRuleSet(*ses.CreateReceiptRuleSetInput) (*ses.CreateReceiptRuleSetOutput, error)
+
 	DeleteIdentityRequest(*ses.DeleteIdentityInput) (*request.Request, *ses.DeleteIdentityOutput)
 
 	DeleteIdentity(*ses.DeleteIdentityInput) (*ses.DeleteIdentityOutput, error)
@@ -18,13 +34,41 @@ type SESAPI interface {
 
 	DeleteIdentityPolicy(*ses.DeleteIdentityPolicyInput) (*ses.DeleteIdentityPolicyOutput, error)
 
+	DeleteReceiptFilterRequest(*ses.DeleteReceiptFilterInput) (*request.Request, *ses.DeleteReceiptFilterOutput)
+
+	DeleteReceiptFilter(*ses.DeleteReceiptFilterInput) (*ses.DeleteReceiptFilterOutput, error)
+
+	DeleteReceiptRuleRequest(*ses.DeleteReceiptRuleInput) (*request.Request, *ses.DeleteReceiptRuleOutput)
+
+	DeleteReceiptRule(*ses.DeleteReceiptRuleInput) (*ses.DeleteReceiptRuleOutput, error)
+
+	DeleteReceiptRuleSetRequest(*ses.DeleteReceiptRuleSetInput) (*request.Request, *ses.DeleteReceiptRuleSetOutput)
+
+	DeleteReceiptRuleSet(*ses.DeleteReceiptRuleSetInput) (*ses.DeleteReceiptRuleSetOutput, error)
+
 	DeleteVerifiedEmailAddressRequest(*ses.DeleteVerifiedEmailAddressInput) (*request.Request, *ses.DeleteVerifiedEmailAddressOutput)
 
 	DeleteVerifiedEmailAddress(*ses.DeleteVerifiedEmailAddressInput) (*ses.DeleteVerifiedEmailAddressOutput, error)
 
+	DescribeActiveReceiptRuleSetRequest(*ses.DescribeActiveReceiptRuleSetInput) (*request.Request, *ses.DescribeActiveReceiptRuleSetOutput)
+
+	DescribeActiveReceiptRuleSet(*ses.DescribeActiveReceiptRuleSetInput) (*ses.DescribeActiveReceiptRuleSetOutput, error)
+
+	DescribeReceiptRuleRequest(*ses.DescribeReceiptRuleInput) (*request.Request, *ses.DescribeReceiptRuleOutput)
+
+	DescribeReceiptRule(*ses.DescribeReceiptRuleInput) (*ses.DescribeReceiptRuleOutput, error)
+
+	DescribeReceiptRuleSetRequest(*ses.DescribeReceiptRuleSetInput) (*request.Request, *ses.DescribeReceiptRuleSetOutput)
+
+	DescribeReceiptRuleSet(*ses.DescribeReceiptRuleSetInput) (*ses.DescribeReceiptRuleSetOutput, error)
+
 	GetIdentityDkimAttributesRequest(*ses.GetIdentityDkimAttributesInput) (*request.Request, *ses.GetIdentityDkimAttributesOutput)
 
 	GetIdentityDkimAttributes(*ses.GetIdentityDkimAttributesInput) (*ses.GetIdentityDkimAttributesOutput, error)
+
+	GetIdentityMailFromDomainAttributesRequest(*ses.GetIdentityMailFromDomainAttributesInput) (*request.Request, *ses.GetIdentityMailFromDomainAttributesOutput)
+
+	GetIdentityMailFromDomainAttributes(*ses.GetIdentityMailFromDomainAttributesInput) (*ses.GetIdentityMailFromDomainAttributesOutput, error)
 
 	GetIdentityNotificationAttributesRequest(*ses.GetIdentityNotificationAttributesInput) (*request.Request, *ses.GetIdentityNotificationAttributesOutput)
 
@@ -56,6 +100,14 @@ type SESAPI interface {
 
 	ListIdentityPolicies(*ses.ListIdentityPoliciesInput) (*ses.ListIdentityPoliciesOutput, error)
 
+	ListReceiptFiltersRequest(*ses.ListReceiptFiltersInput) (*request.Request, *ses.ListReceiptFiltersOutput)
+
+	ListReceiptFilters(*ses.ListReceiptFiltersInput) (*ses.ListReceiptFiltersOutput, error)
+
+	ListReceiptRuleSetsRequest(*ses.ListReceiptRuleSetsInput) (*request.Request, *ses.ListReceiptRuleSetsOutput)
+
+	ListReceiptRuleSets(*ses.ListReceiptRuleSetsInput) (*ses.ListReceiptRuleSetsOutput, error)
+
 	ListVerifiedEmailAddressesRequest(*ses.ListVerifiedEmailAddressesInput) (*request.Request, *ses.ListVerifiedEmailAddressesOutput)
 
 	ListVerifiedEmailAddresses(*ses.ListVerifiedEmailAddressesInput) (*ses.ListVerifiedEmailAddressesOutput, error)
@@ -63,6 +115,14 @@ type SESAPI interface {
 	PutIdentityPolicyRequest(*ses.PutIdentityPolicyInput) (*request.Request, *ses.PutIdentityPolicyOutput)
 
 	PutIdentityPolicy(*ses.PutIdentityPolicyInput) (*ses.PutIdentityPolicyOutput, error)
+
+	ReorderReceiptRuleSetRequest(*ses.ReorderReceiptRuleSetInput) (*request.Request, *ses.ReorderReceiptRuleSetOutput)
+
+	ReorderReceiptRuleSet(*ses.ReorderReceiptRuleSetInput) (*ses.ReorderReceiptRuleSetOutput, error)
+
+	SendBounceRequest(*ses.SendBounceInput) (*request.Request, *ses.SendBounceOutput)
+
+	SendBounce(*ses.SendBounceInput) (*ses.SendBounceOutput, error)
 
 	SendEmailRequest(*ses.SendEmailInput) (*request.Request, *ses.SendEmailOutput)
 
@@ -72,6 +132,10 @@ type SESAPI interface {
 
 	SendRawEmail(*ses.SendRawEmailInput) (*ses.SendRawEmailOutput, error)
 
+	SetActiveReceiptRuleSetRequest(*ses.SetActiveReceiptRuleSetInput) (*request.Request, *ses.SetActiveReceiptRuleSetOutput)
+
+	SetActiveReceiptRuleSet(*ses.SetActiveReceiptRuleSetInput) (*ses.SetActiveReceiptRuleSetOutput, error)
+
 	SetIdentityDkimEnabledRequest(*ses.SetIdentityDkimEnabledInput) (*request.Request, *ses.SetIdentityDkimEnabledOutput)
 
 	SetIdentityDkimEnabled(*ses.SetIdentityDkimEnabledInput) (*ses.SetIdentityDkimEnabledOutput, error)
@@ -80,9 +144,25 @@ type SESAPI interface {
 
 	SetIdentityFeedbackForwardingEnabled(*ses.SetIdentityFeedbackForwardingEnabledInput) (*ses.SetIdentityFeedbackForwardingEnabledOutput, error)
 
+	SetIdentityHeadersInNotificationsEnabledRequest(*ses.SetIdentityHeadersInNotificationsEnabledInput) (*request.Request, *ses.SetIdentityHeadersInNotificationsEnabledOutput)
+
+	SetIdentityHeadersInNotificationsEnabled(*ses.SetIdentityHeadersInNotificationsEnabledInput) (*ses.SetIdentityHeadersInNotificationsEnabledOutput, error)
+
+	SetIdentityMailFromDomainRequest(*ses.SetIdentityMailFromDomainInput) (*request.Request, *ses.SetIdentityMailFromDomainOutput)
+
+	SetIdentityMailFromDomain(*ses.SetIdentityMailFromDomainInput) (*ses.SetIdentityMailFromDomainOutput, error)
+
 	SetIdentityNotificationTopicRequest(*ses.SetIdentityNotificationTopicInput) (*request.Request, *ses.SetIdentityNotificationTopicOutput)
 
 	SetIdentityNotificationTopic(*ses.SetIdentityNotificationTopicInput) (*ses.SetIdentityNotificationTopicOutput, error)
+
+	SetReceiptRulePositionRequest(*ses.SetReceiptRulePositionInput) (*request.Request, *ses.SetReceiptRulePositionOutput)
+
+	SetReceiptRulePosition(*ses.SetReceiptRulePositionInput) (*ses.SetReceiptRulePositionOutput, error)
+
+	UpdateReceiptRuleRequest(*ses.UpdateReceiptRuleInput) (*request.Request, *ses.UpdateReceiptRuleOutput)
+
+	UpdateReceiptRule(*ses.UpdateReceiptRuleInput) (*ses.UpdateReceiptRuleOutput, error)
 
 	VerifyDomainDkimRequest(*ses.VerifyDomainDkimInput) (*request.Request, *ses.VerifyDomainDkimOutput)
 
@@ -100,3 +180,5 @@ type SESAPI interface {
 
 	VerifyEmailIdentity(*ses.VerifyEmailIdentityInput) (*ses.VerifyEmailIdentityOutput, error)
 }
+
+var _ SESAPI = (*ses.SES)(nil)

@@ -1,4 +1,4 @@
-ini [![Build Status](https://drone.io/github.com/go-ini/ini/status.png)](https://drone.io/github.com/go-ini/ini/latest) [![](http://gocover.io/_badge/github.com/go-ini/ini)](http://gocover.io/github.com/go-ini/ini)
+INI [![Build Status](https://travis-ci.org/go-ini/ini.svg?branch=master)](https://travis-ci.org/go-ini/ini)
 ===
 
 ![](https://avatars0.githubusercontent.com/u/10216035?v=3&s=200)
@@ -44,7 +44,7 @@ Please add `-u` flag to update in the future.
 
 ### Loading from data sources
 
-A **Data Source** is either raw data in type `[]byte` or a file name with type `string` and you can load **as many as** data sources you want. Passing other types will simply return an error.
+A **Data Source** is either raw data in type `[]byte` or a file name with type `string` and you can load **as many data sources as you want**. Passing other types will simply return an error.
 
 ```go
 cfg, err := ini.Load([]byte("raw data"), "filename")
@@ -56,7 +56,7 @@ Or start with an empty object:
 cfg := ini.Empty()
 ```
 
-When you cannot decide how many data sources to load at the beginning, you still able to **Append()** them later.
+When you cannot decide how many data sources to load at the beginning, you will still be able to **Append()** them later.
 
 ```go
 err := cfg.Append("other file", []byte("other raw data"))
@@ -69,6 +69,23 @@ cfg, err := ini.LooseLoad("filename", "filename_404")
 ```
 
 The cool thing is, whenever the file is available to load while you're calling `Reload` method, it will be counted as usual.
+
+When you do not care about cases of section and key names, you can use `InsensitiveLoad` to force all names to be lowercased while parsing.
+
+```go
+cfg, err := ini.InsensitiveLoad("filename")
+//...
+
+// sec1 and sec2 are the exactly same section object
+sec1, err := cfg.GetSection("Section")
+sec2, err := cfg.GetSection("SecTIOn")
+
+// key1 and key2 are the exactly same key object
+key1, err := cfg.GetKey("Key")
+key2, err := cfg.GetKey("KeY")
+```
+
+If you want to give more advanced load options, use `LoadSources` and take a look at [`LoadOptions`](https://github.com/go-ini/ini/blob/v1.16.1/ini.go#L156).
 
 ### Working with sections
 
@@ -141,7 +158,7 @@ names := cfg.Section("").KeyStrings()
 To get a clone hash of keys and corresponding values:
 
 ```go
-hash := cfg.GetSection("").KeysHash()
+hash := cfg.Section("").KeysHash()
 ```
 
 ### Working with values
@@ -253,6 +270,16 @@ Piece of cake!
 cfg.Section("advance").Key("two_lines").String() // how about continuation lines?
 cfg.Section("advance").Key("lots_of_lines").String() // 1 2 3 4
 ```
+
+Well, I hate continuation lines, how do I disable that?
+
+```go
+cfg, err := ini.LoadSources(ini.LoadOptions{
+	IgnoreContinuation: true,
+}, "filename")
+```
+
+Holy crap! 
 
 Note that single quotes around values will be stripped:
 
@@ -393,6 +420,12 @@ CLONE_URL = https://%(IMPORT_PATH)s
 
 ```go
 cfg.Section("package.sub").Key("CLONE_URL").String()	// https://gopkg.in/ini.v1
+```
+
+#### Retrieve parent keys available to a child section
+
+```go
+cfg.Section("package.sub").ParentKeys() // ["CLONE_URL"]
 ```
 
 ### Auto-increment Key Names

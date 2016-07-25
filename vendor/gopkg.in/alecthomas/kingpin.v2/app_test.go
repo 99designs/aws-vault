@@ -3,14 +3,20 @@ package kingpin
 import (
 	"io/ioutil"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/alecthomas/assert"
 
+	"sort"
+	"strings"
 	"testing"
 	"time"
 )
 
+func newTestApp() *Application {
+	return New("test", "").Terminate(nil)
+}
+
 func TestCommander(t *testing.T) {
-	c := New("test", "test")
+	c := newTestApp()
 	ping := c.Command("ping", "Ping an IP address.")
 	pingTTL := ping.Flag("ttl", "TTL for ICMP packets").Short('t').Default("5s").Duration()
 
@@ -26,7 +32,7 @@ func TestCommander(t *testing.T) {
 }
 
 func TestRequiredFlags(t *testing.T) {
-	c := New("test", "test")
+	c := newTestApp()
 	c.Flag("a", "a").String()
 	c.Flag("b", "b").Required().String()
 
@@ -36,15 +42,25 @@ func TestRequiredFlags(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestRepeatableFlags(t *testing.T) {
+	c := newTestApp()
+	c.Flag("a", "a").String()
+	c.Flag("b", "b").Strings()
+	_, err := c.Parse([]string{"--a=foo", "--a=bar"})
+	assert.Error(t, err)
+	_, err = c.Parse([]string{"--b=foo", "--b=bar"})
+	assert.NoError(t, err)
+}
+
 func TestInvalidDefaultFlagValueErrors(t *testing.T) {
-	c := New("test", "test")
+	c := newTestApp()
 	c.Flag("foo", "foo").Default("a").Int()
 	_, err := c.Parse([]string{})
 	assert.Error(t, err)
 }
 
 func TestInvalidDefaultArgValueErrors(t *testing.T) {
-	c := New("test", "test")
+	c := newTestApp()
 	cmd := c.Command("cmd", "cmd")
 	cmd.Arg("arg", "arg").Default("one").Int()
 	_, err := c.Parse([]string{"cmd"})
@@ -52,7 +68,7 @@ func TestInvalidDefaultArgValueErrors(t *testing.T) {
 }
 
 func TestArgsRequiredAfterNonRequiredErrors(t *testing.T) {
-	c := New("test", "test")
+	c := newTestApp()
 	cmd := c.Command("cmd", "")
 	cmd.Arg("a", "a").String()
 	cmd.Arg("b", "b").Required().String()
@@ -61,7 +77,7 @@ func TestArgsRequiredAfterNonRequiredErrors(t *testing.T) {
 }
 
 func TestArgsMultipleRequiredThenNonRequired(t *testing.T) {
-	c := New("test", "test").Terminate(nil).Writer(ioutil.Discard)
+	c := newTestApp().Writer(ioutil.Discard)
 	cmd := c.Command("cmd", "")
 	cmd.Arg("a", "a").Required().String()
 	cmd.Arg("b", "b").Required().String()
@@ -75,7 +91,7 @@ func TestArgsMultipleRequiredThenNonRequired(t *testing.T) {
 
 func TestDispatchCallbackIsCalled(t *testing.T) {
 	dispatched := false
-	c := New("test", "")
+	c := newTestApp()
 	c.Command("cmd", "").Action(func(*ParseContext) error {
 		dispatched = true
 		return nil
@@ -87,7 +103,7 @@ func TestDispatchCallbackIsCalled(t *testing.T) {
 }
 
 func TestTopLevelArgWorks(t *testing.T) {
-	c := New("test", "test")
+	c := newTestApp()
 	s := c.Arg("arg", "help").String()
 	_, err := c.Parse([]string{"foo"})
 	assert.NoError(t, err)
@@ -95,7 +111,7 @@ func TestTopLevelArgWorks(t *testing.T) {
 }
 
 func TestTopLevelArgCantBeUsedWithCommands(t *testing.T) {
-	c := New("test", "test")
+	c := newTestApp()
 	c.Arg("arg", "help").String()
 	c.Command("cmd", "help")
 	_, err := c.Parse([]string{})
@@ -103,14 +119,14 @@ func TestTopLevelArgCantBeUsedWithCommands(t *testing.T) {
 }
 
 func TestTooManyArgs(t *testing.T) {
-	a := New("test", "test")
+	a := newTestApp()
 	a.Arg("a", "").String()
 	_, err := a.Parse([]string{"a", "b"})
 	assert.Error(t, err)
 }
 
 func TestTooManyArgsAfterCommand(t *testing.T) {
-	a := New("test", "test")
+	a := newTestApp()
 	a.Command("a", "")
 	assert.NoError(t, a.init())
 	_, err := a.Parse([]string{"a", "b"})
@@ -118,14 +134,14 @@ func TestTooManyArgsAfterCommand(t *testing.T) {
 }
 
 func TestArgsLooksLikeFlagsWithConsumeRemainder(t *testing.T) {
-	a := New("test", "")
+	a := newTestApp()
 	a.Arg("opts", "").Required().Strings()
 	_, err := a.Parse([]string{"hello", "-world"})
 	assert.Error(t, err)
 }
 
 func TestCommandParseDoesNotResetFlagsToDefault(t *testing.T) {
-	app := New("test", "")
+	app := newTestApp()
 	flag := app.Flag("flag", "").Default("default").String()
 	app.Command("cmd", "")
 
@@ -135,7 +151,7 @@ func TestCommandParseDoesNotResetFlagsToDefault(t *testing.T) {
 }
 
 func TestCommandParseDoesNotFailRequired(t *testing.T) {
-	app := New("test", "")
+	app := newTestApp()
 	flag := app.Flag("flag", "").Required().String()
 	app.Command("cmd", "")
 
@@ -145,7 +161,7 @@ func TestCommandParseDoesNotFailRequired(t *testing.T) {
 }
 
 func TestSelectedCommand(t *testing.T) {
-	app := New("test", "help")
+	app := newTestApp()
 	c0 := app.Command("c0", "")
 	c0.Command("c1", "")
 	s, err := app.Parse([]string{"c0", "c1"})
@@ -154,7 +170,7 @@ func TestSelectedCommand(t *testing.T) {
 }
 
 func TestSubCommandRequired(t *testing.T) {
-	app := New("test", "help")
+	app := newTestApp()
 	c0 := app.Command("c0", "")
 	c0.Command("c1", "")
 	_, err := app.Parse([]string{"c0"})
@@ -162,7 +178,7 @@ func TestSubCommandRequired(t *testing.T) {
 }
 
 func TestInterspersedFalse(t *testing.T) {
-	app := New("test", "help").Interspersed(false)
+	app := newTestApp().Interspersed(false)
 	a1 := app.Arg("a1", "").String()
 	a2 := app.Arg("a2", "").String()
 	f1 := app.Flag("flag", "").String()
@@ -177,7 +193,7 @@ func TestInterspersedFalse(t *testing.T) {
 func TestInterspersedTrue(t *testing.T) {
 	// test once with the default value and once with explicit true
 	for i := 0; i < 2; i++ {
-		app := New("test", "help")
+		app := newTestApp()
 		if i != 0 {
 			t.Log("Setting explicit")
 			app.Interspersed(true)
@@ -194,4 +210,192 @@ func TestInterspersedTrue(t *testing.T) {
 		assert.Equal(t, "", *a2)
 		assert.Equal(t, "flag", *f1)
 	}
+}
+
+func TestDefaultEnvars(t *testing.T) {
+	a := New("some-app", "").Terminate(nil).DefaultEnvars()
+	f0 := a.Flag("some-flag", "")
+	f0.Bool()
+	f1 := a.Flag("some-other-flag", "").NoEnvar()
+	f1.Bool()
+	_, err := a.Parse([]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, "SOME_APP_SOME_FLAG", f0.envar)
+	assert.Equal(t, "", f1.envar)
+}
+
+func TestBashCompletionOptionsWithEmptyApp(t *testing.T) {
+	a := newTestApp()
+	context, err := a.ParseContext([]string{"--completion-bash"})
+	if err != nil {
+		t.Errorf("Unexpected error whilst parsing context: [%v]", err)
+	}
+	args := a.completionOptions(context)
+	assert.Equal(t, []string(nil), args)
+}
+
+func TestBashCompletionOptions(t *testing.T) {
+	a := newTestApp()
+	a.Command("one", "")
+	a.Flag("flag-0", "").String()
+	a.Flag("flag-1", "").HintOptions("opt1", "opt2", "opt3").String()
+
+	two := a.Command("two", "")
+	two.Flag("flag-2", "").String()
+	two.Flag("flag-3", "").HintOptions("opt4", "opt5", "opt6").String()
+
+	three := a.Command("three", "")
+	three.Flag("flag-4", "").String()
+	three.Arg("arg-1", "").String()
+	three.Arg("arg-2", "").HintOptions("arg-2-opt-1", "arg-2-opt-2").String()
+	three.Arg("arg-3", "").String()
+	three.Arg("arg-4", "").HintAction(func() []string {
+		return []string{"arg-4-opt-1", "arg-4-opt-2"}
+	}).String()
+
+	cases := []struct {
+		Args            string
+		ExpectedOptions []string
+	}{
+		{
+			Args:            "--completion-bash",
+			ExpectedOptions: []string{"help", "one", "three", "two"},
+		},
+		{
+			Args:            "--completion-bash --",
+			ExpectedOptions: []string{"--flag-0", "--flag-1", "--help"},
+		},
+		{
+			Args:            "--completion-bash --fla",
+			ExpectedOptions: []string{"--flag-0", "--flag-1", "--help"},
+		},
+		{
+			// No options available for flag-0, return to cmd completion
+			Args:            "--completion-bash --flag-0",
+			ExpectedOptions: []string{"help", "one", "three", "two"},
+		},
+		{
+			Args:            "--completion-bash --flag-0 --",
+			ExpectedOptions: []string{"--flag-0", "--flag-1", "--help"},
+		},
+		{
+			Args:            "--completion-bash --flag-1",
+			ExpectedOptions: []string{"opt1", "opt2", "opt3"},
+		},
+		{
+			Args:            "--completion-bash --flag-1 opt",
+			ExpectedOptions: []string{"opt1", "opt2", "opt3"},
+		},
+		{
+			Args:            "--completion-bash --flag-1 opt1",
+			ExpectedOptions: []string{"help", "one", "three", "two"},
+		},
+		{
+			Args:            "--completion-bash --flag-1 opt1 --",
+			ExpectedOptions: []string{"--flag-0", "--flag-1", "--help"},
+		},
+
+		// Try Subcommand
+		{
+			Args:            "--completion-bash two",
+			ExpectedOptions: []string(nil),
+		},
+		{
+			Args:            "--completion-bash two --",
+			ExpectedOptions: []string{"--help", "--flag-2", "--flag-3", "--flag-0", "--flag-1"},
+		},
+		{
+			Args:            "--completion-bash two --flag",
+			ExpectedOptions: []string{"--help", "--flag-2", "--flag-3", "--flag-0", "--flag-1"},
+		},
+		{
+			Args:            "--completion-bash two --flag-2",
+			ExpectedOptions: []string(nil),
+		},
+		{
+			// Top level flags carry downwards
+			Args:            "--completion-bash two --flag-1",
+			ExpectedOptions: []string{"opt1", "opt2", "opt3"},
+		},
+		{
+			// Top level flags carry downwards
+			Args:            "--completion-bash two --flag-1 opt",
+			ExpectedOptions: []string{"opt1", "opt2", "opt3"},
+		},
+		{
+			// Top level flags carry downwards
+			Args:            "--completion-bash two --flag-1 opt1",
+			ExpectedOptions: []string(nil),
+		},
+		{
+			Args:            "--completion-bash two --flag-3",
+			ExpectedOptions: []string{"opt4", "opt5", "opt6"},
+		},
+		{
+			Args:            "--completion-bash two --flag-3 opt",
+			ExpectedOptions: []string{"opt4", "opt5", "opt6"},
+		},
+		{
+			Args:            "--completion-bash two --flag-3 opt4",
+			ExpectedOptions: []string(nil),
+		},
+		{
+			Args:            "--completion-bash two --flag-3 opt4 --",
+			ExpectedOptions: []string{"--help", "--flag-2", "--flag-3", "--flag-0", "--flag-1"},
+		},
+
+		// Args complete
+		{
+			// After a command with an arg with no options, nothing should be
+			// shown
+			Args:            "--completion-bash three ",
+			ExpectedOptions: []string(nil),
+		},
+		{
+			// After a command with an arg, explicitly starting a flag should
+			// complete flags
+			Args:            "--completion-bash three --",
+			ExpectedOptions: []string{"--flag-0", "--flag-1", "--flag-4", "--help"},
+		},
+		{
+			// After a command with an arg that does have completions, they
+			// should be shown
+			Args:            "--completion-bash three arg1 ",
+			ExpectedOptions: []string{"arg-2-opt-1", "arg-2-opt-2"},
+		},
+		{
+			// After a command with an arg that does have completions, but a
+			// flag is started, flag options should be completed
+			Args:            "--completion-bash three arg1 --",
+			ExpectedOptions: []string{"--flag-0", "--flag-1", "--flag-4", "--help"},
+		},
+		{
+			// After a command with an arg that has no completions, and isn't first,
+			// nothing should be shown
+			Args:            "--completion-bash three arg1 arg2 ",
+			ExpectedOptions: []string(nil),
+		},
+		{
+			// After a command with a different arg that also has completions,
+			// those different options should be shown
+			Args:            "--completion-bash three arg1 arg2 arg3 ",
+			ExpectedOptions: []string{"arg-4-opt-1", "arg-4-opt-2"},
+		},
+		{
+			// After a command with all args listed, nothing should complete
+			Args:            "--completion-bash three arg1 arg2 arg3 arg4",
+			ExpectedOptions: []string(nil),
+		},
+	}
+
+	for _, c := range cases {
+		context, _ := a.ParseContext(strings.Split(c.Args, " "))
+		args := a.completionOptions(context)
+
+		sort.Strings(args)
+		sort.Strings(c.ExpectedOptions)
+
+		assert.Equal(t, c.ExpectedOptions, args, "Expected != Actual: [%v] != [%v]. \nInput was: [%v]", c.ExpectedOptions, args, c.Args)
+	}
+
 }

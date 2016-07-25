@@ -289,7 +289,7 @@ func TestCiphers(t *testing.T) {
 		defer server.Shutdown()
 		conf := clientConfig()
 		conf.Ciphers = []string{ciph}
-		// Don't fail if sshd doesnt have the cipher.
+		// Don't fail if sshd doesn't have the cipher.
 		conf.Ciphers = append(conf.Ciphers, cipherOrder...)
 		conn, err := server.TryDial(conf)
 		if err == nil {
@@ -310,7 +310,7 @@ func TestMACs(t *testing.T) {
 		defer server.Shutdown()
 		conf := clientConfig()
 		conf.MACs = []string{mac}
-		// Don't fail if sshd doesnt have the MAC.
+		// Don't fail if sshd doesn't have the MAC.
 		conf.MACs = append(conf.MACs, macOrder...)
 		if conn, err := server.TryDial(conf); err == nil {
 			conn.Close()
@@ -328,7 +328,7 @@ func TestKeyExchanges(t *testing.T) {
 		server := newServer(t)
 		defer server.Shutdown()
 		conf := clientConfig()
-		// Don't fail if sshd doesnt have the kex.
+		// Don't fail if sshd doesn't have the kex.
 		conf.KeyExchanges = append([]string{kex}, kexOrder...)
 		conn, err := server.TryDial(conf)
 		if err == nil {

@@ -5,13 +5,15 @@ package sqs_test
 import (
 	"testing"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/sqs"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/sqs"
 )
 
 func TestFlattenedTraits(t *testing.T) {
-	s := sqs.New(nil)
+	s := sqs.New(session.New())
 	_, err := s.DeleteMessageBatch(&sqs.DeleteMessageBatchInput{
 		QueueURL: aws.String("QUEUE"),
 		Entries: []*sqs.DeleteMessageBatchRequestEntry{

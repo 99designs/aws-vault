@@ -14,6 +14,10 @@ type LambdaAPI interface {
 
 	AddPermission(*lambda.AddPermissionInput) (*lambda.AddPermissionOutput, error)
 
+	CreateAliasRequest(*lambda.CreateAliasInput) (*request.Request, *lambda.AliasConfiguration)
+
+	CreateAlias(*lambda.CreateAliasInput) (*lambda.AliasConfiguration, error)
+
 	CreateEventSourceMappingRequest(*lambda.CreateEventSourceMappingInput) (*request.Request, *lambda.EventSourceMappingConfiguration)
 
 	CreateEventSourceMapping(*lambda.CreateEventSourceMappingInput) (*lambda.EventSourceMappingConfiguration, error)
@@ -22,6 +26,10 @@ type LambdaAPI interface {
 
 	CreateFunction(*lambda.CreateFunctionInput) (*lambda.FunctionConfiguration, error)
 
+	DeleteAliasRequest(*lambda.DeleteAliasInput) (*request.Request, *lambda.DeleteAliasOutput)
+
+	DeleteAlias(*lambda.DeleteAliasInput) (*lambda.DeleteAliasOutput, error)
+
 	DeleteEventSourceMappingRequest(*lambda.DeleteEventSourceMappingInput) (*request.Request, *lambda.EventSourceMappingConfiguration)
 
 	DeleteEventSourceMapping(*lambda.DeleteEventSourceMappingInput) (*lambda.EventSourceMappingConfiguration, error)
@@ -29,6 +37,10 @@ type LambdaAPI interface {
 	DeleteFunctionRequest(*lambda.DeleteFunctionInput) (*request.Request, *lambda.DeleteFunctionOutput)
 
 	DeleteFunction(*lambda.DeleteFunctionInput) (*lambda.DeleteFunctionOutput, error)
+
+	GetAliasRequest(*lambda.GetAliasInput) (*request.Request, *lambda.AliasConfiguration)
+
+	GetAlias(*lambda.GetAliasInput) (*lambda.AliasConfiguration, error)
 
 	GetEventSourceMappingRequest(*lambda.GetEventSourceMappingInput) (*request.Request, *lambda.EventSourceMappingConfiguration)
 
@@ -54,6 +66,10 @@ type LambdaAPI interface {
 
 	InvokeAsync(*lambda.InvokeAsyncInput) (*lambda.InvokeAsyncOutput, error)
 
+	ListAliasesRequest(*lambda.ListAliasesInput) (*request.Request, *lambda.ListAliasesOutput)
+
+	ListAliases(*lambda.ListAliasesInput) (*lambda.ListAliasesOutput, error)
+
 	ListEventSourceMappingsRequest(*lambda.ListEventSourceMappingsInput) (*request.Request, *lambda.ListEventSourceMappingsOutput)
 
 	ListEventSourceMappings(*lambda.ListEventSourceMappingsInput) (*lambda.ListEventSourceMappingsOutput, error)
@@ -66,9 +82,21 @@ type LambdaAPI interface {
 
 	ListFunctionsPages(*lambda.ListFunctionsInput, func(*lambda.ListFunctionsOutput, bool) bool) error
 
+	ListVersionsByFunctionRequest(*lambda.ListVersionsByFunctionInput) (*request.Request, *lambda.ListVersionsByFunctionOutput)
+
+	ListVersionsByFunction(*lambda.ListVersionsByFunctionInput) (*lambda.ListVersionsByFunctionOutput, error)
+
+	PublishVersionRequest(*lambda.PublishVersionInput) (*request.Request, *lambda.FunctionConfiguration)
+
+	PublishVersion(*lambda.PublishVersionInput) (*lambda.FunctionConfiguration, error)
+
 	RemovePermissionRequest(*lambda.RemovePermissionInput) (*request.Request, *lambda.RemovePermissionOutput)
 
 	RemovePermission(*lambda.RemovePermissionInput) (*lambda.RemovePermissionOutput, error)
+
+	UpdateAliasRequest(*lambda.UpdateAliasInput) (*request.Request, *lambda.AliasConfiguration)
+
+	UpdateAlias(*lambda.UpdateAliasInput) (*lambda.AliasConfiguration, error)
 
 	UpdateEventSourceMappingRequest(*lambda.UpdateEventSourceMappingInput) (*request.Request, *lambda.EventSourceMappingConfiguration)
 
@@ -82,3 +110,5 @@ type LambdaAPI interface {
 
 	UpdateFunctionConfiguration(*lambda.UpdateFunctionConfigurationInput) (*lambda.FunctionConfiguration, error)
 }
+
+var _ LambdaAPI = (*lambda.Lambda)(nil)

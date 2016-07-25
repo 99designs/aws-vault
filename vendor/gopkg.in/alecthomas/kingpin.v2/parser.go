@@ -87,10 +87,12 @@ type ParseElement struct {
 // any).
 type ParseContext struct {
 	SelectedCommand *CmdClause
+	ignoreDefault   bool
 	argsOnly        bool
 	peek            []*Token
 	argi            int // Index of current command-line arg we're processing.
 	args            []string
+	rawArgs         []string
 	flags           *flagGroup
 	arguments       *argGroup
 	argumenti       int // Cursor into arguments
@@ -120,11 +122,13 @@ func (p *ParseContext) HasTrailingArgs() bool {
 	return len(p.args) > 0
 }
 
-func tokenize(args []string) *ParseContext {
+func tokenize(args []string, ignoreDefault bool) *ParseContext {
 	return &ParseContext{
-		args:      args,
-		flags:     newFlagGroup(),
-		arguments: newArgGroup(),
+		ignoreDefault: ignoreDefault,
+		args:          args,
+		rawArgs:       args,
+		flags:         newFlagGroup(),
+		arguments:     newArgGroup(),
 	}
 }
 
@@ -176,7 +180,7 @@ func (p *ParseContext) Next() *Token {
 		parts := strings.SplitN(arg[2:], "=", 2)
 		token := &Token{p.argi, TokenLong, parts[0]}
 		if len(parts) == 2 {
-			p.push(&Token{p.argi, TokenArg, parts[1]})
+			p.Push(&Token{p.argi, TokenArg, parts[1]})
 		}
 		return token
 	}
@@ -195,7 +199,7 @@ func (p *ParseContext) Next() *Token {
 			// Short flag with combined argument: -fARG
 			token := &Token{p.argi, TokenShort, short}
 			if len(arg) > 2 {
-				p.push(&Token{p.argi, TokenArg, arg[2:]})
+				p.Push(&Token{p.argi, TokenArg, arg[2:]})
 			}
 			return token
 		}
@@ -222,12 +226,12 @@ func (p *ParseContext) Next() *Token {
 
 func (p *ParseContext) Peek() *Token {
 	if len(p.peek) == 0 {
-		return p.push(p.Next())
+		return p.Push(p.Next())
 	}
 	return p.peek[len(p.peek)-1]
 }
 
-func (p *ParseContext) push(token *Token) *Token {
+func (p *ParseContext) Push(token *Token) *Token {
 	p.peek = append(p.peek, token)
 	return token
 }
@@ -277,31 +281,57 @@ func ExpandArgsFromFile(filename string) (out []string, err error) {
 	return
 }
 
-func parse(context *ParseContext, app *Application) (selected []string, err error) {
+func parse(context *ParseContext, app *Application) (err error) {
 	context.mergeFlags(app.flagGroup)
 	context.mergeArgs(app.argGroup)
 
 	cmds := app.cmdGroup
+	ignoreDefault := context.ignoreDefault
 
 loop:
 	for !context.EOL() {
 		token := context.Peek()
+
 		switch token.Type {
 		case TokenLong, TokenShort:
-			if err := context.flags.parse(context); err != nil {
-				return nil, err
+			if flag, err := context.flags.parse(context); err != nil {
+				if !ignoreDefault {
+					if cmd := cmds.defaultSubcommand(); cmd != nil {
+						cmd.completionAlts = cmds.cmdNames()
+						context.matchedCmd(cmd)
+						cmds = cmd.cmdGroup
+						break
+					}
+				}
+				return err
+			} else if flag == HelpFlag {
+				ignoreDefault = true
 			}
 
 		case TokenArg:
 			if cmds.have() {
+				selectedDefault := false
 				cmd, ok := cmds.commands[token.String()]
 				if !ok {
-					return nil, fmt.Errorf("expected command but got %s", token)
+					if !ignoreDefault {
+						if cmd = cmds.defaultSubcommand(); cmd != nil {
+							cmd.completionAlts = cmds.cmdNames()
+							selectedDefault = true
+						}
+					}
+					if cmd == nil {
+						return fmt.Errorf("expected command but got %q", token)
+					}
 				}
+				if cmd == HelpCommand {
+					ignoreDefault = true
+				}
+				cmd.completionAlts = nil
 				context.matchedCmd(cmd)
-				selected = append([]string{token.String()}, selected...)
 				cmds = cmd.cmdGroup
-				context.Next()
+				if !selectedDefault {
+					context.Next()
+				}
 			} else if context.arguments.have() {
 				if app.noInterspersed {
 					// no more flags
@@ -322,15 +352,26 @@ loop:
 		}
 	}
 
+	// Move to innermost default command.
+	for !ignoreDefault {
+		if cmd := cmds.defaultSubcommand(); cmd != nil {
+			cmd.completionAlts = cmds.cmdNames()
+			context.matchedCmd(cmd)
+			cmds = cmd.cmdGroup
+		} else {
+			break
+		}
+	}
+
 	if !context.EOL() {
-		return nil, fmt.Errorf("unexpected %s", context.Peek())
+		return fmt.Errorf("unexpected %s", context.Peek())
 	}
 
 	// Set defaults for all remaining args.
 	for arg := context.nextArg(); arg != nil && !arg.consumesRemainder(); arg = context.nextArg() {
-		if arg.defaultValue != "" {
-			if err := arg.value.Set(arg.defaultValue); err != nil {
-				return nil, fmt.Errorf("invalid default value '%s' for argument '%s'", arg.defaultValue, arg.name)
+		for _, defaultValue := range arg.defaultValues {
+			if err := arg.value.Set(defaultValue); err != nil {
+				return fmt.Errorf("invalid default value '%s' for argument '%s'", defaultValue, arg.name)
 			}
 		}
 	}

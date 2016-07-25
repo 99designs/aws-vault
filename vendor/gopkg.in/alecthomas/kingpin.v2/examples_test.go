@@ -17,6 +17,10 @@ func (h *HTTPHeaderValue) Set(value string) error {
 	return nil
 }
 
+func (h *HTTPHeaderValue) Get() interface{} {
+	return (http.Header)(*h)
+}
+
 func (h *HTTPHeaderValue) String() string {
 	return ""
 }

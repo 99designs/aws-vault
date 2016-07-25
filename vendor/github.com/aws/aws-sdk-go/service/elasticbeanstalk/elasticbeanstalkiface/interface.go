@@ -14,9 +14,17 @@ type ElasticBeanstalkAPI interface {
 
 	AbortEnvironmentUpdate(*elasticbeanstalk.AbortEnvironmentUpdateInput) (*elasticbeanstalk.AbortEnvironmentUpdateOutput, error)
 
+	ApplyEnvironmentManagedActionRequest(*elasticbeanstalk.ApplyEnvironmentManagedActionInput) (*request.Request, *elasticbeanstalk.ApplyEnvironmentManagedActionOutput)
+
+	ApplyEnvironmentManagedAction(*elasticbeanstalk.ApplyEnvironmentManagedActionInput) (*elasticbeanstalk.ApplyEnvironmentManagedActionOutput, error)
+
 	CheckDNSAvailabilityRequest(*elasticbeanstalk.CheckDNSAvailabilityInput) (*request.Request, *elasticbeanstalk.CheckDNSAvailabilityOutput)
 
 	CheckDNSAvailability(*elasticbeanstalk.CheckDNSAvailabilityInput) (*elasticbeanstalk.CheckDNSAvailabilityOutput, error)
+
+	ComposeEnvironmentsRequest(*elasticbeanstalk.ComposeEnvironmentsInput) (*request.Request, *elasticbeanstalk.EnvironmentDescriptionsMessage)
+
+	ComposeEnvironments(*elasticbeanstalk.ComposeEnvironmentsInput) (*elasticbeanstalk.EnvironmentDescriptionsMessage, error)
 
 	CreateApplicationRequest(*elasticbeanstalk.CreateApplicationInput) (*request.Request, *elasticbeanstalk.ApplicationDescriptionMessage)
 
@@ -74,13 +82,21 @@ type ElasticBeanstalkAPI interface {
 
 	DescribeEnvironmentHealth(*elasticbeanstalk.DescribeEnvironmentHealthInput) (*elasticbeanstalk.DescribeEnvironmentHealthOutput, error)
 
+	DescribeEnvironmentManagedActionHistoryRequest(*elasticbeanstalk.DescribeEnvironmentManagedActionHistoryInput) (*request.Request, *elasticbeanstalk.DescribeEnvironmentManagedActionHistoryOutput)
+
+	DescribeEnvironmentManagedActionHistory(*elasticbeanstalk.DescribeEnvironmentManagedActionHistoryInput) (*elasticbeanstalk.DescribeEnvironmentManagedActionHistoryOutput, error)
+
+	DescribeEnvironmentManagedActionsRequest(*elasticbeanstalk.DescribeEnvironmentManagedActionsInput) (*request.Request, *elasticbeanstalk.DescribeEnvironmentManagedActionsOutput)
+
+	DescribeEnvironmentManagedActions(*elasticbeanstalk.DescribeEnvironmentManagedActionsInput) (*elasticbeanstalk.DescribeEnvironmentManagedActionsOutput, error)
+
 	DescribeEnvironmentResourcesRequest(*elasticbeanstalk.DescribeEnvironmentResourcesInput) (*request.Request, *elasticbeanstalk.DescribeEnvironmentResourcesOutput)
 
 	DescribeEnvironmentResources(*elasticbeanstalk.DescribeEnvironmentResourcesInput) (*elasticbeanstalk.DescribeEnvironmentResourcesOutput, error)
 
-	DescribeEnvironmentsRequest(*elasticbeanstalk.DescribeEnvironmentsInput) (*request.Request, *elasticbeanstalk.DescribeEnvironmentsOutput)
+	DescribeEnvironmentsRequest(*elasticbeanstalk.DescribeEnvironmentsInput) (*request.Request, *elasticbeanstalk.EnvironmentDescriptionsMessage)
 
-	DescribeEnvironments(*elasticbeanstalk.DescribeEnvironmentsInput) (*elasticbeanstalk.DescribeEnvironmentsOutput, error)
+	DescribeEnvironments(*elasticbeanstalk.DescribeEnvironmentsInput) (*elasticbeanstalk.EnvironmentDescriptionsMessage, error)
 
 	DescribeEventsRequest(*elasticbeanstalk.DescribeEventsInput) (*request.Request, *elasticbeanstalk.DescribeEventsOutput)
 
@@ -140,3 +156,5 @@ type ElasticBeanstalkAPI interface {
 
 	ValidateConfigurationSettings(*elasticbeanstalk.ValidateConfigurationSettingsInput) (*elasticbeanstalk.ValidateConfigurationSettingsOutput, error)
 }
+
+var _ ElasticBeanstalkAPI = (*elasticbeanstalk.ElasticBeanstalk)(nil)

@@ -1,7 +1,9 @@
 package kingpin
 
 import (
-	"github.com/stretchr/testify/assert"
+	"net"
+
+	"github.com/alecthomas/assert"
 
 	"testing"
 )
@@ -43,4 +45,45 @@ func TestEnumVar(t *testing.T) {
 	_, err = app.Parse([]string{"one"})
 	assert.NoError(t, err)
 	assert.Equal(t, "one", a)
+}
+
+func TestCounter(t *testing.T) {
+	app := New("", "")
+	c := app.Flag("f", "").Counter()
+	_, err := app.Parse([]string{"--f", "--f", "--f"})
+	assert.NoError(t, err)
+	assert.Equal(t, 3, *c)
+}
+
+func TestIPv4Addr(t *testing.T) {
+	app := newTestApp()
+	flag := app.Flag("addr", "").ResolvedIP()
+	_, err := app.Parse([]string{"--addr", net.IPv4(1, 2, 3, 4).String()})
+	assert.NoError(t, err)
+	assert.NotNil(t, *flag)
+	assert.Equal(t, net.IPv4(1, 2, 3, 4), *flag)
+}
+
+func TestInvalidIPv4Addr(t *testing.T) {
+	app := newTestApp()
+	app.Flag("addr", "").ResolvedIP()
+	_, err := app.Parse([]string{"--addr", "1.2.3.256"})
+	assert.Error(t, err)
+}
+
+func TestIPv6Addr(t *testing.T) {
+	app := newTestApp()
+	flag := app.Flag("addr", "").ResolvedIP()
+	_, err := app.Parse([]string{"--addr", net.IPv6interfacelocalallnodes.String()})
+	assert.NoError(t, err)
+	assert.NotNil(t, *flag)
+	assert.Equal(t, net.IPv6interfacelocalallnodes, *flag)
+}
+
+func TestHexBytes(t *testing.T) {
+	app := newTestApp()
+	actual := app.Arg("bytes", "").HexBytes()
+	_, err := app.Parse([]string{"01020aff"})
+	assert.NoError(t, err)
+	assert.Equal(t, []byte{0x01, 0x02, 0x0a, 0xff}, *actual)
 }

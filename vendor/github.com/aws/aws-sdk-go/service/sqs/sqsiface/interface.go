@@ -78,3 +78,5 @@ type SQSAPI interface {
 
 	SetQueueAttributes(*sqs.SetQueueAttributesInput) (*sqs.SetQueueAttributesOutput, error)
 }
+
+var _ SQSAPI = (*sqs.SQS)(nil)

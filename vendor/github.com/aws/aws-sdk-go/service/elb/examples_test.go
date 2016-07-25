@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/elb"
 )
 
@@ -15,7 +16,7 @@ var _ time.Duration
 var _ bytes.Buffer
 
 func ExampleELB_AddTags() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.AddTagsInput{
 		LoadBalancerNames: []*string{ // Required
@@ -44,7 +45,7 @@ func ExampleELB_AddTags() {
 }
 
 func ExampleELB_ApplySecurityGroupsToLoadBalancer() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.ApplySecurityGroupsToLoadBalancerInput{
 		LoadBalancerName: aws.String("AccessPointName"), // Required
@@ -67,7 +68,7 @@ func ExampleELB_ApplySecurityGroupsToLoadBalancer() {
 }
 
 func ExampleELB_AttachLoadBalancerToSubnets() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.AttachLoadBalancerToSubnetsInput{
 		LoadBalancerName: aws.String("AccessPointName"), // Required
@@ -90,7 +91,7 @@ func ExampleELB_AttachLoadBalancerToSubnets() {
 }
 
 func ExampleELB_ConfigureHealthCheck() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.ConfigureHealthCheckInput{
 		HealthCheck: &elb.HealthCheck{ // Required
@@ -116,7 +117,7 @@ func ExampleELB_ConfigureHealthCheck() {
 }
 
 func ExampleELB_CreateAppCookieStickinessPolicy() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.CreateAppCookieStickinessPolicyInput{
 		CookieName:       aws.String("CookieName"),      // Required
@@ -137,7 +138,7 @@ func ExampleELB_CreateAppCookieStickinessPolicy() {
 }
 
 func ExampleELB_CreateLBCookieStickinessPolicy() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.CreateLBCookieStickinessPolicyInput{
 		LoadBalancerName:       aws.String("AccessPointName"), // Required
@@ -158,7 +159,7 @@ func ExampleELB_CreateLBCookieStickinessPolicy() {
 }
 
 func ExampleELB_CreateLoadBalancer() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.CreateLoadBalancerInput{
 		Listeners: []*elb.Listener{ // Required
@@ -207,7 +208,7 @@ func ExampleELB_CreateLoadBalancer() {
 }
 
 func ExampleELB_CreateLoadBalancerListeners() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.CreateLoadBalancerListenersInput{
 		Listeners: []*elb.Listener{ // Required
@@ -236,7 +237,7 @@ func ExampleELB_CreateLoadBalancerListeners() {
 }
 
 func ExampleELB_CreateLoadBalancerPolicy() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.CreateLoadBalancerPolicyInput{
 		LoadBalancerName: aws.String("AccessPointName"), // Required
@@ -264,7 +265,7 @@ func ExampleELB_CreateLoadBalancerPolicy() {
 }
 
 func ExampleELB_DeleteLoadBalancer() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.DeleteLoadBalancerInput{
 		LoadBalancerName: aws.String("AccessPointName"), // Required
@@ -283,7 +284,7 @@ func ExampleELB_DeleteLoadBalancer() {
 }
 
 func ExampleELB_DeleteLoadBalancerListeners() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.DeleteLoadBalancerListenersInput{
 		LoadBalancerName: aws.String("AccessPointName"), // Required
@@ -306,7 +307,7 @@ func ExampleELB_DeleteLoadBalancerListeners() {
 }
 
 func ExampleELB_DeleteLoadBalancerPolicy() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.DeleteLoadBalancerPolicyInput{
 		LoadBalancerName: aws.String("AccessPointName"), // Required
@@ -326,7 +327,7 @@ func ExampleELB_DeleteLoadBalancerPolicy() {
 }
 
 func ExampleELB_DeregisterInstancesFromLoadBalancer() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.DeregisterInstancesFromLoadBalancerInput{
 		Instances: []*elb.Instance{ // Required
@@ -351,7 +352,7 @@ func ExampleELB_DeregisterInstancesFromLoadBalancer() {
 }
 
 func ExampleELB_DescribeInstanceHealth() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.DescribeInstanceHealthInput{
 		LoadBalancerName: aws.String("AccessPointName"), // Required
@@ -376,7 +377,7 @@ func ExampleELB_DescribeInstanceHealth() {
 }
 
 func ExampleELB_DescribeLoadBalancerAttributes() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.DescribeLoadBalancerAttributesInput{
 		LoadBalancerName: aws.String("AccessPointName"), // Required
@@ -395,7 +396,7 @@ func ExampleELB_DescribeLoadBalancerAttributes() {
 }
 
 func ExampleELB_DescribeLoadBalancerPolicies() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.DescribeLoadBalancerPoliciesInput{
 		LoadBalancerName: aws.String("AccessPointName"),
@@ -418,7 +419,7 @@ func ExampleELB_DescribeLoadBalancerPolicies() {
 }
 
 func ExampleELB_DescribeLoadBalancerPolicyTypes() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.DescribeLoadBalancerPolicyTypesInput{
 		PolicyTypeNames: []*string{
@@ -440,7 +441,7 @@ func ExampleELB_DescribeLoadBalancerPolicyTypes() {
 }
 
 func ExampleELB_DescribeLoadBalancers() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.DescribeLoadBalancersInput{
 		LoadBalancerNames: []*string{
@@ -464,7 +465,7 @@ func ExampleELB_DescribeLoadBalancers() {
 }
 
 func ExampleELB_DescribeTags() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.DescribeTagsInput{
 		LoadBalancerNames: []*string{ // Required
@@ -486,7 +487,7 @@ func ExampleELB_DescribeTags() {
 }
 
 func ExampleELB_DetachLoadBalancerFromSubnets() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.DetachLoadBalancerFromSubnetsInput{
 		LoadBalancerName: aws.String("AccessPointName"), // Required
@@ -509,7 +510,7 @@ func ExampleELB_DetachLoadBalancerFromSubnets() {
 }
 
 func ExampleELB_DisableAvailabilityZonesForLoadBalancer() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.DisableAvailabilityZonesForLoadBalancerInput{
 		AvailabilityZones: []*string{ // Required
@@ -532,7 +533,7 @@ func ExampleELB_DisableAvailabilityZonesForLoadBalancer() {
 }
 
 func ExampleELB_EnableAvailabilityZonesForLoadBalancer() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.EnableAvailabilityZonesForLoadBalancerInput{
 		AvailabilityZones: []*string{ // Required
@@ -555,7 +556,7 @@ func ExampleELB_EnableAvailabilityZonesForLoadBalancer() {
 }
 
 func ExampleELB_ModifyLoadBalancerAttributes() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.ModifyLoadBalancerAttributesInput{
 		LoadBalancerAttributes: &elb.LoadBalancerAttributes{ // Required
@@ -599,7 +600,7 @@ func ExampleELB_ModifyLoadBalancerAttributes() {
 }
 
 func ExampleELB_RegisterInstancesWithLoadBalancer() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.RegisterInstancesWithLoadBalancerInput{
 		Instances: []*elb.Instance{ // Required
@@ -624,7 +625,7 @@ func ExampleELB_RegisterInstancesWithLoadBalancer() {
 }
 
 func ExampleELB_RemoveTags() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.RemoveTagsInput{
 		LoadBalancerNames: []*string{ // Required
@@ -652,7 +653,7 @@ func ExampleELB_RemoveTags() {
 }
 
 func ExampleELB_SetLoadBalancerListenerSSLCertificate() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.SetLoadBalancerListenerSSLCertificateInput{
 		LoadBalancerName: aws.String("AccessPointName"),  // Required
@@ -673,7 +674,7 @@ func ExampleELB_SetLoadBalancerListenerSSLCertificate() {
 }
 
 func ExampleELB_SetLoadBalancerPoliciesForBackendServer() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.SetLoadBalancerPoliciesForBackendServerInput{
 		InstancePort:     aws.Int64(1),                  // Required
@@ -697,7 +698,7 @@ func ExampleELB_SetLoadBalancerPoliciesForBackendServer() {
 }
 
 func ExampleELB_SetLoadBalancerPoliciesOfListener() {
-	svc := elb.New(nil)
+	svc := elb.New(session.New())
 
 	params := &elb.SetLoadBalancerPoliciesOfListenerInput{
 		LoadBalancerName: aws.String("AccessPointName"), // Required

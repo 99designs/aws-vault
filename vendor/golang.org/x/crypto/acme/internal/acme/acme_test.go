@@ -58,21 +58,22 @@ func TestDiscover(t *testing.T) {
 		}`, reg, authz, cert, revoke)
 	}))
 	defer ts.Close()
-	ep, err := (&Client{}).Discover(ts.URL)
+	c := Client{DirectoryURL: ts.URL}
+	dir, err := c.Discover()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if ep.RegURL != reg {
-		t.Errorf("RegURL = %q; want %q", ep.RegURL, reg)
+	if dir.RegURL != reg {
+		t.Errorf("dir.RegURL = %q; want %q", dir.RegURL, reg)
 	}
-	if ep.AuthzURL != authz {
-		t.Errorf("authzURL = %q; want %q", ep.AuthzURL, authz)
+	if dir.AuthzURL != authz {
+		t.Errorf("dir.AuthzURL = %q; want %q", dir.AuthzURL, authz)
 	}
-	if ep.CertURL != cert {
-		t.Errorf("certURL = %q; want %q", ep.CertURL, cert)
+	if dir.CertURL != cert {
+		t.Errorf("dir.CertURL = %q; want %q", dir.CertURL, cert)
 	}
-	if ep.RevokeURL != revoke {
-		t.Errorf("revokeURL = %q; want %q", ep.RevokeURL, revoke)
+	if dir.RevokeURL != revoke {
+		t.Errorf("dir.RevokeURL = %q; want %q", dir.RevokeURL, revoke)
 	}
 }
 
@@ -116,10 +117,18 @@ func TestRegister(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	c := Client{Key: testKey}
+	prompt := func(url string) bool {
+		const terms = "https://ca.tld/acme/terms"
+		if url != terms {
+			t.Errorf("prompt url = %q; want %q", url, terms)
+		}
+		return false
+	}
+
+	c := Client{Key: testKey, dir: &Directory{RegURL: ts.URL}}
 	a := &Account{Contact: contacts}
 	var err error
-	if a, err = c.Register(ts.URL, a); err != nil {
+	if a, err = c.Register(a, prompt); err != nil {
 		t.Fatal(err)
 	}
 	if a.URI != "https://ca.tld/acme/reg/1" {
@@ -181,9 +190,9 @@ func TestUpdateReg(t *testing.T) {
 	defer ts.Close()
 
 	c := Client{Key: testKey}
-	a := &Account{Contact: contacts, AgreedTerms: terms}
+	a := &Account{URI: ts.URL, Contact: contacts, AgreedTerms: terms}
 	var err error
-	if a, err = c.UpdateReg(ts.URL, a); err != nil {
+	if a, err = c.UpdateReg(a); err != nil {
 		t.Fatal(err)
 	}
 	if a.Authz != "https://ca.tld/acme/new-authz" {
@@ -311,8 +320,8 @@ func TestAuthorize(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	cl := Client{Key: testKey}
-	auth, err := cl.Authorize(ts.URL, "example.com")
+	cl := Client{Key: testKey, dir: &Directory{AuthzURL: ts.URL}}
+	auth, err := cl.Authorize("example.com")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -605,8 +614,8 @@ func TestNewCert(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	c := Client{Key: testKey}
-	cert, certURL, err := c.CreateCert(context.Background(), ts.URL, csrb, notAfter.Sub(notBefore), false)
+	c := Client{Key: testKey, dir: &Directory{CertURL: ts.URL}}
+	cert, certURL, err := c.CreateCert(context.Background(), csrb, notAfter.Sub(notBefore), false)
 	if err != nil {
 		t.Fatal(err)
 	}

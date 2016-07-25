@@ -1,5 +1,5 @@
 hash: e5d89510497a9e4b89f59a957ca8448215f5504d8541b04dd65af9d5f3779f3c
-updated: 2016-07-24T21:09:16.867556598Z
+updated: 2016-07-25T21:27:25.532024951Z
 imports:
 - name: github.com/alecthomas/template
   version: a0175ee3bccc567396460bf5acd36800cb10c49c
@@ -10,7 +10,7 @@ imports:
 - name: github.com/aulanov/go.dbus
   version: 25c3068a42a0b50b877953fb249dbcffc6bd1bca
 - name: github.com/aws/aws-sdk-go
-  version: 5fbcfa00ec930ccaa641b404adece72bf96e3667
+  version: 4b6331bd0c9a346715ab0d1ffa433f506c79c2c4
   subpackages:
   - aws
   - internal/endpoints
@@ -22,14 +22,21 @@ imports:
   - aws/awserr
   - aws/credentials
   - service/iam
-  - aws/awsutil
+  - aws/session
   - aws/client
-  - aws/client/metadata
+  - aws/corehandlers
+  - aws/defaults
   - aws/request
+  - private/endpoints
+  - aws/awsutil
+  - aws/client/metadata
   - aws/signer/v4
   - private/protocol
   - private/protocol/query
   - private/waiter
+  - aws/credentials/ec2rolecreds
+  - aws/credentials/endpointcreds
+  - aws/ec2metadata
   - private/protocol/rest
   - private/protocol/query/queryutil
   - private/protocol/xml/xmlutil
@@ -54,9 +61,9 @@ imports:
 - name: github.com/vaughan0/go-ini
   version: a98ad7ee00ec53921f08832bc06ecf7fd600e6a1
 - name: golang.org/x/crypto
-  version: 911fafb28f4ee7c7bd483539a6c96190bbbccc3f
+  version: bc89c496413265e715159bdc8478ee9a92fdc265
   subpackages:
   - ssh/terminal
 - name: gopkg.in/alecthomas/kingpin.v2
-  version: 92b2733684bc5f1971162349ce098fe0d070e2a9
+  version: e5900212cbf65b181d3d8e08308ef06a01d117cf
 devImports: []

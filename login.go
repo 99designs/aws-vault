@@ -20,6 +20,7 @@ type LoginCommandInput struct {
 	Keyring   keyring.Keyring
 	MfaToken  string
 	MfaPrompt prompt.PromptFunc
+	UseStdout bool
 }
 
 func LoginCommand(ui Ui, input LoginCommandInput) {
@@ -89,7 +90,9 @@ func LoginCommand(ui Ui, input LoginCommandInput) {
 		url.QueryEscape(signinToken),
 	)
 
-	if err = open.Run(loginUrl); err != nil {
+	if input.UseStdout {
+		fmt.Println(loginUrl)
+	} else if err = open.Run(loginUrl); err != nil {
 		log.Println(err)
 		fmt.Println(loginUrl)
 	}

@@ -58,6 +58,7 @@ func main() {
 		login            = kingpin.Command("login", "Generate a login link for the AWS Console")
 		loginProfile     = login.Arg("profile", "Name of the profile").Required().String()
 		loginMfaToken    = login.Flag("mfa-token", "The mfa token to use").Short('t').String()
+		useStdout        = login.Flag("stdout", "Print login URL to stdout instead of opening in default browser").Short('s').Bool()
 		server           = kingpin.Command("server", "Run an ec2 instance role server locally")
 	)
 
@@ -131,6 +132,7 @@ func main() {
 			Keyring:   keyring,
 			MfaToken:  *loginMfaToken,
 			MfaPrompt: prompt.Method(*promptDriver),
+			UseStdout: *useStdout,
 		})
 
 	case server.FullCommand():

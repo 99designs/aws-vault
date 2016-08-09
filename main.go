@@ -44,9 +44,7 @@ type globalFlags struct {
 }
 
 func configureAddCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
-	input := AddCommandInput{
-		Keyring: keyringImpl,
-	}
+	input := AddCommandInput{}
 
 	cmd := app.Command("add", "Adds credentials, prompts if none provided")
 	cmd.Arg("profile", "Name of the profile").
@@ -57,27 +55,25 @@ func configureAddCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
 		BoolVar(&input.FromEnv)
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
+		input.Keyring = keyringImpl
 		AddCommand(ui, input)
 		return nil
 	})
 }
 
 func configureListCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
-	input := LsCommandInput{
-		Keyring: keyringImpl,
-	}
+	input := LsCommandInput{}
 
 	cmd := app.Command("ls", "List profiles")
 	cmd.Action(func(c *kingpin.ParseContext) error {
+		input.Keyring = keyringImpl
 		LsCommand(ui, input)
 		return nil
 	})
 }
 
 func configureRotateCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
-	input := RotateCommandInput{
-		Keyring: keyringImpl,
-	}
+	input := RotateCommandInput{}
 
 	cmd := app.Command("rotate", "Rotates credentials")
 	cmd.Arg("profile", "Name of the profile").
@@ -90,15 +86,14 @@ func configureRotateCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.MfaPrompt = prompt.Method(g.PromptDriver)
+		input.Keyring = keyringImpl
 		RotateCommand(ui, input)
 		return nil
 	})
 }
 
 func configureExecCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
-	input := ExecCommandInput{
-		Keyring: keyringImpl,
-	}
+	input := ExecCommandInput{}
 
 	cmd := app.Command("exec", "Executes a command with AWS credentials in the environment")
 	cmd.Flag("no-session", "Use root credentials, no session created").
@@ -135,6 +130,7 @@ func configureExecCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
 		StringsVar(&input.Args)
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
+		input.Keyring = keyringImpl
 		input.MfaPrompt = prompt.Method(g.PromptDriver)
 		input.Signals = make(chan os.Signal)
 		signal.Notify(input.Signals, os.Interrupt, os.Kill)
@@ -144,9 +140,7 @@ func configureExecCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
 }
 
 func configureRemoveCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
-	input := RemoveCommandInput{
-		Keyring: keyringImpl,
-	}
+	input := RemoveCommandInput{}
 
 	cmd := app.Command("rm", "Removes credentials, including sessions")
 	cmd.Arg("profile", "Name of the profile").
@@ -158,15 +152,14 @@ func configureRemoveCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
 		BoolVar(&input.SessionsOnly)
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
+		input.Keyring = keyringImpl
 		RemoveCommand(ui, input)
 		return nil
 	})
 }
 
 func configureLoginCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
-	input := LoginCommandInput{
-		Keyring: keyringImpl,
-	}
+	input := LoginCommandInput{}
 
 	cmd := app.Command("login", "Generate a login link for the AWS Console")
 	cmd.Arg("profile", "Name of the profile").
@@ -183,6 +176,7 @@ func configureLoginCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.MfaPrompt = prompt.Method(g.PromptDriver)
+		input.Keyring = keyringImpl
 		LoginCommand(ui, input)
 		return nil
 	})

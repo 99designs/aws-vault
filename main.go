@@ -225,7 +225,7 @@ func main() {
 	app.Flag("prompt", fmt.Sprintf("Prompt driver to use %v", promptsAvailable)).
 		Default("terminal").
 		OverrideDefaultFromEnvar("AWS_VAULT_PROMPT").
-		Enum(promptsAvailable...)
+		EnumVar(&globals.PromptDriver, promptsAvailable...)
 
 	app.PreAction(func(c *kingpin.ParseContext) (err error) {
 		keyringImpl, err = keyring.Open(KeyringName, globals.Backend)

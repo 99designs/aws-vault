@@ -10,6 +10,8 @@ import (
 	"os"
 	"os/exec"
 	"time"
+
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
@@ -22,10 +24,11 @@ const (
 type ServerCommandInput struct {
 }
 
-func ServerCommand(ui Ui, input ServerCommandInput) {
+func ServerCommand(app *kingpin.Application, input ServerCommandInput) {
 	if output, err := installNetworkAlias(); err != nil {
-		ui.Error.Println(string(output))
-		ui.Error.Fatal(err)
+		app.Errorf(string(output))
+		app.Fatalf(err.Error())
+		return
 	}
 
 	router := http.NewServeMux()
@@ -34,11 +37,12 @@ func ServerCommand(ui Ui, input ServerCommandInput) {
 
 	l, err := net.Listen("tcp", metadataBind)
 	if err != nil {
-		ui.Error.Fatal(err)
+		app.Fatalf(err.Error())
+		return
 	}
 
-	ui.Debug.Printf("Local instance role server running on %s", l.Addr())
-	ui.Println(http.Serve(l, router))
+	log.Printf("Local instance role server running on %s", l.Addr())
+	app.Errorf(http.Serve(l, router).Error())
 }
 
 type metadataHandler struct {
@@ -74,9 +78,9 @@ func checkServerRunning(bind string) bool {
 	return err == nil
 }
 
-func startCredentialsServer(ui Ui, creds *VaultCredentials) error {
+func startCredentialsServer(creds *VaultCredentials) error {
 	if !checkServerRunning(metadataBind) {
-		ui.Error.Println("Starting `aws-vault server` as root in the background")
+		log.Printf("Starting `aws-vault server` as root in the background")
 		cmd := exec.Command("sudo", "-b", os.Args[0], "server")
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout

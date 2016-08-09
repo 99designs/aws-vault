@@ -5,6 +5,7 @@ import (
 
 	"github.com/99designs/aws-vault/keyring"
 	"github.com/99designs/aws-vault/prompt"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 type RemoveCommandInput struct {
@@ -13,30 +14,34 @@ type RemoveCommandInput struct {
 	SessionsOnly bool
 }
 
-func RemoveCommand(ui Ui, input RemoveCommandInput) {
+func RemoveCommand(app *kingpin.Application, input RemoveCommandInput) {
 	if !input.SessionsOnly {
 		provider := &KeyringProvider{Keyring: input.Keyring, Profile: input.Profile}
 		r, err := prompt.TerminalPrompt(fmt.Sprintf("Delete credentials for profile %q? (Y|n)", input.Profile))
 		if err != nil {
-			ui.Error.Fatal(err)
+			app.Fatalf(err.Error())
+			return
 		} else if r == "N" || r == "n" {
 			return
 		}
 
 		if err := provider.Delete(); err != nil {
-			ui.Error.Fatal(err)
+			app.Fatalf(err.Error())
+			return
 		}
-		ui.Printf("Deleted credentials.")
+		fmt.Printf("Deleted credentials.")
 	}
 
 	sessions, err := NewKeyringSessions(input.Keyring)
 	if err != nil {
-		ui.Error.Fatal(err)
+		app.Fatalf(err.Error())
+		return
 	}
 
 	n, err := sessions.Delete(input.Profile)
 	if err != nil {
-		ui.Error.Fatal(err)
+		app.Fatalf(err.Error())
+		return
 	}
-	ui.Printf("Deleted %d sessions.", n)
+	fmt.Printf("Deleted %d sessions.", n)
 }

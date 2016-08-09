@@ -24,26 +24,13 @@ var (
 	backendsAvailable = keyring.SupportedBackends()
 )
 
-type Ui struct {
-	*log.Logger
-	Error, Debug *log.Logger
-	Exit         func(code int)
-}
-
-type logWriter struct{ *log.Logger }
-
-func (w logWriter) Write(b []byte) (int, error) {
-	w.Printf("%s", b)
-	return len(b), nil
-}
-
 type globalFlags struct {
 	Debug        bool
 	Backend      string
 	PromptDriver string
 }
 
-func configureAddCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
+func configureAddCommand(app *kingpin.Application, g *globalFlags) {
 	input := AddCommandInput{}
 
 	cmd := app.Command("add", "Adds credentials, prompts if none provided")
@@ -56,23 +43,23 @@ func configureAddCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.Keyring = keyringImpl
-		AddCommand(ui, input)
+		AddCommand(app, input)
 		return nil
 	})
 }
 
-func configureListCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
+func configureListCommand(app *kingpin.Application, g *globalFlags) {
 	input := LsCommandInput{}
 
 	cmd := app.Command("ls", "List profiles")
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.Keyring = keyringImpl
-		LsCommand(ui, input)
+		LsCommand(app, input)
 		return nil
 	})
 }
 
-func configureRotateCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
+func configureRotateCommand(app *kingpin.Application, g *globalFlags) {
 	input := RotateCommandInput{}
 
 	cmd := app.Command("rotate", "Rotates credentials")
@@ -87,12 +74,12 @@ func configureRotateCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.MfaPrompt = prompt.Method(g.PromptDriver)
 		input.Keyring = keyringImpl
-		RotateCommand(ui, input)
+		RotateCommand(app, input)
 		return nil
 	})
 }
 
-func configureExecCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
+func configureExecCommand(app *kingpin.Application, g *globalFlags) {
 	input := ExecCommandInput{}
 
 	cmd := app.Command("exec", "Executes a command with AWS credentials in the environment")
@@ -134,12 +121,12 @@ func configureExecCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
 		input.MfaPrompt = prompt.Method(g.PromptDriver)
 		input.Signals = make(chan os.Signal)
 		signal.Notify(input.Signals, os.Interrupt, os.Kill)
-		ExecCommand(ui, input)
+		ExecCommand(app, input)
 		return nil
 	})
 }
 
-func configureRemoveCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
+func configureRemoveCommand(app *kingpin.Application, g *globalFlags) {
 	input := RemoveCommandInput{}
 
 	cmd := app.Command("rm", "Removes credentials, including sessions")
@@ -153,12 +140,12 @@ func configureRemoveCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.Keyring = keyringImpl
-		RemoveCommand(ui, input)
+		RemoveCommand(app, input)
 		return nil
 	})
 }
 
-func configureLoginCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
+func configureLoginCommand(app *kingpin.Application, g *globalFlags) {
 	input := LoginCommandInput{}
 
 	cmd := app.Command("login", "Generate a login link for the AWS Console")
@@ -187,29 +174,22 @@ func configureLoginCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.MfaPrompt = prompt.Method(g.PromptDriver)
 		input.Keyring = keyringImpl
-		LoginCommand(ui, input)
+		LoginCommand(app, input)
 		return nil
 	})
 }
 
-func configureServerCommand(app *kingpin.Application, ui Ui, g *globalFlags) {
+func configureServerCommand(app *kingpin.Application, g *globalFlags) {
 	input := ServerCommandInput{}
 
 	cmd := app.Command("server", "Run an ec2 instance role server locally")
 	cmd.Action(func(c *kingpin.ParseContext) error {
-		ServerCommand(ui, input)
+		ServerCommand(app, input)
 		return nil
 	})
 }
 
 func main() {
-	ui := Ui{
-		Logger: log.New(os.Stdout, "", 0),
-		Error:  log.New(os.Stderr, "", 0),
-		Debug:  log.New(ioutil.Discard, "", 0),
-		Exit:   os.Exit,
-	}
-
 	app := kingpin.New("aws-vault",
 		`A vault for securely storing and accessing AWS credentials in development environments.`)
 
@@ -236,21 +216,17 @@ func main() {
 		return err
 	})
 
-	configureAddCommand(app, ui, globals)
-	configureListCommand(app, ui, globals)
-	configureRotateCommand(app, ui, globals)
-	configureExecCommand(app, ui, globals)
-	configureRemoveCommand(app, ui, globals)
-	configureLoginCommand(app, ui, globals)
-	configureServerCommand(app, ui, globals)
+	configureAddCommand(app, globals)
+	configureListCommand(app, globals)
+	configureRotateCommand(app, globals)
+	configureExecCommand(app, globals)
+	configureRemoveCommand(app, globals)
+	configureLoginCommand(app, globals)
+	configureServerCommand(app, globals)
 
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
-	if globals.Debug {
-		ui.Debug = log.New(os.Stderr, "DEBUG ", log.LstdFlags)
-		log.SetFlags(0)
-		log.SetOutput(&logWriter{ui.Debug})
-	} else {
+	if !globals.Debug {
 		log.SetOutput(ioutil.Discard)
 	}
 }

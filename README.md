@@ -3,13 +3,13 @@ AWS Vault
 
 Securely store and access credentials for AWS. AWS Vault stores IAM credentials in your operating systems secure keystore and then generates temporary credentials from those to expose to your shell and applications. It's designed to be complementary to the aws cli tools, and is aware of your [profiles and configuration in `~/.aws/config`](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files).
 
-Currently macOS (OSX)/Keychain and Linux/KWallet are supported, support for Linux's libsecret and Windows planned.
+Currently macOS (Mac OS X)/Keychain and Linux/KWallet are supported, support for Linux's libsecret and Windows planned.
 
 ## Installing
 
 Download the [latest release](https://github.com/99designs/aws-vault/releases).
 
-On macOS (OSX), you may instead use [homebrew cask](https://github.com/caskroom/homebrew-cask) to install:
+On macOS, you may instead use [homebrew cask](https://github.com/caskroom/homebrew-cask) to install:
 
     brew cask install aws-vault
 

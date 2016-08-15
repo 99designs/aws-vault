@@ -9,6 +9,12 @@ Currently OSX/Keychain and Linux/KWallet are supported, support for Linux's libs
 
 Download the [latest release](https://github.com/99designs/aws-vault/releases). The OSX release is code-signed, and you can verify this with `codesign -dvvv aws-vault`.
 
+On macOS, you may instead use [homebrew cask](https://github.com/caskroom/homebrew-cask) to install that same code-signed binary:
+
+    brew cask install aws-vault
+    # Verify the code-signed binary
+    codesign -dvvv $(which aws-vault)
+
 ## Usage
 
 ```bash

@@ -15,7 +15,8 @@ On macOS, you may instead use [homebrew cask](https://github.com/caskroom/homebr
 
 The macOS release is code-signed, and you can verify this with `codesign`:
 
-    codesign -dvvv $(which aws-vault)
+    codesign -dvvv $(which aws-vault) | grep NRM9HVJ62Z
+    Authority=3rd Party Mac Developer Application: 99designs Inc (NRM9HVJ62Z)
 
 ## Usage
 

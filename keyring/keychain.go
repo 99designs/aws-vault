@@ -62,7 +62,7 @@ func (k *keychain) Get(key string) (Item, error) {
 	if err != nil {
 		return Item{}, err
 	}
-	defer C.CFRelease(C.CFTypeRef(serviceRef))
+	defer C.CFRelease(C.CFTypeRef(accountRef))
 
 	query := map[C.CFTypeRef]C.CFTypeRef{
 		C.CFTypeRef(C.kSecClass):            C.CFTypeRef(C.kSecClassGenericPassword),

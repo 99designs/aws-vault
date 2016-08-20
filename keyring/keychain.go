@@ -221,7 +221,7 @@ func (k *keychain) Remove(key string) error {
 	if err != nil {
 		return err
 	}
-	defer C.CFRelease(C.CFTypeRef(serviceRef))
+	defer C.CFRelease(C.CFTypeRef(accountRef))
 
 	query := map[C.CFTypeRef]C.CFTypeRef{
 		C.CFTypeRef(C.kSecClass):       C.CFTypeRef(C.kSecClassGenericPassword),

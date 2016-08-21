@@ -20,6 +20,9 @@ import (
 	"log"
 	"os"
 	"os/user"
+	"strconv"
+	"strings"
+	"syscall"
 	"unicode/utf8"
 	"unsafe"
 )
@@ -30,18 +33,44 @@ type keychain struct {
 	Passphrase string
 }
 
+func keychainPath(name string) (string, error) {
+	usr, err := user.Current()
+	if err != nil {
+		return "", err
+	}
+
+	// As of macOS Sierra, Keychain files are stored with the `.keychain-db`
+	// extension, rather than `.keychain`. The result of the kern.osrelease
+	// sysctl is the kernel version number in the form "major.minor.patch",
+	// and Sierra is the first macOS release to use kernel major version 16
+	osver, err := syscall.Sysctl("kern.osrelease")
+	if err != nil {
+		return "", err
+	}
+
+	major, err := strconv.Atoi(strings.Split(osver, ".")[0])
+	if err != nil {
+		return "", err
+	}
+
+	if major >= 16 {
+		return usr.HomeDir + "/Library/Keychains/" + name + ".keychain-db", nil
+	} else {
+		return usr.HomeDir + "/Library/Keychains/" + name + ".keychain", nil
+	}
+}
+
 func init() {
 	supportedBackends[KeychainBackend] = opener(func(name string) (Keyring, error) {
 		if name == "" {
 			name = "login"
 		}
 
-		usr, err := user.Current()
+		path, err := keychainPath(name)
 		if err != nil {
 			return nil, err
 		}
-
-		return &keychain{Path: usr.HomeDir + "/Library/Keychains/" + name + ".keychain", Service: name}, nil
+		return &keychain{Path: path, Service: name}, nil
 	})
 
 	DefaultBackend = KeychainBackend

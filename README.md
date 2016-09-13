@@ -86,7 +86,7 @@ Then when you use the `admin` profile, `aws-vault` will look in the `read-only` 
 
 ## Development
 
-Developed with golang 1.5 with `GO15VENDOREXPERIMENT=1`, to install:
+Developed with golang 1.5.2+ with `GO15VENDOREXPERIMENT=1`, to install:
 
 ```
 export GO15VENDOREXPERIMENT=1

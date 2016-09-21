@@ -194,6 +194,9 @@ func configureServerCommand(app *kingpin.Application, g *globalFlags) {
 }
 
 func run(args []string, onTerminate func(int)) {
+	kingpin.BashCompletionTemplate = bashCompletionTemplate
+	kingpin.BashCompletionTemplate = zshCompletionTemplate
+
 	app := kingpin.New("aws-vault",
 		`A vault for securely storing and accessing AWS credentials in development environments.`)
 

@@ -32,7 +32,7 @@ func TestOSXKeychainKeyringSet(t *testing.T) {
 	file := tmpKeychain(t)
 	defer os.Remove(file)
 
-	k := &keychain{Path: file, Passphrase: "llamas", Service: "test"}
+	k := &keychain{path: file, passphrase: "llamas", service: "test"}
 	item := Item{
 		Key:         "llamas",
 		Label:       "Arbitrary label",
@@ -67,7 +67,7 @@ func TestOSXKeychainKeyringListKeys(t *testing.T) {
 	file := tmpKeychain(t)
 	defer os.Remove(file)
 
-	k := &keychain{Path: file, Passphrase: "llamas", Service: "test"}
+	k := &keychain{path: file, passphrase: "llamas", service: "test"}
 	keys := []string{"key1", "key2", "key3"}
 
 	for _, key := range keys {

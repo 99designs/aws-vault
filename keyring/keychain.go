@@ -24,9 +24,9 @@ import (
 )
 
 type keychain struct {
-	Path       string
-	Service    string
-	Passphrase string
+	path       string
+	service    string
+	passphrase string
 }
 
 func init() {
@@ -40,14 +40,14 @@ func init() {
 			return nil, err
 		}
 
-		return &keychain{Path: usr.HomeDir + "/Library/Keychains/" + name + ".keychain", Service: name}, nil
+		return &keychain{path: usr.HomeDir + "/Library/Keychains/" + name + ".keychain", service: name}, nil
 	})
 
 	DefaultBackend = KeychainBackend
 }
 
 func (k *keychain) Get(key string) (Item, error) {
-	serviceRef, err := _UTF8StringToCFString(k.Service)
+	serviceRef, err := _UTF8StringToCFString(k.service)
 	if err != nil {
 		return Item{}, err
 	}
@@ -68,7 +68,7 @@ func (k *keychain) Get(key string) (Item, error) {
 		C.CFTypeRef(C.kSecReturnData):       C.CFTypeRef(C.kCFBooleanTrue),
 	}
 
-	kref, err := openKeychain(k.Path)
+	kref, err := openKeychain(k.path)
 	if err != nil {
 		return Item{}, err
 	}
@@ -116,28 +116,28 @@ func (k *keychain) Set(item Item) error {
 	var kref C.SecKeychainRef
 	var err error
 
-	if exists, _ := keychainExists(k.Path); !exists {
+	if exists, _ := keychainExists(k.path); !exists {
 		var prompt = true
-		if k.Passphrase != "" {
+		if k.passphrase != "" {
 			prompt = false
 		}
-		log.Printf("Creating keychain %s (prompt %#v)", k.Path, prompt)
-		kref, err = createKeychain(k.Path, prompt, k.Passphrase)
+		log.Printf("Creating keychain %s (prompt %#v)", k.path, prompt)
+		kref, err = createKeychain(k.path, prompt, k.passphrase)
 		if err != nil {
 			return err
 		}
 		defer C.CFRelease(C.CFTypeRef(kref))
 	} else {
-		kref, err = openKeychain(k.Path)
+		kref, err = openKeychain(k.path)
 		if err != nil {
-			log.Printf("error opening %v, %v", err, k.Path)
+			log.Printf("error opening %v, %v", err, k.path)
 			return err
 		}
 		defer C.CFRelease(C.CFTypeRef(kref))
 	}
 
 	var serviceRef C.CFStringRef
-	if serviceRef, err = _UTF8StringToCFString(k.Service); err != nil {
+	if serviceRef, err = _UTF8StringToCFString(k.service); err != nil {
 		return err
 	}
 	defer C.CFRelease(C.CFTypeRef(serviceRef))
@@ -155,7 +155,7 @@ func (k *keychain) Set(item Item) error {
 	defer C.CFRelease(C.CFTypeRef(descr))
 
 	if item.Label == "" {
-		item.Label = fmt.Sprintf("%s (%s)", k.Service, item.Key)
+		item.Label = fmt.Sprintf("%s (%s)", k.service, item.Key)
 	}
 
 	var label C.CFStringRef
@@ -178,7 +178,7 @@ func (k *keychain) Set(item Item) error {
 	}
 
 	if !item.TrustSelf {
-		access, err := createEmptyAccess(fmt.Sprintf("%s (%s)", k.Service, item.Key))
+		access, err := createEmptyAccess(fmt.Sprintf("%s (%s)", k.service, item.Key))
 		if err != nil {
 			return err
 		}
@@ -189,7 +189,7 @@ func (k *keychain) Set(item Item) error {
 	queryDict := mapToCFDictionary(query)
 	defer C.CFRelease(C.CFTypeRef(queryDict))
 
-	log.Printf("Adding service=%q, account=%q to osx keychain %s", k.Service, item.Key, k.Path)
+	log.Printf("Adding service=%q, account=%q to osx keychain %s", k.service, item.Key, k.path)
 	err = newKeychainError(C.SecItemAdd(queryDict, nil))
 
 	if err == errDuplicateItem {
@@ -203,7 +203,7 @@ func (k *keychain) Set(item Item) error {
 }
 
 func (k *keychain) Remove(key string) error {
-	serviceRef, err := _UTF8StringToCFString(k.Service)
+	serviceRef, err := _UTF8StringToCFString(k.service)
 	if err != nil {
 		return err
 	}
@@ -222,7 +222,7 @@ func (k *keychain) Remove(key string) error {
 		C.CFTypeRef(C.kSecMatchLimit):  C.CFTypeRef(C.kSecMatchLimitOne),
 	}
 
-	kref, err := openKeychain(k.Path)
+	kref, err := openKeychain(k.path)
 	if err != nil {
 		return err
 	}
@@ -234,12 +234,12 @@ func (k *keychain) Remove(key string) error {
 	queryDict := mapToCFDictionary(query)
 	defer C.CFRelease(C.CFTypeRef(queryDict))
 
-	log.Printf("Removing keychain item service=%q, account=%q from osx keychain %q", k.Service, key, k.Path)
+	log.Printf("Removing keychain item service=%q, account=%q from osx keychain %q", k.service, key, k.path)
 	return newKeychainError(C.SecItemDelete(queryDict))
 }
 
 func (k *keychain) Keys() ([]string, error) {
-	serviceRef, err := _UTF8StringToCFString(k.Service)
+	serviceRef, err := _UTF8StringToCFString(k.service)
 	if err != nil {
 		return nil, err
 	}
@@ -252,7 +252,7 @@ func (k *keychain) Keys() ([]string, error) {
 		C.CFTypeRef(C.kSecReturnAttributes): C.CFTypeRef(C.kCFBooleanTrue),
 	}
 
-	kref, err := openKeychain(k.Path)
+	kref, err := openKeychain(k.path)
 	if err != nil {
 		return nil, err
 	}

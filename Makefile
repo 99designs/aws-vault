@@ -6,7 +6,7 @@ GOVERSION=$(shell go version)
 GOBIN=$(shell go env GOBIN)
 VERSION=$(shell git describe --tags --candidates=1 --dirty)
 FLAGS=-X main.Version=$(VERSION) -s -w
-CERT="3rd Party Mac Developer Application: 99designs Inc (NRM9HVJ62Z)"
+CERT="Developer ID Application: 99designs Inc (NRM9HVJ62Z)"
 SRC=$(shell find . -name '*.go')
 
 build:
@@ -26,3 +26,6 @@ $(BIN)-windows-386: $(SRC)
 
 release: $(BIN)-linux-amd64 $(BIN)-darwin-amd64 $(BIN)-windows-386
 	codesign -s $(CERT) $(BIN)-darwin-amd64
+
+clean:
+	rm -rf $(BIN)-linux-amd64 $(BIN)-darwin-amd64 $(BIN)-windows-386

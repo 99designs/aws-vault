@@ -11,12 +11,14 @@ Download the [latest release](https://github.com/99designs/aws-vault/releases).
 
 On macOS, you may instead use [homebrew cask](https://github.com/caskroom/homebrew-cask) to install:
 
-    brew cask install aws-vault
+    $ brew cask install aws-vault
 
 The macOS release is code-signed, and you can verify this with `codesign`:
 
-    codesign -dvvv $(which aws-vault) | grep NRM9HVJ62Z
-    Authority=3rd Party Mac Developer Application: 99designs Inc (NRM9HVJ62Z)
+    $ codesign -dvv $(which aws-vault) 2>&1 | grep Authority
+    Authority=Developer ID Application: 99designs Inc (NRM9HVJ62Z)
+    Authority=Developer ID Certification Authority
+    Authority=Apple Root CA
 
 ## Usage
 

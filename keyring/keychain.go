@@ -18,46 +18,15 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"os"
 	"os/user"
-	"strconv"
-	"strings"
-	"syscall"
 	"unicode/utf8"
 	"unsafe"
 )
 
 type keychain struct {
-	Path       string
-	Service    string
-	Passphrase string
-}
-
-func keychainPath(name string) (string, error) {
-	usr, err := user.Current()
-	if err != nil {
-		return "", err
-	}
-
-	// As of macOS Sierra, Keychain files are stored with the `.keychain-db`
-	// extension, rather than `.keychain`. The result of the kern.osrelease
-	// sysctl is the kernel version number in the form "major.minor.patch",
-	// and Sierra is the first macOS release to use kernel major version 16
-	osver, err := syscall.Sysctl("kern.osrelease")
-	if err != nil {
-		return "", err
-	}
-
-	major, err := strconv.Atoi(strings.Split(osver, ".")[0])
-	if err != nil {
-		return "", err
-	}
-
-	if major >= 16 {
-		return usr.HomeDir + "/Library/Keychains/" + name + ".keychain-db", nil
-	} else {
-		return usr.HomeDir + "/Library/Keychains/" + name + ".keychain", nil
-	}
+	path       string
+	service    string
+	passphrase string
 }
 
 func init() {
@@ -66,22 +35,19 @@ func init() {
 			name = "login"
 		}
 
-		path, err := keychainPath(name)
+		usr, err := user.Current()
 		if err != nil {
 			return nil, err
 		}
-		return &keychain{Path: path, Service: name}, nil
+
+		return &keychain{path: usr.HomeDir + "/Library/Keychains/" + name + ".keychain", service: name}, nil
 	})
 
 	DefaultBackend = KeychainBackend
 }
 
 func (k *keychain) Get(key string) (Item, error) {
-	if _, err := os.Stat(k.Path); os.IsNotExist(err) {
-		return Item{}, ErrKeyNotFound
-	}
-
-	serviceRef, err := _UTF8StringToCFString(k.Service)
+	serviceRef, err := _UTF8StringToCFString(k.service)
 	if err != nil {
 		return Item{}, err
 	}
@@ -102,7 +68,7 @@ func (k *keychain) Get(key string) (Item, error) {
 		C.CFTypeRef(C.kSecReturnData):       C.CFTypeRef(C.kCFBooleanTrue),
 	}
 
-	kref, err := openKeychain(k.Path)
+	kref, err := openKeychain(k.path)
 	if err != nil {
 		return Item{}, err
 	}
@@ -150,27 +116,28 @@ func (k *keychain) Set(item Item) error {
 	var kref C.SecKeychainRef
 	var err error
 
-	if _, err := os.Stat(k.Path); os.IsNotExist(err) {
+	if exists, _ := keychainExists(k.path); !exists {
 		var prompt = true
-		if k.Passphrase != "" {
+		if k.passphrase != "" {
 			prompt = false
 		}
-		log.Printf("Creating keychain %s (prompt %#v)", k.Path, prompt)
-		kref, err = createKeychain(k.Path, prompt, k.Passphrase)
+		log.Printf("Creating keychain %s (prompt %#v)", k.path, prompt)
+		kref, err = createKeychain(k.path, prompt, k.passphrase)
 		if err != nil {
 			return err
 		}
 		defer C.CFRelease(C.CFTypeRef(kref))
 	} else {
-		kref, err = openKeychain(k.Path)
+		kref, err = openKeychain(k.path)
 		if err != nil {
+			log.Printf("error opening %v, %v", err, k.path)
 			return err
 		}
 		defer C.CFRelease(C.CFTypeRef(kref))
 	}
 
 	var serviceRef C.CFStringRef
-	if serviceRef, err = _UTF8StringToCFString(k.Service); err != nil {
+	if serviceRef, err = _UTF8StringToCFString(k.service); err != nil {
 		return err
 	}
 	defer C.CFRelease(C.CFTypeRef(serviceRef))
@@ -188,7 +155,7 @@ func (k *keychain) Set(item Item) error {
 	defer C.CFRelease(C.CFTypeRef(descr))
 
 	if item.Label == "" {
-		item.Label = fmt.Sprintf("%s (%s)", k.Service, item.Key)
+		item.Label = fmt.Sprintf("%s (%s)", k.service, item.Key)
 	}
 
 	var label C.CFStringRef
@@ -211,7 +178,7 @@ func (k *keychain) Set(item Item) error {
 	}
 
 	if !item.TrustSelf {
-		access, err := createEmptyAccess(fmt.Sprintf("%s (%s)", k.Service, item.Key))
+		access, err := createEmptyAccess(fmt.Sprintf("%s (%s)", k.service, item.Key))
 		if err != nil {
 			return err
 		}
@@ -222,7 +189,7 @@ func (k *keychain) Set(item Item) error {
 	queryDict := mapToCFDictionary(query)
 	defer C.CFRelease(C.CFTypeRef(queryDict))
 
-	log.Printf("Adding service=%q, account=%q to osx keychain %s", k.Service, item.Key, k.Path)
+	log.Printf("Adding service=%q, account=%q to osx keychain %s", k.service, item.Key, k.path)
 	err = newKeychainError(C.SecItemAdd(queryDict, nil))
 
 	if err == errDuplicateItem {
@@ -236,11 +203,7 @@ func (k *keychain) Set(item Item) error {
 }
 
 func (k *keychain) Remove(key string) error {
-	if _, err := os.Stat(k.Path); os.IsNotExist(err) {
-		return ErrKeyNotFound
-	}
-
-	serviceRef, err := _UTF8StringToCFString(k.Service)
+	serviceRef, err := _UTF8StringToCFString(k.service)
 	if err != nil {
 		return err
 	}
@@ -259,7 +222,7 @@ func (k *keychain) Remove(key string) error {
 		C.CFTypeRef(C.kSecMatchLimit):  C.CFTypeRef(C.kSecMatchLimitOne),
 	}
 
-	kref, err := openKeychain(k.Path)
+	kref, err := openKeychain(k.path)
 	if err != nil {
 		return err
 	}
@@ -271,12 +234,12 @@ func (k *keychain) Remove(key string) error {
 	queryDict := mapToCFDictionary(query)
 	defer C.CFRelease(C.CFTypeRef(queryDict))
 
-	log.Printf("Removing keychain item service=%q, account=%q from osx keychain %q", k.Service, key, k.Path)
+	log.Printf("Removing keychain item service=%q, account=%q from osx keychain %q", k.service, key, k.path)
 	return newKeychainError(C.SecItemDelete(queryDict))
 }
 
 func (k *keychain) Keys() ([]string, error) {
-	serviceRef, err := _UTF8StringToCFString(k.Service)
+	serviceRef, err := _UTF8StringToCFString(k.service)
 	if err != nil {
 		return nil, err
 	}
@@ -289,7 +252,7 @@ func (k *keychain) Keys() ([]string, error) {
 		C.CFTypeRef(C.kSecReturnAttributes): C.CFTypeRef(C.kCFBooleanTrue),
 	}
 
-	kref, err := openKeychain(k.Path)
+	kref, err := openKeychain(k.path)
 	if err != nil {
 		return nil, err
 	}
@@ -322,6 +285,27 @@ func (k *keychain) Keys() ([]string, error) {
 
 // -------------------------------------------------
 // OSX Keychain API funcs
+
+func keychainExists(path string) (bool, error) {
+	// returns no error even if it doesn't exist
+	k, err := openKeychain(path)
+	if err != nil {
+		log.Printf("Error opening %v", err)
+		return false, err
+	}
+	defer C.CFRelease(C.CFTypeRef(k))
+
+	var status C.SecKeychainStatus
+	err = newKeychainError(C.SecKeychainGetStatus(k, &status))
+
+	if err == errNoSuchKeychain {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
 
 // The returned SecAccessRef, if non-nil, must be released via CFRelease.
 func createEmptyAccess(label string) (C.SecAccessRef, error) {
@@ -378,6 +362,10 @@ func openKeychain(path string) (C.SecKeychainRef, error) {
 	}
 
 	return kref, nil
+}
+
+func releaseKeychain(k C.SecKeychainRef) {
+	C.CFRelease(C.CFTypeRef(k))
 }
 
 // -------------------------------------------------

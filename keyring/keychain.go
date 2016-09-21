@@ -18,7 +18,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"os"
 	"os/user"
 	"unicode/utf8"
 	"unsafe"
@@ -48,10 +47,6 @@ func init() {
 }
 
 func (k *keychain) Get(key string) (Item, error) {
-	if _, err := os.Stat(k.Path); os.IsNotExist(err) {
-		return Item{}, ErrKeyNotFound
-	}
-
 	serviceRef, err := _UTF8StringToCFString(k.Service)
 	if err != nil {
 		return Item{}, err
@@ -121,7 +116,7 @@ func (k *keychain) Set(item Item) error {
 	var kref C.SecKeychainRef
 	var err error
 
-	if _, err := os.Stat(k.Path); os.IsNotExist(err) {
+	if exists, _ := keychainExists(k.Path); !exists {
 		var prompt = true
 		if k.Passphrase != "" {
 			prompt = false
@@ -135,6 +130,7 @@ func (k *keychain) Set(item Item) error {
 	} else {
 		kref, err = openKeychain(k.Path)
 		if err != nil {
+			log.Printf("error opening %v, %v", err, k.Path)
 			return err
 		}
 		defer C.CFRelease(C.CFTypeRef(kref))
@@ -207,10 +203,6 @@ func (k *keychain) Set(item Item) error {
 }
 
 func (k *keychain) Remove(key string) error {
-	if _, err := os.Stat(k.Path); os.IsNotExist(err) {
-		return ErrKeyNotFound
-	}
-
 	serviceRef, err := _UTF8StringToCFString(k.Service)
 	if err != nil {
 		return err
@@ -294,6 +286,27 @@ func (k *keychain) Keys() ([]string, error) {
 // -------------------------------------------------
 // OSX Keychain API funcs
 
+func keychainExists(path string) (bool, error) {
+	// returns no error even if it doesn't exist
+	k, err := openKeychain(path)
+	if err != nil {
+		log.Printf("Error opening %v", err)
+		return false, err
+	}
+	defer C.CFRelease(C.CFTypeRef(k))
+
+	var status C.SecKeychainStatus
+	err = newKeychainError(C.SecKeychainGetStatus(k, &status))
+
+	if err == errNoSuchKeychain {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
 // The returned SecAccessRef, if non-nil, must be released via CFRelease.
 func createEmptyAccess(label string) (C.SecAccessRef, error) {
 	var err error
@@ -349,6 +362,10 @@ func openKeychain(path string) (C.SecKeychainRef, error) {
 	}
 
 	return kref, nil
+}
+
+func releaseKeychain(k C.SecKeychainRef) {
+	C.CFRelease(C.CFTypeRef(k))
 }
 
 // -------------------------------------------------

@@ -9,6 +9,25 @@ import (
 	"testing"
 )
 
+func TestOSXKeychainDoesntExist(t *testing.T) {
+	file := tmpKeychain(t)
+	defer os.Remove(file)
+
+	k, err := createKeychain(file, false, "llamas")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer releaseKeychain(k)
+
+	if exists, _ := keychainExists(file); !exists {
+		t.Fatalf("Expected existing keychain to be shown as existing")
+	}
+
+	if exists, _ := keychainExists("llamaspleasedontbeakeychainwiththisname"); exists {
+		t.Fatalf("Expected non-existing keychain to NOT be shown as existing")
+	}
+}
+
 func TestOSXKeychainKeyringSet(t *testing.T) {
 	file := tmpKeychain(t)
 	defer os.Remove(file)
@@ -74,5 +93,5 @@ func tmpKeychain(t *testing.T) (path string) {
 		return
 	}
 	os.Remove(file.Name())
-	return file.Name() + ".keychain"
+	return file.Name()
 }

@@ -271,6 +271,20 @@ func (p *VaultProvider) assumeRole(creds credentials.Value, roleArn string) (sts
 		DurationSeconds: aws.Int64(int64(p.AssumeRoleDuration.Seconds())),
 	}
 
+	// if we don't have a session, we need to include MFA token in the AssumeRole call
+	if mfa, ok := p.profiles[p.profile]["mfa_serial"]; ok {
+		input.SerialNumber = aws.String(mfa)
+		if p.MfaToken == "" {
+			token, err := p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", mfa))
+			if err != nil {
+				return sts.Credentials{}, err
+			}
+			input.TokenCode = aws.String(token)
+		} else {
+			input.TokenCode = aws.String(p.MfaToken)
+		}
+	}
+
 	log.Printf("Assuming role %s with iam credentials", roleArn)
 	resp, err := client.AssumeRole(input)
 	if err != nil {

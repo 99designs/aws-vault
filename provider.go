@@ -221,7 +221,7 @@ func (p *VaultProvider) assumeRole(creds sts.Credentials, roleArn string, roleSe
 
 	if roleSessionName == "" {
 		// Try to work out a role name that will hopefully end up unique.
-		roleSessionName := fmt.Sprintf("%d", time.Now().UTC().UnixNano())
+		roleSessionName = fmt.Sprintf("%d", time.Now().UTC().UnixNano())
 	}
 
 	input := &sts.AssumeRoleInput{

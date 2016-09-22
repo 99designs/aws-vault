@@ -128,7 +128,8 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 	}
 
 	if role, ok := p.profiles[p.profile]["role_arn"]; ok {
-		session, err = p.assumeRole(session, role)
+		roleSessionName := p.profiles[p.profile]["role_session_name"]
+		session, err = p.assumeRole(session, role, roleSessionName)
 		if err != nil {
 			return credentials.Value{}, err
 		}
@@ -208,7 +209,7 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 	return *resp.Credentials, nil
 }
 
-func (p *VaultProvider) assumeRole(creds sts.Credentials, roleArn string) (sts.Credentials, error) {
+func (p *VaultProvider) assumeRole(creds sts.Credentials, roleArn string, roleSessionName string) (sts.Credentials, error) {
 	client := p.client
 	if client == nil {
 		client = sts.New(session.New(&aws.Config{Credentials: credentials.NewStaticCredentials(
@@ -218,8 +219,10 @@ func (p *VaultProvider) assumeRole(creds sts.Credentials, roleArn string) (sts.C
 		)}))
 	}
 
-	// Try to work out a role name that will hopefully end up unique.
-	roleSessionName := fmt.Sprintf("%d", time.Now().UTC().UnixNano())
+	if roleSessionName == "" {
+		// Try to work out a role name that will hopefully end up unique.
+		roleSessionName := fmt.Sprintf("%d", time.Now().UTC().UnixNano())
+	}
 
 	input := &sts.AssumeRoleInput{
 		RoleArn:         aws.String(roleArn),

@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/99designs/aws-vault/keyring"
 	"github.com/99designs/aws-vault/prompt"
@@ -16,18 +17,26 @@ import (
 )
 
 type LoginCommandInput struct {
-	Profile   string
-	Keyring   keyring.Keyring
-	MfaToken  string
-	MfaPrompt prompt.PromptFunc
-	UseStdout bool
+	Profile                 string
+	Keyring                 keyring.Keyring
+	MfaToken                string
+	MfaPrompt               prompt.PromptFunc
+	UseStdout               bool
+	FederationTokenDuration time.Duration
+	AssumeRoleDuration      time.Duration
 }
 
 func LoginCommand(ui Ui, input LoginCommandInput) {
+	if input.FederationTokenDuration > (time.Hour * 12) {
+		ui.Error.Fatalf("Maximum federation token duration is 12 hours")
+		return
+	}
+
 	provider, err := NewVaultProvider(input.Keyring, input.Profile, VaultOptions{
-		AssumeRoleDuration: MaxAssumeRoleDuration,
+		AssumeRoleDuration: input.AssumeRoleDuration,
 		MfaToken:           input.MfaToken,
 		MfaPrompt:          input.MfaPrompt,
+		NoSession:          true,
 	})
 	if err != nil {
 		ui.Error.Fatal(err)
@@ -57,9 +66,12 @@ func LoginCommand(ui Ui, input LoginCommandInput) {
 		ui.Error.Fatal(err)
 	}
 
+	log.Printf("Creating federation login token, expires in %s", input.FederationTokenDuration)
+
 	q := req.URL.Query()
 	q.Add("Action", "getSigninToken")
 	q.Add("Session", string(jsonBytes))
+	q.Add("SessionDuration", fmt.Sprintf("%.f", input.FederationTokenDuration.Seconds()))
 	req.URL.RawQuery = q.Encode()
 
 	resp, err := http.DefaultClient.Do(req)

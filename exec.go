@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -11,7 +10,6 @@ import (
 	"github.com/99designs/aws-vault/keyring"
 	"github.com/99designs/aws-vault/prompt"
 	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/aws/credentials"
 )
 
 type ExecCommandInput struct {
@@ -33,51 +31,38 @@ func ExecCommand(ui Ui, input ExecCommandInput) {
 		ui.Fatal("aws-vault sessions should be nested with care, unset $AWS_VAULT to force")
 	}
 
-	var (
-		err      error
-		val      credentials.Value
-		writeEnv bool = true
-	)
+	var writeEnv = true
 
-	if input.NoSession {
-		if input.StartServer {
-			ui.Error.Fatal("Can't start a credential server without a session")
-		}
+	if input.NoSession && input.StartServer {
+		ui.Error.Fatal("Can't start a credential server without a session")
+		return
+	}
+	creds, err := NewVaultCredentials(input.Keyring, input.Profile, VaultOptions{
+		SessionDuration:    input.Duration,
+		AssumeRoleDuration: input.RoleDuration,
+		MfaToken:           input.MfaToken,
+		MfaPrompt:          input.MfaPrompt,
+		NoSession:          input.NoSession,
+	})
+	if err != nil {
+		ui.Error.Fatal(err)
+	}
 
-		log.Println("No session requested, be careful!")
-		provider := &KeyringProvider{input.Keyring, input.Profile}
-		val, err = provider.Retrieve()
-		if err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		creds, err := NewVaultCredentials(input.Keyring, input.Profile, VaultOptions{
-			SessionDuration:    input.Duration,
-			AssumeRoleDuration: input.RoleDuration,
-			MfaToken:           input.MfaToken,
-			MfaPrompt:          input.MfaPrompt,
-		})
-		if err != nil {
+	val, err := creds.Get()
+	if err != nil {
+		if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "NoCredentialProviders" {
+			ui.Error.Fatalf("No credentials found for profile %q", input.Profile)
+		} else {
 			ui.Error.Fatal(err)
 		}
+	}
 
-		val, err = creds.Get()
-		if err != nil {
-			if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "NoCredentialProviders" {
-				ui.Error.Fatalf("No credentials found for profile %q", input.Profile)
-			} else {
-				ui.Error.Fatal(err)
-			}
+	if input.StartServer {
+		if err := startCredentialsServer(ui, creds); err != nil {
+			ui.Error.Fatal(err)
+		} else {
+			writeEnv = false
 		}
-
-		if input.StartServer {
-			if err := startCredentialsServer(ui, creds); err != nil {
-				ui.Error.Fatal(err)
-			} else {
-				writeEnv = false
-			}
-		}
-
 	}
 
 	profs, err := parseProfiles()

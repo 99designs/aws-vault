@@ -16,6 +16,10 @@ import (
 type passwordFunc func(string) (string, error)
 
 func terminalPrompt(prompt string) (string, error) {
+	if password := os.Getenv("AWS_VAULT_FILE_PASSPHRASE"); password != "" {
+		return password, nil
+	}
+
 	fmt.Printf("%s: ", prompt)
 	b, err := terminal.ReadPassword(1)
 	if err != nil {

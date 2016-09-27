@@ -40,12 +40,26 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 		app.Fatalf("Can't start a credential server without a session")
 		return
 	}
+
+	conf, err := newConfigFromEnv()
+	if err != nil {
+		app.Fatalf("Error reading config: %v", err)
+		return
+	}
+
+	profiles, err := conf.Parse()
+	if err != nil {
+		app.Fatalf("Error parsing config: %v", err)
+		return
+	}
+
 	creds, err := NewVaultCredentials(input.Keyring, input.Profile, VaultOptions{
 		SessionDuration:    input.Duration,
 		AssumeRoleDuration: input.RoleDuration,
 		MfaToken:           input.MfaToken,
 		MfaPrompt:          input.MfaPrompt,
 		NoSession:          input.NoSession,
+		Profiles:           profiles,
 	})
 	if err != nil {
 		app.Fatalf("%v", err)

@@ -33,14 +33,27 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
+	conf, err := newConfigFromEnv()
+	if err != nil {
+		app.Fatalf("Error reading config: %v", err)
+		return
+	}
+
+	profiles, err := conf.Parse()
+	if err != nil {
+		app.Fatalf("Error parsing config: %v", err)
+		return
+	}
+
 	provider, err := NewVaultProvider(input.Keyring, input.Profile, VaultOptions{
 		AssumeRoleDuration: input.AssumeRoleDuration,
 		MfaToken:           input.MfaToken,
 		MfaPrompt:          input.MfaPrompt,
 		NoSession:          true,
+		Profiles:           profiles,
 	})
 	if err != nil {
-		app.Fatalf("%v", err)
+		app.Fatalf("Failed to create vault provider: %v", err)
 		return
 	}
 
@@ -51,7 +64,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 			app.Fatalf("No credentials found for profile %q", input.Profile)
 			return
 		} else {
-			app.Fatalf("%v", err)
+			app.Fatalf("Failed to get credentials: %v", err)
 		}
 	}
 
@@ -81,7 +94,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		app.Fatalf("%v", err)
+		app.Fatalf("Failed to create federated token: %v", err)
 		return
 	}
 
@@ -92,10 +105,16 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
+	if resp.StatusCode != http.StatusOK {
+		log.Printf("Response body was %s", body)
+		app.Fatalf("Call to getSigninToken failed with %v", resp.Status)
+		return
+	}
+
 	var respParsed map[string]string
 
 	if err = json.Unmarshal([]byte(body), &respParsed); err != nil {
-		app.Fatalf("%v", err)
+		app.Fatalf("Failed to parse response from getSigninToken: %v", err)
 		return
 	}
 

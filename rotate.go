@@ -24,6 +24,18 @@ type RotateCommandInput struct {
 func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 	var err error
 
+	conf, err := newConfigFromEnv()
+	if err != nil {
+		app.Fatalf("Error reading config: %v", err)
+		return
+	}
+
+	profiles, err := conf.Parse()
+	if err != nil {
+		app.Fatalf("Error parsing config: %v", err)
+		return
+	}
+
 	provider := &KeyringProvider{Keyring: input.Keyring, Profile: input.Profile}
 	oldMasterCreds, err := provider.Retrieve()
 	if err != nil {
@@ -36,6 +48,7 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 	oldSessionCreds, err := NewVaultCredentials(input.Keyring, input.Profile, VaultOptions{
 		MfaToken:  input.MfaToken,
 		MfaPrompt: input.MfaPrompt,
+		Profiles:  profiles,
 	})
 	if err != nil {
 		app.Fatalf(err.Error())
@@ -78,7 +91,7 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 		return
 	}
 
-	sessions, err := NewKeyringSessions(input.Keyring, nil)
+	sessions, err := NewKeyringSessions(input.Keyring, profiles)
 	if err != nil {
 		app.Fatalf(err.Error())
 		return
@@ -93,6 +106,7 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 	newSessionCreds, err := NewVaultCredentials(input.Keyring, input.Profile, VaultOptions{
 		MfaToken:  input.MfaToken,
 		MfaPrompt: input.MfaPrompt,
+		Profiles:  profiles,
 	})
 	if err != nil {
 		app.Fatalf(err.Error())

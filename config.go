@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/user"
@@ -35,7 +36,7 @@ func (c *fileConfig) Parse() (profiles, error) {
 	log.Printf("Parsing config file %s", c.file)
 	f, err := ini.LoadFile(c.file)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Error parsing config file %q: %v", c.file, err)
 	}
 
 	profiles := profiles{}

@@ -29,6 +29,9 @@ func newConfigFromEnv() (config, error) {
 			return nil, err
 		}
 		file = filepath.Join(home, "/.aws/config")
+		if _, err := os.Stat(file); os.IsNotExist(err) {
+			file = ""
+		}
 	}
 	return &fileConfig{file: file}, nil
 }

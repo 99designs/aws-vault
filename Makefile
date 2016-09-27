@@ -9,7 +9,7 @@ CERT="Developer ID Application: 99designs Inc (NRM9HVJ62Z)"
 SRC=$(shell find . -name '*.go')
 
 test:
-	go test $(shell go list ./... | grep -v /vendor/)
+	go test -v $(shell go list ./... | grep -v /vendor/)
 
 build:
 	go build -o aws-vault -ldflags="$(FLAGS)" .

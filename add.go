@@ -50,7 +50,19 @@ func AddCommand(app *kingpin.Application, input AddCommandInput) {
 
 	fmt.Printf("Added credentials to profile %q in vault", input.Profile)
 
-	sessions, err := NewKeyringSessions(input.Keyring)
+	conf, err := newConfigFromEnv()
+	if err != nil {
+		app.Fatalf("%v", err)
+		return
+	}
+
+	profiles, err := conf.Parse()
+	if err != nil {
+		app.Fatalf("%v", err)
+		return
+	}
+
+	sessions, err := NewKeyringSessions(input.Keyring, profiles)
 	if err != nil {
 		app.Fatalf(err.Error())
 		return

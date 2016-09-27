@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/user"
@@ -12,26 +11,29 @@ import (
 
 type profiles map[string]map[string]string
 
-func configFile() (file string, err error) {
-	file = os.Getenv("AWS_CONFIG_FILE")
+type config interface {
+	Parse() (profiles, error)
+}
+
+type fileConfig struct {
+	file string
+}
+
+func newConfigFromEnv() (config, error) {
+	file := os.Getenv("AWS_CONFIG_FILE")
 	if file == "" {
 		usr, err := user.Current()
 		if err != nil {
-			return file, err
+			return nil, err
 		}
 		file = usr.HomeDir + "/.aws/config"
 	}
-	return file, err
+	return &fileConfig{file: file}, nil
 }
 
-func parseProfiles() (profiles, error) {
-	file, err := configFile()
-	if err != nil {
-		return nil, err
-	}
-
-	log.Printf("Parsing config file %s", file)
-	f, err := ini.LoadFile(file)
+func (c *fileConfig) Parse() (profiles, error) {
+	log.Printf("Parsing config file %s", c.file)
+	f, err := ini.LoadFile(c.file)
 	if err != nil {
 		return nil, err
 	}
@@ -45,22 +47,12 @@ func parseProfiles() (profiles, error) {
 	return profiles, nil
 }
 
-func (p profiles) sourceProfile(profile string) string {
-	if conf, ok := p[profile]; ok {
+// sourceProfile returns either the defined source_profile or p if none exists
+func sourceProfile(p string, from profiles) string {
+	if conf, ok := from[p]; ok {
 		if source := conf["source_profile"]; source != "" {
 			return source
 		}
 	}
-	return profile
-}
-
-func writeProfiles(dest *os.File, profiles profiles) error {
-	for profile, vals := range profiles {
-		fmt.Fprintf(dest, "[profile %s]\n", profile)
-		for k, v := range vals {
-			fmt.Fprintf(dest, "%s = %s\n", k, v)
-		}
-		fmt.Fprintln(dest, "")
-	}
-	return dest.Sync()
+	return p
 }

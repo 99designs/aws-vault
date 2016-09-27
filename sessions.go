@@ -19,20 +19,15 @@ type KeyringSessions struct {
 	Profiles profiles
 }
 
-func NewKeyringSessions(k keyring.Keyring) (*KeyringSessions, error) {
-	profs, err := parseProfiles()
-	if err != nil {
-		return nil, err
-	}
-
+func NewKeyringSessions(k keyring.Keyring, p profiles) (*KeyringSessions, error) {
 	return &KeyringSessions{
 		Keyring:  k,
-		Profiles: profs,
+		Profiles: p,
 	}, nil
 }
 
 func (s *KeyringSessions) key(profile string, duration time.Duration) string {
-	source := s.Profiles.sourceProfile(profile)
+	source := sourceProfile(profile, s.Profiles)
 	hasher := md5.New()
 	hasher.Write([]byte(duration.String()))
 
@@ -85,7 +80,7 @@ func (s *KeyringSessions) Delete(profile string) (n int, err error) {
 	}
 
 	for _, k := range keys {
-		if strings.HasPrefix(k, fmt.Sprintf("%s session", s.Profiles.sourceProfile(profile))) {
+		if strings.HasPrefix(k, fmt.Sprintf("%s session", sourceProfile(profile, s.Profiles))) {
 			if err = s.Keyring.Remove(k); err != nil {
 				return n, err
 			}

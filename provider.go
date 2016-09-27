@@ -32,6 +32,7 @@ type VaultOptions struct {
 	MfaToken           string
 	MfaPrompt          prompt.PromptFunc
 	NoSession          bool
+	Profiles           profiles
 }
 
 func (o VaultOptions) Validate() error {
@@ -75,16 +76,12 @@ func NewVaultProvider(k keyring.Keyring, profile string, opts VaultOptions) (*Va
 	if err := opts.Validate(); err != nil {
 		return nil, err
 	}
-	profiles, err := parseProfiles()
-	if err != nil {
-		return nil, err
-	}
 	return &VaultProvider{
 		VaultOptions: opts,
 		keyring:      k,
-		sessions:     &KeyringSessions{k, profiles},
+		sessions:     &KeyringSessions{k, opts.Profiles},
 		profile:      profile,
-		profiles:     profiles,
+		profiles:     opts.Profiles,
 		creds:        map[string]credentials.Value{},
 	}, nil
 }
@@ -173,7 +170,7 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 }
 
 func (p *VaultProvider) getMasterCreds() (credentials.Value, error) {
-	source := p.profiles.sourceProfile(p.profile)
+	source := sourceProfile(p.profile, p.profiles)
 
 	creds, ok := p.creds[source]
 	if !ok {
@@ -219,7 +216,7 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 		}),
 	}))
 
-	log.Printf("Getting new session token for profile %s", p.profiles.sourceProfile(p.profile))
+	log.Printf("Getting new session token for profile %s", sourceProfile(p.profile, p.profiles))
 	resp, err := client.GetSessionToken(params)
 	if err != nil {
 		return sts.Credentials{}, err

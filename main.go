@@ -20,6 +20,7 @@ var (
 	Version string
 
 	keyringImpl       keyring.Keyring
+	awsConfigFile     config
 	promptsAvailable  = prompt.Available()
 	backendsAvailable = keyring.SupportedBackends()
 )
@@ -220,6 +221,9 @@ func run(args ...string) (exitCode int) {
 		}
 		if keyringImpl == nil {
 			keyringImpl, err = keyring.Open(KeyringName, globals.Backend)
+		}
+		if awsConfigFile == nil {
+			awsConfigFile, err = newConfigFromEnv()
 		}
 		return err
 	})

@@ -78,7 +78,7 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 		return
 	}
 
-	sessions, err := NewKeyringSessions(input.Keyring)
+	sessions, err := NewKeyringSessions(input.Keyring, nil)
 	if err != nil {
 		app.Fatalf(err.Error())
 		return

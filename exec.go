@@ -68,7 +68,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 		}
 	}
 
-	profs, err := parseProfiles()
+	profs, err := awsConfigFile.Parse()
 	if err != nil {
 		app.Fatalf("%v", err)
 		return

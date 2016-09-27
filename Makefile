@@ -14,6 +14,9 @@ test:
 build:
 	go build -o aws-vault -ldflags="$(FLAGS)" .
 
+install:
+	go install -ldflags="$(FLAGS)" .
+
 sign:
 	codesign -s $(CERT) ./aws-vault
 

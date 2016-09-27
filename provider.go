@@ -185,6 +185,7 @@ func (p *VaultProvider) getMasterCreds() (credentials.Value, error) {
 
 		var err error
 		if creds, err = provider.Get(); err != nil {
+			log.Printf("Failed to find credentials for profile %q in keyring", source)
 			return creds, err
 		}
 

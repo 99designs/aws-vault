@@ -3,41 +3,39 @@
 package keyring
 
 import (
-	"github.com/aulanov/go.dbus"
-	"fmt"
-	"os"
 	"encoding/json"
+
+	"github.com/aulanov/go.dbus"
 )
 
 const (
 	DBUS_SERVICE_NAME = "org.kde.kwalletd"
-	DBUS_PATH = "/modules/kwalletd"
-	APPID = "aws-vault"
-	FOLDER = "aws-vault"
+	DBUS_PATH         = "/modules/kwalletd"
+	APPID             = "aws-vault"
+	FOLDER            = "aws-vault"
 )
 
 func init() {
-	wallet, err := newKwallet()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, "Failed to connect to kwallet:", err)
-		return
-	}
-
 	supportedBackends[KWalletBackend] = opener(func(name string) (Keyring, error) {
 		if name == "" {
 			name = "kdewallet"
 		}
 
+		wallet, err := newKwallet()
+		if err != nil {
+			return nil, err
+		}
+
 		return &kwalletKeyring{
 			wallet: *wallet,
-			name: name,
+			name:   name,
 		}, nil
 	})
 }
 
 type kwalletKeyring struct {
 	wallet kwalletBinding
-	name string
+	name   string
 	handle int32
 }
 
@@ -63,7 +61,6 @@ func (k *kwalletKeyring) Get(key string) (Item, error) {
 	if err != nil {
 		return Item{}, err
 	}
-
 
 	data, err := k.wallet.ReadEntry(k.handle, FOLDER, key, APPID)
 	if err != nil {

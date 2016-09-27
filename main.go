@@ -51,7 +51,8 @@ func configureAddCommand(app *kingpin.Application, g *globalFlags) {
 func configureListCommand(app *kingpin.Application, g *globalFlags) {
 	input := LsCommandInput{}
 
-	cmd := app.Command("ls", "List profiles")
+	cmd := app.Command("list", "List profiles")
+	cmd.Alias("ls")
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.Keyring = keyringImpl
 		LsCommand(app, input)
@@ -129,7 +130,9 @@ func configureExecCommand(app *kingpin.Application, g *globalFlags) {
 func configureRemoveCommand(app *kingpin.Application, g *globalFlags) {
 	input := RemoveCommandInput{}
 
-	cmd := app.Command("rm", "Removes credentials, including sessions")
+	cmd := app.Command("remove", "Removes credentials, including sessions")
+	cmd.Alias("rm")
+
 	cmd.Arg("profile", "Name of the profile").
 		Required().
 		StringVar(&input.Profile)

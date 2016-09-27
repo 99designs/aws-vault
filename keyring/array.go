@@ -1,17 +1,25 @@
 package keyring
 
-type arrayKeyring struct {
+type ArrayKeyring struct {
 	items map[string]Item
 }
 
-func (k *arrayKeyring) Get(key string) (Item, error) {
+func NewArrayKeyring(initial []Item) *ArrayKeyring {
+	kr := &ArrayKeyring{}
+	for _, i := range initial {
+		kr.Set(i)
+	}
+	return kr
+}
+
+func (k *ArrayKeyring) Get(key string) (Item, error) {
 	if i, ok := k.items[key]; ok {
 		return i, nil
 	}
 	return Item{}, ErrKeyNotFound
 }
 
-func (k *arrayKeyring) Set(i Item) error {
+func (k *ArrayKeyring) Set(i Item) error {
 	if k.items == nil {
 		k.items = map[string]Item{}
 	}
@@ -19,12 +27,12 @@ func (k *arrayKeyring) Set(i Item) error {
 	return nil
 }
 
-func (k *arrayKeyring) Remove(key string) error {
+func (k *ArrayKeyring) Remove(key string) error {
 	delete(k.items, key)
 	return nil
 }
 
-func (k *arrayKeyring) Keys() ([]string, error) {
+func (k *ArrayKeyring) Keys() ([]string, error) {
 	var keys = []string{}
 	for key := range k.items {
 		keys = append(keys, key)

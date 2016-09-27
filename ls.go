@@ -1,22 +1,29 @@
 package main
 
-import "github.com/99designs/aws-vault/keyring"
+import (
+	"fmt"
+
+	"github.com/99designs/aws-vault/keyring"
+	"gopkg.in/alecthomas/kingpin.v2"
+)
 
 type LsCommandInput struct {
 	Keyring keyring.Keyring
 }
 
-func LsCommand(ui Ui, input LsCommandInput) {
+func LsCommand(app *kingpin.Application, input LsCommandInput) {
 	accounts, err := input.Keyring.Keys()
 	if err != nil {
-		ui.Error.Fatal(err)
+		app.Fatalf(err.Error())
+		return
 	}
 
 	for _, name := range accounts {
-		ui.Println(name)
+		fmt.Println(name)
 	}
 
 	if len(accounts) == 0 {
-		ui.Error.Fatal("No credentials found")
+		app.Fatalf("No credentials found")
+		return
 	}
 }

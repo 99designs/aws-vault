@@ -8,8 +8,14 @@ FLAGS=-X main.Version=$(VERSION) -s -w
 CERT="Developer ID Application: 99designs Inc (NRM9HVJ62Z)"
 SRC=$(shell find . -name '*.go')
 
+test:
+	go test $(shell go list ./... | grep -v /vendor/)
+
 build:
 	go build -o aws-vault -ldflags="$(FLAGS)" .
+
+install:
+	go install -ldflags="$(FLAGS)" .
 
 sign:
 	codesign -s $(CERT) ./aws-vault

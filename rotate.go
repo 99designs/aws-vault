@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"log"
+
 	"github.com/99designs/aws-vault/keyring"
 	"github.com/99designs/aws-vault/prompt"
 	"github.com/aws/aws-sdk-go/aws"
@@ -8,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/iam"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 type RotateCommandInput struct {
@@ -17,34 +21,44 @@ type RotateCommandInput struct {
 	MfaPrompt prompt.PromptFunc
 }
 
-func RotateCommand(ui Ui, input RotateCommandInput) {
+func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 	var err error
 
-	provider := &KeyringProvider{Keyring: input.Keyring, Profile: input.Profile}
-
-	oldMasterCreds, err := provider.Retrieve()
+	profiles, err := awsConfigFile.Parse()
 	if err != nil {
-		ui.Error.Fatal(err)
+		app.Fatalf("Error parsing config: %v", err)
+		return
 	}
 
-	ui.Debug.Println("Found old access key")
+	provider := &KeyringProvider{Keyring: input.Keyring, Profile: input.Profile}
+	oldMasterCreds, err := provider.Retrieve()
+	if err != nil {
+		app.Fatalf(err.Error())
+		return
+	}
+
+	log.Println("Found old access key")
 
 	oldSessionCreds, err := NewVaultCredentials(input.Keyring, input.Profile, VaultOptions{
 		MfaToken:  input.MfaToken,
 		MfaPrompt: input.MfaPrompt,
+		Profiles:  profiles,
 	})
 	if err != nil {
-		ui.Error.Fatal(err)
+		app.Fatalf(err.Error())
+		return
 	}
 
-	ui.Debug.Println("Using old credentials to create a new access key")
+	fmt.Println("Using old credentials to create a new access key")
 
 	oldVal, err := oldSessionCreds.Get()
 	if err != nil {
 		if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "NoCredentialProviders" {
-			ui.Error.Fatalf("No credentials found for profile %q", input.Profile)
+			app.Fatalf("No credentials found for profile %q", input.Profile)
+			return
 		} else {
-			ui.Error.Fatal(err)
+			app.Fatalf(err.Error())
+			return
 		}
 	}
 
@@ -54,10 +68,11 @@ func RotateCommand(ui Ui, input RotateCommandInput) {
 
 	createOut, err := client.CreateAccessKey(&iam.CreateAccessKeyInput{})
 	if err != nil {
-		ui.Error.Fatal(err)
+		app.Fatalf(err.Error())
+		return
 	}
 
-	ui.Debug.Println("Created new access key")
+	log.Println("Created new access key")
 
 	newMasterCreds := credentials.Value{
 		AccessKeyID:     *createOut.AccessKey.AccessKeyId,
@@ -65,35 +80,41 @@ func RotateCommand(ui Ui, input RotateCommandInput) {
 	}
 
 	if err := provider.Store(newMasterCreds); err != nil {
-		ui.Error.Println("Can't store new access key:", newMasterCreds)
-		ui.Error.Fatal(err)
+		app.Errorf("Can't store new access key:", newMasterCreds)
+		app.Fatalf(err.Error())
+		return
 	}
 
-	sessions, err := NewKeyringSessions(input.Keyring)
+	sessions, err := NewKeyringSessions(input.Keyring, profiles)
 	if err != nil {
-		ui.Error.Fatal(err)
+		app.Fatalf(err.Error())
+		return
 	}
 
 	if n, _ := sessions.Delete(input.Profile); n > 0 {
-		ui.Debug.Printf("Deleted %d existing sessions.", n)
+		log.Printf("Deleted %d existing sessions.", n)
 	}
 
-	ui.Debug.Println("Using new credentials to delete the old new access key")
+	log.Println("Using new credentials to delete the old new access key")
 
 	newSessionCreds, err := NewVaultCredentials(input.Keyring, input.Profile, VaultOptions{
 		MfaToken:  input.MfaToken,
 		MfaPrompt: input.MfaPrompt,
+		Profiles:  profiles,
 	})
 	if err != nil {
-		ui.Error.Fatal(err)
+		app.Fatalf(err.Error())
+		return
 	}
 
 	newVal, err := newSessionCreds.Get()
 	if err != nil {
 		if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "NoCredentialProviders" {
-			ui.Error.Fatalf("No credentials found for profile %q", input.Profile)
+			app.Fatalf("No credentials found for profile %q", input.Profile)
+			return
 		} else {
-			ui.Error.Fatal(err)
+			app.Fatalf(err.Error())
+			return
 		}
 	}
 
@@ -105,10 +126,10 @@ func RotateCommand(ui Ui, input RotateCommandInput) {
 		AccessKeyId: aws.String(oldMasterCreds.AccessKeyID),
 	})
 	if err != nil {
-		ui.Error.Println("Can't delete old access key:", oldMasterCreds)
-		ui.Error.Fatal(err)
+		app.Errorf("Can't delete old access key:", oldMasterCreds)
+		app.Fatalf(err.Error())
+		return
 	}
 
-	ui.Printf("Rotated credentials for profile %q in vault", input.Profile)
-	ui.Exit(0)
+	log.Printf("Rotated credentials for profile %q in vault", input.Profile)
 }

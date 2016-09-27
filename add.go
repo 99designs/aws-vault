@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/99designs/aws-vault/keyring"
 	"github.com/99designs/aws-vault/prompt"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 type AddCommandInput struct {
@@ -14,23 +16,27 @@ type AddCommandInput struct {
 	FromEnv bool
 }
 
-func AddCommand(ui Ui, input AddCommandInput) {
+func AddCommand(app *kingpin.Application, input AddCommandInput) {
 	var accessKeyId, secretKey string
 
 	if input.FromEnv {
 		if accessKeyId = os.Getenv("AWS_ACCESS_KEY_ID"); accessKeyId == "" {
-			ui.Error.Fatal("Missing value for AWS_ACCESS_KEY_ID")
+			app.Fatalf("Missing value for AWS_ACCESS_KEY_ID")
+			return
 		}
 		if secretKey = os.Getenv("AWS_SECRET_ACCESS_KEY"); secretKey == "" {
-			ui.Error.Fatal("Missing value for AWS_SECRET_ACCESS_KEY")
+			app.Fatalf("Missing value for AWS_SECRET_ACCESS_KEY")
+			return
 		}
 	} else {
 		var err error
 		if accessKeyId, err = prompt.TerminalPrompt("Enter Access Key ID: "); err != nil {
-			ui.Error.Fatal(err)
+			app.Fatalf(err.Error())
+			return
 		}
 		if secretKey, err = prompt.TerminalPrompt("Enter Secret Access Key: "); err != nil {
-			ui.Error.Fatal(err)
+			app.Fatalf(err.Error())
+			return
 		}
 	}
 
@@ -38,17 +44,25 @@ func AddCommand(ui Ui, input AddCommandInput) {
 	provider := &KeyringProvider{Keyring: input.Keyring, Profile: input.Profile}
 
 	if err := provider.Store(creds); err != nil {
-		ui.Error.Fatal(err)
+		app.Fatalf(err.Error())
+		return
 	}
 
-	ui.Printf("Added credentials to profile %q in vault", input.Profile)
+	fmt.Printf("Added credentials to profile %q in vault", input.Profile)
 
-	sessions, err := NewKeyringSessions(input.Keyring)
+	profiles, err := awsConfigFile.Parse()
 	if err != nil {
-		ui.Error.Fatal(err)
+		app.Fatalf("%v", err)
+		return
+	}
+
+	sessions, err := NewKeyringSessions(input.Keyring, profiles)
+	if err != nil {
+		app.Fatalf(err.Error())
+		return
 	}
 
 	if n, _ := sessions.Delete(input.Profile); n > 0 {
-		ui.Printf("Deleted %d existing sessions.", n)
+		fmt.Printf("Deleted %d existing sessions.", n)
 	}
 }

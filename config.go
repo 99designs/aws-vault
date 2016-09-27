@@ -33,6 +33,10 @@ func newConfigFromEnv() (config, error) {
 }
 
 func (c *fileConfig) Parse() (profiles, error) {
+	if c.file == "" {
+		return nil, nil
+	}
+
 	log.Printf("Parsing config file %s", c.file)
 	f, err := ini.LoadFile(c.file)
 	if err != nil {

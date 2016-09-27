@@ -33,13 +33,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
-	conf, err := newConfigFromEnv()
-	if err != nil {
-		app.Fatalf("Error reading config: %v", err)
-		return
-	}
-
-	profiles, err := conf.Parse()
+	profiles, err := awsConfigFile.Parse()
 	if err != nil {
 		app.Fatalf("Error parsing config: %v", err)
 		return

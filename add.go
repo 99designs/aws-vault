@@ -50,13 +50,7 @@ func AddCommand(app *kingpin.Application, input AddCommandInput) {
 
 	fmt.Printf("Added credentials to profile %q in vault", input.Profile)
 
-	conf, err := newConfigFromEnv()
-	if err != nil {
-		app.Fatalf("%v", err)
-		return
-	}
-
-	profiles, err := conf.Parse()
+	profiles, err := awsConfigFile.Parse()
 	if err != nil {
 		app.Fatalf("%v", err)
 		return

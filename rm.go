@@ -32,13 +32,7 @@ func RemoveCommand(app *kingpin.Application, input RemoveCommandInput) {
 		fmt.Printf("Deleted credentials.")
 	}
 
-	conf, err := newConfigFromEnv()
-	if err != nil {
-		app.Fatalf("%v", err)
-		return
-	}
-
-	profiles, err := conf.Parse()
+	profiles, err := awsConfigFile.Parse()
 	if err != nil {
 		app.Fatalf("%v", err)
 		return

@@ -1,6 +1,10 @@
 package main
 
-import "github.com/99designs/aws-vault/keyring"
+import (
+	"os"
+
+	"github.com/99designs/aws-vault/keyring"
+)
 
 func ExampleExecCommand() {
 	awsConfigFile = &fileConfig{}
@@ -8,7 +12,7 @@ func ExampleExecCommand() {
 		{Key: "llamas", Data: []byte(`{"AccessKeyID":"ABC","SecretAccessKey":"XYZ"}`)},
 	})
 
-	run("--debug", "exec", "--no-session", "llamas", "--", "sh", "-c", "echo $AWS_ACCESS_KEY_ID")
+	run([]string{"--debug", "exec", "--no-session", "llamas", "--", "sh", "-c", "echo $AWS_ACCESS_KEY_ID"}, os.Exit)
 	// Output:
 	// ABC
 }

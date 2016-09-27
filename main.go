@@ -17,7 +17,7 @@ const (
 )
 
 var (
-	Version string
+	Version string = "dev"
 
 	keyringImpl       keyring.Keyring
 	awsConfigFile     config
@@ -193,14 +193,14 @@ func configureServerCommand(app *kingpin.Application, g *globalFlags) {
 	})
 }
 
-func run(args ...string) (exitCode int) {
+func run(args []string, onTerminate func(int)) {
 	app := kingpin.New("aws-vault",
 		`A vault for securely storing and accessing AWS credentials in development environments.`)
 
 	globals := &globalFlags{}
 
-	app.Version(Version)
 	app.Writer(os.Stdout)
+	app.Version(Version)
 
 	app.Flag("debug", "Show debugging output").
 		BoolVar(&globals.Debug)
@@ -228,10 +228,6 @@ func run(args ...string) (exitCode int) {
 		return err
 	})
 
-	app.Terminate(func(code int) {
-		exitCode = code
-	})
-
 	configureAddCommand(app, globals)
 	configureListCommand(app, globals)
 	configureRotateCommand(app, globals)
@@ -240,10 +236,11 @@ func run(args ...string) (exitCode int) {
 	configureLoginCommand(app, globals)
 	configureServerCommand(app, globals)
 
-	kingpin.MustParse(app.Parse(args))
-	return
+	if _, err := app.Parse(args); err != nil {
+		app.Fatalf("%v", err)
+	}
 }
 
 func main() {
-	os.Exit(run(os.Args[1:]...))
+	run(os.Args[1:], os.Exit)
 }

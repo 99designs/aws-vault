@@ -1,13 +1,17 @@
 package main
 
-import "github.com/99designs/aws-vault/keyring"
+import (
+	"os"
+
+	"github.com/99designs/aws-vault/keyring"
+)
 
 func ExampleListCommand() {
 	keyringImpl = keyring.NewArrayKeyring([]keyring.Item{
 		{Key: "llamas", Data: []byte(`{"AccessKeyID":"ABC","SecretAccessKey":"XYZ"}`)},
 	})
 
-	run("list")
+	run([]string{"list"}, os.Exit)
 	// Output:
 	// llamas
 }

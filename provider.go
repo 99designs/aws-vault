@@ -310,9 +310,10 @@ func (p *KeyringProvider) Retrieve() (val credentials.Value, err error) {
 		log.Println("Error from keyring", err)
 		return val, err
 	}
-
-	err = json.Unmarshal(item.Data, &val)
-	return
+	if err = json.Unmarshal(item.Data, &val); err != nil {
+		return val, fmt.Errorf("Invalid data in keyring: %v", err)
+	}
+	return val, err
 }
 
 func (p *KeyringProvider) Store(val credentials.Value) error {

@@ -192,7 +192,7 @@ func configureServerCommand(app *kingpin.Application, g *globalFlags) {
 	})
 }
 
-func main() {
+func run(args ...string) (exitCode int) {
 	app := kingpin.New("aws-vault",
 		`A vault for securely storing and accessing AWS credentials in development environments.`)
 
@@ -215,8 +215,17 @@ func main() {
 		EnumVar(&globals.PromptDriver, promptsAvailable...)
 
 	app.PreAction(func(c *kingpin.ParseContext) (err error) {
-		keyringImpl, err = keyring.Open(KeyringName, globals.Backend)
+		if !globals.Debug {
+			log.SetOutput(ioutil.Discard)
+		}
+		if keyringImpl == nil {
+			keyringImpl, err = keyring.Open(KeyringName, globals.Backend)
+		}
 		return err
+	})
+
+	app.Terminate(func(code int) {
+		exitCode = code
 	})
 
 	configureAddCommand(app, globals)
@@ -227,9 +236,10 @@ func main() {
 	configureLoginCommand(app, globals)
 	configureServerCommand(app, globals)
 
-	kingpin.MustParse(app.Parse(os.Args[1:]))
+	kingpin.MustParse(app.Parse(args))
+	return
+}
 
-	if !globals.Debug {
-		log.SetOutput(ioutil.Discard)
-	}
+func main() {
+	os.Exit(run(os.Args[1:]...))
 }

@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/user"
+	"path/filepath"
 	"strings"
 
+	"github.com/mitchellh/go-homedir"
 	"github.com/vaughan0/go-ini"
 )
 
@@ -23,11 +24,11 @@ type fileConfig struct {
 func newConfigFromEnv() (config, error) {
 	file := os.Getenv("AWS_CONFIG_FILE")
 	if file == "" {
-		usr, err := user.Current()
+		home, err := homedir.Dir()
 		if err != nil {
 			return nil, err
 		}
-		file = usr.HomeDir + "/.aws/config"
+		file = filepath.Join(home, "/.aws/config")
 	}
 	return &fileConfig{file: file}, nil
 }

@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"os/user"
 	"path/filepath"
 	"time"
 
 	jose "github.com/dvsekhvalnov/jose2go"
+	"github.com/mitchellh/go-homedir"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -46,11 +46,11 @@ type fileKeyring struct {
 func (k *fileKeyring) dir() (string, error) {
 	dir := k.Dir
 	if dir == "" {
-		usr, err := user.Current()
+		home, err := homedir.Dir()
 		if err != nil {
-			return dir, err
+			return "", err
 		}
-		dir = usr.HomeDir + "/.awsvault/keys/"
+		dir = filepath.Join(home, "/.awsvault/keys/")
 	}
 
 	stat, err := os.Stat(dir)

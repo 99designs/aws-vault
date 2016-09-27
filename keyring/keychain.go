@@ -18,9 +18,11 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"os/user"
+	"path/filepath"
 	"unicode/utf8"
 	"unsafe"
+
+	"github.com/mitchellh/go-homedir"
 )
 
 type keychain struct {
@@ -35,12 +37,15 @@ func init() {
 			name = "login"
 		}
 
-		usr, err := user.Current()
+		home, err := homedir.Dir()
 		if err != nil {
 			return nil, err
 		}
 
-		return &keychain{path: usr.HomeDir + "/Library/Keychains/" + name + ".keychain", service: name}, nil
+		return &keychain{
+			path:    filepath.Join(home, "/Library/Keychains/"+name+".keychain"),
+			service: name,
+		}, nil
 	})
 
 	DefaultBackend = KeychainBackend

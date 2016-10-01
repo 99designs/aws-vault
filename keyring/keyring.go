@@ -3,10 +3,10 @@ package keyring
 import "errors"
 
 const (
-	KeychainBackend string = "keychain"
-	SecretsBackend  string = "secrets"
-	KWalletBackend  string = "kwallet"
-	FileBackend     string = "file"
+	SecretServiceBackend  string = "secret-service"
+	KeychainBackend       string = "keychain"
+	KWalletBackend        string = "kwallet"
+	FileBackend           string = "file"
 )
 
 var DefaultBackend = FileBackend

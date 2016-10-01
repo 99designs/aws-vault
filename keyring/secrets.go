@@ -9,19 +9,19 @@ import (
   "encoding/json"
 )
 
-const SECRETS_COLLECTION = "awsvault"
+const secretsCollection = "awsvault"
 
 
 func init() {
-  service, err := libsecret.NewService()
-  if err != nil {
-    fmt.Fprintln(os.Stderr, "Failed to connect to the secret service:", err)
-    return
-  }
-
-  supportedBackends[SecretsBackend] = opener(func(name string) (Keyring, error) {
+  supportedBackends[SecretServiceBackend] = opener(func(name string) (Keyring, error) {
     if name == "" {
-      name = "secrets"
+      name = "secret-service"
+    }
+
+    service, err := libsecret.NewService()
+    if err != nil {
+      fmt.Fprintln(os.Stderr, "Failed to connect to the secret service:", err)
+      return &secretsKeyring{}, err
     }
 
     return &secretsKeyring{
@@ -40,11 +40,11 @@ type secretsKeyring struct {
 }
 
 
-type SecretsError struct {
+type secretsError struct {
   message string
 }
 
-func (e *SecretsError) Error() string {
+func (e *secretsError) Error() string {
   return e.message
 }
 
@@ -62,7 +62,7 @@ func (k *secretsKeyring) openSecrets() error {
     return err
   }
 
-  path := libsecret.DBUS_PATH + "/collection/" + SECRETS_COLLECTION
+  path := libsecret.DBusPath + "/collection/" + secretsCollection
 
   for _, collection := range collections {
     if string(collection.Path()) == path {
@@ -81,7 +81,7 @@ func (k *secretsKeyring) openCollection() error {
   }
 
   if k.collection == nil {
-    return &SecretsError{"The awsvault collection does not exist. Please add a key first"}
+    return &secretsError{"The awsvault collection does not exist. Please add a key first"}
   }
 
   return nil
@@ -140,7 +140,7 @@ func (k *secretsKeyring) Set(item Item) error {
 
   // create the collection if it doesn't already exist
   if k.collection == nil {
-    collection, err := k.service.CreateCollection(SECRETS_COLLECTION)
+    collection, err := k.service.CreateCollection(secretsCollection)
     if err != nil {
       return err
     }

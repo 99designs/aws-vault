@@ -4,6 +4,7 @@ import "errors"
 
 const (
 	KeychainBackend string = "keychain"
+	SecretsBackend  string = "secrets"
 	KWalletBackend  string = "kwallet"
 	FileBackend     string = "file"
 )

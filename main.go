@@ -31,6 +31,17 @@ type globalFlags struct {
 	PromptDriver string
 }
 
+func listProfiles() []string {
+	profiles, _ := parseProfiles()
+	results := []string{}
+
+	for profile := range profiles {
+		results = append(results, profile)
+	}
+
+	return results
+}
+
 func configureAddCommand(app *kingpin.Application, g *globalFlags) {
 	input := AddCommandInput{}
 
@@ -67,6 +78,7 @@ func configureRotateCommand(app *kingpin.Application, g *globalFlags) {
 	cmd := app.Command("rotate", "Rotates credentials")
 	cmd.Arg("profile", "Name of the profile").
 		Required().
+		HintAction(listProfiles).
 		StringVar(&input.Profile)
 
 	cmd.Flag("mfa-token", "The mfa token to use").
@@ -108,6 +120,7 @@ func configureExecCommand(app *kingpin.Application, g *globalFlags) {
 		BoolVar(&input.StartServer)
 
 	cmd.Arg("profile", "Name of the profile").
+		HintAction(listProfiles).
 		Required().
 		StringVar(&input.Profile)
 
@@ -135,6 +148,7 @@ func configureRemoveCommand(app *kingpin.Application, g *globalFlags) {
 	cmd.Alias("rm")
 
 	cmd.Arg("profile", "Name of the profile").
+		HintAction(listProfiles).
 		Required().
 		StringVar(&input.Profile)
 
@@ -154,6 +168,7 @@ func configureLoginCommand(app *kingpin.Application, g *globalFlags) {
 
 	cmd := app.Command("login", "Generate a login link for the AWS Console")
 	cmd.Arg("profile", "Name of the profile").
+		HintAction(listProfiles).
 		Required().
 		StringVar(&input.Profile)
 

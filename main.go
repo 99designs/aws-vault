@@ -32,7 +32,7 @@ type globalFlags struct {
 }
 
 func listProfiles() []string {
-	profiles, _ := parseProfiles()
+	profiles, _ := awsConfigFile.Parse()
 	results := []string{}
 
 	for profile := range profiles {

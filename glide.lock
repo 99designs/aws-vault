@@ -1,5 +1,5 @@
-hash: e5d89510497a9e4b89f59a957ca8448215f5504d8541b04dd65af9d5f3779f3c
-updated: 2016-07-25T21:27:25.532024951Z
+hash: 375f75a0ed243e9ac6d33c82464024850ccc417bf185e715ea7e7adae637d11d
+updated: 2016-10-02T15:27:51.077818698+11:00
 imports:
 - name: github.com/alecthomas/template
   version: a0175ee3bccc567396460bf5acd36800cb10c49c
@@ -13,33 +13,33 @@ imports:
   version: 4b6331bd0c9a346715ab0d1ffa433f506c79c2c4
   subpackages:
   - aws
+  - aws/awserr
+  - aws/awsutil
+  - aws/client
+  - aws/client/metadata
+  - aws/corehandlers
+  - aws/credentials
+  - aws/credentials/ec2rolecreds
+  - aws/credentials/endpointcreds
+  - aws/defaults
+  - aws/ec2metadata
+  - aws/request
+  - aws/session
+  - aws/signer/v4
   - internal/endpoints
   - internal/protocol/query
   - internal/protocol/rest
   - internal/protocol/xml/xmlutil
   - internal/signer/v4
-  - service/sts
-  - aws/awserr
-  - aws/credentials
-  - service/iam
-  - aws/session
-  - aws/client
-  - aws/corehandlers
-  - aws/defaults
-  - aws/request
   - private/endpoints
-  - aws/awsutil
-  - aws/client/metadata
-  - aws/signer/v4
   - private/protocol
   - private/protocol/query
-  - private/waiter
-  - aws/credentials/ec2rolecreds
-  - aws/credentials/endpointcreds
-  - aws/ec2metadata
-  - private/protocol/rest
   - private/protocol/query/queryutil
+  - private/protocol/rest
   - private/protocol/xml/xmlutil
+  - private/waiter
+  - service/iam
+  - service/sts
 - name: github.com/dvsekhvalnov/jose2go
   version: 2a04a552f4a8adf7d51731877b7a2021bab968bb
   subpackages:
@@ -52,6 +52,10 @@ imports:
   - padding
 - name: github.com/go-ini/ini
   version: cf53f9204df4fbdd7ec4164b57fa6184ba168292
+- name: github.com/godbus/dbus
+  version: 9998ce8520caaa4a287fa5122ecb5d1ca1aeaede
+- name: github.com/gsterjov/go-libsecret
+  version: a6f4afe4910cad8688db3e0e9b9ac92ad22d54e1
 - name: github.com/jmespath/go-jmespath
   version: 0b12d6b521d83fc7f755e7cfc1b1fbdd35a01a74
 - name: github.com/skratchdot/open-golang
@@ -66,4 +70,4 @@ imports:
   - ssh/terminal
 - name: gopkg.in/alecthomas/kingpin.v2
   version: e5900212cbf65b181d3d8e08308ef06a01d117cf
-devImports: []
+testImports: []

@@ -48,7 +48,7 @@ func AddCommand(app *kingpin.Application, input AddCommandInput) {
 		return
 	}
 
-	fmt.Printf("Added credentials to profile %q in vault", input.Profile)
+	fmt.Printf("Added credentials to profile %q in vault\n", input.Profile)
 
 	profiles, err := awsConfigFile.Parse()
 	if err != nil {
@@ -63,6 +63,6 @@ func AddCommand(app *kingpin.Application, input AddCommandInput) {
 	}
 
 	if n, _ := sessions.Delete(input.Profile); n > 0 {
-		fmt.Printf("Deleted %d existing sessions.", n)
+		fmt.Printf("Deleted %d existing sessions.\n", n)
 	}
 }

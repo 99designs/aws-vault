@@ -29,7 +29,7 @@ func RemoveCommand(app *kingpin.Application, input RemoveCommandInput) {
 			app.Fatalf(err.Error())
 			return
 		}
-		fmt.Printf("Deleted credentials.")
+		fmt.Printf("Deleted credentials.\n")
 	}
 
 	profiles, err := awsConfigFile.Parse()
@@ -49,5 +49,5 @@ func RemoveCommand(app *kingpin.Application, input RemoveCommandInput) {
 		app.Fatalf(err.Error())
 		return
 	}
-	fmt.Printf("Deleted %d sessions.", n)
+	fmt.Printf("Deleted %d sessions.\n", n)
 }

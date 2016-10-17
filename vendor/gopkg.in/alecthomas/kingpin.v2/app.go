@@ -13,7 +13,7 @@ var (
 )
 
 var (
-	envarTransformRegexp = regexp.MustCompile(`[^a-zA-Z_]+`)
+	envarTransformRegexp = regexp.MustCompile(`[^a-zA-Z0-9_]+`)
 )
 
 type ApplicationValidator func(*Application) error

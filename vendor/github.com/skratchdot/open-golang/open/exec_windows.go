@@ -20,7 +20,7 @@ func cleaninput(input string) string {
 }
 
 func open(input string) *exec.Cmd {
-	return exec.Command(runDll32, cmd, input)
+	return exec.Command(runDll32, cmd, cleaninput(input))
 }
 
 func openWith(input string, appName string) *exec.Cmd {

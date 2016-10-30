@@ -70,7 +70,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 
 	if input.StartServer {
 		if err := startCredentialsServer(creds); err != nil {
-			app.Fatalf("%#v", err)
+			app.Fatalf("Failed to start credential server: %v", err)
 		} else {
 			writeEnv = false
 		}

@@ -118,9 +118,17 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
+	destination := "https://console.aws.amazon.com/"
+	if region, ok := profiles[input.Profile]["region"]; ok {
+		destination = fmt.Sprintf(
+			"https://%s.console.aws.amazon.com/console/home?region=%s",
+			region, region,
+		)
+	}
+
 	loginUrl := fmt.Sprintf(
 		"https://signin.aws.amazon.com/federation?Action=login&Issuer=aws-vault&Destination=%s&SigninToken=%s",
-		url.QueryEscape("https://console.aws.amazon.com/"),
+		url.QueryEscape(destination),
 		url.QueryEscape(signinToken),
 	)
 

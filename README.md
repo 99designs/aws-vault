@@ -3,7 +3,13 @@ AWS Vault
 
 Securely store and access credentials for AWS. AWS Vault stores IAM credentials in your operating systems secure keystore and then generates temporary credentials from those to expose to your shell and applications. It's designed to be complementary to the aws cli tools, and is aware of your [profiles and configuration in `~/.aws/config`](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files).
 
-Currently macOS (Mac OS X)/Keychain and Linux/KWallet are supported, support for Linux's libsecret and Windows planned.
+Currently the supported backends are:
+ * macOS Keychain
+ * KWallet
+ * freedesktop.org Secret Service
+ * Encrypted file
+
+Further support for Linux's libsecret and Windows is planned (PRs welcome!).
 
 ## Installing
 
@@ -88,10 +94,9 @@ Then when you use the `admin` profile, `aws-vault` will look in the `read-only` 
 
 ## Development
 
-Developed with golang 1.5.2+ with `GO15VENDOREXPERIMENT=1`, to install:
+Developed with golang, to install run:
 
 ```
-export GO15VENDOREXPERIMENT=1
 go get github.com/99designs/aws-vault
 ```
 
@@ -105,4 +110,3 @@ go get github.com/99designs/aws-vault
  * https://github.com/realestate-com-au/credulous
  * https://github.com/dump247/aws-mock-metadata
  * http://boto.readthedocs.org/en/latest/boto_config_tut.html
-

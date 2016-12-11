@@ -39,6 +39,13 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
+	if profileConfig, ok := profiles[input.Profile]; ok {
+		if _, hasSourceProfile := profileConfig["source_profile"]; !hasSourceProfile {
+			app.Fatalf("Login only works for profiles that use AssumeRole")
+			return
+		}
+	}
+
 	provider, err := NewVaultProvider(input.Keyring, input.Profile, VaultOptions{
 		AssumeRoleDuration: input.AssumeRoleDuration,
 		MfaToken:           input.MfaToken,

@@ -99,7 +99,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
-	log.Printf("Creating login token via role, expires in %s", sessionDuration)
+	log.Printf("Creating login token, expires in %s", sessionDuration)
 
 	q := req.URL.Query()
 	q.Add("Action", "getSigninToken")

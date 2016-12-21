@@ -11,8 +11,11 @@ import (
 
 	"github.com/99designs/aws-vault/keyring"
 	"github.com/99designs/aws-vault/prompt"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/skratchdot/open-golang/open"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -61,6 +64,21 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 			app.Fatalf("Failed to get credentials: %v", err)
 		}
 	}
+
+	if val.SessionToken == "" {
+		log.Printf("No session token found, calling GetFederationToken")
+		stsCreds, err := getFederationToken(val, input.FederationTokenDuration)
+		if err != nil {
+			app.Fatalf("Failed to call GetFederationToken: %v", err)
+			return
+		}
+
+		val.AccessKeyID = *stsCreds.AccessKeyId
+		val.SecretAccessKey = *stsCreds.SecretAccessKey
+		val.SessionToken = *stsCreds.SessionToken
+	}
+
+	log.Printf("%#v", val)
 
 	jsonBytes, err := json.Marshal(map[string]string{
 		"sessionId":    val.AccessKeyID,
@@ -130,4 +148,21 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		log.Println(err)
 		fmt.Println(loginUrl)
 	}
+}
+
+func getFederationToken(creds credentials.Value, d time.Duration) (*sts.Credentials, error) {
+	client := sts.New(session.New(&aws.Config{
+		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: creds}),
+	}))
+
+	params := &sts.GetFederationTokenInput{
+		Name: aws.String("federated-user"),
+	}
+
+	resp, err := client.GetFederationToken(params)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.Credentials, nil
 }

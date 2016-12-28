@@ -123,13 +123,13 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 
 	var waitStatus syscall.WaitStatus
 	if err := cmd.Run(); err != nil {
-		if err != nil {
-			app.Errorf("%v", err)
-			return
-		}
 		if exitError, ok := err.(*exec.ExitError); ok {
 			waitStatus = exitError.Sys().(syscall.WaitStatus)
 			os.Exit(waitStatus.ExitStatus())
+		}
+		if err != nil {
+			app.Errorf("%v", err)
+			return
 		}
 	}
 }

@@ -11,8 +11,12 @@ import (
 
 	"github.com/99designs/aws-vault/keyring"
 	"github.com/99designs/aws-vault/prompt"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/iam"
+	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/skratchdot/open-golang/open"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -64,9 +68,26 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "NoCredentialProviders" {
 			app.Fatalf("No credentials found for profile %q", input.Profile)
 			return
-		} else {
-			app.Fatalf("Failed to get credentials: %v", err)
 		}
+		app.Fatalf("Failed to get credentials: %v", err)
+	}
+
+	var isFederated bool
+	var sessionDuration = input.FederationTokenDuration
+
+	// if AssumeRole isn't used, GetFederationToken has to be used for IAM credentials
+	if val.SessionToken == "" {
+		log.Printf("No session token found, calling GetFederationToken")
+		stsCreds, err := getFederationToken(val, input.FederationTokenDuration)
+		if err != nil {
+			app.Fatalf("Failed to call GetFederationToken: %v", err)
+			return
+		}
+
+		val.AccessKeyID = *stsCreds.AccessKeyId
+		val.SecretAccessKey = *stsCreds.SecretAccessKey
+		val.SessionToken = *stsCreds.SessionToken
+		isFederated = true
 	}
 
 	jsonBytes, err := json.Marshal(map[string]string{
@@ -85,12 +106,17 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
-	log.Printf("Creating federation login token, expires in %s", input.FederationTokenDuration)
+	log.Printf("Creating login token, expires in %s", sessionDuration)
 
 	q := req.URL.Query()
 	q.Add("Action", "getSigninToken")
 	q.Add("Session", string(jsonBytes))
-	q.Add("SessionDuration", fmt.Sprintf("%.f", input.FederationTokenDuration.Seconds()))
+
+	// not needed for federation tokens
+	if !isFederated {
+		q.Add("SessionDuration", fmt.Sprintf("%.f", sessionDuration.Seconds()))
+	}
+
 	req.URL.RawQuery = q.Encode()
 
 	resp, err := http.DefaultClient.Do(req)
@@ -145,4 +171,39 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		log.Println(err)
 		fmt.Println(loginUrl)
 	}
+}
+
+func getFederationToken(creds credentials.Value, d time.Duration) (*sts.Credentials, error) {
+	client := sts.New(session.New(&aws.Config{
+		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: creds}),
+	}))
+
+	params := &sts.GetFederationTokenInput{
+		Name:            aws.String("federated-user"),
+		DurationSeconds: aws.Int64(int64(d.Seconds())),
+	}
+
+	if username, _ := getUserName(creds); username != "" {
+		params.Name = aws.String(username)
+	}
+
+	resp, err := client.GetFederationToken(params)
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.Credentials, nil
+}
+
+func getUserName(creds credentials.Value) (string, error) {
+	client := iam.New(session.New(&aws.Config{
+		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: creds}),
+	}))
+
+	resp, err := client.GetUser(&iam.GetUserInput{})
+	if err != nil {
+		return "", err
+	}
+
+	return *resp.User.UserName, nil
 }

@@ -21,6 +21,8 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
+const allowAllIAMPolicy = `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"*","Resource":"*"}]}`
+
 type LoginCommandInput struct {
 	Profile                 string
 	Keyring                 keyring.Keyring
@@ -174,6 +176,7 @@ func getFederationToken(creds credentials.Value, d time.Duration) (*sts.Credenti
 	params := &sts.GetFederationTokenInput{
 		Name:            aws.String("federated-user"),
 		DurationSeconds: aws.Int64(int64(d.Seconds())),
+		Policy:          aws.String(allowAllIAMPolicy),
 	}
 
 	if username, _ := getUserName(creds); username != "" {

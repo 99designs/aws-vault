@@ -9,8 +9,6 @@ Currently the supported backends are:
  * freedesktop.org Secret Service
  * Encrypted file
 
-Further support for Linux's libsecret and Windows is planned (PRs welcome!).
-
 ## Installing
 
 Download the [latest release](https://github.com/99designs/aws-vault/releases).
@@ -29,27 +27,40 @@ The macOS release is code-signed, and you can verify this with `codesign`:
 ## Usage
 
 ```bash
-
+# Store AWS credentials for the "home" profile
 $ aws-vault add home
 Enter Access Key Id: ABDCDEFDASDASF
 Enter Secret Key: %
 
-$ aws-vault exec default -- aws s3 ls
+# Execute a command using temporary credentials
+$ aws-vault exec home -- aws s3 ls
 bucket_1
 bucket_2
 
+# store credentials for the "work" profile
 $ aws-vault add work
 Enter Access Key Id: ABDCDEFDASDASF
 Enter Secret Key: %
 
+# Execute a command using temporary credentials
 $ aws-vault exec work -- aws s3 ls
 another_bucket
+
+# Inspect the environment
+$ aws-vault exec work -- env | grep AWS
+AWS_VAULT=work
+AWS_DEFAULT_REGION=us-east-1
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=%%%
+AWS_SECRET_ACCESS_KEY=%%%
+AWS_SESSION_TOKEN=%%%
+AWS_SECURITY_TOKEN=%%%
 ```
 
 ## Security
 
-Notice in the above how a session token gets written out. This is because `aws-vault` uses Amazon's STS service
-to generate [temporary credentials](http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp.html) them via the GetSessionToken or AssumeRole API calls. These expire in a short period of time, so the risk of leaking credentials is reduced.
+Notice in the above environment how a session token gets written out. This is because `aws-vault` uses Amazon's STS service
+to generate [temporary credentials](http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp.html) via the GetSessionToken or AssumeRole API calls. These expire in a short period of time, so the risk of leaking credentials is reduced.
 
 The credentials are exposed to the subprocess in one of two ways:
 

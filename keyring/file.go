@@ -21,7 +21,7 @@ func terminalPrompt(prompt string) (string, error) {
 	}
 
 	fmt.Printf("%s: ", prompt)
-	b, err := terminal.ReadPassword(1)
+	b, err := terminal.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
 		return "", err
 	}
@@ -55,12 +55,12 @@ func (k *fileKeyring) dir() (string, error) {
 
 	stat, err := os.Stat(dir)
 	if os.IsNotExist(err) {
-		os.MkdirAll(dir, 0700)
+		err = os.MkdirAll(dir, 0700)
 	} else if err != nil && !stat.IsDir() {
 		err = fmt.Errorf("%s is a file, not a directory", dir)
 	}
 
-	return dir, nil
+	return dir, err
 }
 
 func (k *fileKeyring) unlock() error {

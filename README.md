@@ -68,7 +68,7 @@ The credentials are exposed to the subprocess in one of two ways:
 
  * Local [EC2 Instance Metadata server](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) is started. This approach has the advantage that anything that uses Amazon's SDKs will automatically refresh credentials as needed, so session times can be as short as possible. The downside is that only one can run per host and because it binds to `169.254.169.254:80`, your sudo password is required.
 
-The default is to use environment variables, but you can opt-in to the local instance metadata server the `--server` flag to the `exec` command.
+The default is to use environment variables, but you can opt-in to the local instance metadata server with the `--server` flag on the `exec` command.
 
 ## MFA Tokens
 
@@ -79,7 +79,7 @@ If you have an MFA device attached to your account, the STS service will generat
 mfa_serial=arn:aws:iam::123456789012:mfa/jonsmith
 ```
 
-You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username].
+You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username]`.
 
 Note that if you have an account with an MFA associated, but you don't provide the IAM, you are unable to call IAM services, even if you have the correct permissions to do so.
 

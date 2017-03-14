@@ -171,10 +171,10 @@
 			"revisionTime": "2016-09-29T23:03:56Z"
 		},
 		{
-			"checksumSHA1": "3TujGA+BBh89yCW+88qGNWXxIAU=",
+			"checksumSHA1": "rSFw3D9mMLfFx4GuETt5aWGWi64=",
 			"path": "github.com/dvsekhvalnov/jose2go",
-			"revision": "6387d3c1f5abd8443b223577d5a7e0f4e0e5731f",
-			"revisionTime": "2015-08-16T20:43:22Z"
+			"revision": "f21a8cedbbae609f623613ec8f81125c243212e6",
+			"revisionTime": "2017-02-16T13:13:08Z"
 		},
 		{
 			"checksumSHA1": "X38qrRzL+rPyO4xZhm16ftyLkXs=",

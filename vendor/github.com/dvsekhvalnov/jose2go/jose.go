@@ -132,12 +132,21 @@ type joseConfig struct {
 	headers        map[string]interface{}
 }
 
-// Sign produces signed JWT token given arbitrary payload, signature algorithm to use (see constants for list of supported algs), signing key and extra options (see option functions)
+// Sign produces signed JWT token given arbitrary string payload, signature algorithm to use (see constants for list of supported algs), signing key and extra options (see option functions)
 // Signing key is of different type for different signing alg, see specific
 // signing alg implementation documentation.
 //
 // It returns 3 parts signed JWT token as string and not nil error if something went wrong.
 func Sign(payload string, signingAlg string, key interface{}, options ...func(*joseConfig)) (token string, err error) {
+	return SignBytes([]byte(payload), signingAlg, key, options...)
+}
+
+// Sign produces signed JWT token given arbitrary binary payload, signature algorithm to use (see constants for list of supported algs), signing key and extra options (see option functions)
+// Signing key is of different type for different signing alg, see specific
+// signing alg implementation documentation.
+//
+// It returns 3 parts signed JWT token as string and not nil error if something went wrong.
+func SignBytes(payload []byte, signingAlg string, key interface{}, options ...func(*joseConfig)) (token string, err error) {
 	if signer, ok := jwsHashers[signingAlg]; ok {
 
 		cfg := &joseConfig{compressionAlg: "", headers: make(map[string]interface{})}
@@ -154,7 +163,7 @@ func Sign(payload string, signingAlg string, key interface{}, options ...func(*j
 			cfg.headers["typ"] = "JWT"
 		}
 
-		paloadBytes := []byte(payload)
+		paloadBytes := payload
 		var header []byte
 		var signature []byte
 
@@ -172,12 +181,21 @@ func Sign(payload string, signingAlg string, key interface{}, options ...func(*j
 	return "", errors.New(fmt.Sprintf("jwt.Sign(): unknown algorithm: '%v'", signingAlg))
 }
 
-// Encrypt produces encrypted JWT token given arbitrary payload, key management and encryption algorithms to use (see constants for list of supported algs) and management key.
+// Encrypt produces encrypted JWT token given arbitrary string payload, key management and encryption algorithms to use (see constants for list of supported algs) and management key.
 // Management key is of different type for different key management alg, see specific
 // key management alg implementation documentation.
 //
 // It returns 5 parts encrypted JWT token as string and not nil error if something went wrong.
 func Encrypt(payload string, alg string, enc string, key interface{}, options ...func(*joseConfig)) (token string, err error) {
+	return EncryptBytes([]byte(payload), alg, enc, key, options...)
+}
+
+// Encrypt produces encrypted JWT token given arbitrary binary payload, key management and encryption algorithms to use (see constants for list of supported algs) and management key.
+// Management key is of different type for different key management alg, see specific
+// key management alg implementation documentation.
+//
+// It returns 5 parts encrypted JWT token as string and not nil error if something went wrong.
+func EncryptBytes(payload []byte, alg string, enc string, key interface{}, options ...func(*joseConfig)) (token string, err error) {
 
 	cfg := &joseConfig{compressionAlg: "", headers: make(map[string]interface{})}
 
@@ -190,7 +208,7 @@ func Encrypt(payload string, alg string, enc string, key interface{}, options ..
 	cfg.headers["alg"] = alg
 	cfg.headers["enc"] = enc
 
-	byteContent := []byte(payload)
+	byteContent := payload
 
 	if cfg.compressionAlg != "" {
 		if zipAlg, ok := jwcCompressors[cfg.compressionAlg]; ok {
@@ -235,13 +253,27 @@ func Compress(payload string, alg string, enc string, zip string, key interface{
 // Decode verifies, decrypts and decompresses given JWT token using management key.
 // Management key is of different type for different key management or signing algorithms, see specific alg implementation documentation.
 //
-// Returns decoded payload as a string and not nil error if something went wrong.
+// Returns decoded payload as a string, headers and not nil error if something went wrong.
 func Decode(token string, key interface{}) (string, map[string]interface{}, error) {
 
-	parts, err := compact.Parse(token)
+	payload, headers, err := DecodeBytes(token, key)
 
 	if err != nil {
 		return "", nil, err
+	}
+
+	return string(payload), headers, nil
+}
+
+// Decode verifies, decrypts and decompresses given JWT token using management key.
+// Management key is of different type for different key management or signing algorithms, see specific alg implementation documentation.
+//
+// Returns decoded payload as a raw bytes, headers and not nil error if something went wrong.
+func DecodeBytes(token string, key interface{}) ([]byte, map[string]interface{}, error) {
+	parts, err := compact.Parse(token)
+
+	if err != nil {
+		return nil, nil, err
 	}
 
 	if len(parts) == 3 {
@@ -252,7 +284,7 @@ func Decode(token string, key interface{}) (string, map[string]interface{}, erro
 		return decrypt(parts, key)
 	}
 
-	return "", nil, errors.New(fmt.Sprintf("jwt.Decode() expects token of 3 or 5 parts, but was given: %v parts", len(parts)))
+	return nil, nil, errors.New(fmt.Sprintf("jwt.DecodeBytes() expects token of 3 or 5 parts, but was given: %v parts", len(parts)))
 }
 
 func encrypt(payload []byte, jwtHeader map[string]interface{}, key interface{}) (token string, err error) {
@@ -288,7 +320,7 @@ func encrypt(payload []byte, jwtHeader map[string]interface{}, key interface{}) 
 	return compact.Serialize(header, encryptedCek, iv, cipherText, authTag), nil
 }
 
-func verify(parts [][]byte, key interface{}) (plainText string, headers map[string]interface{}, err error) {
+func verify(parts [][]byte, key interface{}) (plainText []byte, headers map[string]interface{}, err error) {
 
 	header, payload, signature := parts[0], parts[1], parts[2]
 
@@ -297,50 +329,61 @@ func verify(parts [][]byte, key interface{}) (plainText string, headers map[stri
 	var jwtHeader map[string]interface{}
 
 	if err = json.Unmarshal(header, &jwtHeader); err != nil {
-		return "", nil, err
+		return nil, nil, err
 	}
 
-	alg := jwtHeader["alg"].(string)
+	if alg, ok := jwtHeader["alg"].(string); ok {
+		if verifier, ok := jwsHashers[alg]; ok {
+			if key, err = retrieveActualKey(jwtHeader, string(payload), key); err != nil {
+				return nil, nil, err
+			}
 
-	if verifier, ok := jwsHashers[alg]; ok {
+			if err = verifier.Verify(secured, signature, key); err == nil {
+				return payload, jwtHeader, nil
+			}
 
-		key = retrieveActualKey(jwtHeader, string(payload), key)
-
-		if err = verifier.Verify(secured, signature, key); err == nil {
-			return string(payload), jwtHeader, nil
+			return nil, nil, err
 		}
 
-		return "", nil, err
+		return nil, nil, errors.New(fmt.Sprintf("jwt.Decode(): Unknown algorithm: '%v'", alg))
 	}
 
-	return "", nil, errors.New(fmt.Sprintf("jwt.Decode(): Unknown algorithm: '%v'", alg))
+	return nil, nil, errors.New(fmt.Sprint("jwt.Decode(): required 'alg' header is missing or of invalid type"))
 }
 
-func decrypt(parts [][]byte, key interface{}) (plainText string, headers map[string]interface{}, err error) {
+func decrypt(parts [][]byte, key interface{}) (plainText []byte, headers map[string]interface{}, err error) {
 
 	header, encryptedCek, iv, cipherText, authTag := parts[0], parts[1], parts[2], parts[3], parts[4]
 
 	var jwtHeader map[string]interface{}
 
 	if e := json.Unmarshal(header, &jwtHeader); e != nil {
-		return "", nil, e
+		return nil, nil, e
 	}
-
-	alg := jwtHeader["alg"].(string)
-	enc := jwtHeader["enc"].(string)
-
-	aad := []byte(compact.Serialize(header))
 
 	var keyMgmtAlg JwaAlgorithm
 	var encAlg JweEncryption
 	var zipAlg JwcAlgorithm
 	var cek, plainBytes []byte
 	var ok bool
+	var alg, enc string
+
+	if alg, ok = jwtHeader["alg"].(string); !ok {
+		return nil, nil, errors.New(fmt.Sprint("jwt.Decode(): required 'alg' header is missing or of invalid type"))
+	}
+
+	if enc, ok = jwtHeader["enc"].(string); !ok {
+		return nil, nil, errors.New(fmt.Sprint("jwt.Decode(): required 'enc' header is missing or of invalid type"))
+	}
+
+	aad := []byte(compact.Serialize(header))
 
 	if keyMgmtAlg, ok = jwaAlgorithms[alg]; ok {
 		if encAlg, ok = jweEncryptors[enc]; ok {
 
-			key = retrieveActualKey(jwtHeader, string(cipherText), key)
+			if key, err = retrieveActualKey(jwtHeader, string(cipherText), key); err != nil {
+				return nil, nil, err
+			}
 
 			if cek, err = keyMgmtAlg.Unwrap(encryptedCek, key, encAlg.KeySizeBits(), jwtHeader); err == nil {
 				if plainBytes, err = encAlg.Decrypt(aad, cek, iv, cipherText, authTag); err == nil {
@@ -348,31 +391,37 @@ func decrypt(parts [][]byte, key interface{}) (plainText string, headers map[str
 					if zip, compressed := jwtHeader["zip"].(string); compressed {
 
 						if zipAlg, ok = jwcCompressors[zip]; !ok {
-							return "", nil, errors.New(fmt.Sprintf("jwt.decrypt(): Unknown compression algorithm '%v'", zip))
+							return nil, nil, errors.New(fmt.Sprintf("jwt.decrypt(): Unknown compression algorithm '%v'", zip))
 						}
 
 						plainBytes = zipAlg.Decompress(plainBytes)
 					}
 
-					return string(plainBytes), jwtHeader, nil
+					return plainBytes, jwtHeader, nil
 				}
 
-				return "", nil, err
+				return nil, nil, err
 			}
 
-			return "", nil, err
+			return nil, nil, err
 		}
 
-		return "", nil, errors.New(fmt.Sprintf("jwt.decrypt(): Unknown encryption algorithm '%v'", enc))
+		return nil, nil, errors.New(fmt.Sprintf("jwt.decrypt(): Unknown encryption algorithm '%v'", enc))
 	}
 
-	return "", nil, errors.New(fmt.Sprintf("jwt.decrypt(): Unknown key management algorithm '%v'", alg))
+	return nil, nil, errors.New(fmt.Sprintf("jwt.decrypt(): Unknown key management algorithm '%v'", alg))
 }
 
-func retrieveActualKey(headers map[string]interface{}, payload string, key interface{}) interface{} {
+func retrieveActualKey(headers map[string]interface{}, payload string, key interface{}) (interface{}, error) {
 	if keyCallback, ok := key.(func(headers map[string]interface{}, payload string) interface{}); ok {
-		return keyCallback(headers, payload)
+		result := keyCallback(headers, payload)
+
+		if err, ok := result.(error); ok {
+			return nil, err
+		}
+
+		return result, nil
 	}
 
-	return key
+	return key, nil
 }

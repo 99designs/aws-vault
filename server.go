@@ -69,10 +69,6 @@ func credentialsHandler(w http.ResponseWriter, r *http.Request) {
 	io.Copy(w, resp.Body)
 }
 
-func installNetworkAlias() ([]byte, error) {
-	return exec.Command("ifconfig", "lo0", "alias", "169.254.169.254").CombinedOutput()
-}
-
 func checkServerRunning(bind string) bool {
 	_, err := net.DialTimeout("tcp", bind, time.Millisecond*10)
 	return err == nil

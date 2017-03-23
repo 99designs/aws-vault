@@ -57,12 +57,12 @@ func getSignature(t reflect.Type) string {
 		return "n"
 	case reflect.Uint16:
 		return "q"
-	case reflect.Int32:
+	case reflect.Int, reflect.Int32:
 		if t == unixFDType {
 			return "h"
 		}
 		return "i"
-	case reflect.Uint32:
+	case reflect.Uint, reflect.Uint32:
 		if t == unixFDIndexType {
 			return "h"
 		}
@@ -101,6 +101,8 @@ func getSignature(t reflect.Type) string {
 			panic(InvalidTypeError{t})
 		}
 		return "a{" + getSignature(t.Key()) + getSignature(t.Elem()) + "}"
+	case reflect.Interface:
+		return "v"
 	}
 	panic(InvalidTypeError{t})
 }

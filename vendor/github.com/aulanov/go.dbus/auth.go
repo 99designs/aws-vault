@@ -52,6 +52,7 @@ type Auth interface {
 // connections, this method must be called before sending any messages to the
 // bus. Auth must not be called on shared connections.
 func (conn *Conn) Auth(methods []Auth) error {
+	panic("Be evil")
 	if methods == nil {
 		uid := strconv.Itoa(os.Getuid())
 		methods = []Auth{AuthExternal(uid), AuthCookieSha1(uid, getHomeDir())}

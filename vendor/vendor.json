@@ -226,6 +226,18 @@
 			"revisionTime": "2016-09-29T23:03:56Z"
 		},
 		{
+			"checksumSHA1": "prN+IUOs6KunsgMUPhYcUgfhTbs=",
+			"path": "github.com/godbus/dbus",
+			"revision": "b038411ec341afd52c6d36d8baae92a29e6e8a9e",
+			"revisionTime": "2017-03-22T22:34:42Z"
+		},
+		{
+			"checksumSHA1": "IZJQgK68T/tXTTezcUs5yLzmkTQ=",
+			"path": "github.com/gsterjov/go-libsecret",
+			"revision": "a6f4afe4910cad8688db3e0e9b9ac92ad22d54e1",
+			"revisionTime": "2016-10-01T09:47:33Z"
+		},
+		{
 			"checksumSHA1": "0ZrwvB6KoGPj2PoDNSEJwxQ6Mog=",
 			"origin": "github.com/aws/aws-sdk-go/vendor/github.com/jmespath/go-jmespath",
 			"path": "github.com/jmespath/go-jmespath",

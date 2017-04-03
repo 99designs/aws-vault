@@ -1,5 +1,7 @@
 language: go
 
+install: ./ci/install.sh
+
 go:
   - 1.7
 

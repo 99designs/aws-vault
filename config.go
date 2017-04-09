@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -41,7 +40,6 @@ func (c *fileConfig) Parse() (profiles, error) {
 		return nil, nil
 	}
 
-	log.Printf("Parsing config file %s", c.file)
 	f, err := ini.LoadFile(c.file)
 	if err != nil {
 		return nil, fmt.Errorf("Error parsing config file %q: %v", c.file, err)

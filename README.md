@@ -57,6 +57,13 @@ AWS_SESSION_TOKEN=%%%
 AWS_SECURITY_TOKEN=%%%
 ```
 
+### Backends
+
+You can choose different secret storage backends, which may be particularly useful on Linux.
+By default, Linux uses an encrypted file. You can use your system keyring by choosing the secret-service backend which [abstracts over Gnome/KDE](https://specifications.freedesktop.org/secret-service/).
+
+    AWS_VAULT_BACKEND=secret-service
+
 ## Security
 
 Notice in the above environment how a session token gets written out. This is because `aws-vault` uses Amazon's STS service

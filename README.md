@@ -26,6 +26,8 @@ The macOS release is code-signed, and you can verify this with `codesign`:
 
 ## Usage
 
+See the [USAGE](./USAGE.md) document for more help and tips.
+
 ```bash
 # Store AWS credentials for the "home" profile
 $ aws-vault add home
@@ -37,17 +39,8 @@ $ aws-vault exec home -- aws s3 ls
 bucket_1
 bucket_2
 
-# store credentials for the "work" profile
-$ aws-vault add work
-Enter Access Key Id: ABDCDEFDASDASF
-Enter Secret Key: %
-
-# Execute a command using temporary credentials
-$ aws-vault exec work -- aws s3 ls
-another_bucket
-
 # Inspect the environment
-$ aws-vault exec work -- env | grep AWS
+$ aws-vault exec home -- env | grep AWS
 AWS_VAULT=work
 AWS_DEFAULT_REGION=us-east-1
 AWS_REGION=us-east-1
@@ -59,10 +52,9 @@ AWS_SECURITY_TOKEN=%%%
 
 ### Backends
 
-You can choose different secret storage backends, which may be particularly useful on Linux.
-By default, Linux uses an encrypted file. You can use your system keyring by choosing the secret-service backend which [abstracts over Gnome/KDE](https://specifications.freedesktop.org/secret-service/).
+You can choose among different pluggable secret storage backends. By default, Linux uses an encrypted file. You can use your system keyring by choosing the secret-service backend which [abstracts over Gnome/KDE](https://specifications.freedesktop.org/secret-service/).
 
-    AWS_VAULT_BACKEND=secret-service
+See the [USAGE](./USAGE.md) document for more help and tips.
 
 ## Security
 

@@ -36,7 +36,7 @@ You can create an overriding script (make it higher precedence in your PATH) tha
 #!/bin/bash
 set -euo pipefail
  
-AWS_PROFILE=${AWS_DEFAULT_PROFILE:-work}
+AWS_PROFILE="${AWS_DEFAULT_PROFILE:-work}"
 exec aws-vault exec "$AWS_PROFILE" -- /usr/local/bin/aws "$@"
 ```
 

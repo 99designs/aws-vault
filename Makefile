@@ -26,10 +26,10 @@ $(BIN)-linux-amd64: $(SRC)
 $(BIN)-darwin-amd64: $(SRC)
 	GOOS=darwin GOARCH=amd64 go build -o $@ -ldflags="$(FLAGS)" .
 
-$(BIN)-windows-386: $(SRC)
+$(BIN)-windows-386.exe: $(SRC)
 	GOOS=windows GOARCH=386 go build -o $@ -ldflags="$(FLAGS)" .
 
-release: $(BIN)-linux-amd64 $(BIN)-darwin-amd64 $(BIN)-windows-386
+release: $(BIN)-linux-amd64 $(BIN)-darwin-amd64 $(BIN)-windows-386.exe
 	codesign -s $(CERT) $(BIN)-darwin-amd64
 
 clean:

@@ -70,7 +70,8 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		log.Printf("No session token found, calling GetFederationToken")
 		stsCreds, err := getFederationToken(val, input.FederationTokenDuration)
 		if err != nil {
-			app.Fatalf("Failed to call GetFederationToken: %v", err)
+			app.Fatalf("Failed to call GetFederationToken: %v\n"+
+				"Login for non-assumed roles depends on permission to call sts:GetFederationToken", err)
 			return
 		}
 

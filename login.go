@@ -61,7 +61,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 	val, err := creds.Get()
 	if err != nil {
 		if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "NoCredentialProviders" {
-			app.Fatalf("No credentials found for profile %q", input.Profile)
+			app.Fatalf("No credentials found for profile %q.\nUse `aws-vault add %s` to set up credentials", input.Profile, input.Profile)
 			return
 		}
 		app.Fatalf("Failed to get credentials: %v", err)

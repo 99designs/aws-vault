@@ -10,7 +10,6 @@ import (
 
 	"github.com/99designs/aws-vault/keyring"
 	"github.com/99designs/aws-vault/prompt"
-	"github.com/aws/aws-sdk-go/aws/awserr"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -61,11 +60,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 
 	val, err := creds.Get()
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "NoCredentialProviders" {
-			app.Fatalf("No credentials found for profile %q", input.Profile)
-		} else {
-			app.Fatalf("Failed to get credentials: %v", err)
-		}
+		app.Fatalf(formatCredentialError(input.Profile, profiles, err))
 	}
 
 	if input.StartServer {

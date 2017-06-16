@@ -52,7 +52,7 @@ func configureAddCommand(app *kingpin.Application, g *globalFlags) {
 func configureListCommand(app *kingpin.Application, g *globalFlags) {
 	input := LsCommandInput{}
 
-	cmd := app.Command("list", "List profiles")
+	cmd := app.Command("list", "List all credentials and sessions")
 	cmd.Alias("ls")
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.Keyring = keyringImpl

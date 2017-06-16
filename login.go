@@ -12,7 +12,6 @@ import (
 	"github.com/99designs/aws-vault/keyring"
 	"github.com/99designs/aws-vault/prompt"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/iam"
@@ -60,11 +59,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 	creds := credentials.NewCredentials(provider)
 	val, err := creds.Get()
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "NoCredentialProviders" {
-			app.Fatalf("No credentials found for profile %q", input.Profile)
-			return
-		}
-		app.Fatalf("Failed to get credentials: %v", err)
+		app.Fatalf(formatCredentialError(input.Profile, profiles, err))
 	}
 
 	var isFederated bool
@@ -75,7 +70,8 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		log.Printf("No session token found, calling GetFederationToken")
 		stsCreds, err := getFederationToken(val, input.FederationTokenDuration)
 		if err != nil {
-			app.Fatalf("Failed to call GetFederationToken: %v", err)
+			app.Fatalf("Failed to call GetFederationToken: %v\n"+
+				"Login for non-assumed roles depends on permission to call sts:GetFederationToken", err)
 			return
 		}
 

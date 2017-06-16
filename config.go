@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/mitchellh/go-homedir"
 	"github.com/vaughan0/go-ini"
 )
@@ -64,4 +65,23 @@ func sourceProfile(p string, from profiles) string {
 		}
 	}
 	return p
+}
+
+func formatCredentialError(p string, from profiles, err error) string {
+	source := sourceProfile(p, from)
+	sourceDescr := p
+
+	// add custom formatting for source_profile
+	if source != p {
+		sourceDescr = fmt.Sprintf("%s (source profile for %s)", source, p)
+	}
+
+	if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "NoCredentialProviders" {
+		return fmt.Sprintf(
+			"No credentials found for profile %s.\n"+
+				"Use 'aws-vault add %s' to set up credentials or 'aws-vault list' to see what credentials exist",
+			sourceDescr, source)
+	}
+
+	return fmt.Sprintf("Failed to get credentials for %s: %v", err, sourceDescr)
 }

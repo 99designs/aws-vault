@@ -97,6 +97,7 @@ func configureExecCommand(app *kingpin.Application, g *globalFlags) {
 
 	cmd.Flag("assume-role-ttl", "Expiration time for aws assumed role").
 		Default("15m").
+		OverrideDefaultFromEnvar("AWS_ASSUME_ROLE_TTL").
 		DurationVar(&input.RoleDuration)
 
 	cmd.Flag("mfa-token", "The mfa token to use").

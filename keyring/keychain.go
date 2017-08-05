@@ -3,14 +3,9 @@
 package keyring
 
 import (
-	"fmt"
 	"log"
 
 	gokeychain "github.com/keybase/go-keychain"
-)
-
-const (
-	keychainAccessGroup = "ACE1234DEF.com.99designs.aws-vault"
 )
 
 type keychain struct {
@@ -74,14 +69,20 @@ func (k *keychain) Set(item Item) error {
 		return err
 	}
 
-	label := fmt.Sprintf("%s (%s)", k.service, item.Key)
-
-	newItem := gokeychain.NewGenericPassword(k.service, item.Key, label, item.Data, keychainAccessGroup)
+	newItem := gokeychain.NewItem()
+	newItem.SetSecClass(gokeychain.SecClassGenericPassword)
+	newItem.SetService(k.service)
+	newItem.SetAccount(item.Key)
+	newItem.SetLabel(item.Label)
+	newItem.SetDescription(item.Description)
+	newItem.SetData(item.Data)
+	newItem.SetSynchronizable(gokeychain.SynchronizableNo)
+	newItem.SetAccessible(gokeychain.AccessibleWhenUnlocked)
 	newItem.UseKeychain(kc)
 	newItem.SetAccess(gokeychain.NoApplicationsTrusted)
 
 	log.Printf("Adding service=%q, account=%q to osx keychain %s", k.service, item.Key, k.path)
-	return gokeychain.AddItem(newItem)
+	return gokeychain.AddItem(item)
 }
 
 func (k *keychain) Remove(key string) error {

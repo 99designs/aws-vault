@@ -3,11 +3,13 @@ package keyring
 import "errors"
 
 const (
-	SecretServiceBackend  string = "secret-service"
-	KeychainBackend       string = "keychain"
-	KWalletBackend        string = "kwallet"
-	FileBackend           string = "file"
+	SecretServiceBackend string = "secret-service"
+	KeychainBackend      string = "keychain"
+	KWalletBackend       string = "kwallet"
+	FileBackend          string = "file"
 )
+
+var UseBiometricsIfAvailable bool
 
 var DefaultBackend = FileBackend
 

@@ -26,6 +26,7 @@ var GlobalFlags struct {
 	Debug        bool
 	Backend      string
 	PromptDriver string
+	Biometrics   bool
 }
 
 func ConfigureGlobals(app *kingpin.Application) {
@@ -42,12 +43,18 @@ func ConfigureGlobals(app *kingpin.Application) {
 		OverrideDefaultFromEnvar("AWS_VAULT_PROMPT").
 		EnumVar(&GlobalFlags.PromptDriver, promptsAvailable...)
 
+	app.Flag("biometrics", "Use biometric authentication if supported").
+		BoolVar(&GlobalFlags.Biometrics)
+
 	app.PreAction(func(c *kingpin.ParseContext) (err error) {
 		if !GlobalFlags.Debug {
 			log.SetOutput(ioutil.Discard)
 		}
 		if keyringImpl == nil {
 			keyringImpl, err = keyring.Open(KeyringName, GlobalFlags.Backend)
+		}
+		if globals.Biometrics {
+			keyring.UseBiometricsIfAvailable = true
 		}
 		if awsConfigFile == nil {
 			awsConfigFile, err = vault.NewConfigFromEnv()

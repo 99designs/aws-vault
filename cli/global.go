@@ -54,7 +54,7 @@ func ConfigureGlobals(app *kingpin.Application) {
 			keyringImpl, err = keyring.Open(KeyringName, GlobalFlags.Backend)
 		}
 		if globals.Biometrics {
-			keyring.UseBiometricsIfAvailable = true
+			keyring.Config.UseBiometrics = true
 		}
 		if awsConfigFile == nil {
 			awsConfigFile, err = vault.NewConfigFromEnv()

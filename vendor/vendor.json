@@ -258,6 +258,12 @@
 			"revisionTime": "2017-08-10T04:31:23Z"
 		},
 		{
+			"checksumSHA1": "kEyCzFEzVLWWRauNn0Nzxg2pg6Q=",
+			"path": "github.com/lox/go-touchid",
+			"revision": "619cc8e578d0ef916aa29c806117c370f9d621cb",
+			"revisionTime": "2017-07-12T10:52:33Z"
+		},
+		{
 			"checksumSHA1": "AXacfEchaUqT5RGmPmMXsOWRhv8=",
 			"path": "github.com/mitchellh/go-homedir",
 			"revision": "756f7b183b7ab78acdbbee5c7f392838ed459dda",

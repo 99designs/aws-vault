@@ -9,7 +9,9 @@ const (
 	FileBackend          string = "file"
 )
 
-var UseBiometricsIfAvailable bool
+var Config struct {
+	UseBiometrics bool
+}
 
 var DefaultBackend = FileBackend
 

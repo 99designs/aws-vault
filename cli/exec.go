@@ -112,6 +112,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 	val, err := creds.Get()
 	if err != nil {
 		app.Fatalf(vault.FormatCredentialError(input.Profile, profiles, err))
+		return
 	}
 
 	if input.StartServer {

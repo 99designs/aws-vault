@@ -140,7 +140,7 @@ func (k *keychain) createOrOpen() (gokeychain.Keychain, error) {
 		return gokeychain.Keychain{}, err
 	}
 
-	if k.passphrase != "" {
+	if k.passphrase == "" {
 		log.Printf("Creating keychain %s with prompt", k.path)
 		return gokeychain.NewKeychainWithPrompt(k.path)
 	}

@@ -69,20 +69,20 @@ func (k *keychain) Set(item Item) error {
 		return err
 	}
 
-	newItem := gokeychain.NewItem()
-	newItem.SetSecClass(gokeychain.SecClassGenericPassword)
-	newItem.SetService(k.service)
-	newItem.SetAccount(item.Key)
-	newItem.SetLabel(item.Label)
-	newItem.SetDescription(item.Description)
-	newItem.SetData(item.Data)
-	newItem.SetSynchronizable(gokeychain.SynchronizableNo)
-	newItem.SetAccessible(gokeychain.AccessibleWhenUnlocked)
-	newItem.UseKeychain(kc)
-	newItem.SetAccess(gokeychain.NoApplicationsTrusted)
+	kcItem := gokeychain.NewItem()
+	kcItem.SetSecClass(gokeychain.SecClassGenericPassword)
+	kcItem.SetService(k.service)
+	kcItem.SetAccount(item.Key)
+	kcItem.SetLabel(item.Label)
+	kcItem.SetDescription(item.Description)
+	kcItem.SetData(item.Data)
+	kcItem.SetSynchronizable(gokeychain.SynchronizableNo)
+	kcItem.SetAccessible(gokeychain.AccessibleWhenUnlocked)
+	kcItem.UseKeychain(kc)
+	kcItem.SetAccess(gokeychain.NoApplicationsTrusted)
 
 	log.Printf("Adding service=%q, account=%q to osx keychain %s", k.service, item.Key, k.path)
-	return gokeychain.AddItem(item)
+	return gokeychain.AddItem(kcItem)
 }
 
 func (k *keychain) Remove(key string) error {

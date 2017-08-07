@@ -33,6 +33,7 @@ type VaultOptions struct {
 	MfaPrompt          prompt.PromptFunc
 	NoSession          bool
 	Profiles           profiles
+	MasterCreds        *credentials.Value
 }
 
 func (o VaultOptions) Validate() error {
@@ -170,6 +171,10 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 }
 
 func (p *VaultProvider) getMasterCreds() (credentials.Value, error) {
+	if p.MasterCreds != nil {
+		return *p.MasterCreds, nil
+	}
+
 	source := sourceProfile(p.profile, p.profiles)
 
 	creds, ok := p.creds[source]

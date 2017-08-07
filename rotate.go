@@ -6,7 +6,6 @@ import (
 	"github.com/99designs/aws-vault/keyring"
 	"github.com/99designs/aws-vault/prompt"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/iam"
@@ -29,20 +28,40 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 		return
 	}
 
-	provider := &KeyringProvider{Keyring: input.Keyring, Profile: input.Profile}
+	provider := &KeyringProvider{
+		Keyring: input.Keyring,
+		Profile: sourceProfile(input.Profile, profiles),
+	}
+
 	oldMasterCreds, err := provider.Retrieve()
 	if err != nil {
 		app.Fatalf(err.Error())
 		return
 	}
 
-	log.Println("Found old access key")
+	oldClient := iam.New(session.New(&aws.Config{
+		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: oldMasterCreds}),
+	}))
 
+	// GetUser with a blank username returns the username for the credentials
+	userOutput, err := oldClient.GetUser(&iam.GetUserInput{})
+	if err != nil {
+		app.Fatalf(err.Error())
+		return
+	}
+
+	log.Printf("Found old access key  ****************%s for user %s",
+		oldMasterCreds.AccessKeyID[len(oldMasterCreds.AccessKeyID)-4:],
+		*userOutput.User.UserName)
+
+	// We need to use a session as some credentials will requiring assuming a role to
+	// get permission to create creds
 	oldSessionCreds, err := NewVaultCredentials(input.Keyring, input.Profile, VaultOptions{
-		MfaToken:  input.MfaToken,
-		MfaPrompt: input.MfaPrompt,
-		Profiles:  profiles,
-		NoSession: true,
+		MfaToken:    input.MfaToken,
+		MfaPrompt:   input.MfaPrompt,
+		Profiles:    profiles,
+		NoSession:   true,
+		MasterCreds: &oldMasterCreds,
 	})
 	if err != nil {
 		app.Fatalf(err.Error())
@@ -51,22 +70,20 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 
 	log.Println("Using old credentials to create a new access key")
 
-	oldVal, err := oldSessionCreds.Get()
+	oldSessionVal, err := oldSessionCreds.Get()
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "NoCredentialProviders" {
-			app.Fatalf("No credentials found for profile %q", input.Profile)
-			return
-		} else {
-			app.Fatalf(err.Error())
-			return
-		}
+		app.Fatalf(formatCredentialError(input.Profile, profiles, err))
+		return
 	}
 
-	client := iam.New(session.New(&aws.Config{
-		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: oldVal}),
+	oldSessionClient := iam.New(session.New(&aws.Config{
+		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: oldSessionVal}),
 	}))
 
-	createOut, err := client.CreateAccessKey(&iam.CreateAccessKeyInput{})
+	// A username is needed if the credentials are a session
+	createOut, err := oldSessionClient.CreateAccessKey(&iam.CreateAccessKeyInput{
+		UserName: userOutput.User.UserName,
+	})
 	if err != nil {
 		app.Fatalf(err.Error())
 		return
@@ -80,7 +97,7 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 	}
 
 	if err := provider.Store(newMasterCreds); err != nil {
-		app.Errorf("Can't store new access key:", newMasterCreds)
+		app.Errorf("Can't store new access key %v", newMasterCreds.AccessKeyID)
 		app.Fatalf(err.Error())
 		return
 	}
@@ -98,10 +115,11 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 	log.Println("Using new credentials to delete the old new access key")
 
 	newSessionCreds, err := NewVaultCredentials(input.Keyring, input.Profile, VaultOptions{
-		MfaToken:  input.MfaToken,
-		MfaPrompt: input.MfaPrompt,
-		Profiles:  profiles,
-		NoSession: true,
+		MfaToken:    input.MfaToken,
+		MfaPrompt:   input.MfaPrompt,
+		Profiles:    profiles,
+		NoSession:   true,
+		MasterCreds: &newMasterCreds,
 	})
 	if err != nil {
 		app.Fatalf(err.Error())
@@ -110,24 +128,20 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 
 	newVal, err := newSessionCreds.Get()
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "NoCredentialProviders" {
-			app.Fatalf("No credentials found for profile %q", input.Profile)
-			return
-		} else {
-			app.Fatalf(err.Error())
-			return
-		}
+		app.Fatalf(formatCredentialError(input.Profile, profiles, err))
+		return
 	}
 
-	client = iam.New(session.New(&aws.Config{
+	newClient := iam.New(session.New(&aws.Config{
 		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: newVal}),
 	}))
 
-	_, err = client.DeleteAccessKey(&iam.DeleteAccessKeyInput{
+	_, err = newClient.DeleteAccessKey(&iam.DeleteAccessKeyInput{
 		AccessKeyId: aws.String(oldMasterCreds.AccessKeyID),
+		UserName:    userOutput.User.UserName,
 	})
 	if err != nil {
-		app.Errorf("Can't delete old access key:", oldMasterCreds)
+		app.Errorf("Can't delete old access key %v", oldMasterCreds.AccessKeyID)
 		app.Fatalf(err.Error())
 		return
 	}

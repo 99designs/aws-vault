@@ -245,6 +245,13 @@
 			"revisionTime": "2016-09-29T23:03:56Z"
 		},
 		{
+			"checksumSHA1": "VGkGZuxgsZinkFJjqkk4gpS0104=",
+			"origin": "github.com/lox/go-keychain",
+			"path": "github.com/keybase/go-keychain",
+			"revision": "72a96c565a7db66ce371cfe062100b4b8482f310",
+			"revisionTime": "2017-08-05T04:40:36Z"
+		},
+		{
 			"checksumSHA1": "AXacfEchaUqT5RGmPmMXsOWRhv8=",
 			"path": "github.com/mitchellh/go-homedir",
 			"revision": "756f7b183b7ab78acdbbee5c7f392838ed459dda",

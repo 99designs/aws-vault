@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/99designs/aws-vault/keyring"
@@ -43,13 +42,14 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 		MfaToken:  input.MfaToken,
 		MfaPrompt: input.MfaPrompt,
 		Profiles:  profiles,
+		NoSession: true,
 	})
 	if err != nil {
 		app.Fatalf(err.Error())
 		return
 	}
 
-	fmt.Println("Using old credentials to create a new access key")
+	log.Println("Using old credentials to create a new access key")
 
 	oldVal, err := oldSessionCreds.Get()
 	if err != nil {
@@ -101,6 +101,7 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 		MfaToken:  input.MfaToken,
 		MfaPrompt: input.MfaPrompt,
 		Profiles:  profiles,
+		NoSession: true,
 	})
 	if err != nil {
 		app.Fatalf(err.Error())

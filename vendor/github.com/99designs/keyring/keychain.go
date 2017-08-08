@@ -15,10 +15,9 @@ import (
 )
 
 const (
-	keychainAccessGroup = "ACE1234DEF.com.99designs.aws-vault"
-	biometricsAccount   = "com.99designs.aws-vault.biometrics"
-	biometricsService   = "aws-vault"
-	biometricsLabel     = "Passphrase for %s"
+	biometricsAccount = "com.99designs.aws-vault.biometrics"
+	biometricsService = "aws-vault"
+	biometricsLabel   = "Passphrase for %s"
 )
 
 type keychain struct {

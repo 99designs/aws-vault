@@ -1,5 +1,6 @@
 language: go
 
+osx_image: xcode8.3
 install: ./scripts/ci_install.sh
 
 go:

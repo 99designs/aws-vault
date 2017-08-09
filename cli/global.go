@@ -44,6 +44,7 @@ func ConfigureGlobals(app *kingpin.Application) {
 		EnumVar(&GlobalFlags.PromptDriver, promptsAvailable...)
 
 	app.Flag("biometrics", "Use biometric authentication if supported").
+		OverrideDefaultFromEnvar("AWS_VAULT_BIOMETRICS").
 		BoolVar(&GlobalFlags.Biometrics)
 
 	app.PreAction(func(c *kingpin.ParseContext) (err error) {
@@ -61,5 +62,4 @@ func ConfigureGlobals(app *kingpin.Application) {
 		}
 		return err
 	})
-
 }

@@ -154,6 +154,8 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 // a session created with AssumeRole. This allows for usecases where a token created with AssumeRole
 // wouldn't work.
 func (p *VaultProvider) RetrieveWithoutSessionToken() (credentials.Value, error) {
+	log.Println("Skipping session token and using master credentials directly")
+
 	creds, err := p.getMasterCreds()
 	if err != nil {
 		return credentials.Value{}, err
@@ -193,24 +195,20 @@ func (p *VaultProvider) RetrieveWithoutSessionToken() (credentials.Value, error)
 func (p *VaultProvider) getMasterCreds() (credentials.Value, error) {
 	source := sourceProfile(p.profile, p.profiles)
 
-	creds, ok := p.creds[source]
+	val, ok := p.creds[source]
 	if !ok {
-		provider := credentials.NewChainCredentials([]credentials.Provider{
-			&credentials.EnvProvider{},
-			&credentials.SharedCredentialsProvider{Filename: "", Profile: p.profile},
-			&KeyringProvider{Keyring: p.keyring, Profile: source},
-		})
+		creds := credentials.NewCredentials(&KeyringProvider{Keyring: p.keyring, Profile: source})
 
 		var err error
-		if creds, err = provider.Get(); err != nil {
+		if val, err = creds.Get(); err != nil {
 			log.Printf("Failed to find credentials for profile %q in keyring", source)
-			return creds, err
+			return val, err
 		}
 
-		p.creds[source] = creds
+		p.creds[source] = val
 	}
 
-	return creds, nil
+	return val, nil
 }
 
 func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentials, error) {

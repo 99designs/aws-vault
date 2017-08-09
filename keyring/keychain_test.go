@@ -3,36 +3,43 @@
 package keyring
 
 import (
-	"io/ioutil"
+	"fmt"
+	"log"
 	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
+	"time"
+
+	homedir "github.com/mitchellh/go-homedir"
 )
 
-func TestOSXKeychainDoesntExist(t *testing.T) {
-	file := tmpKeychain(t)
-	defer os.Remove(file)
+var keychainDir string
 
-	k, err := createKeychain(file, false, "llamas")
+func deleteKeychain(name string) {
+	home, err := homedir.Dir()
 	if err != nil {
-		t.Fatal(err)
-	}
-	defer releaseKeychain(k)
-
-	if exists, _ := keychainExists(file); !exists {
-		t.Fatalf("Expected existing keychain to be shown as existing")
+		panic(err)
 	}
 
-	if exists, _ := keychainExists("llamaspleasedontbeakeychainwiththisname"); exists {
-		t.Fatalf("Expected non-existing keychain to NOT be shown as existing")
+	f := filepath.Join(home, "Library/Keychains", name+"-db")
+	log.Printf("removing %s", f)
+
+	if err = os.Remove(f); err != nil {
+		panic(err)
 	}
 }
 
 func TestOSXKeychainKeyringSet(t *testing.T) {
-	file := tmpKeychain(t)
-	defer os.Remove(file)
+	name := tmpKeychain(t)
+	defer deleteKeychain(name)
 
-	k := &keychain{path: file, passphrase: "llamas", service: "test"}
+	k := &keychain{
+		path:       name,
+		passphrase: "llamas",
+		service:    "test",
+	}
+
 	item := Item{
 		Key:         "llamas",
 		Label:       "Arbitrary label",
@@ -64,14 +71,25 @@ func TestOSXKeychainKeyringSet(t *testing.T) {
 }
 
 func TestOSXKeychainKeyringListKeys(t *testing.T) {
-	file := tmpKeychain(t)
-	defer os.Remove(file)
+	name := tmpKeychain(t)
+	defer deleteKeychain(name)
 
-	k := &keychain{path: file, passphrase: "llamas", service: "test"}
+	k := &keychain{
+		path:       name,
+		passphrase: "llamas",
+		service:    "test",
+	}
+
 	keys := []string{"key1", "key2", "key3"}
 
 	for _, key := range keys {
-		if err := k.Set(Item{Key: key, Data: []byte("llamas are great")}); err != nil {
+		item := Item{
+			Key:       key,
+			Data:      []byte("llamas are great"),
+			TrustSelf: true,
+		}
+
+		if err := k.Set(item); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -86,12 +104,6 @@ func TestOSXKeychainKeyringListKeys(t *testing.T) {
 	}
 }
 
-func tmpKeychain(t *testing.T) (path string) {
-	file, err := ioutil.TempFile(os.TempDir(), "aws-vault-test")
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-	os.Remove(file.Name())
-	return file.Name()
+func tmpKeychain(t *testing.T) (name string) {
+	return fmt.Sprintf("aws-vault-test-%d.keychain", time.Now().UnixNano())
 }

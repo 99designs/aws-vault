@@ -42,7 +42,7 @@ func (k *keychain) Get(key string) (Item, error) {
 	query.SetMatchLimit(gokeychain.MatchLimitOne)
 	query.SetReturnAttributes(true)
 	query.SetReturnData(true)
-	query.SetMatchSearchList(kc)
+	query.UseKeychain(kc)
 
 	results, err := gokeychain.QueryItem(query)
 	if err == gokeychain.ErrorItemNotFound || len(results) == 0 {
@@ -79,9 +79,9 @@ func (k *keychain) Set(item Item) error {
 	kcItem.SetSynchronizable(gokeychain.SynchronizableNo)
 	kcItem.SetAccessible(gokeychain.AccessibleWhenUnlocked)
 	kcItem.UseKeychain(kc)
-	kcItem.SetAccess(&gokeychain.Access{SelfUntrusted: !item.TrustSelf})
+	kcItem.SetAccess(gokeychain.NoApplicationsTrusted)
 
-	log.Printf("Adding service=%q, label=%q, account=%q to osx keychain %s", k.service, item.Label, item.Key, k.path)
+	log.Printf("Adding service=%q, account=%q to osx keychain %s", k.service, item.Key, k.path)
 	return gokeychain.AddItem(kcItem)
 }
 
@@ -96,7 +96,6 @@ func (k *keychain) Remove(key string) error {
 	item.SetSecClass(gokeychain.SecClassGenericPassword)
 	item.SetService(k.service)
 	item.SetAccount(key)
-	item.SetMatchSearchList(kc)
 
 	log.Printf("Removing keychain item service=%q, account=%q from osx keychain %q", k.service, key, k.path)
 	return gokeychain.DeleteItem(item)
@@ -114,7 +113,7 @@ func (k *keychain) Keys() ([]string, error) {
 	query.SetService(k.service)
 	query.SetMatchLimit(gokeychain.MatchLimitAll)
 	query.SetReturnAttributes(true)
-	query.SetMatchSearchList(kc)
+	query.UseKeychain(kc)
 
 	results, err := gokeychain.QueryItem(query)
 	if err != nil {

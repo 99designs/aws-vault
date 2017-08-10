@@ -86,12 +86,42 @@ func NewVaultProvider(k keyring.Keyring, profile string, opts VaultOptions) (*Va
 	}, nil
 }
 
-// Retrieve returns credentials protected by a GetSessionToken. If there is an associated
-// role in the profile then AssumeRole is applied. The benefit of a session is that it doesn't
-// require MFA or a user prompt to access the keychain item, much like sudo.
 func (p *VaultProvider) Retrieve() (credentials.Value, error) {
+	creds, err := p.getMasterCreds()
+	if err != nil {
+		return credentials.Value{}, err
+	}
+
+	window := p.ExpiryWindow
+	if window == 0 {
+		window = time.Minute * 5
+	}
+
 	if p.NoSession {
-		return p.RetrieveWithoutSessionToken()
+		if role, ok := p.profiles[p.profile]["role_arn"]; ok {
+			session, err := p.assumeRole(creds, role)
+			if err != nil {
+				return credentials.Value{}, err
+			}
+
+			log.Printf("Using role ****************%s, expires in %s",
+				(*session.AccessKeyId)[len(*session.AccessKeyId)-4:],
+				session.Expiration.Sub(time.Now()).String())
+
+			p.SetExpiration(*session.Expiration, window)
+			p.expires = *session.Expiration
+
+			value := credentials.Value{
+				AccessKeyID:     *session.AccessKeyId,
+				SecretAccessKey: *session.SecretAccessKey,
+				SessionToken:    *session.SessionToken,
+			}
+
+			return value, nil
+		}
+
+		// no role, exposes master credentials which don't expire
+		return creds, nil
 	}
 
 	session, err := p.sessions.Retrieve(p.profile, p.SessionDuration)
@@ -100,12 +130,6 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 			log.Println("Session not found in keyring")
 		} else {
 			log.Println(err)
-		}
-
-		// session lookup missed, we need to create a new one
-		creds, err := p.getMasterCreds()
-		if err != nil {
-			return credentials.Value{}, err
 		}
 
 		session, err = p.getSessionToken(&creds)
@@ -133,11 +157,6 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 			session.Expiration.Sub(time.Now()).String())
 	}
 
-	window := p.ExpiryWindow
-	if window == 0 {
-		window = time.Minute * 5
-	}
-
 	p.SetExpiration(*session.Expiration, window)
 	p.expires = *session.Expiration
 
@@ -150,65 +169,27 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 	return value, nil
 }
 
-// RetrieveWithoutSessionToken returns credentials that are either the master credentials or
-// a session created with AssumeRole. This allows for usecases where a token created with AssumeRole
-// wouldn't work.
-func (p *VaultProvider) RetrieveWithoutSessionToken() (credentials.Value, error) {
-	log.Println("Skipping session token and using master credentials directly")
-
-	creds, err := p.getMasterCreds()
-	if err != nil {
-		return credentials.Value{}, err
-	}
-
-	if role, ok := p.profiles[p.profile]["role_arn"]; ok {
-		session, err := p.assumeRole(creds, role)
-		if err != nil {
-			return credentials.Value{}, err
-		}
-
-		log.Printf("Using role ****************%s, expires in %s",
-			(*session.AccessKeyId)[len(*session.AccessKeyId)-4:],
-			session.Expiration.Sub(time.Now()).String())
-
-		window := p.ExpiryWindow
-		if window == 0 {
-			window = time.Minute * 5
-		}
-
-		p.SetExpiration(*session.Expiration, window)
-		p.expires = *session.Expiration
-
-		value := credentials.Value{
-			AccessKeyID:     *session.AccessKeyId,
-			SecretAccessKey: *session.SecretAccessKey,
-			SessionToken:    *session.SessionToken,
-		}
-
-		return value, nil
-	}
-
-	// no role, exposes master credentials which don't expire
-	return creds, nil
-}
-
 func (p *VaultProvider) getMasterCreds() (credentials.Value, error) {
 	source := sourceProfile(p.profile, p.profiles)
 
-	val, ok := p.creds[source]
+	creds, ok := p.creds[source]
 	if !ok {
-		creds := credentials.NewCredentials(&KeyringProvider{Keyring: p.keyring, Profile: source})
+		provider := credentials.NewChainCredentials([]credentials.Provider{
+			&credentials.EnvProvider{},
+			&credentials.SharedCredentialsProvider{Filename: "", Profile: p.profile},
+			&KeyringProvider{Keyring: p.keyring, Profile: source},
+		})
 
 		var err error
-		if val, err = creds.Get(); err != nil {
+		if creds, err = provider.Get(); err != nil {
 			log.Printf("Failed to find credentials for profile %q in keyring", source)
-			return val, err
+			return creds, err
 		}
 
-		p.creds[source] = val
+		p.creds[source] = creds
 	}
 
-	return val, nil
+	return creds, nil
 }
 
 func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentials, error) {

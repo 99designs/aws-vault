@@ -12,10 +12,6 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-const (
-	KeyringName = "aws-vault"
-)
-
 var (
 	Version string = "dev"
 
@@ -26,6 +22,7 @@ var (
 )
 
 type globalFlags struct {
+	KeyringName  string
 	Debug        bool
 	Backend      string
 	PromptDriver string
@@ -216,12 +213,17 @@ func run(args []string, onTerminate func(int)) {
 		OverrideDefaultFromEnvar("AWS_VAULT_PROMPT").
 		EnumVar(&globals.PromptDriver, promptsAvailable...)
 
+	app.Flag("keyring-name", "The name of the keyring to use").
+		Default("aws-vault").
+		OverrideDefaultFromEnvar("AWS_VAULT_KEYRING_NAME").
+		StringVar(&globals.KeyringName)
+
 	app.PreAction(func(c *kingpin.ParseContext) (err error) {
 		if !globals.Debug {
 			log.SetOutput(ioutil.Discard)
 		}
 		if keyringImpl == nil {
-			keyringImpl, err = keyring.Open(KeyringName, globals.Backend)
+			keyringImpl, err = keyring.Open(globals.KeyringName, globals.Backend)
 		}
 		if awsConfigFile == nil {
 			awsConfigFile, err = newConfigFromEnv()

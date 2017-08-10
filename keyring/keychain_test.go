@@ -4,38 +4,19 @@ package keyring
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"reflect"
 	"testing"
 	"time"
-
-	homedir "github.com/mitchellh/go-homedir"
 )
 
-var keychainDir string
-
-func deleteKeychain(name string) {
-	home, err := homedir.Dir()
-	if err != nil {
-		panic(err)
-	}
-
-	f := filepath.Join(home, "Library/Keychains", name+"-db")
-	log.Printf("removing %s", f)
-
-	if err = os.Remove(f); err != nil {
-		panic(err)
-	}
-}
-
 func TestOSXKeychainKeyringSet(t *testing.T) {
-	name := tmpKeychain(t)
-	defer deleteKeychain(name)
+	path := tempPath()
+	defer deleteKeychain(path, t)
 
 	k := &keychain{
-		path:       name,
+		path:       path,
 		passphrase: "llamas",
 		service:    "test",
 	}
@@ -71,11 +52,11 @@ func TestOSXKeychainKeyringSet(t *testing.T) {
 }
 
 func TestOSXKeychainKeyringListKeys(t *testing.T) {
-	name := tmpKeychain(t)
-	defer deleteKeychain(name)
+	path := tempPath()
+	defer deleteKeychain(path, t)
 
 	k := &keychain{
-		path:       name,
+		path:       path,
 		passphrase: "llamas",
 		service:    "test",
 	}
@@ -104,6 +85,20 @@ func TestOSXKeychainKeyringListKeys(t *testing.T) {
 	}
 }
 
-func tmpKeychain(t *testing.T) (name string) {
-	return fmt.Sprintf("aws-vault-test-%d.keychain", time.Now().UnixNano())
+func deleteKeychain(path string, t *testing.T) {
+	if _, err := os.Stat(path); os.IsExist(err) {
+		t.Logf("Deleting %s", path)
+		os.Remove(path)
+	}
+
+	// Sierra introduced a -db suffix
+	dbPath := path + "-db"
+	if _, err := os.Stat(dbPath); os.IsExist(err) {
+		t.Logf("Deleting %s", dbPath)
+		os.Remove(dbPath)
+	}
+}
+
+func tempPath() string {
+	return filepath.Join(os.TempDir(), fmt.Sprintf("aws-vault-test-%d.keychain", time.Now().UnixNano()))
 }

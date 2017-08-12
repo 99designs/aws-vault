@@ -51,6 +51,59 @@ func TestOSXKeychainKeyringSet(t *testing.T) {
 	}
 }
 
+func TestOSXKeychainKeyringOverwrite(t *testing.T) {
+	path := tempPath()
+	defer deleteKeychain(path, t)
+
+	k := &keychain{
+		path:       path,
+		passphrase: "llamas",
+		service:    "test",
+	}
+
+	item1 := Item{
+		Key:         "llamas",
+		Label:       "Arbitrary label",
+		Description: "A freetext description",
+		Data:        []byte("llamas are ok"),
+		TrustSelf:   true,
+	}
+
+	if err := k.Set(item1); err != nil {
+		t.Fatal(err)
+	}
+
+	v1, err := k.Get("llamas")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if string(v1.Data) != string(item1.Data) {
+		t.Fatalf("Data stored was not the data retrieved: %q vs %q", v1.Data, item1.Data)
+	}
+
+	item2 := Item{
+		Key:         "llamas",
+		Label:       "Arbitrary label",
+		Description: "A freetext description",
+		Data:        []byte("llamas are great"),
+		TrustSelf:   true,
+	}
+
+	if err := k.Set(item2); err != nil {
+		t.Fatal(err)
+	}
+
+	v2, err := k.Get("llamas")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if string(v2.Data) != string(item2.Data) {
+		t.Fatalf("Data stored was not the data retrieved: %q vs %q", v2.Data, item2.Data)
+	}
+}
+
 func TestOSXKeychainKeyringListKeys(t *testing.T) {
 	path := tempPath()
 	defer deleteKeychain(path, t)

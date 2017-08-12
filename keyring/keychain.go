@@ -3,6 +3,7 @@
 package keyring
 
 import (
+	"fmt"
 	"log"
 
 	gokeychain "github.com/keybase/go-keychain"
@@ -82,7 +83,22 @@ func (k *keychain) Set(item Item) error {
 	kcItem.SetAccess(&gokeychain.Access{SelfUntrusted: !item.TrustSelf})
 
 	log.Printf("Adding service=%q, label=%q, account=%q to osx keychain %s", k.service, item.Label, item.Key, k.path)
-	return gokeychain.AddItem(kcItem)
+	if err := gokeychain.AddItem(kcItem); err == gokeychain.ErrorDuplicateItem {
+		log.Printf("Item already exists, deleting")
+		delItem := gokeychain.NewItem()
+		delItem.SetSecClass(gokeychain.SecClassGenericPassword)
+		delItem.SetService(k.service)
+		delItem.SetAccount(item.Key)
+		delItem.SetMatchSearchList(kc)
+
+		if err = gokeychain.DeleteItem(delItem); err != nil {
+			return fmt.Errorf("Error deleting existing item: %v", err)
+		}
+
+		return gokeychain.AddItem(kcItem)
+	}
+
+	return nil
 }
 
 func (k *keychain) Remove(key string) error {

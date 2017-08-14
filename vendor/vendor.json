@@ -3,6 +3,12 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "bk/VrlbBvmNACDxn25QJJLlyHv8=",
+			"path": "github.com/99designs/keyring",
+			"revision": "98add661180c067488dcc0cdeca33f64cb5391cc",
+			"revisionTime": "2017-08-14T03:00:38Z"
+		},
+		{
 			"checksumSHA1": "KmjnydoAbofMieIWm+it5OWERaM=",
 			"path": "github.com/alecthomas/template",
 			"revision": "a0175ee3bccc567396460bf5acd36800cb10c49c",

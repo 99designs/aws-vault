@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/99designs/aws-vault/keyring"
+	"github.com/99designs/keyring"
 )
 
 func ExampleListCommand() {

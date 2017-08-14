@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/99designs/aws-vault/keyring"
 	"github.com/99designs/aws-vault/prompt"
+	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"

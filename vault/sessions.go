@@ -1,4 +1,4 @@
-package main
+package vault
 
 import (
 	"crypto/md5"
@@ -16,10 +16,10 @@ import (
 
 type KeyringSessions struct {
 	Keyring  keyring.Keyring
-	Profiles profiles
+	Profiles Profiles
 }
 
-func NewKeyringSessions(k keyring.Keyring, p profiles) (*KeyringSessions, error) {
+func NewKeyringSessions(k keyring.Keyring, p Profiles) (*KeyringSessions, error) {
 	return &KeyringSessions{
 		Keyring:  k,
 		Profiles: p,
@@ -27,7 +27,7 @@ func NewKeyringSessions(k keyring.Keyring, p profiles) (*KeyringSessions, error)
 }
 
 func (s *KeyringSessions) key(profile string, duration time.Duration) string {
-	source := sourceProfile(profile, s.Profiles)
+	source := s.Profiles.SourceProfile(profile)
 	hasher := md5.New()
 	hasher.Write([]byte(duration.String()))
 
@@ -80,7 +80,7 @@ func (s *KeyringSessions) Delete(profile string) (n int, err error) {
 	}
 
 	for _, k := range keys {
-		if strings.HasPrefix(k, fmt.Sprintf("%s session", sourceProfile(profile, s.Profiles))) {
+		if strings.HasPrefix(k, fmt.Sprintf("%s session", s.Profiles.SourceProfile(profile))) {
 			if err = s.Keyring.Remove(k); err != nil {
 				return n, err
 			}

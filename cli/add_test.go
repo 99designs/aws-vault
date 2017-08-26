@@ -1,6 +1,10 @@
-package main
+package cli
 
-import "os"
+import (
+	"os"
+
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
+)
 
 func ExampleAddCommand() {
 	os.Setenv("AWS_ACCESS_KEY_ID", "llamas")
@@ -13,7 +17,11 @@ func ExampleAddCommand() {
 	defer os.Unsetenv("AWS_VAULT_BACKEND")
 	defer os.Unsetenv("AWS_VAULT_FILE_PASSPHRASE")
 
-	run([]string{"add", "--env", "foo"}, os.Exit)
+	app := kingpin.New(`aws-vault`, ``)
+	ConfigureGlobals(app)
+	ConfigureAddCommand(app)
+	kingpin.MustParse(app.Parse([]string{"add", "--env", "foo"}))
+
 	// Output:
 	// Added credentials to profile "foo" in vault
 }

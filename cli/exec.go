@@ -1,14 +1,17 @@
-package main
+package cli
 
 import (
 	"log"
 	"os"
 	"os/exec"
+	"os/signal"
 	"strings"
 	"syscall"
 	"time"
 
 	"github.com/99designs/aws-vault/prompt"
+	"github.com/99designs/aws-vault/server"
+	"github.com/99designs/aws-vault/vault"
 	"github.com/99designs/keyring"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -25,6 +28,54 @@ type ExecCommandInput struct {
 	StartServer  bool
 	Signals      chan os.Signal
 	NoSession    bool
+}
+
+func ConfigureExecCommand(app *kingpin.Application) {
+	input := ExecCommandInput{}
+
+	cmd := app.Command("exec", "Executes a command with AWS credentials in the environment")
+	cmd.Flag("no-session", "Use root credentials, no session created").
+		Short('n').
+		BoolVar(&input.NoSession)
+
+	cmd.Flag("session-ttl", "Expiration time for aws session").
+		Default("4h").
+		OverrideDefaultFromEnvar("AWS_SESSION_TTL").
+		Short('t').
+		DurationVar(&input.Duration)
+
+	cmd.Flag("assume-role-ttl", "Expiration time for aws assumed role").
+		Default("15m").
+		OverrideDefaultFromEnvar("AWS_ASSUME_ROLE_TTL").
+		DurationVar(&input.RoleDuration)
+
+	cmd.Flag("mfa-token", "The mfa token to use").
+		Short('m').
+		StringVar(&input.MfaToken)
+
+	cmd.Flag("server", "Run the server in the background for credentials").
+		Short('s').
+		BoolVar(&input.StartServer)
+
+	cmd.Arg("profile", "Name of the profile").
+		Required().
+		StringVar(&input.Profile)
+
+	cmd.Arg("cmd", "Command to execute").
+		Default(os.Getenv("SHELL")).
+		StringVar(&input.Command)
+
+	cmd.Arg("args", "Command arguments").
+		StringsVar(&input.Args)
+
+	cmd.Action(func(c *kingpin.ParseContext) error {
+		input.Keyring = keyringImpl
+		input.MfaPrompt = prompt.Method(GlobalFlags.PromptDriver)
+		input.Signals = make(chan os.Signal)
+		signal.Notify(input.Signals, os.Interrupt, os.Kill)
+		ExecCommand(app, input)
+		return nil
+	})
 }
 
 func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
@@ -46,7 +97,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 		return
 	}
 
-	creds, err := NewVaultCredentials(input.Keyring, input.Profile, VaultOptions{
+	creds, err := vault.NewVaultCredentials(input.Keyring, input.Profile, vault.VaultOptions{
 		SessionDuration:    input.Duration,
 		AssumeRoleDuration: input.RoleDuration,
 		MfaToken:           input.MfaToken,
@@ -60,11 +111,11 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 
 	val, err := creds.Get()
 	if err != nil {
-		app.Fatalf(formatCredentialError(input.Profile, profiles, err))
+		app.Fatalf(vault.FormatCredentialError(input.Profile, profiles, err))
 	}
 
 	if input.StartServer {
-		if err := startCredentialsServer(creds); err != nil {
+		if err := server.StartCredentialsServer(creds); err != nil {
 			app.Fatalf("Failed to start credential server: %v", err)
 		} else {
 			setEnv = false

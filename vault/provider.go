@@ -1,4 +1,4 @@
-package main
+package vault
 
 import (
 	"encoding/json"
@@ -32,7 +32,7 @@ type VaultOptions struct {
 	MfaToken           string
 	MfaPrompt          prompt.PromptFunc
 	NoSession          bool
-	Profiles           profiles
+	Profiles           Profiles
 	MasterCreds        *credentials.Value
 }
 
@@ -68,7 +68,7 @@ type VaultProvider struct {
 	expires  time.Time
 	keyring  keyring.Keyring
 	sessions *KeyringSessions
-	profiles profiles
+	profiles Profiles
 	creds    map[string]credentials.Value
 }
 
@@ -175,7 +175,7 @@ func (p *VaultProvider) getMasterCreds() (credentials.Value, error) {
 		return *p.MasterCreds, nil
 	}
 
-	source := sourceProfile(p.profile, p.profiles)
+	source := p.profiles.SourceProfile(p.profile)
 
 	val, ok := p.creds[source]
 	if !ok {
@@ -217,7 +217,7 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 		}),
 	}))
 
-	log.Printf("Getting new session token for profile %s", sourceProfile(p.profile, p.profiles))
+	log.Printf("Getting new session token for profile %s", p.profiles.SourceProfile(p.profile))
 	resp, err := client.GetSessionToken(params)
 	if err != nil {
 		return sts.Credentials{}, err

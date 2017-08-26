@@ -1,6 +1,6 @@
 // build: darwin
 
-package main
+package server
 
 import "os/exec"
 

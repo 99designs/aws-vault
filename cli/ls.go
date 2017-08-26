@@ -1,4 +1,4 @@
-package main
+package cli
 
 import (
 	"fmt"
@@ -9,6 +9,18 @@ import (
 
 type LsCommandInput struct {
 	Keyring keyring.Keyring
+}
+
+func ConfigureListCommand(app *kingpin.Application) {
+	input := LsCommandInput{}
+
+	cmd := app.Command("list", "List all credentials and sessions")
+	cmd.Alias("ls")
+	cmd.Action(func(c *kingpin.ParseContext) error {
+		input.Keyring = keyringImpl
+		LsCommand(app, input)
+		return nil
+	})
 }
 
 func LsCommand(app *kingpin.Application, input LsCommandInput) {

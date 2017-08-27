@@ -33,7 +33,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 		return
 	}
 
-	var writeEnv = true
+	var setEnv = true
 
 	if input.NoSession && input.StartServer {
 		app.Fatalf("Can't start a credential server without a session")
@@ -67,7 +67,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 		if err := startCredentialsServer(creds); err != nil {
 			app.Fatalf("Failed to start credential server: %v", err)
 		} else {
-			writeEnv = false
+			setEnv = false
 		}
 	}
 
@@ -87,17 +87,18 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 	env.Unset("AWS_PROFILE")
 
 	if region, ok := profs[input.Profile]["region"]; ok {
+		log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s", region, region)
 		env.Set("AWS_DEFAULT_REGION", region)
 		env.Set("AWS_REGION", region)
 	}
 
-	if writeEnv {
-		log.Println("Writing temporary credentials to ENV")
-
+	if setEnv {
+		log.Println("Setting subprocess env: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY")
 		env.Set("AWS_ACCESS_KEY_ID", val.AccessKeyID)
 		env.Set("AWS_SECRET_ACCESS_KEY", val.SecretAccessKey)
 
 		if val.SessionToken != "" {
+			log.Println("Setting subprocess env: AWS_SESSION_TOKEN, AWS_SECURITY_TOKEN")
 			env.Set("AWS_SESSION_TOKEN", val.SessionToken)
 			env.Set("AWS_SECURITY_TOKEN", val.SessionToken)
 		}

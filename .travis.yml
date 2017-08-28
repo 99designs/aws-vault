@@ -1,9 +1,11 @@
 language: go
 
-install: ./ci/install.sh
+install: ./scripts/ci_install.sh
 
 go:
   - 1.7
+  - 1.8
+  - 1.9
 
 os:
   - linux

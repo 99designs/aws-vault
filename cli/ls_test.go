@@ -1,7 +1,7 @@
-package main
+package cli
 
 import (
-	"os"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/99designs/keyring"
 )
@@ -11,7 +11,13 @@ func ExampleListCommand() {
 		{Key: "llamas", Data: []byte(`{"AccessKeyID":"ABC","SecretAccessKey":"XYZ"}`)},
 	})
 
-	run([]string{"list"}, os.Exit)
+	app := kingpin.New(`aws-vault`, ``)
+	ConfigureGlobals(app)
+	ConfigureListCommand(app)
+	kingpin.MustParse(app.Parse([]string{
+		"list",
+	}))
+
 	// Output:
 	// llamas
 }

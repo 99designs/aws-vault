@@ -1,4 +1,4 @@
-package main
+package cli
 
 import (
 	"encoding/json"
@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/99designs/aws-vault/prompt"
+	"github.com/99designs/aws-vault/vault"
 	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -32,6 +33,40 @@ type LoginCommandInput struct {
 	AssumeRoleDuration      time.Duration
 }
 
+func ConfigureLoginCommand(app *kingpin.Application) {
+	input := LoginCommandInput{}
+
+	cmd := app.Command("login", "Generate a login link for the AWS Console")
+	cmd.Arg("profile", "Name of the profile").
+		Required().
+		StringVar(&input.Profile)
+
+	cmd.Flag("mfa-token", "The mfa token to use").
+		Short('t').
+		StringVar(&input.MfaToken)
+
+	cmd.Flag("federation-token-ttl", "Expiration time for aws console session").
+		Default("12h").
+		OverrideDefaultFromEnvar("AWS_FEDERATION_TOKEN_TTL").
+		Short('f').
+		DurationVar(&input.FederationTokenDuration)
+
+	cmd.Flag("assume-role-ttl", "Expiration time for aws assumed role").
+		Default("15m").
+		DurationVar(&input.AssumeRoleDuration)
+
+	cmd.Flag("stdout", "Print login URL to stdout instead of opening in default browser").
+		Short('s').
+		BoolVar(&input.UseStdout)
+
+	cmd.Action(func(c *kingpin.ParseContext) error {
+		input.MfaPrompt = prompt.Method(GlobalFlags.PromptDriver)
+		input.Keyring = keyringImpl
+		LoginCommand(app, input)
+		return nil
+	})
+}
+
 func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 	if input.FederationTokenDuration > (time.Hour * 12) {
 		app.Fatalf("Maximum federation token duration is 12 hours")
@@ -44,7 +79,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
-	provider, err := NewVaultProvider(input.Keyring, input.Profile, VaultOptions{
+	provider, err := vault.NewVaultProvider(input.Keyring, input.Profile, vault.VaultOptions{
 		AssumeRoleDuration: input.AssumeRoleDuration,
 		MfaToken:           input.MfaToken,
 		MfaPrompt:          input.MfaPrompt,
@@ -59,7 +94,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 	creds := credentials.NewCredentials(provider)
 	val, err := creds.Get()
 	if err != nil {
-		app.Fatalf(formatCredentialError(input.Profile, profiles, err))
+		app.Fatalf(vault.FormatCredentialError(input.Profile, profiles, err))
 	}
 
 	var isFederated bool

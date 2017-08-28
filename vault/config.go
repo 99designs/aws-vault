@@ -1,4 +1,4 @@
-package main
+package vault
 
 import (
 	"fmt"
@@ -12,17 +12,27 @@ import (
 	"github.com/vaughan0/go-ini"
 )
 
-type profiles map[string]map[string]string
+type Profiles map[string]map[string]string
 
-type config interface {
-	Parse() (profiles, error)
+// SourceProfile returns either the defined source_profile or profileKey if none exists
+func (p Profiles) SourceProfile(profileKey string) string {
+	if conf, ok := p[profileKey]; ok {
+		if source := conf["source_profile"]; source != "" {
+			return source
+		}
+	}
+	return profileKey
 }
 
-type fileConfig struct {
+type Config interface {
+	Parse() (Profiles, error)
+}
+
+type FileConfig struct {
 	file string
 }
 
-func newConfigFromEnv() (config, error) {
+func NewConfigFromEnv() (Config, error) {
 	file := os.Getenv("AWS_CONFIG_FILE")
 	if file == "" {
 		home, err := homedir.Dir()
@@ -34,10 +44,10 @@ func newConfigFromEnv() (config, error) {
 			file = ""
 		}
 	}
-	return &fileConfig{file: file}, nil
+	return &FileConfig{file: file}, nil
 }
 
-func (c *fileConfig) Parse() (profiles, error) {
+func (c *FileConfig) Parse() (Profiles, error) {
 	if c.file == "" {
 		return nil, nil
 	}
@@ -48,7 +58,7 @@ func (c *fileConfig) Parse() (profiles, error) {
 		return nil, fmt.Errorf("Error parsing config file %q: %v", c.file, err)
 	}
 
-	profiles := profiles{}
+	profiles := Profiles{}
 
 	for sectionName, section := range f {
 		profiles[strings.TrimPrefix(sectionName, "profile ")] = section
@@ -57,23 +67,13 @@ func (c *fileConfig) Parse() (profiles, error) {
 	return profiles, nil
 }
 
-// sourceProfile returns either the defined source_profile or p if none exists
-func sourceProfile(p string, from profiles) string {
-	if conf, ok := from[p]; ok {
-		if source := conf["source_profile"]; source != "" {
-			return source
-		}
-	}
-	return p
-}
-
-func formatCredentialError(p string, from profiles, err error) string {
-	source := sourceProfile(p, from)
-	sourceDescr := p
+func FormatCredentialError(profileKey string, from Profiles, err error) string {
+	source := from.SourceProfile(profileKey)
+	sourceDescr := profileKey
 
 	// add custom formatting for source_profile
-	if source != p {
-		sourceDescr = fmt.Sprintf("%s (source profile for %s)", source, p)
+	if source != profileKey {
+		sourceDescr = fmt.Sprintf("%s (source profile for %s)", source, profileKey)
 	}
 
 	if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "NoCredentialProviders" {

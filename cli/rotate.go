@@ -1,9 +1,10 @@
-package main
+package cli
 
 import (
 	"log"
 
 	"github.com/99designs/aws-vault/prompt"
+	"github.com/99designs/aws-vault/vault"
 	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -19,6 +20,26 @@ type RotateCommandInput struct {
 	MfaPrompt prompt.PromptFunc
 }
 
+func ConfigureRotateCommand(app *kingpin.Application) {
+	input := RotateCommandInput{}
+
+	cmd := app.Command("rotate", "Rotates credentials")
+	cmd.Arg("profile", "Name of the profile").
+		Required().
+		StringVar(&input.Profile)
+
+	cmd.Flag("mfa-token", "The mfa token to use").
+		Short('t').
+		StringVar(&input.MfaToken)
+
+	cmd.Action(func(c *kingpin.ParseContext) error {
+		input.MfaPrompt = prompt.Method(GlobalFlags.PromptDriver)
+		input.Keyring = keyringImpl
+		RotateCommand(app, input)
+		return nil
+	})
+}
+
 func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 	var err error
 
@@ -28,9 +49,9 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 		return
 	}
 
-	provider := &KeyringProvider{
+	provider := &vault.KeyringProvider{
 		Keyring: input.Keyring,
-		Profile: sourceProfile(input.Profile, profiles),
+		Profile: profiles.SourceProfile(input.Profile),
 	}
 
 	oldMasterCreds, err := provider.Retrieve()
@@ -56,7 +77,7 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 
 	// We need to use a session as some credentials will requiring assuming a role to
 	// get permission to create creds
-	oldSessionCreds, err := NewVaultCredentials(input.Keyring, input.Profile, VaultOptions{
+	oldSessionCreds, err := vault.NewVaultCredentials(input.Keyring, input.Profile, vault.VaultOptions{
 		MfaToken:    input.MfaToken,
 		MfaPrompt:   input.MfaPrompt,
 		Profiles:    profiles,
@@ -72,7 +93,7 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 
 	oldSessionVal, err := oldSessionCreds.Get()
 	if err != nil {
-		app.Fatalf(formatCredentialError(input.Profile, profiles, err))
+		app.Fatalf(vault.FormatCredentialError(input.Profile, profiles, err))
 		return
 	}
 
@@ -102,7 +123,7 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 		return
 	}
 
-	sessions, err := NewKeyringSessions(input.Keyring, profiles)
+	sessions, err := vault.NewKeyringSessions(input.Keyring, profiles)
 	if err != nil {
 		app.Fatalf(err.Error())
 		return
@@ -114,7 +135,7 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 
 	log.Println("Using new credentials to delete the old new access key")
 
-	newSessionCreds, err := NewVaultCredentials(input.Keyring, input.Profile, VaultOptions{
+	newSessionCreds, err := vault.NewVaultCredentials(input.Keyring, input.Profile, vault.VaultOptions{
 		MfaToken:    input.MfaToken,
 		MfaPrompt:   input.MfaPrompt,
 		Profiles:    profiles,
@@ -128,7 +149,7 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 
 	newVal, err := newSessionCreds.Get()
 	if err != nil {
-		app.Fatalf(formatCredentialError(input.Profile, profiles, err))
+		app.Fatalf(vault.FormatCredentialError(input.Profile, profiles, err))
 		return
 	}
 

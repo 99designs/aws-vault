@@ -83,5 +83,5 @@ func FormatCredentialError(profileKey string, from Profiles, err error) string {
 			sourceDescr, source)
 	}
 
-	return fmt.Sprintf("Failed to get credentials for %s: %v", err, sourceDescr)
+	return fmt.Sprintf("Failed to get credentials for %s: %v", sourceDescr, err)
 }

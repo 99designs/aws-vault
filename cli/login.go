@@ -206,8 +206,13 @@ func getFederationToken(creds credentials.Value, d time.Duration) (*sts.Credenti
 	})
 	client := sts.New(sess)
 
+	currentUsername, err := getCurrentUserName(sess)
+	if err != nil {
+		return nil, err
+	}
+
 	params := &sts.GetFederationTokenInput{
-		Name:            aws.String(getFederatedUserName(sess)),
+		Name:            aws.String(currentUsername),
 		DurationSeconds: aws.Int64(int64(d.Seconds())),
 		Policy:          aws.String(allowAllIAMPolicy),
 	}
@@ -220,20 +225,22 @@ func getFederationToken(creds credentials.Value, d time.Duration) (*sts.Credenti
 	return resp.Credentials, nil
 }
 
-func getFederatedUserName(sess *session.Session) string {
+func getCurrentUserName(sess *session.Session) (string, error) {
 	client := iam.New(sess)
 
 	resp, err := client.GetUser(&iam.GetUserInput{})
-	if err == nil {
-		if resp.User.UserName != nil {
-			return *resp.User.UserName
-		}
-
-		if resp.User.Arn != nil {
-			arnParts := strings.Split(*resp.User.Arn, ":")
-			return arnParts[len(arnParts)-1]
-		}
+	if err != nil {
+		return "", err
 	}
 
-	return "aws-vault"
+	if resp.User.UserName != nil {
+		return *resp.User.UserName, nil
+	}
+
+	if resp.User.Arn != nil {
+		arnParts := strings.Split(*resp.User.Arn, ":")
+		return arnParts[len(arnParts)-1], nil
+	}
+
+	return "", fmt.Errorf("Couldn't determine current username")
 }

@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/99designs/aws-vault/prompt"
@@ -200,18 +201,20 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 }
 
 func getFederationToken(creds credentials.Value, d time.Duration) (*sts.Credentials, error) {
-	client := sts.New(session.New(&aws.Config{
+	sess := session.New(&aws.Config{
 		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: creds}),
-	}))
+	})
+	client := sts.New(sess)
 
-	params := &sts.GetFederationTokenInput{
-		Name:            aws.String("federated-user"),
-		DurationSeconds: aws.Int64(int64(d.Seconds())),
-		Policy:          aws.String(allowAllIAMPolicy),
+	currentUsername, err := getCurrentUserName(sess)
+	if err != nil {
+		return nil, err
 	}
 
-	if username, _ := getUserName(creds); username != "" {
-		params.Name = aws.String(username)
+	params := &sts.GetFederationTokenInput{
+		Name:            aws.String(currentUsername),
+		DurationSeconds: aws.Int64(int64(d.Seconds())),
+		Policy:          aws.String(allowAllIAMPolicy),
 	}
 
 	resp, err := client.GetFederationToken(params)
@@ -222,15 +225,22 @@ func getFederationToken(creds credentials.Value, d time.Duration) (*sts.Credenti
 	return resp.Credentials, nil
 }
 
-func getUserName(creds credentials.Value) (string, error) {
-	client := iam.New(session.New(&aws.Config{
-		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: creds}),
-	}))
+func getCurrentUserName(sess *session.Session) (string, error) {
+	client := iam.New(sess)
 
 	resp, err := client.GetUser(&iam.GetUserInput{})
 	if err != nil {
 		return "", err
 	}
 
-	return *resp.User.UserName, nil
+	if resp.User.UserName != nil {
+		return *resp.User.UserName, nil
+	}
+
+	if resp.User.Arn != nil {
+		arnParts := strings.Split(*resp.User.Arn, ":")
+		return arnParts[len(arnParts)-1], nil
+	}
+
+	return "", fmt.Errorf("Couldn't determine current username")
 }

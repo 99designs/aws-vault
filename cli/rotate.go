@@ -60,25 +60,19 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 		return
 	}
 
-	oldClient := iam.New(session.New(&aws.Config{
+	oldSess := session.New(&aws.Config{
 		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: oldMasterCreds}),
-	}))
+	})
 
-	// GetUser with a blank username returns the username for the credentials
-	userOutput, err := oldClient.GetUser(&iam.GetUserInput{})
+	currentUserName, err := getCurrentUserName(oldSess)
 	if err != nil {
 		app.Fatalf(err.Error())
 		return
 	}
 
-	var userName = "root"
-	if userOutput.User.UserName != nil {
-		userName = *userOutput.User.UserName
-	}
-
 	log.Printf("Found old access key  ****************%s for user %s",
 		oldMasterCreds.AccessKeyID[len(oldMasterCreds.AccessKeyID)-4:],
-		userName)
+		currentUserName)
 
 	// We need to use a session as some credentials will requiring assuming a role to
 	// get permission to create creds
@@ -108,7 +102,7 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 
 	// A username is needed if the credentials are a session
 	createOut, err := oldSessionClient.CreateAccessKey(&iam.CreateAccessKeyInput{
-		UserName: userOutput.User.UserName,
+		UserName: aws.String(currentUserName),
 	})
 	if err != nil {
 		app.Fatalf(err.Error())
@@ -164,7 +158,7 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 
 	_, err = newClient.DeleteAccessKey(&iam.DeleteAccessKeyInput{
 		AccessKeyId: aws.String(oldMasterCreds.AccessKeyID),
-		UserName:    userOutput.User.UserName,
+		UserName:    aws.String(currentUserName),
 	})
 	if err != nil {
 		app.Errorf("Can't delete old access key %v", oldMasterCreds.AccessKeyID)

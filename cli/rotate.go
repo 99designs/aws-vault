@@ -71,9 +71,14 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 		return
 	}
 
+	var userName = "root"
+	if userOutput.User.UserName != nil {
+		userName = *userOutput.User.UserName
+	}
+
 	log.Printf("Found old access key  ****************%s for user %s",
 		oldMasterCreds.AccessKeyID[len(oldMasterCreds.AccessKeyID)-4:],
-		*userOutput.User.UserName)
+		userName)
 
 	// We need to use a session as some credentials will requiring assuming a role to
 	// get permission to create creds

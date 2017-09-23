@@ -7,12 +7,19 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"regexp"
 	"strings"
 	"time"
 
 	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/service/sts"
 )
+
+var sessionKeyPattern = regexp.MustCompile(`session \(\d+\)$`)
+
+func IsSessionKey(s string) bool {
+	return sessionKeyPattern.MatchString(s)
+}
 
 type KeyringSessions struct {
 	Keyring  keyring.Keyring

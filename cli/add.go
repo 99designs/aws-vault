@@ -38,6 +38,18 @@ func ConfigureAddCommand(app *kingpin.Application) {
 func AddCommand(app *kingpin.Application, input AddCommandInput) {
 	var accessKeyId, secretKey string
 
+	profiles, err := awsConfigFile.Parse()
+	if err != nil {
+		app.Fatalf("%v", err)
+		return
+	}
+
+	if source := profiles[input.Profile]["source_profile"]; source != "" {
+		app.Fatalf("Your profile has a source_profile of %s, adding credentials to %s won't have any effect",
+			source, input.Profile)
+		return
+	}
+
 	if input.FromEnv {
 		if accessKeyId = os.Getenv("AWS_ACCESS_KEY_ID"); accessKeyId == "" {
 			app.Fatalf("Missing value for AWS_ACCESS_KEY_ID")
@@ -68,12 +80,6 @@ func AddCommand(app *kingpin.Application, input AddCommandInput) {
 	}
 
 	fmt.Printf("Added credentials to profile %q in vault\n", input.Profile)
-
-	profiles, err := awsConfigFile.Parse()
-	if err != nil {
-		app.Fatalf("%v", err)
-		return
-	}
 
 	sessions, err := vault.NewKeyringSessions(input.Keyring, profiles)
 	if err != nil {

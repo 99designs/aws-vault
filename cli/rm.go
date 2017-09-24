@@ -54,13 +54,7 @@ func RemoveCommand(app *kingpin.Application, input RemoveCommandInput) {
 		fmt.Printf("Deleted credentials.\n")
 	}
 
-	profiles, err := awsConfigFile.Parse()
-	if err != nil {
-		app.Fatalf("%v", err)
-		return
-	}
-
-	sessions, err := vault.NewKeyringSessions(input.Keyring, profiles)
+	sessions, err := vault.NewKeyringSessions(input.Keyring, awsConfig)
 	if err != nil {
 		app.Fatalf(err.Error())
 		return

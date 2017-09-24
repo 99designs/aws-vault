@@ -38,15 +38,12 @@ func ConfigureAddCommand(app *kingpin.Application) {
 func AddCommand(app *kingpin.Application, input AddCommandInput) {
 	var accessKeyId, secretKey string
 
-	profiles, err := awsConfigFile.Parse()
-	if err != nil {
-		app.Fatalf("%v", err)
-		return
-	}
+	if _, hasProfile := awsConfig.Profile(input.Profile); !hasProfile {
+		fmt.Printf("Profile %q doesn't exist in your config\n", input.Profile)
 
-	if source := profiles[input.Profile]["source_profile"]; source != "" {
+	} else if source, ok := awsConfig.SourceProfile(input.Profile); ok {
 		app.Fatalf("Your profile has a source_profile of %s, adding credentials to %s won't have any effect",
-			source, input.Profile)
+			source.Name, input.Profile)
 		return
 	}
 
@@ -81,7 +78,7 @@ func AddCommand(app *kingpin.Application, input AddCommandInput) {
 
 	fmt.Printf("Added credentials to profile %q in vault\n", input.Profile)
 
-	sessions, err := vault.NewKeyringSessions(input.Keyring, profiles)
+	sessions, err := vault.NewKeyringSessions(input.Keyring, awsConfig)
 	if err != nil {
 		app.Fatalf(err.Error())
 		return

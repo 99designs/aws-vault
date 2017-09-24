@@ -17,7 +17,7 @@ const (
 
 var (
 	keyringImpl       keyring.Keyring
-	awsConfigFile     vault.Config
+	awsConfig         *vault.Config
 	promptsAvailable  = prompt.Available()
 	backendsAvailable = keyring.SupportedBackends()
 )
@@ -49,8 +49,8 @@ func ConfigureGlobals(app *kingpin.Application) {
 		if keyringImpl == nil {
 			keyringImpl, err = keyring.Open(KeyringName, GlobalFlags.Backend)
 		}
-		if awsConfigFile == nil {
-			awsConfigFile, err = vault.NewConfigFromEnv()
+		if awsConfig == nil {
+			awsConfig, err = vault.LoadConfigFromEnv()
 		}
 		return err
 	})

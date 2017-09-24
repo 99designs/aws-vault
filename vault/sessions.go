@@ -22,26 +22,29 @@ func IsSessionKey(s string) bool {
 }
 
 type KeyringSessions struct {
-	Keyring  keyring.Keyring
-	Profiles Profiles
+	Keyring keyring.Keyring
+	Config  *Config
 }
 
-func NewKeyringSessions(k keyring.Keyring, p Profiles) (*KeyringSessions, error) {
+func NewKeyringSessions(k keyring.Keyring, cfg *Config) (*KeyringSessions, error) {
 	return &KeyringSessions{
-		Keyring:  k,
-		Profiles: p,
+		Keyring: k,
+		Config:  cfg,
 	}, nil
 }
 
-func (s *KeyringSessions) key(profile string, duration time.Duration) string {
-	source := s.Profiles.SourceProfile(profile)
+func (s *KeyringSessions) key(profileName string, duration time.Duration) string {
+	source, _ := s.Config.SourceProfile(profileName)
+
 	hasher := md5.New()
 	hasher.Write([]byte(duration.String()))
 
-	if p, ok := s.Profiles[profile]; ok {
-		enc := json.NewEncoder(hasher)
-		enc.Encode(p)
+	sourceHash, err := source.Hash()
+	if err != nil {
+		log.Panicf("Error hashing profile %q: %v", profileName, err)
 	}
+
+	hasher.Write(sourceHash)
 
 	return fmt.Sprintf("%s session (%x)", source, hex.EncodeToString(hasher.Sum(nil))[0:10])
 }
@@ -87,8 +90,10 @@ func (s *KeyringSessions) Delete(profile string) (n int, err error) {
 		return n, err
 	}
 
+	source, _ := s.Config.SourceProfile(profile)
+
 	for _, k := range keys {
-		if strings.HasPrefix(k, fmt.Sprintf("%s session", s.Profiles.SourceProfile(profile))) {
+		if strings.HasPrefix(k, fmt.Sprintf("%s session", source.Name)) {
 			if err = s.Keyring.Remove(k); err != nil {
 				return n, err
 			}

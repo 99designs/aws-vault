@@ -74,18 +74,12 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
-	profiles, err := awsConfigFile.Parse()
-	if err != nil {
-		app.Fatalf("Error parsing config: %v", err)
-		return
-	}
-
 	provider, err := vault.NewVaultProvider(input.Keyring, input.Profile, vault.VaultOptions{
 		AssumeRoleDuration: input.AssumeRoleDuration,
 		MfaToken:           input.MfaToken,
 		MfaPrompt:          input.MfaPrompt,
 		NoSession:          true,
-		Profiles:           profiles,
+		Config:             awsConfig,
 	})
 	if err != nil {
 		app.Fatalf("Failed to create vault provider: %v", err)
@@ -95,7 +89,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 	creds := credentials.NewCredentials(provider)
 	val, err := creds.Get()
 	if err != nil {
-		app.Fatalf(vault.FormatCredentialError(input.Profile, profiles, err))
+		app.Fatalf(awsConfig.FormatCredentialError(err, input.Profile))
 	}
 
 	var isFederated bool
@@ -179,10 +173,10 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 	}
 
 	destination := "https://console.aws.amazon.com/"
-	if region, ok := profiles[input.Profile]["region"]; ok {
+	if profile, _ := awsConfig.Profile(input.Profile); profile.Region != "" {
 		destination = fmt.Sprintf(
 			"https://%s.console.aws.amazon.com/console/home?region=%s",
-			region, region,
+			profile.Region, profile.Region,
 		)
 	}
 

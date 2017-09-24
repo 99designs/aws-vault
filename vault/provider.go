@@ -32,7 +32,7 @@ type VaultOptions struct {
 	MfaToken           string
 	MfaPrompt          prompt.PromptFunc
 	NoSession          bool
-	Profiles           Profiles
+	Config             *Config
 	MasterCreds        *credentials.Value
 }
 
@@ -68,7 +68,7 @@ type VaultProvider struct {
 	expires  time.Time
 	keyring  keyring.Keyring
 	sessions *KeyringSessions
-	profiles Profiles
+	config   *Config
 	creds    map[string]credentials.Value
 }
 
@@ -80,9 +80,9 @@ func NewVaultProvider(k keyring.Keyring, profile string, opts VaultOptions) (*Va
 	return &VaultProvider{
 		VaultOptions: opts,
 		keyring:      k,
-		sessions:     &KeyringSessions{k, opts.Profiles},
+		sessions:     &KeyringSessions{k, opts.Config},
 		profile:      profile,
-		profiles:     opts.Profiles,
+		config:       opts.Config,
 		creds:        map[string]credentials.Value{},
 	}, nil
 }
@@ -123,8 +123,8 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 		(*session.AccessKeyId)[len(*session.AccessKeyId)-4:],
 		session.Expiration.Sub(time.Now()).String())
 
-	if role, ok := p.profiles[p.profile]["role_arn"]; ok {
-		session, err = p.assumeRoleFromSession(session, role)
+	if profile, exists := p.config.Profile(p.profile); exists && profile.RoleARN != "" {
+		session, err = p.assumeRoleFromSession(session, profile.RoleARN)
 		if err != nil {
 			return credentials.Value{}, err
 		}
@@ -162,8 +162,8 @@ func (p *VaultProvider) RetrieveWithoutSessionToken() (credentials.Value, error)
 		return credentials.Value{}, err
 	}
 
-	if role, ok := p.profiles[p.profile]["role_arn"]; ok {
-		session, err := p.assumeRole(creds, role)
+	if profile, exists := p.config.Profile(p.profile); exists && profile.RoleARN != "" {
+		session, err := p.assumeRole(creds, profile.RoleARN)
 		if err != nil {
 			return credentials.Value{}, err
 		}
@@ -198,19 +198,19 @@ func (p *VaultProvider) getMasterCreds() (credentials.Value, error) {
 		return *p.MasterCreds, nil
 	}
 
-	source := p.profiles.SourceProfile(p.profile)
+	source, _ := p.Config.SourceProfile(p.profile)
 
-	val, ok := p.creds[source]
+	val, ok := p.creds[source.Name]
 	if !ok {
-		creds := credentials.NewCredentials(&KeyringProvider{Keyring: p.keyring, Profile: source})
+		creds := credentials.NewCredentials(&KeyringProvider{Keyring: p.keyring, Profile: source.Name})
 
 		var err error
 		if val, err = creds.Get(); err != nil {
-			log.Printf("Failed to find credentials for profile %q in keyring", source)
+			log.Printf("Failed to find credentials for profile %q in keyring", source.Name)
 			return val, err
 		}
 
-		p.creds[source] = val
+		p.creds[source.Name] = val
 	}
 
 	return val, nil
@@ -221,10 +221,10 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 		DurationSeconds: aws.Int64(int64(p.SessionDuration.Seconds())),
 	}
 
-	if mfa, ok := p.profiles[p.profile]["mfa_serial"]; ok {
-		params.SerialNumber = aws.String(mfa)
+	if profile, _ := p.Config.Profile(p.profile); profile.MFASerial != "" {
+		params.SerialNumber = aws.String(profile.MFASerial)
 		if p.MfaToken == "" {
-			token, err := p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", mfa))
+			token, err := p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", profile.MFASerial))
 			if err != nil {
 				return sts.Credentials{}, err
 			}
@@ -240,7 +240,9 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 		}),
 	}))
 
-	log.Printf("Getting new session token for profile %s", p.profiles.SourceProfile(p.profile))
+	source, _ := p.Config.SourceProfile(p.profile)
+	log.Printf("Getting new session token for profile %s", source.Name)
+
 	resp, err := client.GetSessionToken(params)
 	if err != nil {
 		return sts.Credentials{}, err
@@ -250,8 +252,8 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 }
 
 func (p *VaultProvider) roleSessionName() string {
-	if name := p.profiles[p.profile]["role_session_name"]; name != "" {
-		return name
+	if profile, _ := p.Config.Profile(p.profile); profile.RoleSessionName != "" {
+		return profile.RoleSessionName
 	}
 
 	// Try to work out a role name that will hopefully end up unique.
@@ -294,10 +296,10 @@ func (p *VaultProvider) assumeRole(creds credentials.Value, roleArn string) (sts
 	}
 
 	// if we don't have a session, we need to include MFA token in the AssumeRole call
-	if mfa, ok := p.profiles[p.profile]["mfa_serial"]; ok {
-		input.SerialNumber = aws.String(mfa)
+	if profile, _ := p.Config.Profile(p.profile); profile.MFASerial != "" {
+		input.SerialNumber = aws.String(profile.MFASerial)
 		if p.MfaToken == "" {
-			token, err := p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", mfa))
+			token, err := p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", profile.MFASerial))
 			if err != nil {
 				return sts.Credentials{}, err
 			}

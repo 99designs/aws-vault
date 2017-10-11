@@ -80,6 +80,30 @@ func TestConfigParsingProfiles(t *testing.T) {
 	}
 }
 
+func TestConfigParsingDefault(t *testing.T) {
+	f := newConfigFile(t)
+	defer os.Remove(f)
+
+	cfg, err := vault.LoadConfig(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	def, ok := cfg.Default()
+	if !ok {
+		t.Fatalf("Expected to find default profile")
+	}
+
+	expected := vault.Profile{
+		Name:   "default",
+		Region: "us-west-2",
+	}
+
+	if !reflect.DeepEqual(def, expected) {
+		t.Fatalf("Expected %+v, got %+v", expected, def)
+	}
+}
+
 func TestSourceProfileFromConfig(t *testing.T) {
 	f := newConfigFile(t)
 	defer os.Remove(f)

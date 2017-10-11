@@ -38,10 +38,7 @@ func ConfigureAddCommand(app *kingpin.Application) {
 func AddCommand(app *kingpin.Application, input AddCommandInput) {
 	var accessKeyId, secretKey string
 
-	if _, hasProfile := awsConfig.Profile(input.Profile); !hasProfile {
-		fmt.Printf("Profile %q doesn't exist in your config\n", input.Profile)
-
-	} else if source, ok := awsConfig.SourceProfile(input.Profile); ok {
+	if source, ok := awsConfig.SourceProfile(input.Profile); ok {
 		app.Fatalf("Your profile has a source_profile of %s, adding credentials to %s won't have any effect",
 			source.Name, input.Profile)
 		return

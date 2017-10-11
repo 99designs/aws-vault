@@ -3,6 +3,7 @@ package vault
 import (
 	"crypto/md5"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -54,7 +55,8 @@ func LoadConfigFromEnv() (*Config, error) {
 		return nil, err
 	}
 
-	return &Config{Path: file}, nil
+	log.Printf("Loading config file %s", file)
+	return LoadConfig(file)
 }
 
 func (c *Config) parseFile() error {
@@ -85,19 +87,45 @@ func (p Profile) Hash() ([]byte, error) {
 	return b, nil
 }
 
+func readProfileFromIni(f *ini.File, sectionName string, profile *Profile) error {
+	if f == nil {
+		return errors.New("No ini file available")
+	}
+	section, err := f.GetSection(sectionName)
+	if err != nil {
+		return err
+	}
+	if err = section.MapTo(&profile); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Default returns the default profile settings
+func (c *Config) Default() (Profile, bool) {
+	profile := Profile{
+		Name: "default",
+	}
+
+	if err := readProfileFromIni(c.iniFile, "default", &profile); err != nil {
+		return profile, false
+	}
+
+	return profile, true
+
+}
+
 // Profile returns the  profile with the matching name. If there isn't any,
 // an empty profile with the provided name is returned, along with false.
 func (c *Config) Profile(name string) (Profile, bool) {
 	profile := Profile{
 		Name: name,
 	}
-	section, err := c.iniFile.GetSection("profile " + name)
-	if err != nil {
+
+	if err := readProfileFromIni(c.iniFile, "profile "+name, &profile); err != nil {
 		return profile, false
 	}
-	if err = section.MapTo(&profile); err != nil {
-		panic(err)
-	}
+
 	return profile, true
 }
 

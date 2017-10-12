@@ -13,7 +13,7 @@ func ExampleExecCommand() {
 		{Key: "llamas", Data: []byte(`{"AccessKeyID":"ABC","SecretAccessKey":"XYZ"}`)},
 	})
 
-	app := kingpin.New(`aws-vault`, ``)
+	app := kingpin.New("aws-vault", "")
 	ConfigureGlobals(app)
 	ConfigureExecCommand(app)
 	kingpin.MustParse(app.Parse([]string{

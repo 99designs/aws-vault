@@ -161,21 +161,34 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
+	if err := cmd.Start(); err != nil {
+		app.Errorf("%v", err)
+		return
+	}
+	// wait for the command to finish
+	waitCh := make(chan error, 1)
 	go func() {
-		sig := <-input.Signals
-		if cmd.Process != nil {
-			cmd.Process.Signal(sig)
-		}
+		waitCh <- cmd.Wait()
+		close(waitCh)
 	}()
 
-	var waitStatus syscall.WaitStatus
-	if err := cmd.Run(); err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
-			waitStatus = exitError.Sys().(syscall.WaitStatus)
-			os.Exit(waitStatus.ExitStatus())
-		}
-		if err != nil {
-			app.Errorf("%v", err)
+	for {
+		select {
+		case sig := <-input.Signals:
+			if err = cmd.Process.Signal(sig); err != nil {
+				app.Errorf("%v", err)
+				break
+			}
+		case err := <-waitCh:
+			var waitStatus syscall.WaitStatus
+			if exitError, ok := err.(*exec.ExitError); ok {
+				waitStatus = exitError.Sys().(syscall.WaitStatus)
+				os.Exit(waitStatus.ExitStatus())
+			}
+			if err != nil {
+				app.Errorf("%v", err)
+				return
+			}
 			return
 		}
 	}

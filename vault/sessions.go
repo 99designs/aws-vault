@@ -15,10 +15,23 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts"
 )
 
-var sessionKeyPattern = regexp.MustCompile(`session \(\d+\)$`)
+var sessionKeyPattern = regexp.MustCompile(`^(.+?) session \((\d+)\)$`)
 
 func IsSessionKey(s string) bool {
 	return sessionKeyPattern.MatchString(s)
+}
+
+func parseSessionKey(s string) (string, string) {
+	matches := sessionKeyPattern.FindStringSubmatch(s)
+	if len(matches) == 0 {
+		return "", ""
+	}
+	return matches[1], matches[2]
+}
+
+type KeyringSession struct {
+	Profile
+	SessionID string
 }
 
 type KeyringSessions struct {
@@ -31,6 +44,28 @@ func NewKeyringSessions(k keyring.Keyring, cfg *Config) (*KeyringSessions, error
 		Keyring: k,
 		Config:  cfg,
 	}, nil
+}
+
+func (s *KeyringSessions) Sessions(profile string) ([]KeyringSession, error) {
+	accounts, err := s.Keyring.Keys()
+	if err != nil {
+		return nil, err
+	}
+
+	var sessions []KeyringSession
+	source, _ := s.Config.SourceProfile(profile)
+
+	for _, account := range accounts {
+		sessionProfile, sessionID := parseSessionKey(account)
+		if sessionProfile == source.Name {
+			sessions = append(sessions, KeyringSession{
+				Profile:   source,
+				SessionID: sessionID,
+			})
+		}
+	}
+
+	return sessions, nil
 }
 
 func (s *KeyringSessions) key(profileName string, duration time.Duration) string {

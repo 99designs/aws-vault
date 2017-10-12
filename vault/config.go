@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	ini "github.com/go-ini/ini"
@@ -101,18 +102,18 @@ func readProfileFromIni(f *ini.File, sectionName string, profile *Profile) error
 	return nil
 }
 
-// Default returns the default profile settings
-func (c *Config) Default() (Profile, bool) {
-	profile := Profile{
-		Name: "default",
+// Profiles returns all the profiles in the config
+func (c *Config) Profiles() []Profile {
+	var result []Profile
+
+	for _, section := range c.iniFile.SectionStrings() {
+		if section != "DEFAULT" {
+			profile, _ := c.Profile(strings.TrimPrefix(section, "profile "))
+			result = append(result, profile)
+		}
 	}
 
-	if err := readProfileFromIni(c.iniFile, "default", &profile); err != nil {
-		return profile, false
-	}
-
-	return profile, true
-
+	return result
 }
 
 // Profile returns the  profile with the matching name. If there isn't any,
@@ -121,11 +122,21 @@ func (c *Config) Profile(name string) (Profile, bool) {
 	profile := Profile{
 		Name: name,
 	}
-
-	if err := readProfileFromIni(c.iniFile, "profile "+name, &profile); err != nil {
+	if c.iniFile == nil {
 		return profile, false
 	}
-
+	// default profile name has a slightly different section format
+	sectionName := "profile " + name
+	if name == "default" {
+		sectionName = "default"
+	}
+	section, err := c.iniFile.GetSection(sectionName)
+	if err != nil {
+		return profile, false
+	}
+	if err = section.MapTo(&profile); err != nil {
+		panic(err)
+	}
 	return profile, true
 }
 

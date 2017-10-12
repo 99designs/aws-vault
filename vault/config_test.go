@@ -89,7 +89,7 @@ func TestConfigParsingDefault(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	def, ok := cfg.Default()
+	def, ok := cfg.Profile("default")
 	if !ok {
 		t.Fatalf("Expected to find default profile")
 	}
@@ -120,5 +120,27 @@ func TestSourceProfileFromConfig(t *testing.T) {
 
 	if source.Name != "user2" {
 		t.Fatalf("Expected source name %q, got %q", "user2", source.Name)
+	}
+}
+
+func TestProfilesFromConfig(t *testing.T) {
+	f := newConfigFile(t)
+	defer os.Remove(f)
+
+	cfg, err := vault.LoadConfig(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	profiles := cfg.Profiles()
+	expected := []vault.Profile{
+		vault.Profile{Name: "default", MFASerial: "", RoleARN: "", Region: "us-west-2"},
+		vault.Profile{Name: "user2", MFASerial: "", RoleARN: "", Region: "us-east-1"},
+		vault.Profile{Name: "withsource", MFASerial: "", RoleARN: "", Region: "us-east-1", SourceProfile: "user2"},
+		vault.Profile{Name: "withmfa", MFASerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", SourceProfile: "user2"},
+	}
+
+	if !reflect.DeepEqual(expected, profiles) {
+		t.Fatalf("Expected %+v, got %+v", expected, profiles)
 	}
 }

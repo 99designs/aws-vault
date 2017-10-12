@@ -15,7 +15,7 @@ func ExampleListCommand() {
 	ConfigureGlobals(app)
 	ConfigureListCommand(app)
 	kingpin.MustParse(app.Parse([]string{
-		"list",
+		"list", "--credentials",
 	}))
 
 	// Output:

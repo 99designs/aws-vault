@@ -24,7 +24,7 @@ func ConfigureListCommand(app *kingpin.Application) {
 	cmd := app.Command("list", "List profiles, along with their credentials and sessions")
 	cmd.Alias("ls")
 
-	cmd.Flag("profile", "Show only the profile names").
+	cmd.Flag("profiles", "Show only the profile names").
 		BoolVar(&input.OnlyProfiles)
 
 	cmd.Flag("sessions", "Show only the session names").

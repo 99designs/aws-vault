@@ -106,6 +106,10 @@ func readProfileFromIni(f *ini.File, sectionName string, profile *Profile) error
 func (c *Config) Profiles() []Profile {
 	var result []Profile
 
+	if c.iniFile == nil {
+		return result
+	}
+
 	for _, section := range c.iniFile.SectionStrings() {
 		if section != "DEFAULT" {
 			profile, _ := c.Profile(strings.TrimPrefix(section, "profile "))

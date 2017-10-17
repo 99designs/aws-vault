@@ -75,7 +75,7 @@ If you have an MFA device attached to your account, the STS service will generat
 
 ```
 [profile default]
-mfa_serial=arn:aws:iam::123456789012:mfa/jonsmith
+mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
 ```
 
 You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username]`.
@@ -101,6 +101,8 @@ role_arn = arn:aws:iam::123456789012:role/admin-access
 ```
 
 Then when you use the `admin` profile, `aws-vault` will look in the `read-only` profile's keychain for credentials and then use those credentials to assume the `admin` role. This assumed role is stored as a short duration session in your keychain so you will only have to enter MFA once per session.
+
+**Note:** When assuming roles, `mfa_serial` will not be inherited from the profile designated in `source_profile` -- you must include a reference to `mfa_serial` in every profile you wish to use it with.
 
 ## Development
 

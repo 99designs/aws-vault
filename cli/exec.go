@@ -91,19 +91,13 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 		return
 	}
 
-	profiles, err := awsConfigFile.Parse()
-	if err != nil {
-		app.Fatalf("Error parsing config: %v", err)
-		return
-	}
-
 	creds, err := vault.NewVaultCredentials(input.Keyring, input.Profile, vault.VaultOptions{
 		SessionDuration:    input.Duration,
 		AssumeRoleDuration: input.RoleDuration,
 		MfaToken:           input.MfaToken,
 		MfaPrompt:          input.MfaPrompt,
 		NoSession:          input.NoSession,
-		Profiles:           profiles,
+		Config:             awsConfig,
 	})
 	if err != nil {
 		app.Fatalf("%v", err)
@@ -111,7 +105,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 
 	val, err := creds.Get()
 	if err != nil {
-		app.Fatalf(vault.FormatCredentialError(input.Profile, profiles, err))
+		app.Fatalf(awsConfig.FormatCredentialError(err, input.Profile))
 	}
 
 	if input.StartServer {
@@ -120,12 +114,6 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 		} else {
 			setEnv = false
 		}
-	}
-
-	profs, err := awsConfigFile.Parse()
-	if err != nil {
-		app.Fatalf("%v", err)
-		return
 	}
 
 	env := environ(os.Environ())
@@ -137,10 +125,10 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 	env.Unset("AWS_DEFAULT_PROFILE")
 	env.Unset("AWS_PROFILE")
 
-	if region, ok := profs[input.Profile]["region"]; ok {
-		log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s", region, region)
-		env.Set("AWS_DEFAULT_REGION", region)
-		env.Set("AWS_REGION", region)
+	if profile, _ := awsConfig.Profile(input.Profile); profile.Region != "" {
+		log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s", profile.Region, profile.Region)
+		env.Set("AWS_DEFAULT_REGION", profile.Region)
+		env.Set("AWS_REGION", profile.Region)
 	}
 
 	if setEnv {

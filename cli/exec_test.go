@@ -8,7 +8,7 @@ import (
 )
 
 func ExampleExecCommand() {
-	awsConfigFile = &vault.FileConfig{}
+	awsConfig = &vault.Config{}
 	keyringImpl = keyring.NewArrayKeyring([]keyring.Item{
 		{Key: "llamas", Data: []byte(`{"AccessKeyID":"ABC","SecretAccessKey":"XYZ"}`)},
 	})

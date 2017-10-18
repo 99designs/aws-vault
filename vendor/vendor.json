@@ -225,11 +225,11 @@
 			"revisionTime": "2015-08-16T20:43:22Z"
 		},
 		{
-			"checksumSHA1": "FCeEm2BWZV/n4oTy+SGd/k0Ab5c=",
+			"checksumSHA1": "VvZKmbuBN1QAG699KduTdmSPwA4=",
 			"origin": "github.com/aws/aws-sdk-go/vendor/github.com/go-ini/ini",
 			"path": "github.com/go-ini/ini",
-			"revision": "388802d0cf038f72020ee99b51781d181e894c1c",
-			"revisionTime": "2016-09-29T23:03:56Z"
+			"revision": "4c984c1f412ef5c5cdbb1a3f1c6ce5e3155ca9ab",
+			"revisionTime": "2017-09-22T21:25:34Z"
 		},
 		{
 			"checksumSHA1": "prN+IUOs6KunsgMUPhYcUgfhTbs=",
@@ -268,12 +268,6 @@
 			"path": "github.com/skratchdot/open-golang/open",
 			"revision": "c8748311a7528d0ba7330d302adbc5a677ef9c9e",
 			"revisionTime": "2015-02-21T14:03:35Z"
-		},
-		{
-			"checksumSHA1": "sFD8LpJPQtWLwGda3edjf5mNUbs=",
-			"path": "github.com/vaughan0/go-ini",
-			"revision": "a98ad7ee00ec53921f08832bc06ecf7fd600e6a1",
-			"revisionTime": "2013-09-23T14:52:12Z"
 		},
 		{
 			"checksumSHA1": "YFTe389hjRtKKOZ7T7iyKQ0I/S8=",

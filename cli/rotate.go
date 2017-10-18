@@ -43,15 +43,11 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 	var err error
 
-	profiles, err := awsConfigFile.Parse()
-	if err != nil {
-		app.Fatalf("Error parsing config: %v", err)
-		return
-	}
+	source, _ := awsConfig.SourceProfile(input.Profile)
 
 	provider := &vault.KeyringProvider{
 		Keyring: input.Keyring,
-		Profile: profiles.SourceProfile(input.Profile),
+		Profile: source.Name,
 	}
 
 	oldMasterCreds, err := provider.Retrieve()
@@ -79,7 +75,7 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 	oldSessionCreds, err := vault.NewVaultCredentials(input.Keyring, input.Profile, vault.VaultOptions{
 		MfaToken:    input.MfaToken,
 		MfaPrompt:   input.MfaPrompt,
-		Profiles:    profiles,
+		Config:      awsConfig,
 		NoSession:   true,
 		MasterCreds: &oldMasterCreds,
 	})
@@ -92,7 +88,7 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 
 	oldSessionVal, err := oldSessionCreds.Get()
 	if err != nil {
-		app.Fatalf(vault.FormatCredentialError(input.Profile, profiles, err))
+		app.Fatalf(awsConfig.FormatCredentialError(err, input.Profile))
 		return
 	}
 
@@ -122,7 +118,7 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 		return
 	}
 
-	sessions, err := vault.NewKeyringSessions(input.Keyring, profiles)
+	sessions, err := vault.NewKeyringSessions(input.Keyring, awsConfig)
 	if err != nil {
 		app.Fatalf(err.Error())
 		return
@@ -137,7 +133,7 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 	newSessionCreds, err := vault.NewVaultCredentials(input.Keyring, input.Profile, vault.VaultOptions{
 		MfaToken:    input.MfaToken,
 		MfaPrompt:   input.MfaPrompt,
-		Profiles:    profiles,
+		Config:      awsConfig,
 		NoSession:   true,
 		MasterCreds: &newMasterCreds,
 	})
@@ -148,7 +144,7 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 
 	newVal, err := newSessionCreds.Get()
 	if err != nil {
-		app.Fatalf(vault.FormatCredentialError(input.Profile, profiles, err))
+		app.Fatalf(awsConfig.FormatCredentialError(err, input.Profile))
 		return
 	}
 

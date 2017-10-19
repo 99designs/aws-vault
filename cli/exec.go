@@ -150,8 +150,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Start(); err != nil {
-		app.Errorf("%v", err)
-		return
+		app.Fatalf("%v", err)
 	}
 	// wait for the command to finish
 	waitCh := make(chan error, 1)
@@ -174,8 +173,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 				os.Exit(waitStatus.ExitStatus())
 			}
 			if err != nil {
-				app.Errorf("%v", err)
-				return
+				app.Fatalf("%v", err)
 			}
 			return
 		}

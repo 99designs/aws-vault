@@ -369,8 +369,9 @@ func (p *KeyringProvider) Store(val credentials.Value) error {
 	}
 
 	return p.Keyring.Set(keyring.Item{
-		Key:  p.Profile,
-		Data: bytes,
+		Key:   p.Profile,
+		Label: fmt.Sprintf("aws-vault (%s)", p.Profile),
+		Data:  bytes,
 	})
 }
 

@@ -205,10 +205,10 @@ func (p VaultProvider) awsConfig() *aws.Config {
 		return aws.NewConfig().WithRegion(region)
 	}
 
-	if profile, ok := p.profiles[p.profile]; ok {
-		if region, hasRegion := profile["region"]; hasRegion {
-			log.Printf("Using region %q from profile", region)
-			return aws.NewConfig().WithRegion(region)
+	if profile, ok := p.Config.Profile(p.profile); ok {
+		if profile.Region != "" {
+			log.Printf("Using region %q from profile", profile.Region)
+			return aws.NewConfig().WithRegion(profile.Region)
 		}
 	}
 

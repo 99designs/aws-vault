@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log"
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/99designs/keyring"
@@ -46,20 +45,22 @@ func NewKeyringSessions(k keyring.Keyring, cfg *Config) (*KeyringSessions, error
 	}, nil
 }
 
-func (s *KeyringSessions) Sessions(profile string) ([]KeyringSession, error) {
+func (s *KeyringSessions) Sessions(profileName string) ([]KeyringSession, error) {
+	log.Printf("Looking up all keys in keyring")
 	accounts, err := s.Keyring.Keys()
 	if err != nil {
 		return nil, err
 	}
 
 	var sessions []KeyringSession
-	source, _ := s.Config.SourceProfile(profile)
+	profile, _ := s.Config.Profile(profileName)
 
 	for _, account := range accounts {
 		sessionProfile, sessionID := parseSessionKey(account)
-		if sessionProfile == source.Name {
+		if sessionProfile == profile.Name {
+			log.Printf("Session %q matches profile %q", account, profile.Name)
 			sessions = append(sessions, KeyringSession{
-				Profile:   source,
+				Profile:   profile,
 				SessionID: sessionID,
 			})
 		}
@@ -80,11 +81,11 @@ func (s *KeyringSessions) key(profileName string, duration time.Duration) string
 	}
 
 	hasher.Write(sourceHash)
-
-	return fmt.Sprintf("%s session (%x)", source, hex.EncodeToString(hasher.Sum(nil))[0:10])
+	return fmt.Sprintf("%s session (%x)", source.Name, hex.EncodeToString(hasher.Sum(nil))[0:10])
 }
 
 func (s *KeyringSessions) Retrieve(profile string, duration time.Duration) (session sts.Credentials, err error) {
+	log.Printf("Looking for sessions for %s / %v", profile, duration)
 	item, err := s.Keyring.Get(s.key(profile, duration))
 	if err != nil {
 		return session, err
@@ -108,27 +109,29 @@ func (s *KeyringSessions) Store(profile string, session sts.Credentials, duratio
 	}
 
 	log.Printf("Writing session for %s to keyring", profile)
-	s.Keyring.Set(keyring.Item{
+
+	return s.Keyring.Set(keyring.Item{
 		Key:         s.key(profile, duration),
 		Label:       "aws-vault session for " + profile,
 		Description: "aws-vault session for " + profile,
 		Data:        bytes,
 		TrustSelf:   false,
 	})
-
-	return nil
 }
 
-func (s *KeyringSessions) Delete(profile string) (n int, err error) {
+func (s *KeyringSessions) Delete(profileName string) (n int, err error) {
+	log.Printf("Looking up all keys in keyring")
 	keys, err := s.Keyring.Keys()
 	if err != nil {
 		return n, err
 	}
 
-	source, _ := s.Config.SourceProfile(profile)
+	profile, _ := s.Config.Profile(profileName)
 
 	for _, k := range keys {
-		if strings.HasPrefix(k, fmt.Sprintf("%s session", source.Name)) {
+		sessionProfile, _ := parseSessionKey(k)
+		if sessionProfile == profile.Name {
+			log.Printf("Session %q matches profile %q", k, profile.Name)
 			if err = s.Keyring.Remove(k); err != nil {
 				return n, err
 			}

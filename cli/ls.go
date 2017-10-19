@@ -102,7 +102,7 @@ func LsCommand(app *kingpin.Application, input LsCommandInput) {
 			fmt.Fprintf(w, "-\t")
 		}
 
-		sessions, err := krs.Sessions(source.Name)
+		sessions, err := krs.Sessions(profile.Name)
 		if err != nil {
 			app.Fatalf(err.Error())
 			return

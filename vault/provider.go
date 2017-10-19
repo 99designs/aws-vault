@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/99designs/aws-vault/prompt"
@@ -193,6 +194,27 @@ func (p *VaultProvider) RetrieveWithoutSessionToken() (credentials.Value, error)
 	return creds, nil
 }
 
+func (p VaultProvider) awsConfig() *aws.Config {
+	if region := os.Getenv("AWS_REGION"); region != "" {
+		log.Printf("Using region %q from AWS_REGION", region)
+		return aws.NewConfig().WithRegion(region)
+	}
+
+	if region := os.Getenv("AWS_DEFAULT_REGION"); region != "" {
+		log.Printf("Using region %q from AWS_DEFAULT_REGION", region)
+		return aws.NewConfig().WithRegion(region)
+	}
+
+	if profile, ok := p.profiles[p.profile]; ok {
+		if region, hasRegion := profile["region"]; hasRegion {
+			log.Printf("Using region %q from profile", region)
+			return aws.NewConfig().WithRegion(region)
+		}
+	}
+
+	return aws.NewConfig()
+}
+
 func (p *VaultProvider) getMasterCreds() (credentials.Value, error) {
 	if p.MasterCreds != nil {
 		return *p.MasterCreds, nil
@@ -234,11 +256,10 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 		}
 	}
 
-	client := sts.New(session.New(&aws.Config{
-		Credentials: credentials.NewCredentials(&credentials.StaticProvider{
+	client := sts.New(session.New(p.awsConfig().
+		WithCredentials(credentials.NewCredentials(&credentials.StaticProvider{
 			Value: *creds,
-		}),
-	}))
+		}))))
 
 	source, _ := p.Config.SourceProfile(p.profile)
 	log.Printf("Getting new session token for profile %s", source.Name)
@@ -262,11 +283,12 @@ func (p *VaultProvider) roleSessionName() string {
 
 // assumeRoleFromSession takes a session created with GetSessionToken and uses that to assume a role
 func (p *VaultProvider) assumeRoleFromSession(creds sts.Credentials, roleArn string) (sts.Credentials, error) {
-	client := sts.New(session.New(&aws.Config{Credentials: credentials.NewStaticCredentials(
-		*creds.AccessKeyId,
-		*creds.SecretAccessKey,
-		*creds.SessionToken,
-	)}))
+	client := sts.New(session.New(p.awsConfig().
+		WithCredentials(credentials.NewStaticCredentials(
+			*creds.AccessKeyId,
+			*creds.SecretAccessKey,
+			*creds.SessionToken,
+		))))
 
 	input := &sts.AssumeRoleInput{
 		RoleArn:         aws.String(roleArn),
@@ -285,9 +307,9 @@ func (p *VaultProvider) assumeRoleFromSession(creds sts.Credentials, roleArn str
 
 // assumeRole uses IAM credentials to assume a role
 func (p *VaultProvider) assumeRole(creds credentials.Value, roleArn string) (sts.Credentials, error) {
-	client := sts.New(session.New(&aws.Config{
-		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: creds}),
-	}))
+	client := sts.New(session.New(p.awsConfig().
+		WithCredentials(credentials.NewCredentials(&credentials.StaticProvider{Value: creds})),
+	))
 
 	input := &sts.AssumeRoleInput{
 		RoleArn:         aws.String(roleArn),

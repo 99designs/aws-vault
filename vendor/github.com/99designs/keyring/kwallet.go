@@ -8,6 +8,7 @@ import (
 	"github.com/aulanov/go.dbus"
 )
 
+// TODO change APPID/FOLDER from consts to configuration
 const (
 	DBUS_SERVICE_NAME = "org.kde.kwalletd"
 	DBUS_PATH         = "/modules/kwalletd"

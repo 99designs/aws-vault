@@ -80,7 +80,10 @@ func (k *keychain) Set(item Item) error {
 	kcItem.SetSynchronizable(gokeychain.SynchronizableNo)
 	kcItem.SetAccessible(gokeychain.AccessibleWhenUnlocked)
 	kcItem.UseKeychain(kc)
-	kcItem.SetAccess(&gokeychain.Access{SelfUntrusted: !item.TrustSelf})
+	kcItem.SetAccess(&gokeychain.Access{
+		Label:         item.Label,
+		SelfUntrusted: !item.TrustSelf,
+	})
 
 	log.Printf("Adding service=%q, label=%q, account=%q to osx keychain %s", k.service, item.Label, item.Key, k.path)
 	if err := gokeychain.AddItem(kcItem); err == gokeychain.ErrorDuplicateItem {

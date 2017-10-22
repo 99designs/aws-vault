@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/99designs/aws-vault/prompt"
@@ -12,9 +13,10 @@ import (
 )
 
 type AddCommandInput struct {
-	Profile string
-	Keyring keyring.Keyring
-	FromEnv bool
+	Profile   string
+	Keyring   keyring.Keyring
+	FromEnv   bool
+	AddConfig bool
 }
 
 func ConfigureAddCommand(app *kingpin.Application) {
@@ -27,6 +29,10 @@ func ConfigureAddCommand(app *kingpin.Application) {
 
 	cmd.Flag("env", "Read the credentials from the environment").
 		BoolVar(&input.FromEnv)
+
+	cmd.Flag("add-config", "Add a profile to ~/.aws/config if one doesn't exist").
+		Default("true").
+		BoolVar(&input.AddConfig)
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.Keyring = keyringImpl
@@ -84,4 +90,18 @@ func AddCommand(app *kingpin.Application, input AddCommandInput) {
 	if n, _ := sessions.Delete(input.Profile); n > 0 {
 		fmt.Printf("Deleted %d existing sessions.\n", n)
 	}
+
+	if _, hasProfile := awsConfig.Profile(input.Profile); !hasProfile {
+		if input.AddConfig {
+			// copy a source profile if one exists
+			newProfileFromSource, _ := awsConfig.SourceProfile(input.Profile)
+			newProfileFromSource.Name = input.Profile
+
+			log.Printf("Adding profile %s to config at %s", input.Profile, awsConfig.Path)
+			if err = awsConfig.Add(newProfileFromSource); err != nil {
+				app.Fatalf("Error adding profile: %#v", err)
+			}
+		}
+	}
+
 }

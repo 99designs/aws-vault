@@ -134,13 +134,46 @@ func TestProfilesFromConfig(t *testing.T) {
 
 	profiles := cfg.Profiles()
 	expected := []vault.Profile{
-		vault.Profile{Name: "default", MFASerial: "", RoleARN: "", Region: "us-west-2"},
-		vault.Profile{Name: "user2", MFASerial: "", RoleARN: "", Region: "us-east-1"},
-		vault.Profile{Name: "withsource", MFASerial: "", RoleARN: "", Region: "us-east-1", SourceProfile: "user2"},
+		vault.Profile{Name: "default", Region: "us-west-2"},
+		vault.Profile{Name: "user2", Region: "us-east-1"},
+		vault.Profile{Name: "withsource", Region: "us-east-1", SourceProfile: "user2"},
 		vault.Profile{Name: "withmfa", MFASerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", SourceProfile: "user2"},
 	}
 
 	if !reflect.DeepEqual(expected, profiles) {
 		t.Fatalf("Expected %+v, got %+v", expected, profiles)
+	}
+}
+
+func TestAddProfileToExistingConfig(t *testing.T) {
+	f := newConfigFile(t)
+	defer os.Remove(f)
+
+	cfg, err := vault.LoadConfig(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = cfg.Add(vault.Profile{
+		Name:          "llamas",
+		MFASerial:     "testserial",
+		Region:        "us-east-1",
+		SourceProfile: "default",
+	})
+	if err != nil {
+		t.Fatalf("Error adding profile: %#v", err)
+	}
+
+	profiles := cfg.Profiles()
+	expected := []vault.Profile{
+		vault.Profile{Name: "default", Region: "us-west-2"},
+		vault.Profile{Name: "user2", Region: "us-east-1"},
+		vault.Profile{Name: "withsource", Region: "us-east-1", SourceProfile: "user2"},
+		vault.Profile{Name: "withmfa", MFASerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", SourceProfile: "user2"},
+		vault.Profile{Name: "llamas", MFASerial: "testserial", Region: "us-east-1", SourceProfile: "default"},
+	}
+
+	if !reflect.DeepEqual(expected, profiles) {
+		t.Fatalf("Expected:\n%+v\nGot:\n%+v", expected, profiles)
 	}
 }

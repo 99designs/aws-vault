@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"strings"
 	"time"
 
 	"github.com/99designs/aws-vault/prompt"
@@ -16,7 +15,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/skratchdot/open-golang/open"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -200,7 +198,7 @@ func getFederationToken(creds credentials.Value, d time.Duration) (*sts.Credenti
 	})
 	client := sts.New(sess)
 
-	currentUsername, err := getCurrentUserName(sess)
+	currentUsername, err := vault.GetUsernameFromSession(sess)
 	if err != nil {
 		return nil, err
 	}
@@ -217,24 +215,4 @@ func getFederationToken(creds credentials.Value, d time.Duration) (*sts.Credenti
 	}
 
 	return resp.Credentials, nil
-}
-
-func getCurrentUserName(sess *session.Session) (string, error) {
-	client := iam.New(sess)
-
-	resp, err := client.GetUser(&iam.GetUserInput{})
-	if err != nil {
-		return "", err
-	}
-
-	if resp.User.UserName != nil {
-		return *resp.User.UserName, nil
-	}
-
-	if resp.User.Arn != nil {
-		arnParts := strings.Split(*resp.User.Arn, ":")
-		return arnParts[len(arnParts)-1], nil
-	}
-
-	return "", fmt.Errorf("Couldn't determine current username")
 }

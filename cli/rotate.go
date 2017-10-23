@@ -1,7 +1,9 @@
 package cli
 
 import (
+	"fmt"
 	"log"
+	"time"
 
 	"github.com/99designs/aws-vault/prompt"
 	"github.com/99designs/aws-vault/vault"
@@ -92,13 +94,19 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 		return
 	}
 
+	var iamUserName *string
+
+	// A username is needed for some IAM calls if the credentials have assumed a role
+	if oldSessionVal.SessionToken != "" {
+		iamUserName = aws.String(currentUserName)
+	}
+
 	oldSessionClient := iam.New(session.New(&aws.Config{
 		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: oldSessionVal}),
 	}))
 
-	// A username is needed if the credentials are a session
 	createOut, err := oldSessionClient.CreateAccessKey(&iam.CreateAccessKeyInput{
-		UserName: aws.String(currentUserName),
+		UserName: iamUserName,
 	})
 	if err != nil {
 		app.Fatalf(err.Error())
@@ -142,20 +150,26 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 		return
 	}
 
-	newVal, err := newSessionCreds.Get()
-	if err != nil {
-		app.Fatalf(awsConfig.FormatCredentialError(err, input.Profile))
-		return
-	}
+	log.Printf("Waiting for new IAM credentials to propagate")
+	time.Sleep(time.Second * 8)
 
-	newClient := iam.New(session.New(&aws.Config{
-		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: newVal}),
-	}))
+	err = retry(time.Second*20, time.Second*5, func() error {
+		newVal, err := newSessionCreds.Get()
+		if err != nil {
+			return err
+		}
 
-	_, err = newClient.DeleteAccessKey(&iam.DeleteAccessKeyInput{
-		AccessKeyId: aws.String(oldMasterCreds.AccessKeyID),
-		UserName:    aws.String(currentUserName),
+		newClient := iam.New(session.New(&aws.Config{
+			Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: newVal}),
+		}))
+
+		_, err = newClient.DeleteAccessKey(&iam.DeleteAccessKeyInput{
+			AccessKeyId: aws.String(oldMasterCreds.AccessKeyID),
+			UserName:    iamUserName,
+		})
+		return err
 	})
+
 	if err != nil {
 		app.Errorf("Can't delete old access key %v", oldMasterCreds.AccessKeyID)
 		app.Fatalf(err.Error())
@@ -163,4 +177,25 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 	}
 
 	log.Printf("Rotated credentials for profile %q in vault", input.Profile)
+}
+
+func retry(duration time.Duration, sleep time.Duration, callback func() error) (err error) {
+	t0 := time.Now()
+	i := 0
+	for {
+		i++
+
+		err = callback()
+		if err == nil {
+			return
+		}
+
+		delta := time.Now().Sub(t0)
+		if delta > duration {
+			return fmt.Errorf("After %d attempts (during %s), last error: %s", i, delta, err)
+		}
+
+		time.Sleep(sleep)
+		log.Println("Retrying after error:", err)
+	}
 }

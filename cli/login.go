@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 	"time"
 
@@ -219,11 +220,20 @@ func getFederationToken(creds credentials.Value, d time.Duration) (*sts.Credenti
 	return resp.Credentials, nil
 }
 
+var (
+	getUserErrorRegexp = regexp.MustCompile(`^AccessDenied: User: arn:aws:iam::(\d+)(.+) is not`)
+)
+
 func getCurrentUserName(sess *session.Session) (string, error) {
 	client := iam.New(sess)
 
 	resp, err := client.GetUser(&iam.GetUserInput{})
 	if err != nil {
+		matches := getUserErrorRegexp.FindAllStringSubmatch(err.Error(), -1)
+		if len(matches) > 0 {
+			log.Printf("%#v", matches)
+		}
+
 		return "", err
 	}
 

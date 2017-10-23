@@ -15,6 +15,10 @@ import (
 	"github.com/mitchellh/go-homedir"
 )
 
+func init() {
+	ini.PrettyFormat = false
+}
+
 // Config is an abstraction over what is in ~/.aws/config
 type Config struct {
 	Path    string
@@ -72,11 +76,11 @@ func (c *Config) parseFile() error {
 
 type Profile struct {
 	Name            string `ini:"-"`
-	MFASerial       string `ini:"mfa_serial"`
-	RoleARN         string `ini:"role_arn"`
-	Region          string `ini:"region"`
-	SourceProfile   string `ini:"source_profile"`
-	RoleSessionName string `ini:"role_session_name"`
+	MFASerial       string `ini:"mfa_serial,omitempty"`
+	RoleARN         string `ini:"role_arn,omitempty"`
+	Region          string `ini:"region,omitempty"`
+	SourceProfile   string `ini:"source_profile,omitempty"`
+	RoleSessionName string `ini:"role_session_name,omitempty"`
 }
 
 func (p Profile) Hash() ([]byte, error) {
@@ -142,6 +146,26 @@ func (c *Config) Profile(name string) (Profile, bool) {
 		panic(err)
 	}
 	return profile, true
+}
+
+// Add the profile to the configuration file
+func (c *Config) Add(profile Profile) error {
+	if c.iniFile == nil {
+		return errors.New("No iniFile to add to")
+	}
+	// default profile name has a slightly different section format
+	sectionName := "profile " + profile.Name
+	if profile.Name == "default" {
+		sectionName = "default"
+	}
+	section, err := c.iniFile.NewSection(sectionName)
+	if err != nil {
+		return fmt.Errorf("Error creating section %q: %v", profile.Name, err)
+	}
+	if err = section.ReflectFrom(&profile); err != nil {
+		return fmt.Errorf("Error mapping profile to ini file: %v", err)
+	}
+	return c.iniFile.SaveTo(c.Path)
 }
 
 // SourceProfile returns the source profile of the given profile. If there isn't any,

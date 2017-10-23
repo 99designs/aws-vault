@@ -1,12 +1,21 @@
 package cli
 
 import (
+	"io/ioutil"
+	"log"
 	"os"
 
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 func ExampleAddCommand() {
+	f, err := ioutil.TempFile("", "aws-config")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer os.Remove(f.Name())
+
+	os.Setenv("AWS_CONFIG_FILE", f.Name())
 	os.Setenv("AWS_ACCESS_KEY_ID", "llamas")
 	os.Setenv("AWS_SECRET_ACCESS_KEY", "rock")
 	os.Setenv("AWS_VAULT_BACKEND", "file")

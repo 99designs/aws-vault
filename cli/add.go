@@ -44,12 +44,6 @@ func ConfigureAddCommand(app *kingpin.Application) {
 func AddCommand(app *kingpin.Application, input AddCommandInput) {
 	var accessKeyId, secretKey string
 
-	if source, _ := awsConfig.SourceProfile(input.Profile); source.Name != input.Profile {
-		app.Fatalf("Your profile has a source_profile of %s, adding credentials to %s won't have any effect",
-			source.Name, input.Profile)
-		return
-	}
-
 	if input.FromEnv {
 		if accessKeyId = os.Getenv("AWS_ACCESS_KEY_ID"); accessKeyId == "" {
 			app.Fatalf("Missing value for AWS_ACCESS_KEY_ID")
@@ -70,38 +64,64 @@ func AddCommand(app *kingpin.Application, input AddCommandInput) {
 			return
 		}
 	}
-
-	creds := credentials.Value{AccessKeyID: accessKeyId, SecretAccessKey: secretKey}
-	provider := &vault.KeyringProvider{Keyring: input.Keyring, Profile: input.Profile}
-
-	if err := provider.Store(creds); err != nil {
-		app.Fatalf(err.Error())
-		return
-	}
-
-	fmt.Printf("Added credentials to profile %q in vault\n", input.Profile)
-
-	sessions, err := vault.NewKeyringSessions(input.Keyring, awsConfig)
+	err := addCredentialsToVault(input.Profile, input.Keyring, credentials.Value{
+		AccessKeyID:     accessKeyId,
+		SecretAccessKey: secretKey,
+	})
 	if err != nil {
 		app.Fatalf(err.Error())
 		return
 	}
 
-	if n, _ := sessions.Delete(input.Profile); n > 0 {
+	if input.AddConfig {
+		if err = addProfileToConfig(input.Profile); err != nil {
+			app.Fatalf(err.Error())
+			return
+		}
+	}
+}
+
+func addCredentialsToVault(profile string, kr keyring.Keyring, creds credentials.Value) error {
+	if source, _ := awsConfig.SourceProfile(profile); source.Name != profile {
+		return fmt.Errorf(
+			"Your profile has a source_profile of %s, adding credentials to %s won't have any effect",
+			source.Name, profile,
+		)
+	}
+
+	provider := &vault.KeyringProvider{
+		Keyring: kr,
+		Profile: profile,
+	}
+
+	fmt.Printf("Added credentials to profile %q in vault\n", profile)
+	if err := provider.Store(creds); err != nil {
+		return err
+	}
+
+	sessions, err := vault.NewKeyringSessions(kr, awsConfig)
+	if err != nil {
+		return err
+	}
+
+	if n, _ := sessions.Delete(profile); n > 0 {
 		fmt.Printf("Deleted %d existing sessions.\n", n)
 	}
 
-	if _, hasProfile := awsConfig.Profile(input.Profile); !hasProfile {
-		if input.AddConfig {
-			// copy a source profile if one exists
-			newProfileFromSource, _ := awsConfig.SourceProfile(input.Profile)
-			newProfileFromSource.Name = input.Profile
+	return nil
+}
 
-			log.Printf("Adding profile %s to config at %s", input.Profile, awsConfig.Path)
-			if err = awsConfig.Add(newProfileFromSource); err != nil {
-				app.Fatalf("Error adding profile: %#v", err)
-			}
+func addProfileToConfig(profile string) error {
+	if _, hasProfile := awsConfig.Profile(profile); !hasProfile {
+		// copy a source profile if one exists
+		newProfileFromSource, _ := awsConfig.SourceProfile(profile)
+		newProfileFromSource.Name = profile
+
+		log.Printf("Adding profile %s to config at %s", profile, awsConfig.Path)
+		if err := awsConfig.Add(newProfileFromSource); err != nil {
+			return fmt.Errorf("Error adding profile: %#v", err)
 		}
 	}
 
+	return nil
 }

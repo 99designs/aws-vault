@@ -106,6 +106,31 @@ Then when you use the `admin` profile, `aws-vault` will look in the `read-only` 
 
 **Note:** When assuming roles, `mfa_serial` will not be inherited from the profile designated in `source_profile` -- you must include a reference to `mfa_serial` in every profile you wish to use it with.
 
+## Rotating Credentials
+
+Regularly rotating your access keys is a critical part of credential management. You can do this with the `aws-vault rotate <profile>` command as often as you like.
+
+The minimal IAM policy required to rotate your own credentials is:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "iam:CreateAccessKey",
+                "iam:DeleteAccessKey",
+                "iam:GetUser"
+            ],
+            "Resource": [
+                "arn:aws:iam::*:user/${aws:username}"
+            ]
+        }
+    ]
+}
+```
+
 ## Development
 
 Developed with golang, to install run:

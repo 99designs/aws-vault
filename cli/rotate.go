@@ -44,7 +44,7 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 		Config:    awsConfig,
 	}
 
-	fmt.Printf("Rotating credentials for profile %q\n", input.Profile)
+	fmt.Printf("Rotating credentials for profile %q (takes 10-20 seconds)\n", input.Profile)
 
 	if err := rotator.Rotate(input.Profile); err != nil {
 		app.Fatalf(awsConfig.FormatCredentialError(err, input.Profile))

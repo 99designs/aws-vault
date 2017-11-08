@@ -80,7 +80,7 @@ func (r *Rotator) Rotate(profile string) error {
 	var iamUserName *string
 
 	// A username is needed for some IAM calls if the credentials have assumed a role
-	if oldSessionVal.SessionToken != "" {
+	if oldSessionVal.SessionToken != "" || currentUserName != "root" {
 		iamUserName = aws.String(currentUserName)
 	}
 

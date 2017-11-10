@@ -131,6 +131,14 @@ The minimal IAM policy required to rotate your own credentials is:
 }
 ```
 
+## Removing stored sessions
+
+If you want to remove sessions managed by `aws-vault` before they expire, you can do this with the `--session-only` flag.
+
+```bash
+aws-vault remove <profile> --sessions-only
+```
+
 ## Development
 
 Developed with golang, to install run:

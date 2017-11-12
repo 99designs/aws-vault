@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	KeyringName = "aws-vault"
+	DefaultKeyringName = "aws-vault"
 )
 
 var (
@@ -26,6 +26,7 @@ var GlobalFlags struct {
 	Debug        bool
 	Backend      string
 	PromptDriver string
+	KeychainName string
 }
 
 func ConfigureGlobals(app *kingpin.Application) {
@@ -42,12 +43,21 @@ func ConfigureGlobals(app *kingpin.Application) {
 		OverrideDefaultFromEnvar("AWS_VAULT_PROMPT").
 		EnumVar(&GlobalFlags.PromptDriver, promptsAvailable...)
 
+	app.Flag("keychain", "Name of macOS keychain to use, blank means the default keychain (usually login)").
+		Default("aws-vault").
+		OverrideDefaultFromEnvar("AWS_VAULT_KEYCHAIN_NAME").
+		StringVar(&GlobalFlags.KeychainName)
+
 	app.PreAction(func(c *kingpin.ParseContext) (err error) {
 		if !GlobalFlags.Debug {
 			log.SetOutput(ioutil.Discard)
 		}
 		if keyringImpl == nil {
-			keyringImpl, err = keyring.Open(KeyringName, GlobalFlags.Backend)
+			keychainName := DefaultKeyringName
+			if GlobalFlags.Backend == keyring.KeychainBackend {
+				keychainName = GlobalFlags.KeychainName
+			}
+			keyringImpl, err = keyring.Open(keychainName, GlobalFlags.Backend)
 		}
 		if awsConfig == nil {
 			awsConfig, err = vault.LoadConfigFromEnv()

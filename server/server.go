@@ -29,6 +29,8 @@ func StartMetadataServer() error {
 	router := http.NewServeMux()
 	router.HandleFunc("/latest/meta-data/iam/security-credentials/", indexHandler)
 	router.HandleFunc("/latest/meta-data/iam/security-credentials/local-credentials", credentialsHandler)
+	// The AWS Go SDK checks the instance-id endpoint to validate the existence of EC2 Metadata
+	router.HandleFunc("/latest/meta-data/instance-id/", instanceIdHandler)
 
 	l, err := net.Listen("tcp", metadataBind)
 	if err != nil {
@@ -61,6 +63,10 @@ func credentialsHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	io.Copy(w, resp.Body)
+}
+
+func instanceIdHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "aws-vault")
 }
 
 func checkServerRunning(bind string) bool {

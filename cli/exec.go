@@ -132,9 +132,10 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 	}
 
 	if setEnv {
-		log.Println("Setting subprocess env: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY")
+		log.Println("Setting subprocess env: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SECRET_KEY")
 		env.Set("AWS_ACCESS_KEY_ID", val.AccessKeyID)
 		env.Set("AWS_SECRET_ACCESS_KEY", val.SecretAccessKey)
+		env.Set("AWS_SECRET_KEY", val.SecretAccessKey)
 
 		if val.SessionToken != "" {
 			log.Println("Setting subprocess env: AWS_SESSION_TOKEN, AWS_SECURITY_TOKEN")

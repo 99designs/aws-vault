@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"runtime"
 	"time"
 
 	"github.com/99designs/aws-vault/vault"
@@ -76,13 +77,24 @@ func checkServerRunning(bind string) bool {
 
 func StartCredentialsServer(creds *vault.VaultCredentials) error {
 	if !checkServerRunning(metadataBind) {
-		log.Printf("Starting `aws-vault server` as root in the background")
-		cmd := exec.Command("sudo", "-b", os.Args[0], "server")
-		cmd.Stdin = os.Stdin
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		if err := cmd.Run(); err != nil {
-			return err
+		if runtime.GOOS == "windows" {
+			log.Printf("Starting `aws-vault server` in the background")
+			cmd := exec.Command(os.Args[0], "server")
+			cmd.Stdin = os.Stdin
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			if err := cmd.Start(); err != nil {
+				return err
+			}
+		} else {
+			log.Printf("Starting `aws-vault server` as root in the background")
+			cmd := exec.Command("sudo", "-b", os.Args[0], "server")
+			cmd.Stdin = os.Stdin
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			if err := cmd.Run(); err != nil {
+				return err
+			}
 		}
 	}
 

@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -85,6 +86,10 @@ func StartCredentialsServer(creds *vault.VaultCredentials) error {
 			cmd.Stderr = os.Stderr
 			if err := cmd.Start(); err != nil {
 				return err
+			}
+			time.Sleep(time.Second * 1)
+			if !checkServerRunning(metadataBind) {
+				return errors.New("The credential proxy server isn't running. Run aws-vault server as Administrator in the background and then try this command again")
 			}
 		} else {
 			log.Printf("Starting `aws-vault server` as root in the background")

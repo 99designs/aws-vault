@@ -66,7 +66,9 @@ func LoadConfigFromEnv() (*Config, error) {
 
 func (c *Config) parseFile() error {
 	log.Printf("Parsing config file %s", c.Path)
-	f, err := ini.Load(c.Path)
+	f, err := ini.LoadSources(ini.LoadOptions{
+		AllowNestedValues: true,
+	}, c.Path)
 	if err != nil {
 		return fmt.Errorf("Error parsing config file %q: %v", c.Path, err)
 	}

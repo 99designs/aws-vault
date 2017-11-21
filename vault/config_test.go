@@ -1,6 +1,7 @@
 package vault_test
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -31,19 +32,28 @@ mfa_serial=arn:aws:iam::1234513441:mfa/blah
 region=us-east-1
 `)
 
-func newConfigFile(t *testing.T) string {
+var nestedConfig = []byte(`[profile testing]
+aws_access_key_id=foo
+aws_secret_access_key=bar
+region=us-west-2
+s3=
+  max_concurrent_requests=10
+  max_queue_size=1000
+`)
+
+func newConfigFile(t *testing.T, b []byte) string {
 	f, err := ioutil.TempFile("", "aws-config")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := ioutil.WriteFile(f.Name(), exampleConfig, 0600); err != nil {
+	if err := ioutil.WriteFile(f.Name(), b, 0600); err != nil {
 		t.Fatal(err)
 	}
 	return f.Name()
 }
 
 func TestConfigParsingProfiles(t *testing.T) {
-	f := newConfigFile(t)
+	f := newConfigFile(t, exampleConfig)
 	defer os.Remove(f)
 
 	cfg, err := vault.LoadConfig(f)
@@ -81,7 +91,7 @@ func TestConfigParsingProfiles(t *testing.T) {
 }
 
 func TestConfigParsingDefault(t *testing.T) {
-	f := newConfigFile(t)
+	f := newConfigFile(t, exampleConfig)
 	defer os.Remove(f)
 
 	cfg, err := vault.LoadConfig(f)
@@ -105,7 +115,7 @@ func TestConfigParsingDefault(t *testing.T) {
 }
 
 func TestSourceProfileFromConfig(t *testing.T) {
-	f := newConfigFile(t)
+	f := newConfigFile(t, exampleConfig)
 	defer os.Remove(f)
 
 	cfg, err := vault.LoadConfig(f)
@@ -124,7 +134,7 @@ func TestSourceProfileFromConfig(t *testing.T) {
 }
 
 func TestProfilesFromConfig(t *testing.T) {
-	f := newConfigFile(t)
+	f := newConfigFile(t, exampleConfig)
 	defer os.Remove(f)
 
 	cfg, err := vault.LoadConfig(f)
@@ -146,7 +156,7 @@ func TestProfilesFromConfig(t *testing.T) {
 }
 
 func TestAddProfileToExistingConfig(t *testing.T) {
-	f := newConfigFile(t)
+	f := newConfigFile(t, exampleConfig)
 	defer os.Remove(f)
 
 	cfg, err := vault.LoadConfig(f)
@@ -176,4 +186,34 @@ func TestAddProfileToExistingConfig(t *testing.T) {
 	if !reflect.DeepEqual(expected, profiles) {
 		t.Fatalf("Expected:\n%+v\nGot:\n%+v", expected, profiles)
 	}
+}
+
+func TestAddProfileToExistingNestedConfig(t *testing.T) {
+	f := newConfigFile(t, nestedConfig)
+	defer os.Remove(f)
+
+	cfg, err := vault.LoadConfig(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = cfg.Add(vault.Profile{
+		Name:      "llamas",
+		MFASerial: "testserial",
+		Region:    "us-east-1",
+	})
+	if err != nil {
+		t.Fatalf("Error adding profile: %#v", err)
+	}
+
+	expected := append(nestedConfig, []byte(
+		"\n[profile llamas]\nmfa_serial=testserial\nregion=us-east-1\n\n",
+	)...)
+
+	b, _ := ioutil.ReadFile(f)
+
+	if !bytes.Equal(expected, b) {
+		t.Fatalf("Expected:\n%q\nGot:\n%q", expected, b)
+	}
+
 }

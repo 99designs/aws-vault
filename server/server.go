@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -9,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"runtime"
 	"time"
 
 	"github.com/99designs/aws-vault/vault"
@@ -74,14 +76,41 @@ func checkServerRunning(bind string) bool {
 	return err == nil
 }
 
+func StartCredentialProxyOnWindows() error {
+	log.Printf("Starting `aws-vault server` in the background")
+	cmd := exec.Command(os.Args[0], "server")
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+	time.Sleep(time.Second * 1)
+	if !checkServerRunning(metadataBind) {
+		return errors.New("The credential proxy server isn't running. Run aws-vault server as Administrator in the background and then try this command again")
+	}
+	return nil
+}
+
+func StartCredentialProxyWithSudo() error {
+	log.Printf("Starting `aws-vault server` as root in the background")
+	cmd := exec.Command("sudo", "-b", os.Args[0], "server")
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
+}
+
+func StartCredentialProxy() error {
+	if runtime.GOOS == "windows" {
+		return StartCredentialProxyOnWindows()
+	}
+	return StartCredentialProxyWithSudo()
+}
+
 func StartCredentialsServer(creds *vault.VaultCredentials) error {
 	if !checkServerRunning(metadataBind) {
-		log.Printf("Starting `aws-vault server` as root in the background")
-		cmd := exec.Command("sudo", "-b", os.Args[0], "server")
-		cmd.Stdin = os.Stdin
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		if err := cmd.Run(); err != nil {
+		if err := StartCredentialProxy(); err != nil {
 			return err
 		}
 	}

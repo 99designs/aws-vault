@@ -35,11 +35,14 @@ var (
 
 // createAccess creates a SecAccessRef as CFTypeRef.
 // The returned SecAccessRef, if non-nil, must be released via CFRelease.
-func createAccess(label string, trustedApplications []string, trustSelf bool) (C.CFTypeRef, error) {
-	if trustSelf {
-		// A NULL application means ourselves, the current application
-		trustedApplications = append([]string{""}, trustedApplications...)
+func createAccess(label string, trustedApplications []string) (C.CFTypeRef, error) {
+	if len(trustedApplications) == 0 {
+		return nil, nil
 	}
+
+	// Always prepend with empty string which signifies that we
+	// include a NULL application, which means ourselves.
+	trustedApplications = append([]string{""}, trustedApplications...)
 
 	var err error
 	var labelRef C.CFStringRef
@@ -89,15 +92,8 @@ func createTrustedApplication(trustedApplication string) (C.CFTypeRef, error) {
 	return C.CFTypeRef(trustedApplicationRef), nil
 }
 
-// NoApplicationsTrusted is a helper value for an Access level where no applications
-// are trusted and the user will have to explicitly approve all
-var NoApplicationsTrusted = &Access{
-	SelfUntrusted: true,
-}
-
 // Access defines whats applications can use the keychain item
 type Access struct {
-	SelfUntrusted       bool
 	Label               string
 	TrustedApplications []string
 }
@@ -105,7 +101,7 @@ type Access struct {
 // Convert converts Access to CFTypeRef.
 // The returned CFTypeRef, if non-nil, must be released via CFRelease.
 func (a Access) Convert() (C.CFTypeRef, error) {
-	return createAccess(a.Label, a.TrustedApplications, !a.SelfUntrusted)
+	return createAccess(a.Label, a.TrustedApplications)
 }
 
 // SetAccess sets Access on Item

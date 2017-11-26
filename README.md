@@ -147,6 +147,19 @@ Developed with golang, to install run:
 go get github.com/99designs/aws-vault
 ```
 
+### Self-signing your binary
+
+Binaries that call Keychain need to be signed, otherwise they always show the "allow access" prompt. Releases are signed by 99designs certificates, but if you are actively developing and want to mimic the behaviour of a signed release you can generate a self-signed code signing certificate.
+
+Check out Apple's guide on it [here](http://web.archive.org/web/20090119080759/http://developer.apple.com/documentation/Security/Conceptual/CodeSigningGuide/Procedures/chapter_3_section_2.html), or find it in `Keychain Access > Certificate Assistant > Create Certificate > Code Signing Certificate`.
+
+You can then sign your binary like this:
+
+```bash
+make build
+codesign -s "Name of my certificate" ./aws-vault
+```
+
 ## References and Inspiration
 
  * https://github.com/pda/aws-keychain

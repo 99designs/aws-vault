@@ -16,10 +16,9 @@ const (
 )
 
 var (
-	keyringImpl       keyring.Keyring
-	awsConfig         *vault.Config
-	promptsAvailable  = prompt.Available()
-	backendsAvailable = keyring.SupportedBackends()
+	keyringImpl      keyring.Keyring
+	awsConfig        *vault.Config
+	promptsAvailable = prompt.Available()
 )
 
 var GlobalFlags struct {
@@ -29,11 +28,15 @@ var GlobalFlags struct {
 }
 
 func ConfigureGlobals(app *kingpin.Application) {
+	backendsAvailable := []string{}
+	for _, backendType := range keyring.AvailableBackends() {
+		backendsAvailable = append(backendsAvailable, string(backendType))
+	}
+
 	app.Flag("debug", "Show debugging output").
 		BoolVar(&GlobalFlags.Debug)
 
 	app.Flag("backend", fmt.Sprintf("Secret backend to use %v", backendsAvailable)).
-		Default(keyring.DefaultBackend).
 		OverrideDefaultFromEnvar("AWS_VAULT_BACKEND").
 		EnumVar(&GlobalFlags.Backend, backendsAvailable...)
 
@@ -45,9 +48,14 @@ func ConfigureGlobals(app *kingpin.Application) {
 	app.PreAction(func(c *kingpin.ParseContext) (err error) {
 		if !GlobalFlags.Debug {
 			log.SetOutput(ioutil.Discard)
+		} else {
+			keyring.Debug = true
 		}
 		if keyringImpl == nil {
-			keyringImpl, err = keyring.Open(KeyringName, GlobalFlags.Backend)
+			keyringImpl, err = keyring.Open(keyring.Config{
+				ServiceName:  "aws-vault",
+				KeychainName: "aws-vault",
+			})
 		}
 		if awsConfig == nil {
 			awsConfig, err = vault.LoadConfigFromEnv()

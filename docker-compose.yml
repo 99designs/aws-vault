@@ -1,0 +1,12 @@
+version: '2.1'
+
+services:
+  aws-vault:
+    image: 99designs/aws-vault
+    build: .
+    environment:
+      - AWS_VAULT_BACKEND
+      - AWS_VAULT_FILE_PASSPHRASE
+    volumes:
+      - ~/.aws:/root/.aws
+      - ~/.awsvault:/root/.awsvault

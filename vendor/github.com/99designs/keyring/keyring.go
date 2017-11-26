@@ -40,6 +40,7 @@ func Open(cfg Config) (Keyring, error) {
 	if cfg.AllowedBackends == nil {
 		cfg.AllowedBackends = AvailableBackends()
 	}
+	debugf("Considering backends: %v", cfg.AllowedBackends)
 	for _, backend := range cfg.AllowedBackends {
 		if opener, ok := supportedBackends[backend]; ok {
 			return opener(cfg)

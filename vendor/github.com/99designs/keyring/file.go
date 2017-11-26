@@ -16,6 +16,7 @@ import (
 func init() {
 	supportedBackends[FileBackend] = opener(func(cfg Config) (Keyring, error) {
 		return &fileKeyring{
+			dir:          cfg.FileDir,
 			passwordFunc: cfg.FilePasswordFunc,
 		}, nil
 	})
@@ -41,6 +42,7 @@ func (k *fileKeyring) resolveDir() (string, error) {
 			return "", err
 		}
 		dir = strings.Replace(dir, "~", home, 1)
+		debugf("Expanded file dir to %s", dir)
 	}
 
 	stat, err := os.Stat(dir)

@@ -3,50 +3,61 @@
 // See project homepage at https://github.com/99designs/keyring for more background
 package keyring
 
-import "errors"
+import (
+	"errors"
+	"log"
+)
 
 // All currently supported secure storage backends
 const (
-	SecretServiceBackend string = "secret-service"
-	KeychainBackend      string = "keychain"
-	KWalletBackend       string = "kwallet"
-	FileBackend          string = "file"
+	InvalidBackend       BackendType = "invalid"
+	SecretServiceBackend BackendType = "secret-service"
+	KeychainBackend      BackendType = "keychain"
+	KWalletBackend       BackendType = "kwallet"
+	FileBackend          BackendType = "file"
 )
 
-// DefaultBackend is the lowest common denominator across OSes - encrypted file
-var DefaultBackend = FileBackend
+type BackendType string
 
-var supportedBackends = map[string]opener{}
+var supportedBackends = map[BackendType]opener{}
 
-// SupportedBackends provides a slice of all available backend keys on the current OS
-func SupportedBackends() []string {
-	b := []string{}
+// AvailableBackends provides a slice of all available backend keys on the current OS
+func AvailableBackends() []BackendType {
+	b := []BackendType{}
 	for k := range supportedBackends {
-		b = append(b, k)
+		if k != FileBackend {
+			b = append(b, k)
+		}
 	}
-	return b
+	// make sure FileBackend is last
+	return append(b, FileBackend)
 }
 
-type opener func(name string) (Keyring, error)
+type opener func(cfg Config) (Keyring, error)
 
-// Open will ask the underlying backend to authenticate and provide access to the underlying store
-func Open(name string, backend string) (Keyring, error) {
-	op, ok := supportedBackends[backend]
-	if !ok {
-		return nil, ErrNoAvailImpl
+// Open will open a specific keyring backend
+func Open(cfg Config) (Keyring, error) {
+	if cfg.AllowedBackends == nil {
+		cfg.AllowedBackends = AvailableBackends()
 	}
-
-	return op(name)
+	for _, backend := range cfg.AllowedBackends {
+		if opener, ok := supportedBackends[backend]; ok {
+			return opener(cfg)
+		}
+	}
+	return nil, ErrNoAvailImpl
 }
 
-// Item is an, uh, item that is stored on the keyring
+// Item is a thing stored on the keyring
 type Item struct {
 	Key         string
 	Data        []byte
 	Label       string
 	Description string
-	// macOS only, set false if you want the password prompt to appear every time
-	TrustSelf bool
+
+	// Backend specific config
+	KeychainNotTrustApplication bool
+	KeychainNotSynchronizable   bool
 }
 
 // Keyring provides the uniform interface over the underlying backends
@@ -66,3 +77,14 @@ var ErrNoAvailImpl = errors.New("Specified keyring backend not available")
 
 // ErrKeyNotFound is returned by Keyring Get when the item is not on the keyring
 var ErrKeyNotFound = errors.New("The specified item could not be found in the keyring.")
+
+var (
+	// Whether to print debugging output
+	Debug bool
+)
+
+func debugf(pattern string, args ...interface{}) {
+	if Debug {
+		log.Printf("[keyring] "+pattern, args...)
+	}
+}

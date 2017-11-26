@@ -5,26 +5,26 @@ package keyring
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/gsterjov/go-libsecret"
-	"os"
 )
 
-const secretsCollection = "awsvault"
-
 func init() {
-	supportedBackends[SecretServiceBackend] = opener(func(name string) (Keyring, error) {
-		if name == "" {
-			name = "secret-service"
+	supportedBackends[SecretServiceBackend] = opener(func(cfg Config) (Keyring, error) {
+		if cfg.ServiceName == "" {
+			cfg.ServiceName = "secret-service"
+		}
+		if cfg.LibSecretCollectionName == "" {
+			cfg.LibSecretCollectionName = cfg.ServiceName
 		}
 
 		service, err := libsecret.NewService()
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "Failed to connect to the secret service:", err)
 			return &secretsKeyring{}, err
 		}
 
 		return &secretsKeyring{
-			name:    name,
+			name:    cfg.LibSecretCollectionName,
 			service: service,
 		}, nil
 	})
@@ -58,7 +58,7 @@ func (k *secretsKeyring) openSecrets() error {
 		return err
 	}
 
-	path := libsecret.DBusPath + "/collection/" + secretsCollection
+	path := libsecret.DBusPath + "/collection/" + k.name
 
 	for _, collection := range collections {
 		if string(collection.Path()) == path {
@@ -76,7 +76,10 @@ func (k *secretsKeyring) openCollection() error {
 	}
 
 	if k.collection == nil {
-		return &secretsError{"The awsvault collection does not exist. Please add a key first"}
+		return &secretsError{fmt.Sprintf(
+			"The collection %q does not exist. Please add a key first",
+			k.name,
+		)}
 	}
 
 	return nil
@@ -133,7 +136,7 @@ func (k *secretsKeyring) Set(item Item) error {
 
 	// create the collection if it doesn't already exist
 	if k.collection == nil {
-		collection, err := k.service.CreateCollection(secretsCollection)
+		collection, err := k.service.CreateCollection(k.name)
 		if err != nil {
 			return err
 		}

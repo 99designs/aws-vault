@@ -8,18 +8,23 @@ import (
 	"github.com/aulanov/go.dbus"
 )
 
-// TODO change APPID/FOLDER from consts to configuration
 const (
-	DBUS_SERVICE_NAME = "org.kde.kwalletd"
-	DBUS_PATH         = "/modules/kwalletd"
-	APPID             = "aws-vault"
-	FOLDER            = "aws-vault"
+	dbusServiceName = "org.kde.kwalletd"
+	dbusPath        = "/modules/kwalletd"
 )
 
 func init() {
-	supportedBackends[KWalletBackend] = opener(func(name string) (Keyring, error) {
-		if name == "" {
-			name = "kdewallet"
+	supportedBackends[KWalletBackend] = opener(func(cfg Config) (Keyring, error) {
+		if cfg.ServiceName == "" {
+			cfg.ServiceName = "kdewallet"
+		}
+
+		if cfg.KWalletAppID == "" {
+			cfg.KWalletAppID = "keyring"
+		}
+
+		if cfg.KWalletFolder == "" {
+			cfg.KWalletFolder = "keyring"
 		}
 
 		wallet, err := newKwallet()
@@ -29,7 +34,9 @@ func init() {
 
 		return &kwalletKeyring{
 			wallet: *wallet,
-			name:   name,
+			name:   cfg.ServiceName,
+			appID:  cfg.KWalletAppID,
+			folder: cfg.KWalletFolder,
 		}, nil
 	})
 }
@@ -38,6 +45,8 @@ type kwalletKeyring struct {
 	wallet kwalletBinding
 	name   string
 	handle int32
+	appID  string
+	folder string
 }
 
 func (k *kwalletKeyring) openWallet() error {
@@ -47,7 +56,7 @@ func (k *kwalletKeyring) openWallet() error {
 	}
 
 	if !isOpen {
-		handle, err := k.wallet.Open(k.name, 0, APPID)
+		handle, err := k.wallet.Open(k.name, 0, k.appID)
 		if err != nil {
 			return err
 		}
@@ -63,7 +72,7 @@ func (k *kwalletKeyring) Get(key string) (Item, error) {
 		return Item{}, err
 	}
 
-	data, err := k.wallet.ReadEntry(k.handle, FOLDER, key, APPID)
+	data, err := k.wallet.ReadEntry(k.handle, k.folder, key, k.appID)
 	if err != nil {
 		return Item{}, err
 	}
@@ -88,7 +97,7 @@ func (k *kwalletKeyring) Set(item Item) error {
 		return err
 	}
 
-	err = k.wallet.WriteEntry(k.handle, FOLDER, item.Key, data, APPID)
+	err = k.wallet.WriteEntry(k.handle, k.folder, item.Key, data, k.appID)
 	if err != nil {
 		return err
 	}
@@ -102,7 +111,7 @@ func (k *kwalletKeyring) Remove(key string) error {
 		return err
 	}
 
-	err = k.wallet.RemoveEntry(k.handle, FOLDER, key, APPID)
+	err = k.wallet.RemoveEntry(k.handle, k.folder, key, k.appID)
 	if err != nil {
 		return err
 	}
@@ -116,7 +125,7 @@ func (k *kwalletKeyring) Keys() ([]string, error) {
 		return []string{}, err
 	}
 
-	entries, err := k.wallet.EntryList(k.handle, FOLDER, APPID)
+	entries, err := k.wallet.EntryList(k.handle, k.folder, k.appID)
 	if err != nil {
 		return []string{}, err
 	}
@@ -131,7 +140,7 @@ func newKwallet() (*kwalletBinding, error) {
 	}
 
 	return &kwalletBinding{
-		conn.Object(DBUS_SERVICE_NAME, DBUS_PATH),
+		conn.Object(dbusServiceName, dbusPath),
 	}, nil
 }
 

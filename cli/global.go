@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 
 	"github.com/99designs/aws-vault/prompt"
 	"github.com/99designs/aws-vault/vault"
 	"github.com/99designs/keyring"
+	"golang.org/x/crypto/ssh/terminal"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -52,9 +54,19 @@ func ConfigureGlobals(app *kingpin.Application) {
 			keyring.Debug = true
 		}
 		if keyringImpl == nil {
+			allowedBackends := []keyring.BackendType{}
+			if GlobalFlags.Backend != "" {
+				allowedBackends = append(allowedBackends, keyring.BackendType(GlobalFlags.Backend))
+			}
+
 			keyringImpl, err = keyring.Open(keyring.Config{
-				ServiceName:  "aws-vault",
-				KeychainName: "aws-vault",
+				ServiceName:      "aws-vault",
+				AllowedBackends:  allowedBackends,
+				KeychainName:     "aws-vault",
+				FileDir:          "~/.awsvault/keys/",
+				FilePasswordFunc: fileKeyringPassphrasePrompt,
+				KWalletAppID:     "aws-vault",
+				KWalletFolder:    "aws-vault",
 			})
 		}
 		if awsConfig == nil {
@@ -62,5 +74,18 @@ func ConfigureGlobals(app *kingpin.Application) {
 		}
 		return err
 	})
+}
 
+func fileKeyringPassphrasePrompt(prompt string) (string, error) {
+	if password := os.Getenv("AWS_VAULT_FILE_PASSPHRASE"); password != "" {
+		return password, nil
+	}
+
+	fmt.Printf("%s: ", prompt)
+	b, err := terminal.ReadPassword(int(os.Stdin.Fd()))
+	if err != nil {
+		return "", err
+	}
+	fmt.Println()
+	return string(b), nil
 }

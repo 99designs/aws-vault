@@ -29,7 +29,7 @@ func ExampleAddCommand() {
 	app := kingpin.New(`aws-vault`, ``)
 	ConfigureGlobals(app)
 	ConfigureAddCommand(app)
-	kingpin.MustParse(app.Parse([]string{"add", "--env", "foo"}))
+	kingpin.MustParse(app.Parse([]string{"add", "--debug", "--env", "foo"}))
 
 	// Output:
 	// Added credentials to profile "foo" in vault

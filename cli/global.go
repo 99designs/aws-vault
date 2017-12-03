@@ -60,7 +60,7 @@ func ConfigureGlobals(app *kingpin.Application) {
 			keyring.Debug = true
 		}
 		if keyringImpl == nil {
-			allowedBackends := []keyring.BackendType{}
+			var allowedBackends []keyring.BackendType
 			if GlobalFlags.Backend != "" {
 				allowedBackends = append(allowedBackends, keyring.BackendType(GlobalFlags.Backend))
 			}

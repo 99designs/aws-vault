@@ -3,10 +3,10 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "8R9EXb/TllvzZPaMoRuXnV7ymY4=",
+			"checksumSHA1": "EW0JwvH6SppKKRymOeJ8KGjXeXw=",
 			"path": "github.com/99designs/keyring",
-			"revision": "4e01943c6b5e89b6528a796958f47081f6eaaf98",
-			"revisionTime": "2017-10-19T23:16:57Z"
+			"revision": "4e18bd3b11affe0797553fefbb4f7a98b3f110b8",
+			"revisionTime": "2017-11-26T04:21:19Z"
 		},
 		{
 			"checksumSHA1": "KmjnydoAbofMieIWm+it5OWERaM=",
@@ -225,11 +225,12 @@
 			"revisionTime": "2015-08-16T20:43:22Z"
 		},
 		{
-			"checksumSHA1": "VvZKmbuBN1QAG699KduTdmSPwA4=",
-			"origin": "github.com/aws/aws-sdk-go/vendor/github.com/go-ini/ini",
+			"checksumSHA1": "jK0knSGdB7hA/Pvc0mQBYkYxN/8=",
 			"path": "github.com/go-ini/ini",
-			"revision": "4c984c1f412ef5c5cdbb1a3f1c6ce5e3155ca9ab",
-			"revisionTime": "2017-09-22T21:25:34Z"
+			"revision": "32e4c1e6bc4e7d0d8451aa6b75200d19e37a536a",
+			"revisionTime": "2017-11-19T05:34:21Z",
+			"version": "v1.32.0",
+			"versionExact": "v1.32.0"
 		},
 		{
 			"checksumSHA1": "prN+IUOs6KunsgMUPhYcUgfhTbs=",
@@ -251,11 +252,10 @@
 			"revisionTime": "2016-09-29T23:03:56Z"
 		},
 		{
-			"checksumSHA1": "VGkGZuxgsZinkFJjqkk4gpS0104=",
-			"origin": "github.com/lox/go-keychain",
+			"checksumSHA1": "wGeOW2FOX1w2L75QGM9qnKGSePs=",
 			"path": "github.com/keybase/go-keychain",
-			"revision": "efeae48c0b272ac15a6c0b53129285b2b0ed828d",
-			"revisionTime": "2017-08-10T04:31:23Z"
+			"revision": "ea111bd9eaa41fcf8f0c877304cf6b32cab505ca",
+			"revisionTime": "2017-08-14T23:56:12Z"
 		},
 		{
 			"checksumSHA1": "AXacfEchaUqT5RGmPmMXsOWRhv8=",

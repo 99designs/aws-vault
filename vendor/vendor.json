@@ -3,10 +3,10 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "8R9EXb/TllvzZPaMoRuXnV7ymY4=",
+			"checksumSHA1": "yPdUwIYrb/mMRha15K2OPS2hcSo=",
 			"path": "github.com/99designs/keyring",
-			"revision": "4e01943c6b5e89b6528a796958f47081f6eaaf98",
-			"revisionTime": "2017-10-19T23:16:57Z"
+			"revision": "864ec8407057ca036ab7f3cac503aef926fa59eb",
+			"revisionTime": "2017-11-28T00:42:29Z"
 		},
 		{
 			"checksumSHA1": "KmjnydoAbofMieIWm+it5OWERaM=",
@@ -252,11 +252,10 @@
 			"revisionTime": "2016-09-29T23:03:56Z"
 		},
 		{
-			"checksumSHA1": "VGkGZuxgsZinkFJjqkk4gpS0104=",
-			"origin": "github.com/lox/go-keychain",
+			"checksumSHA1": "U25ZTSzG/RPAXdaPYUlmNXixOWk=",
 			"path": "github.com/keybase/go-keychain",
-			"revision": "efeae48c0b272ac15a6c0b53129285b2b0ed828d",
-			"revisionTime": "2017-08-10T04:31:23Z"
+			"revision": "e39a0e22a1cbdbbcdc24b8556df51019c30df068",
+			"revisionTime": "2017-11-27T20:25:45Z"
 		},
 		{
 			"checksumSHA1": "AXacfEchaUqT5RGmPmMXsOWRhv8=",

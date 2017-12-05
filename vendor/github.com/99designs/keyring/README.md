@@ -18,7 +18,9 @@ Currently Keyring supports the following backends
 The short version of how to use keyring is shown below.
 
 ```go
-ring, _ := keyring.Open("example", keyring.KeychainBackend)
+ring, _ := keyring.Open(keyring.Config{
+  ServiceName: "example",
+})
 
 _ = ring.Set(keyring.Item{
 	Key: "foo",

@@ -35,12 +35,7 @@ var (
 
 // createAccess creates a SecAccessRef as CFTypeRef.
 // The returned SecAccessRef, if non-nil, must be released via CFRelease.
-func createAccess(label string, trustedApplications []string, trustSelf bool) (C.CFTypeRef, error) {
-	if trustSelf {
-		// A NULL application means ourselves, the current application
-		trustedApplications = append([]string{""}, trustedApplications...)
-	}
-
+func createAccess(label string, trustedApplications []string) (C.CFTypeRef, error) {
 	var err error
 	var labelRef C.CFStringRef
 	if labelRef, err = StringToCFString(label); err != nil {
@@ -48,19 +43,29 @@ func createAccess(label string, trustedApplications []string, trustSelf bool) (C
 	}
 	defer C.CFRelease(C.CFTypeRef(labelRef))
 
-	var trustedApplicationsRefs []C.CFTypeRef
-	for _, trustedApplication := range trustedApplications {
-		trustedApplicationRef, createErr := createTrustedApplication(trustedApplication)
-		if createErr != nil {
-			return nil, createErr
+	var trustedApplicationsArray C.CFArrayRef
+	if trustedApplications != nil {
+		if len(trustedApplications) > 0 {
+			// Always prepend with empty string which signifies that we
+			// include a NULL application, which means ourselves.
+			trustedApplications = append([]string{""}, trustedApplications...)
 		}
-		defer C.CFRelease(C.CFTypeRef(trustedApplicationRef))
-		trustedApplicationsRefs = append(trustedApplicationsRefs, trustedApplicationRef)
+
+		var trustedApplicationsRefs []C.CFTypeRef
+		for _, trustedApplication := range trustedApplications {
+			trustedApplicationRef, createErr := createTrustedApplication(trustedApplication)
+			if createErr != nil {
+				return nil, createErr
+			}
+			defer C.CFRelease(C.CFTypeRef(trustedApplicationRef))
+			trustedApplicationsRefs = append(trustedApplicationsRefs, trustedApplicationRef)
+		}
+
+		trustedApplicationsArray = ArrayToCFArray(trustedApplicationsRefs)
+		defer C.CFRelease(C.CFTypeRef(trustedApplicationsArray))
 	}
 
 	var access C.SecAccessRef
-	trustedApplicationsArray := ArrayToCFArray(trustedApplicationsRefs)
-	defer C.CFRelease(C.CFTypeRef(trustedApplicationsArray))
 	errCode := C.SecAccessCreate(labelRef, trustedApplicationsArray, &access)
 	err = checkError(errCode)
 	if err != nil {
@@ -89,15 +94,8 @@ func createTrustedApplication(trustedApplication string) (C.CFTypeRef, error) {
 	return C.CFTypeRef(trustedApplicationRef), nil
 }
 
-// NoApplicationsTrusted is a helper value for an Access level where no applications
-// are trusted and the user will have to explicitly approve all
-var NoApplicationsTrusted = &Access{
-	SelfUntrusted: true,
-}
-
 // Access defines whats applications can use the keychain item
 type Access struct {
-	SelfUntrusted       bool
 	Label               string
 	TrustedApplications []string
 }
@@ -105,7 +103,7 @@ type Access struct {
 // Convert converts Access to CFTypeRef.
 // The returned CFTypeRef, if non-nil, must be released via CFRelease.
 func (a Access) Convert() (C.CFTypeRef, error) {
-	return createAccess(a.Label, a.TrustedApplications, !a.SelfUntrusted)
+	return createAccess(a.Label, a.TrustedApplications)
 }
 
 // SetAccess sets Access on Item
@@ -160,12 +158,12 @@ func newKeychain(path, password string, promptUser bool) (Keychain, error) {
 		errCode = C.SecKeychainCreate(pathRef, C.UInt32(len(password)), unsafe.Pointer(passwordRef), C.Boolean(0), nil, &kref)
 	}
 
-	// TODO: Without passing in kref I get 'One or more parameters passed to the function were not valid (-50)'
-	defer Release(C.CFTypeRef(kref))
-
 	if err := checkError(errCode); err != nil {
 		return Keychain{}, err
 	}
+
+	// TODO: Without passing in kref I get 'One or more parameters passed to the function were not valid (-50)'
+	defer Release(C.CFTypeRef(kref))
 
 	return Keychain{
 		path: path,

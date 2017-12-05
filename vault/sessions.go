@@ -115,7 +115,9 @@ func (s *KeyringSessions) Store(profile string, session sts.Credentials, duratio
 		Label:       "aws-vault session for " + profile,
 		Description: "aws-vault session for " + profile,
 		Data:        bytes,
-		TrustSelf:   false,
+
+		// specific Keychain settings
+		KeychainNotTrustApplication: true,
 	})
 }
 

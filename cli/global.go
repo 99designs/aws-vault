@@ -9,12 +9,13 @@ import (
 	"github.com/99designs/aws-vault/prompt"
 	"github.com/99designs/aws-vault/vault"
 	"github.com/99designs/keyring"
+	gokeychain "github.com/keybase/go-keychain"
 	"golang.org/x/crypto/ssh/terminal"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 const (
-	DefaultKeyringName = "aws-vault"
+	DefaultKeychainName = "login"
 )
 
 var (
@@ -48,8 +49,7 @@ func ConfigureGlobals(app *kingpin.Application) {
 		OverrideDefaultFromEnvar("AWS_VAULT_PROMPT").
 		EnumVar(&GlobalFlags.PromptDriver, promptsAvailable...)
 
-	app.Flag("keychain", "Name of macOS keychain to use, blank means the default keychain (usually login)").
-		Default("aws-vault").
+	app.Flag("keychain", fmt.Sprintf("Name of macOS keychain to use (default keychain: %v)", DefaultKeychainName)).
 		OverrideDefaultFromEnvar("AWS_VAULT_KEYCHAIN_NAME").
 		StringVar(&GlobalFlags.KeychainName)
 
@@ -63,6 +63,19 @@ func ConfigureGlobals(app *kingpin.Application) {
 			var allowedBackends []keyring.BackendType
 			if GlobalFlags.Backend != "" {
 				allowedBackends = append(allowedBackends, keyring.BackendType(GlobalFlags.Backend))
+			}
+
+			if GlobalFlags.KeychainName == "" {
+				log.Printf("Default (or no) keychain specified. Searching in order of aws-vault, login")
+				kc := gokeychain.NewWithPath("aws-vault.keychain")
+				err := kc.Status()
+				if err == nil {
+					log.Printf("Using legacy keychain: aws-vault")
+					GlobalFlags.KeychainName = "aws-vault"
+				} else {
+					log.Printf("Using default keychain: login")
+					GlobalFlags.KeychainName = "login"
+				}
 			}
 
 			keyringImpl, err = keyring.Open(keyring.Config{

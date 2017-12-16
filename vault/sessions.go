@@ -74,7 +74,10 @@ func (s *KeyringSessions) Sessions() ([]KeyringSession, error) {
 			log.Printf("%s is a session", k)
 			ks, _ := parseKeyringSession(k, s.Config)
 			if ks.IsExpired() {
-				log.Printf("Session %s is expired", ks.Name)
+				log.Printf("Session %s is expired, deleting", k)
+				if err := s.Keyring.Remove(k); err != nil {
+					return nil, err
+				}
 				continue
 			}
 
@@ -155,7 +158,7 @@ func (s *KeyringSessions) Delete(profile string) (n int, err error) {
 	for _, session := range sessions {
 		if session.Profile.Name == profile {
 			log.Printf("Session %q matches profile %q", session.Name, profile)
-			if err = s.Keyring.Remove(session.Profile.Name); err != nil {
+			if err = s.Keyring.Remove(session.Name); err != nil {
 				return n, err
 			}
 			n++

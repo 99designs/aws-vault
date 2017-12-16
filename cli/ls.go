@@ -87,6 +87,12 @@ func LsCommand(app *kingpin.Application, input LsCommandInput) {
 		return
 	}
 
+	sessions, err := krs.Sessions()
+	if err != nil {
+		app.Fatalf(err.Error())
+		return
+	}
+
 	w := tabwriter.NewWriter(os.Stdout, 25, 4, 2, ' ', 0)
 	fmt.Fprintln(w, "Profile\tCredentials\tSessions\t")
 	fmt.Fprintln(w, "=======\t===========\t========\t")
@@ -102,15 +108,14 @@ func LsCommand(app *kingpin.Application, input LsCommandInput) {
 			fmt.Fprintf(w, "-\t")
 		}
 
-		sessions, err := krs.Sessions(profile.Name)
-		if err != nil {
-			app.Fatalf(err.Error())
-			return
-		} else if len(sessions) > 0 {
-			var sessionIDs []string
-			for _, sess := range sessions {
+		var sessionIDs []string
+		for _, sess := range sessions {
+			if profile.Name == sess.Profile.Name {
 				sessionIDs = append(sessionIDs, sess.SessionID)
 			}
+		}
+
+		if len(sessions) > 0 {
 			fmt.Fprintf(w, "%s\t\n", strings.Join(sessionIDs, ", "))
 		} else {
 			fmt.Fprintf(w, "-\t\n")

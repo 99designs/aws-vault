@@ -1,6 +1,8 @@
 language: go
 
-install: ./scripts/ci_install.sh
+install:
+  - go get -u github.com/kardianos/govendor
+  - govendor status
 
 go:
   - 1.8

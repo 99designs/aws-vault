@@ -71,7 +71,6 @@ func (s *KeyringSessions) Sessions() ([]KeyringSession, error) {
 
 	for _, k := range keys {
 		if IsSessionKey(k) {
-			log.Printf("%s is a session", k)
 			ks, _ := parseKeyringSession(k, s.Config)
 			if ks.IsExpired() {
 				log.Printf("Session %s is expired, deleting", k)
@@ -88,7 +87,7 @@ func (s *KeyringSessions) Sessions() ([]KeyringSession, error) {
 	return sessions, nil
 }
 
-// Retrieve searches sessions for specific profile, expects the source profile to be provided
+// Retrieve searches sessions for specific profile, expects the profile to be provided, not the source
 func (s *KeyringSessions) Retrieve(profile string) (creds sts.Credentials, err error) {
 	log.Printf("Looking for sessions for %s", profile)
 	sessions, err := s.Sessions()
@@ -97,10 +96,7 @@ func (s *KeyringSessions) Retrieve(profile string) (creds sts.Credentials, err e
 	}
 
 	for _, session := range sessions {
-		log.Printf("Comparing %s and %s", session.Profile.Name, profile)
 		if session.Profile.Name == profile {
-			log.Printf("Matched session %s", session.Name)
-
 			item, err := s.Keyring.Get(session.Name)
 			if err != nil {
 				return creds, err
@@ -126,7 +122,7 @@ func (s *KeyringSessions) Retrieve(profile string) (creds sts.Credentials, err e
 	return creds, keyring.ErrKeyNotFound
 }
 
-// Store stores a sessions for a specific profile, expects the source profile to be provided
+// Store stores a sessions for a specific profile, expects the profile to be provided, not the source
 func (s *KeyringSessions) Store(profile string, session sts.Credentials, expires time.Time) error {
 	bytes, err := json.Marshal(session)
 	if err != nil {
@@ -147,7 +143,7 @@ func (s *KeyringSessions) Store(profile string, session sts.Credentials, expires
 	})
 }
 
-// Delete deletes any sessions for a specific profile, expects the source profile to be provided
+// Delete deletes any sessions for a specific profile, expects the profile to be provided, not the source
 func (s *KeyringSessions) Delete(profile string) (n int, err error) {
 	log.Printf("Looking for sessions for %s", profile)
 	sessions, err := s.Sessions()

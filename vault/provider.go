@@ -96,13 +96,11 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 		return p.RetrieveWithoutSessionToken()
 	}
 
-	// sessions get stored by source profile
-	source, _ := p.config.SourceProfile(p.profile)
-
-	session, err := p.sessions.Retrieve(source.Name)
+	// sessions get stored by profile, not the source
+	session, err := p.sessions.Retrieve(p.profile)
 	if err != nil {
 		if err == keyring.ErrKeyNotFound {
-			log.Printf("Session not found in keyring for %s", source.Name)
+			log.Printf("Session not found in keyring for %s", p.profile)
 		} else {
 			log.Println(err)
 		}
@@ -118,7 +116,7 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 			return credentials.Value{}, err
 		}
 
-		if err = p.sessions.Store(source.Name, session, time.Now().Add(p.SessionDuration)); err != nil {
+		if err = p.sessions.Store(p.profile, session, time.Now().Add(p.SessionDuration)); err != nil {
 			return credentials.Value{}, err
 		}
 	}

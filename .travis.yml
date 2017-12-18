@@ -5,9 +5,11 @@ install:
   - govendor status
 
 go:
-  # - 1.8
+  - 1.8
   - 1.9
 
 os:
   - linux
   - osx
+  
+osx_image: xcode7.3

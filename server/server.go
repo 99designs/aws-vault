@@ -128,9 +128,10 @@ func StartCredentialsServer(creds *vault.VaultCredentials) error {
 			return
 		}
 
-		// Must make sure the remote ip is localhost, otherwise clients on the same network segment could
+		// Must make sure the remote ip is from the loopback, otherwise clients on the same network segment could
 		// potentially route traffic via 169.254.169.254:80
-		if ip != `127.0.0.1` {
+		// See https://developer.apple.com/library/content/qa/qa1357/_index.html
+		if !net.ParseIP(ip).IsLoopback() {
 			http.Error(w, "Access denied from non-localhost address", http.StatusUnauthorized)
 			return
 		}

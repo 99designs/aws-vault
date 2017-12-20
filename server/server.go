@@ -122,6 +122,21 @@ func StartCredentialsServer(creds *vault.VaultCredentials) error {
 
 	log.Printf("Local instance role server running on %s", l.Addr())
 	go http.Serve(l, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ip, _, err := net.SplitHostPort(r.RemoteAddr)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		// Must make sure the remote ip is from the loopback, otherwise clients on the same network segment could
+		// potentially route traffic via 169.254.169.254:80
+		// See https://developer.apple.com/library/content/qa/qa1357/_index.html
+		if !net.ParseIP(ip).IsLoopback() {
+			http.Error(w, "Access denied from non-localhost address", http.StatusUnauthorized)
+			return
+		}
+
+		log.Printf("RemoteAddr = %v", r.RemoteAddr)
 		log.Printf("Credentials.IsExpired() = %#v", creds.IsExpired())
 
 		val, err := creds.Get()

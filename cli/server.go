@@ -11,7 +11,9 @@ type ServerCommandInput struct {
 func ConfigureServerCommand(app *kingpin.Application) {
 	input := ServerCommandInput{}
 
-	cmd := app.Command("server", "Run an ec2 instance role server locally")
+	cmd := app.Command("server", "Run an ec2 instance role server locally").
+		Hidden()
+
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		ServerCommand(app, input)
 		return nil

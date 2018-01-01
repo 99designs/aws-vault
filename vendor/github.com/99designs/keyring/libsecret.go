@@ -6,10 +6,17 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/godbus/dbus"
 	"github.com/gsterjov/go-libsecret"
 )
 
 func init() {
+	// silently fail if dbus isn't available
+	_, err := dbus.SessionBus()
+	if err != nil {
+		return
+	}
+
 	supportedBackends[SecretServiceBackend] = opener(func(cfg Config) (Keyring, error) {
 		if cfg.ServiceName == "" {
 			cfg.ServiceName = "secret-service"

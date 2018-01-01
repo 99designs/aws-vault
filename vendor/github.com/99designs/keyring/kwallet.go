@@ -14,6 +14,12 @@ const (
 )
 
 func init() {
+	// silently fail if dbus isn't available
+	_, err := dbus.SessionBus()
+	if err != nil {
+		return
+	}
+
 	supportedBackends[KWalletBackend] = opener(func(cfg Config) (Keyring, error) {
 		if cfg.ServiceName == "" {
 			cfg.ServiceName = "kdewallet"

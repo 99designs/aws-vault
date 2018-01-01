@@ -1,0 +1,13 @@
+version: '2.1'
+
+services:
+  aws-vault:
+    image: golang:1.9.2
+    environment:
+      - CGO_ENABLED=0
+    volumes:
+      - .:/go/src/github.com/99designs/aws-vault
+      - /root/.aws
+      - /root/.awsvault
+    working_dir: /go/src/github.com/99designs/aws-vault
+    entrypoint: go run main.go

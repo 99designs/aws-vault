@@ -35,6 +35,8 @@ func StartMetadataServer() error {
 	router.HandleFunc("/latest/meta-data/instance-id/", instanceIdHandler)
 	// The AWS DotNet SDK checks the instance-id endpoint to validate the existence of EC2 Metadata
 	router.HandleFunc("/latest/meta-data/iam/info", iamInfoHandler)
+	// The AWS DotNet SDK checks the /dynamic/instance-identity/document endpoint to determine the region when configuring clients (eg the SQSClient)
+	router.HandleFunc("/latest/dynamic/instance-identity/document", regionDiscoveryHandler)
 
 	l, err := net.Listen("tcp", metadataBind)
 	if err != nil {
@@ -71,6 +73,13 @@ func credentialsHandler(w http.ResponseWriter, r *http.Request) {
 
 func instanceIdHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "aws-vault")
+}
+
+func regionDiscoveryHandler(w http.ResponseWriter, r *http.Request) {
+	//the config source profile has a region defined, this should be used here
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"region": "us-west-2",
+	})
 }
 
 func iamInfoHandler(w http.ResponseWriter, r *http.Request) {

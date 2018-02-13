@@ -8,6 +8,7 @@ import (
 	"strings"
 	"syscall"
 	"time"
+	"fmt"
 
 	"github.com/99designs/aws-vault/prompt"
 	"github.com/99designs/aws-vault/server"
@@ -143,39 +144,53 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 		}
 	}
 
-	cmd := exec.Command(input.Command, input.Args...)
-	cmd.Env = env
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	if (input.StartServer && input.Command == os.Getenv("SHELL")){
+		// no command was specified, just "aws-vault exec --server [PROFILE]"
+		if (GlobalFlags.Debug){
+			log.Printf("Metadata Server is running...")
+		}else {
+			fmt.Println("Metadata Server is running...")
+		}
 
-	if err := cmd.Start(); err != nil {
-		app.Fatalf("%v", err)
-	}
-	// wait for the command to finish
-	waitCh := make(chan error, 1)
-	go func() {
-		waitCh <- cmd.Wait()
-		close(waitCh)
-	}()
+		// Just wait for a ctrl-c
+		exitSignal := make(chan os.Signal)
+		signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
+		<-exitSignal
+	}else {
+		cmd := exec.Command(input.Command, input.Args...)
+		cmd.Env = env
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
 
-	for {
-		select {
-		case sig := <-input.Signals:
-			if err = cmd.Process.Signal(sig); err != nil {
-				app.Errorf("%v", err)
-				break
+		if err := cmd.Start(); err != nil {
+			app.Fatalf("%v", err)
+		}
+		// wait for the command to finish
+		waitCh := make(chan error, 1)
+		go func() {
+			waitCh <- cmd.Wait()
+			close(waitCh)
+		}()
+
+		for {
+			select {
+			case sig := <-input.Signals:
+				if err = cmd.Process.Signal(sig); err != nil {
+					app.Errorf("%v", err)
+					break
+				}
+			case err := <-waitCh:
+				var waitStatus syscall.WaitStatus
+				if exitError, ok := err.(*exec.ExitError); ok {
+					waitStatus = exitError.Sys().(syscall.WaitStatus)
+					os.Exit(waitStatus.ExitStatus())
+				}
+				if err != nil {
+					app.Fatalf("%v", err)
+				}
+				return
 			}
-		case err := <-waitCh:
-			var waitStatus syscall.WaitStatus
-			if exitError, ok := err.(*exec.ExitError); ok {
-				waitStatus = exitError.Sys().(syscall.WaitStatus)
-				os.Exit(waitStatus.ExitStatus())
-			}
-			if err != nil {
-				app.Fatalf("%v", err)
-			}
-			return
 		}
 	}
 }

@@ -38,6 +38,29 @@ func ConfigPath() (string, error) {
 	return file, nil
 }
 
+// CreateConfig will create the config directory and file if they do not exist
+func CreateConfig() (error) {
+	file, err := ConfigPath()
+	if err != nil {
+		return err
+	}
+	dir := filepath.Dir(file)
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		os.Mkdir(dir, 0755)
+		log.Printf("Config directory %s created", dir)
+	}
+	if _, err := os.Stat(file); os.IsNotExist(err) {
+		newFile, err := os.Create(file)
+		if err != nil {
+			log.Printf("Config file %s not created", file)
+			return err
+		}
+		newFile.Close()
+		log.Printf("Config file %s created", file)
+        }
+	return nil
+}
+
 // LoadConfig loads and parses a config. No error is returned if the file doesn't exist
 func LoadConfig(path string) (*Config, error) {
 	config := &Config{
@@ -48,7 +71,14 @@ func LoadConfig(path string) (*Config, error) {
 			return nil, parseErr
 		}
 	} else {
-		log.Printf("Config file %s doesn't exist", path)
+		log.Printf("Config file %s doesn't exist so lets create it", path)
+		err := CreateConfig()
+		if err != nil {
+			return nil, err
+		}
+		if parseErr := config.parseFile(); parseErr != nil {
+			return nil, parseErr
+		}
 	}
 	return config, nil
 }

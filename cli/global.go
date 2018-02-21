@@ -65,13 +65,14 @@ func ConfigureGlobals(app *kingpin.Application) {
 				allowedBackends = append(allowedBackends, keyring.BackendType(GlobalFlags.Backend))
 			}
 			keyringImpl, err = keyring.Open(keyring.Config{
-				ServiceName:      "aws-vault",
-				AllowedBackends:  allowedBackends,
-				KeychainName:     GlobalFlags.KeychainName,
-				FileDir:          "~/.awsvault/keys/",
-				FilePasswordFunc: fileKeyringPassphrasePrompt,
-				KWalletAppID:     "aws-vault",
-				KWalletFolder:    "aws-vault",
+				ServiceName:             "aws-vault",
+				AllowedBackends:         allowedBackends,
+				KeychainName:            GlobalFlags.KeychainName,
+				FileDir:                 "~/.awsvault/keys/",
+				FilePasswordFunc:        fileKeyringPassphrasePrompt,
+				LibSecretCollectionName: "awsvault",
+				KWalletAppID:            "aws-vault",
+				KWalletFolder:           "aws-vault",
 			})
 			if err != nil {
 				return err

@@ -46,7 +46,7 @@ func CreateConfig() (error) {
 	}
 	dir := filepath.Dir(file)
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		os.Mkdir(dir, 0755)
+		os.Mkdir(dir, 0700)
 		log.Printf("Config directory %s created", dir)
 	}
 	if _, err := os.Stat(file); os.IsNotExist(err) {

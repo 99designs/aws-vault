@@ -59,6 +59,7 @@ func ConfigureExecCommand(app *kingpin.Application) {
 
 	cmd.Arg("profile", "Name of the profile").
 		Required().
+		HintAction(ProfileNames).
 		StringVar(&input.Profile)
 
 	cmd.Arg("cmd", "Command to execute").
@@ -198,4 +199,13 @@ func (e *environ) Unset(key string) {
 func (e *environ) Set(key, val string) {
 	e.Unset(key)
 	*e = append(*e, key+"="+val)
+}
+
+// ProfileNames returns a slice of profile names from the AWS config
+func ProfileNames() []string {
+	var profileNames []string
+	for _, profile := range awsConfig.Profiles() {
+		profileNames = append(profileNames, profile.Name)
+	}
+	return profileNames
 }

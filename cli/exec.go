@@ -73,7 +73,6 @@ func ConfigureExecCommand(app *kingpin.Application) {
 		input.Keyring = keyringImpl
 		input.MfaPrompt = prompt.Method(GlobalFlags.PromptDriver)
 		input.Signals = make(chan os.Signal)
-		signal.Notify(input.Signals, os.Interrupt, os.Kill)
 		ExecCommand(app, input)
 		return nil
 	})
@@ -149,6 +148,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+	signal.Notify(input.Signals, os.Interrupt, os.Kill)
 
 	if err := cmd.Start(); err != nil {
 		app.Fatalf("%v", err)

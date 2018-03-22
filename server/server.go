@@ -23,10 +23,15 @@ const (
 	localServerBind = "127.0.0.1:9099"
 )
 
-func StartMetadataServer() error {
+var (
+	metadataRegion string
+)
+
+func StartMetadataServer(region string) error {
 	if _, err := installNetworkAlias(); err != nil {
 		return err
 	}
+	metadataRegion = region
 
 	router := http.NewServeMux()
 	router.HandleFunc("/latest/meta-data/iam/security-credentials/", indexHandler)
@@ -76,9 +81,8 @@ func instanceIdHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func regionDiscoveryHandler(w http.ResponseWriter, r *http.Request) {
-	//the config source profile has a region defined, this should be used here
 	json.NewEncoder(w).Encode(map[string]interface{}{
-		"region": "us-west-2",
+		"region": metadataRegion,
 	})
 }
 

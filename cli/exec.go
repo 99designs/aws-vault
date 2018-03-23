@@ -109,14 +109,6 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 		app.Fatalf(awsConfig.FormatCredentialError(err, input.Profile))
 	}
 
-	if input.StartServer {
-		if err := server.StartCredentialsServer(creds); err != nil {
-			app.Fatalf("Failed to start credential server: %v", err)
-		} else {
-			setEnv = false
-		}
-	}
-
 	env := environ(os.Environ())
 	env.Set("AWS_VAULT", input.Profile)
 
@@ -141,6 +133,14 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 			log.Println("Setting subprocess env: AWS_SESSION_TOKEN, AWS_SECURITY_TOKEN")
 			env.Set("AWS_SESSION_TOKEN", val.SessionToken)
 			env.Set("AWS_SECURITY_TOKEN", val.SessionToken)
+		}
+	}
+
+	if input.StartServer {
+		if err := server.StartCredentialsServer(creds); err != nil {
+			app.Fatalf("Failed to start credential server: %v", err)
+		} else {
+			setEnv = false
 		}
 	}
 

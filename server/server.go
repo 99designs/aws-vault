@@ -101,7 +101,7 @@ func checkServerRunning(bind string) bool {
 
 func StartCredentialProxyOnWindows() error {
 	log.Printf("Starting `aws-vault server` in the background")
-	cmd := exec.Command(os.Args[0], "server")
+	cmd := exec.Command(os.Args[0], "server", metadataRegion)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -117,7 +117,7 @@ func StartCredentialProxyOnWindows() error {
 
 func StartCredentialProxyWithSudo() error {
 	log.Printf("Starting `aws-vault server` as root in the background")
-	cmd := exec.Command("sudo", "-b", os.Args[0], "server")
+	cmd := exec.Command("sudo", "-b", os.Args[0], "server", metadataRegion)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -131,7 +131,8 @@ func StartCredentialProxy() error {
 	return StartCredentialProxyWithSudo()
 }
 
-func StartCredentialsServer(creds *vault.VaultCredentials) error {
+func StartCredentialsServer(creds *vault.VaultCredentials, region string) error {
+	metadataRegion = region
 	if !checkServerRunning(metadataBind) {
 		if err := StartCredentialProxy(); err != nil {
 			return err

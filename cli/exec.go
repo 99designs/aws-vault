@@ -118,10 +118,12 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 	env.Unset("AWS_DEFAULT_PROFILE")
 	env.Unset("AWS_PROFILE")
 
+	serverRegion := "us-east-1"
 	if profile, _ := awsConfig.Profile(input.Profile); profile.Region != "" {
 		log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s", profile.Region, profile.Region)
 		env.Set("AWS_DEFAULT_REGION", profile.Region)
 		env.Set("AWS_REGION", profile.Region)
+		serverRegion = profile.Region
 	}
 
 	if setEnv {
@@ -137,7 +139,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 	}
 
 	if input.StartServer {
-		if err := server.StartCredentialsServer(creds); err != nil {
+		if err := server.StartCredentialsServer(creds, serverRegion); err != nil {
 			app.Fatalf("Failed to start credential server: %v", err)
 		} else {
 			setEnv = false

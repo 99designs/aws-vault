@@ -20,7 +20,7 @@ const (
 	MaxSessionDuration    = time.Hour * 36
 	MinSessionDuration    = time.Minute * 15
 	MinAssumeRoleDuration = time.Minute * 15
-	MaxAssumeRoleDuration = time.Hour
+	MaxAssumeRoleDuration = time.Hour * 12
 
 	DefaultSessionDuration    = time.Hour * 4
 	DefaultAssumeRoleDuration = time.Minute * 15

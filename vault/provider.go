@@ -385,6 +385,18 @@ type VaultCredentials struct {
 	provider *VaultProvider
 }
 
+
+func MasterCreds(k keyring.Keyring, profile string, opts VaultOptions) (*credentials.Value, error) {
+	provider, err := NewVaultProvider(k, profile, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	master_creds, _ := provider.getMasterCreds()
+
+	return &master_creds, nil
+}
+
 func NewVaultCredentials(k keyring.Keyring, profile string, opts VaultOptions) (*VaultCredentials, error) {
 	provider, err := NewVaultProvider(k, profile, opts)
 	if err != nil {

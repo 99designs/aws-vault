@@ -27,7 +27,14 @@ $ aws-vault exec work -- aws s3 ls
 another_bucket
 ```
 
+## Using master credentials
+In case you have a long living application and the server solution could
+not work for you, you can use master credentials. 
 
+It reduces security level as it exposes permanent credentials so we recommend using it only if needed and rotating the keys on a regular basis. 
+```bash
+$ aws-vault exec work --use-master-keys -- <long living application, ie: rails s >
+```
 ## Overriding the aws CLI to use aws-vault
 
 You can create an overriding script (make it higher precedence in your PATH) that looks like the below:

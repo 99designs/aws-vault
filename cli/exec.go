@@ -28,6 +28,7 @@ type ExecCommandInput struct {
 	StartServer  bool
 	Signals      chan os.Signal
 	NoSession    bool
+	UseMasterKeys bool
 }
 
 func ConfigureExecCommand(app *kingpin.Application) {
@@ -43,6 +44,9 @@ func ConfigureExecCommand(app *kingpin.Application) {
 		OverrideDefaultFromEnvar("AWS_SESSION_TTL").
 		Short('t').
 		DurationVar(&input.Duration)
+
+	cmd.Flag("use-master-keys", "Run the server in the background for credentials").
+		BoolVar(&input.UseMasterKeys)
 
 	cmd.Flag("assume-role-ttl", "Expiration time for aws assumed role").
 		Default("15m").
@@ -91,6 +95,15 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 		return
 	}
 
+    master_creds, _ := vault.MasterCreds(input.Keyring, input.Profile, vault.VaultOptions{
+        SessionDuration:    input.Duration,
+        AssumeRoleDuration: input.RoleDuration,
+        MfaToken:           input.MfaToken,
+        MfaPrompt:          input.MfaPrompt,
+        NoSession:          input.NoSession,
+        Config:             awsConfig,
+    })
+
 	creds, err := vault.NewVaultCredentials(input.Keyring, input.Profile, vault.VaultOptions{
 		SessionDuration:    input.Duration,
 		AssumeRoleDuration: input.RoleDuration,
@@ -132,14 +145,20 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 	}
 
 	if setEnv {
-		log.Println("Setting subprocess env: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY")
-		env.Set("AWS_ACCESS_KEY_ID", val.AccessKeyID)
-		env.Set("AWS_SECRET_ACCESS_KEY", val.SecretAccessKey)
+		if !input.UseMasterKeys {
+			log.Println("Setting subprocess env: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY")
+			env.Set("AWS_ACCESS_KEY_ID", val.AccessKeyID)
+			env.Set("AWS_SECRET_ACCESS_KEY", val.SecretAccessKey)
 
-		if val.SessionToken != "" {
-			log.Println("Setting subprocess env: AWS_SESSION_TOKEN, AWS_SECURITY_TOKEN")
-			env.Set("AWS_SESSION_TOKEN", val.SessionToken)
-			env.Set("AWS_SECURITY_TOKEN", val.SessionToken)
+			if val.SessionToken != "" {
+				log.Println("Setting subprocess env: AWS_SESSION_TOKEN, AWS_SECURITY_TOKEN")
+				env.Set("AWS_SESSION_TOKEN", val.SessionToken)
+				env.Set("AWS_SECURITY_TOKEN", val.SessionToken)
+            }
+		} else {
+			log.Println("!! Setting Master keys to env variables: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY !!")
+			env.Set("AWS_ACCESS_KEY_ID", master_creds.AccessKeyID)
+			env.Set("AWS_SECRET_ACCESS_KEY", master_creds.SecretAccessKey)
 		}
 	}
 

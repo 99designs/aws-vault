@@ -5,8 +5,9 @@ install:
   - govendor status
 
 go:
-  - 1.8
-  - 1.9
+  - "1.8"
+  - "1.9"
+  - "1.10"
 
 os:
   - linux

@@ -1,4 +1,7 @@
 // +build darwin
+// +build !go1.10
+
+// TODO: Remove this file once we've completely migrated to go 1.10.x.
 
 package keychain
 
@@ -11,9 +14,35 @@ package keychain
 
 #include <CoreFoundation/CoreFoundation.h>
 #include <Security/Security.h>
+
+// Casting C.CFTypeRef to unsafe.Pointer is unsafe in Go, so have shim
+// functions to do the casting in C (where it's safe).
+
+const UInt8 * CFDataGetBytePtrSafe(uintptr_t theData) {
+  return CFDataGetBytePtr((CFDataRef)theData);
+}
+
+CFIndex CFDataGetLengthSafe(uintptr_t theData) {
+  return CFDataGetLength((CFDataRef)theData);
+}
+
+const char * CFStringGetCStringPtrSafe(uintptr_t theString, CFStringEncoding encoding) {
+  return CFStringGetCStringPtr((CFStringRef)theString, encoding);
+}
+
+CFIndex CFStringGetLengthSafe(uintptr_t theString) {
+  return CFStringGetLength((CFStringRef)theString);
+}
+
+CFIndex CFStringGetBytesSafe(uintptr_t theString, CFRange range, CFStringEncoding encoding, UInt8 lossByte, Boolean isExternalRepresentation, UInt8 *buffer, CFIndex maxBufLen, CFIndex *usedBufLen) {
+  return CFStringGetBytes((CFStringRef)theString, range, encoding, lossByte, isExternalRepresentation, buffer, maxBufLen, usedBufLen);
+}
 */
 import "C"
-import "fmt"
+import (
+	"fmt"
+	"unsafe"
+)
 
 // Error defines keychain errors
 type Error int
@@ -376,7 +405,7 @@ func QueryItem(item Item) ([]QueryResult, error) {
 				}
 				results = append(results, *item)
 			} else {
-				return nil, fmt.Errorf("Invalid result type (If you SetReturnRef(true) you should use QueryItemRef directly).")
+				return nil, fmt.Errorf("invalid result type (If you SetReturnRef(true) you should use QueryItemRef directly)")
 			}
 		}
 	} else if typeID == C.CFDictionaryGetTypeID() {
@@ -403,29 +432,60 @@ func attrKey(ref C.CFTypeRef) string {
 	return CFStringToString(C.CFStringRef(ref))
 }
 
+// uintptrCFDataToBytes converts a uintptr (assumed to have been
+// converted from a CFDataRef) to bytes.
+//
+// This is an adaptation of CFDataToBytes.
+func uintptrCFDataToBytes(cfData uintptr) ([]byte, error) {
+	return C.GoBytes(unsafe.Pointer(C.CFDataGetBytePtrSafe(C.uintptr_t(cfData))), C.int(C.CFDataGetLengthSafe(C.uintptr_t(cfData)))), nil
+}
+
+// uintptrCFStringToString converts a uintptr (assumed to have been
+// converted from a CFStringRef) to a string.
+//
+// This is an adaptation of CFStringToString.
+func uintptrCFStringToString(s uintptr) string {
+	p := C.CFStringGetCStringPtrSafe(C.uintptr_t(s), C.kCFStringEncodingUTF8)
+	if p != nil {
+		return C.GoString(p)
+	}
+	length := C.CFStringGetLengthSafe(C.uintptr_t(s))
+	if length == 0 {
+		return ""
+	}
+	maxBufLen := C.CFStringGetMaximumSizeForEncoding(length, C.kCFStringEncodingUTF8)
+	if maxBufLen == 0 {
+		return ""
+	}
+	buf := make([]byte, maxBufLen)
+	var usedBufLen C.CFIndex
+	_ = C.CFStringGetBytesSafe(C.uintptr_t(s), C.CFRange{0, length}, C.kCFStringEncodingUTF8, C.UInt8(0), C.false, (*C.UInt8)(&buf[0]), maxBufLen, &usedBufLen)
+	return string(buf[:usedBufLen])
+}
+
 func convertResult(d C.CFDictionaryRef) (*QueryResult, error) {
 	m := CFDictionaryToMap(C.CFDictionaryRef(d))
 	result := QueryResult{}
 	for k, v := range m {
 		switch attrKey(k) {
 		case ServiceKey:
-			result.Service = CFStringToString(C.CFStringRef(v))
+			result.Service = uintptrCFStringToString(v)
 		case AccountKey:
-			result.Account = CFStringToString(C.CFStringRef(v))
+			result.Account = uintptrCFStringToString(v)
 		case AccessGroupKey:
-			result.AccessGroup = CFStringToString(C.CFStringRef(v))
+			result.AccessGroup = uintptrCFStringToString(v)
 		case LabelKey:
-			result.Label = CFStringToString(C.CFStringRef(v))
+			result.Label = uintptrCFStringToString(v)
 		case DescriptionKey:
-			result.Description = CFStringToString(C.CFStringRef(v))
+			result.Description = uintptrCFStringToString(v)
 		case DataKey:
-			b, err := CFDataToBytes(C.CFDataRef(v))
+			b, err := uintptrCFDataToBytes(v)
 			if err != nil {
 				return nil, err
 			}
 			result.Data = b
 			// default:
-			// fmt.Printf("Unhandled key in conversion: %v = %v\n", cfTypeValue(k), cfTypeValue(v))
+			// fmt.Printf("Unhandled key in conversion: %v = %v\n", cfTypeValue(k), cfTypeValue(p))
 		}
 	}
 	return &result, nil

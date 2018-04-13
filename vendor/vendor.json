@@ -252,10 +252,10 @@
 			"revisionTime": "2016-09-29T23:03:56Z"
 		},
 		{
-			"checksumSHA1": "U25ZTSzG/RPAXdaPYUlmNXixOWk=",
+			"checksumSHA1": "9KGH+mjtBmc7T089X/OwDjtypao=",
 			"path": "github.com/keybase/go-keychain",
-			"revision": "e39a0e22a1cbdbbcdc24b8556df51019c30df068",
-			"revisionTime": "2017-11-27T20:25:45Z"
+			"revision": "70b98e9c8d754db775c5bd3b2de3670cc76f1825",
+			"revisionTime": "2018-03-06T22:15:04Z"
 		},
 		{
 			"checksumSHA1": "AXacfEchaUqT5RGmPmMXsOWRhv8=",

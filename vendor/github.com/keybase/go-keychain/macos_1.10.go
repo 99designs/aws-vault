@@ -1,4 +1,5 @@
 // +build darwin,!ios
+// +build go1.10
 
 package keychain
 
@@ -39,7 +40,7 @@ func createAccess(label string, trustedApplications []string) (C.CFTypeRef, erro
 	var err error
 	var labelRef C.CFStringRef
 	if labelRef, err = StringToCFString(label); err != nil {
-		return nil, err
+		return 0, err
 	}
 	defer C.CFRelease(C.CFTypeRef(labelRef))
 
@@ -55,7 +56,7 @@ func createAccess(label string, trustedApplications []string) (C.CFTypeRef, erro
 		for _, trustedApplication := range trustedApplications {
 			trustedApplicationRef, createErr := createTrustedApplication(trustedApplication)
 			if createErr != nil {
-				return nil, createErr
+				return 0, createErr
 			}
 			defer C.CFRelease(C.CFTypeRef(trustedApplicationRef))
 			trustedApplicationsRefs = append(trustedApplicationsRefs, trustedApplicationRef)
@@ -69,7 +70,7 @@ func createAccess(label string, trustedApplications []string) (C.CFTypeRef, erro
 	errCode := C.SecAccessCreate(labelRef, trustedApplicationsArray, &access)
 	err = checkError(errCode)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	return C.CFTypeRef(access), nil
@@ -88,7 +89,7 @@ func createTrustedApplication(trustedApplication string) (C.CFTypeRef, error) {
 	errCode := C.SecTrustedApplicationCreateFromPath(trustedApplicationCStr, &trustedApplicationRef)
 	err := checkError(errCode)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	return C.CFTypeRef(trustedApplicationRef), nil
@@ -151,11 +152,11 @@ func newKeychain(path, password string, promptUser bool) (Keychain, error) {
 	var kref C.SecKeychainRef
 
 	if promptUser {
-		errCode = C.SecKeychainCreate(pathRef, C.UInt32(0), nil, C.Boolean(1), nil, &kref)
+		errCode = C.SecKeychainCreate(pathRef, C.UInt32(0), nil, C.Boolean(1), 0, &kref)
 	} else {
 		passwordRef := C.CString(password)
 		defer C.free(unsafe.Pointer(passwordRef))
-		errCode = C.SecKeychainCreate(pathRef, C.UInt32(len(password)), unsafe.Pointer(passwordRef), C.Boolean(0), nil, &kref)
+		errCode = C.SecKeychainCreate(pathRef, C.UInt32(len(password)), unsafe.Pointer(passwordRef), C.Boolean(0), 0, &kref)
 	}
 
 	if err := checkError(errCode); err != nil {
@@ -197,7 +198,7 @@ func openKeychainRef(path string) (C.SecKeychainRef, error) {
 
 	var kref C.SecKeychainRef
 	if err := checkError(C.SecKeychainOpen(pathName, &kref)); err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	return kref, nil
@@ -212,10 +213,7 @@ func UnlockAtPath(path string, password string) error {
 	}
 	passwordRef := C.CString(password)
 	defer C.free(unsafe.Pointer(passwordRef))
-	if err := checkError(C.SecKeychainUnlock(kref, C.UInt32(len(password)), unsafe.Pointer(passwordRef), C.Boolean(1))); err != nil {
-		return err
-	}
-	return nil
+	return checkError(C.SecKeychainUnlock(kref, C.UInt32(len(password)), unsafe.Pointer(passwordRef), C.Boolean(1)))
 }
 
 // LockAtPath locks keychain at path
@@ -252,11 +250,11 @@ func (ka keychainArray) Convert() (C.CFTypeRef, error) {
 		if refs[idx], err = kc.Convert(); err != nil {
 			// If we error trying to convert lets release any we converted before
 			for _, ref := range refs {
-				if ref != nil {
+				if ref != 0 {
 					Release(ref)
 				}
 			}
-			return nil, err
+			return 0, err
 		}
 	}
 

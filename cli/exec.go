@@ -126,9 +126,10 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 	env.Unset("AWS_PROFILE")
 
 	if profile, _ := awsConfig.Profile(input.Profile); profile.Region != "" {
-		log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s", profile.Region, profile.Region)
+		log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s, AWS_PROFILE=%s", profile.Region, profile.Region, input.Profile)
 		env.Set("AWS_DEFAULT_REGION", profile.Region)
 		env.Set("AWS_REGION", profile.Region)
+		env.Set("AWS_PROFILE", input.Profile)
 	}
 
 	if setEnv {

@@ -1,10 +1,23 @@
 
 # Help
 
-aws-vault --help
+Context-sensitive help is available for every command in `aws-vault`.
 
+```bash
+# Show general help about aws-vault
+$ aws-vault --help
 
-## Multiple profiles
+# Show longer help about all options in aws-vault
+$ aws-vault --help-long
+
+# Show the most detailed information about the exec command
+$ aws-vault exec --help
+```
+
+## Using aws-vault with multiple profiles
+
+In addition to using IAM roles to assume temporary privileges as described in [README.md](./USAGE.md), aws-vault can also be used with multiple profiles directly.
+This allows you to use multiple separate AWS accounts that have no relation to one another, such as work and home.
 
 ```bash
 # Store AWS credentials for the "home" profile
@@ -32,7 +45,7 @@ another_bucket
 
 You can create an overriding script (make it higher precedence in your PATH) that looks like the below:
 
-```
+```bash
 #!/bin/bash
 set -euo pipefail
  
@@ -47,7 +60,54 @@ The exec helps reduce the number of processes that are hanging around. The `$@` 
 
 You can choose different secret storage backends, which may be particularly useful on Linux, where you may prefer to use the system keyring with this environment variable:
 
-    AWS_VAULT_BACKEND=secret-service
+This can be specified on the command line with `aws-vault --backend=secret-service`, or by setting the environmental variable 
+```export AWS_VAULT_BACKEND=secret-service```
+
+
+## Listing profiles
+
+You can use the `aws-vault list` command to list out the defined profiles, and any session associated with them.
+
+```bash
+$ aws-vault list
+Profile                  Credentials              Sessions  
+=======                  ===========              ========                 
+home                     home                        
+work                     work                     1525456570  
+work-read_only_role      work                        
+work-admin_role          work                        
+``` 
+
+## Removing profiles
+
+The `aws-vault remove` command can be used to remove credentials. It works similarly to the `aws-vault add` command.
+
+```bash
+# Remove AWS credentials for the "work" profile
+$ aws-vault remove work
+Delete credentials for profile "work"? (Y|n)y
+Deleted credentials.
+Deleted 1 sessions.
+```
+
+`aws-vault remove` can also be used to close a session, leaving the credentials in place.
+
+
+```bash
+# Remove the session for the "work" profile, leaving the credentials in place
+$ aws-vault remove work --sessions-only
+Deleted 1 sessions.
+```
+
+
+## Logging into AWS console
+
+You can use the `aws-vault login` command to open a browser window and login to AWS Console for a given account.
+
+```bash
+$ aws-vault login work
+```
+
 
 ## Not using session credentials
 
@@ -91,3 +151,31 @@ files there.
 In such a situation, if you are running a local server, e.g. for dev, and want to call this API,
 then you can't use an AWS session, because AWS will return a 403 on the GetFederationToken
 operation. That is when you'll use the less secure solution described above.
+
+## Example ~/.aws/config
+
+Here is an example ~/.aws/config file, to help show the configuation.
+It defines two AWS accounts: "home" and "work", both of which use MFA.
+
+The work account provides two roles, allowing the user to become either profile.
+
+```
+ 	[profile home]
+	region = us-east-1
+	mfa_serial = arn:aws:iam::IAM_ACCOUNTID:mfa/home-account
+	
+	[profile work]
+	region = eu-west-1
+	mfa_serial = arn:aws:iam::IAM_ACCOUNTID:mfa/work-account
+
+	[profile work-read_only_role]
+	role_arn = arn:aws:iam::IAM_ACCOUNTID:role/read_only_role
+	source_profile = work
+	mfa_serial = arn:aws:iam::IAM_ACCOUNTID:mfa/work-account
+
+	[profile work-admin_role]
+	role_arn = arn:aws:iam::IAM_ACCOUNTID:role/admin_role
+	source_profile = work
+	mfa_serial = arn:aws:iam::IAM_ACCOUNTID:mfa/work-account
+
+```

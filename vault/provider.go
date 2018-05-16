@@ -344,6 +344,7 @@ func (p *VaultProvider) assumeRole(creds credentials.Value, roleArn string) (sts
 type KeyringProvider struct {
 	Keyring keyring.Keyring
 	Profile string
+	Region  string
 }
 
 func (p *KeyringProvider) IsExpired() bool {

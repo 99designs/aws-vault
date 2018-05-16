@@ -34,6 +34,7 @@ func (r *Rotator) Rotate(profile string) error {
 	provider := &KeyringProvider{
 		Keyring: r.Keyring,
 		Profile: source.Name,
+		Region:  source.Region,
 	}
 
 	oldMasterCreds, err := provider.Retrieve()
@@ -41,7 +42,7 @@ func (r *Rotator) Rotate(profile string) error {
 		return err
 	}
 
-	oldSess := session.New(&aws.Config{
+	oldSess := session.New(&aws.Config{Region: aws.String(provider.Region),
 		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: oldMasterCreds}),
 	})
 
@@ -84,7 +85,7 @@ func (r *Rotator) Rotate(profile string) error {
 		iamUserName = aws.String(currentUserName)
 	}
 
-	oldSessionClient := iam.New(session.New(&aws.Config{
+	oldSessionClient := iam.New(session.New(&aws.Config{Region: aws.String(provider.Region),
 		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: oldSessionVal}),
 	}))
 
@@ -131,7 +132,7 @@ func (r *Rotator) Rotate(profile string) error {
 			return err
 		}
 
-		newClient := iam.New(session.New(&aws.Config{
+		newClient := iam.New(session.New(&aws.Config{Region: aws.String(provider.Region),
 			Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: newVal}),
 		}))
 

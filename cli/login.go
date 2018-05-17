@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/99designs/aws-vault/prompt"
@@ -119,7 +120,26 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
-	req, err := http.NewRequest("GET", "https://signin.aws.amazon.com/federation", nil)
+	loginUrlPrefix := "https://signin.aws.amazon.com/federation"
+	destination := "https://console.aws.amazon.com/"
+
+	if profile, _ := awsConfig.Profile(input.Profile); profile.Region != "" {
+		destinationDomain := "console.aws.amazon.com"
+		switch {
+		case strings.HasPrefix(profile.Region, "cn-"):
+			loginUrlPrefix = "https://signin.amazonaws.cn/federation"
+			destinationDomain = "console.amazonaws.cn"
+		case strings.HasPrefix(profile.Region, "us-gov-"):
+			loginUrlPrefix = "https://signin.amazonaws-us-gov.com/federation"
+			destinationDomain = "console.amazonaws-us-gov.com"
+		}
+		destination = fmt.Sprintf(
+			"https://%s.%s/console/home?region=%s",
+			profile.Region, destinationDomain, profile.Region,
+		)
+	}
+
+	req, err := http.NewRequest("GET", loginUrlPrefix, nil)
 	if err != nil {
 		app.Fatalf("%v", err)
 		return
@@ -170,16 +190,9 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
-	destination := "https://console.aws.amazon.com/"
-	if profile, _ := awsConfig.Profile(input.Profile); profile.Region != "" {
-		destination = fmt.Sprintf(
-			"https://%s.console.aws.amazon.com/console/home?region=%s",
-			profile.Region, profile.Region,
-		)
-	}
-
 	loginUrl := fmt.Sprintf(
-		"https://signin.aws.amazon.com/federation?Action=login&Issuer=aws-vault&Destination=%s&SigninToken=%s",
+		"%s?Action=login&Issuer=aws-vault&Destination=%s&SigninToken=%s",
+		loginUrlPrefix,
 		url.QueryEscape(destination),
 		url.QueryEscape(signinToken),
 	)

@@ -122,16 +122,16 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 
 	loginUrlPrefix := "https://signin.aws.amazon.com/federation"
 	destination := "https://console.aws.amazon.com/"
+
 	if profile, _ := awsConfig.Profile(input.Profile); profile.Region != "" {
+		destinationDomain := "console.aws.amazon.com"
 		switch {
 		case strings.HasPrefix(profile.Region, "cn-"):
 			loginUrlPrefix = "https://signin.amazonaws.cn/federation"
-			destinationDomain := "console.amazonaws.cn"
+			destinationDomain = "console.amazonaws.cn"
 		case strings.HasPrefix(profile.Region, "us-gov-"):
 			loginUrlPrefix = "https://signin.amazonaws-us-gov.com/federation"
-			destinationDomain := "console.amazonaws.cn"
-		default:
-			destinationDomain := "console.amazonaws.com"
+			destinationDomain = "console.amazonaws.cn"
 		}
 		destination = fmt.Sprintf(
 			"https://%s.%s/console/home?region=%s",

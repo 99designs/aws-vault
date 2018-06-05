@@ -110,6 +110,7 @@ type Profile struct {
 	Name            string `ini:"-"`
 	MFASerial       string `ini:"mfa_serial,omitempty"`
 	RoleARN         string `ini:"role_arn,omitempty"`
+	ExternalID      string `ini:"external_id,omitempty"`
 	Region          string `ini:"region,omitempty"`
 	SourceProfile   string `ini:"source_profile,omitempty"`
 	RoleSessionName string `ini:"role_session_name,omitempty"`

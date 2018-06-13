@@ -61,7 +61,7 @@ func (r *Rotator) Rotate(profile string) error {
 		MfaToken:    r.MfaToken,
 		MfaPrompt:   r.MfaPrompt,
 		Config:      r.Config,
-		NoSession:   true,
+		NoSession:   false,
 		MasterCreds: &oldMasterCreds,
 	})
 	if err != nil {
@@ -117,7 +117,7 @@ func (r *Rotator) Rotate(profile string) error {
 		MfaToken:    r.MfaToken,
 		MfaPrompt:   r.MfaPrompt,
 		Config:      r.Config,
-		NoSession:   true,
+		NoSession:   false,
 		MasterCreds: &newMasterCreds,
 	})
 	if err != nil {

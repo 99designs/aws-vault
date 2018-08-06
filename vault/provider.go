@@ -126,7 +126,7 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 		session.Expiration.Sub(time.Now()).String())
 
 	if profile, exists := p.config.Profile(p.profile); exists && profile.RoleARN != "" {
-		session, err = p.assumeRoleFromSession(session, profile.RoleARN)
+		session, err = p.assumeRoleFromSession(session, profile)
 		if err != nil {
 			return credentials.Value{}, err
 		}
@@ -165,7 +165,7 @@ func (p *VaultProvider) RetrieveWithoutSessionToken() (credentials.Value, error)
 	}
 
 	if profile, exists := p.config.Profile(p.profile); exists && profile.RoleARN != "" {
-		session, err := p.assumeRole(creds, profile.RoleARN)
+		session, err := p.assumeRole(creds, profile)
 		if err != nil {
 			return credentials.Value{}, err
 		}
@@ -283,7 +283,7 @@ func (p *VaultProvider) roleSessionName() string {
 }
 
 // assumeRoleFromSession takes a session created with GetSessionToken and uses that to assume a role
-func (p *VaultProvider) assumeRoleFromSession(creds sts.Credentials, roleArn string) (sts.Credentials, error) {
+func (p *VaultProvider) assumeRoleFromSession(creds sts.Credentials, profile Profile) (sts.Credentials, error) {
 	client := sts.New(session.New(p.awsConfig().
 		WithCredentials(credentials.NewStaticCredentials(
 			*creds.AccessKeyId,
@@ -292,12 +292,16 @@ func (p *VaultProvider) assumeRoleFromSession(creds sts.Credentials, roleArn str
 		))))
 
 	input := &sts.AssumeRoleInput{
-		RoleArn:         aws.String(roleArn),
+		RoleArn:         aws.String(profile.RoleARN),
 		RoleSessionName: aws.String(p.roleSessionName()),
 		DurationSeconds: aws.Int64(int64(p.AssumeRoleDuration.Seconds())),
 	}
 
-	log.Printf("Assuming role %s from session token", roleArn)
+	if profile.ExternalID != "" {
+		input.ExternalId = aws.String(profile.ExternalID)
+	}
+
+	log.Printf("Assuming role %s from session token", profile.RoleARN)
 	resp, err := client.AssumeRole(input)
 	if err != nil {
 		return sts.Credentials{}, err
@@ -307,19 +311,23 @@ func (p *VaultProvider) assumeRoleFromSession(creds sts.Credentials, roleArn str
 }
 
 // assumeRole uses IAM credentials to assume a role
-func (p *VaultProvider) assumeRole(creds credentials.Value, roleArn string) (sts.Credentials, error) {
+func (p *VaultProvider) assumeRole(creds credentials.Value, profile Profile) (sts.Credentials, error) {
 	client := sts.New(session.New(p.awsConfig().
 		WithCredentials(credentials.NewCredentials(&credentials.StaticProvider{Value: creds})),
 	))
 
 	input := &sts.AssumeRoleInput{
-		RoleArn:         aws.String(roleArn),
+		RoleArn:         aws.String(profile.RoleARN),
 		RoleSessionName: aws.String(p.roleSessionName()),
 		DurationSeconds: aws.Int64(int64(p.AssumeRoleDuration.Seconds())),
 	}
 
+	if profile.ExternalID != "" {
+                input.ExternalId = aws.String(profile.ExternalID)
+        }
+
 	// if we don't have a session, we need to include MFA token in the AssumeRole call
-	if profile, _ := p.Config.Profile(p.profile); profile.MFASerial != "" {
+	if profile.MFASerial != "" {
 		input.SerialNumber = aws.String(profile.MFASerial)
 		if p.MfaToken == "" {
 			token, err := p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", profile.MFASerial))
@@ -332,7 +340,7 @@ func (p *VaultProvider) assumeRole(creds credentials.Value, roleArn string) (sts
 		}
 	}
 
-	log.Printf("Assuming role %s with iam credentials", roleArn)
+	log.Printf("Assuming role %s with iam credentials", profile.RoleARN)
 	resp, err := client.AssumeRole(input)
 	if err != nil {
 		return sts.Credentials{}, err
@@ -344,6 +352,7 @@ func (p *VaultProvider) assumeRole(creds credentials.Value, roleArn string) (sts
 type KeyringProvider struct {
 	Keyring keyring.Keyring
 	Profile string
+	Region  string
 }
 
 func (p *KeyringProvider) IsExpired() bool {

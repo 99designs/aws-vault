@@ -4,7 +4,6 @@ package keyring
 
 import (
 	"fmt"
-	"log"
 
 	gokeychain "github.com/keybase/go-keychain"
 )
@@ -28,6 +27,9 @@ func init() {
 		}
 		if cfg.KeychainName != "" {
 			kc.path = cfg.KeychainName + ".keychain"
+		}
+		if cfg.KeychainTrustApplication {
+			kc.isTrusted = true
 		}
 		return kc, nil
 	})
@@ -158,7 +160,7 @@ func (k *keychain) Remove(key string) error {
 		item.SetMatchSearchList(kc)
 	}
 
-	log.Printf("Removing keychain item service=%q, account=%q, keychain %q", k.service, key, k.path)
+	debugf("Removing keychain item service=%q, account=%q, keychain %q", k.service, key, k.path)
 	return gokeychain.DeleteItem(item)
 }
 

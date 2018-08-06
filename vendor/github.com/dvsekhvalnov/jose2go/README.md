@@ -1,6 +1,8 @@
 # Golang (GO) Javascript Object Signing and Encryption (JOSE) and JSON Web Token (JWT) implementation
 
-Pure Golang (GO) library for generating, decoding and encrypting [JSON Web Tokens](http://tools.ietf.org/html/draft-jones-json-web-token-10). Zero dependency, relies only
+[![GoDoc](https://godoc.org/github.com/dvsekhvalnov/jose2go?status.svg)](http://godoc.org/github.com/dvsekhvalnov/jose2go)
+
+Pure Golang (GO) library for generating, decoding and encrypting [JSON Web Tokens](https://tools.ietf.org/html/rfc7519). Zero dependency, relies only
 on standard library.
 
 Supports full suite of signing, encryption and compression algorithms defined by [JSON Web Algorithms](https://tools.ietf.org/html/draft-ietf-jose-json-web-algorithms-31) as of July 4, 2014 version.
@@ -21,7 +23,7 @@ v1.2 breaks `jose.Decode` interface by returning 3 values instead of 2.
 v1.2 deprecates `jose.Compress` method in favor of using configuration options to `jose.Encrypt`,
 the method will be removed in next release.
 
-###Migration to v1.2
+### Migration to v1.2
 Pre v1.2 decoding:
 
 ```Go
@@ -120,7 +122,7 @@ func main() {
 
 	payload :=  `{"hello": "world"}`
 
-	key := []byte{97,48,97,50,97,98,100,56,45,54,49,54,50,45,52,49,99,51,45,56,51,100,54,45,49,99,102,53,53,57,98,52,54,97,102,99}		
+	key := []byte{97,48,97,50,97,98,100,56,45,54,49,54,50,45,52,49,99,51,45,56,51,100,54,45,49,99,102,53,53,57,98,52,54,97,102,99}
 
 	token,err := jose.Sign(payload,jose.HS256,key)
 
@@ -132,7 +134,7 @@ func main() {
 ```
 
 #### RS-256, RS-384 and RS-512, PS-256, PS-384 and PS-512
-Signing with RS256, RS384, RS512, PS256, PS384, PS512 expecting `*rsa.PrivateKey` private key of corresponding length. **jose2go** [provides convinient utils](#dealing-with-keys) to construct `*rsa.PrivateKey` instance from PEM encoded PKCS1 or PKCS8 data: `Rsa.ReadPrivate([]byte)` under `jose2go/keys/rsa` package.
+Signing with RS256, RS384, RS512, PS256, PS384, PS512 expecting `*rsa.PrivateKey` private key of corresponding length. **jose2go** [provides convenient utils](#dealing-with-keys) to construct `*rsa.PrivateKey` instance from PEM encoded PKCS1 or PKCS8 data: `Rsa.ReadPrivate([]byte)` under `jose2go/keys/rsa` package.
 
 ```Go
 package main
@@ -140,7 +142,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"github.com/dvsekhvalnov/jose2go/keys/rsa"
+	Rsa "github.com/dvsekhvalnov/jose2go/keys/rsa"
 	"github.com/dvsekhvalnov/jose2go"
 )
 
@@ -170,7 +172,7 @@ func main() {
 ```
 
 #### ES-256, ES-384 and ES-512
-ES256, ES384, ES512 ECDSA signatures expecting `*ecdsa.PrivateKey` private elliptic curve key of corresponding length.  **jose2go** [provides convinient utils](#dealing-with-keys) to construct `*ecdsa.PrivateKey` instance from PEM encoded PKCS1 or PKCS8 data: `ecc.ReadPrivate([]byte)` or directly from `X,Y,D` parameters: `ecc.NewPrivate(x,y,d []byte)` under `jose2go/keys/ecc` package.
+ES256, ES384, ES512 ECDSA signatures expecting `*ecdsa.PrivateKey` private elliptic curve key of corresponding length.  **jose2go** [provides convenient utils](#dealing-with-keys) to construct `*ecdsa.PrivateKey` instance from PEM encoded PKCS1 or PKCS8 data: `ecc.ReadPrivate([]byte)` or directly from `X,Y,D` parameters: `ecc.NewPrivate(x,y,d []byte)` under `jose2go/keys/ecc` package.
 
 ```Go
 package main
@@ -207,8 +209,8 @@ package main
 
 import (
     "fmt"
-	"io/ioutil"
-    "github.com/dvsekhvalnov/jose2go/keys/rsa"
+    "io/ioutil"
+    Rsa "github.com/dvsekhvalnov/jose2go/keys/rsa"
     "github.com/dvsekhvalnov/jose2go"
 )
 
@@ -229,7 +231,7 @@ func main() {
 	}
 
 	//OR:
-	//token,err := jose.Encrypt(payload, jose.RSA1_5, jose.A256GCM, publicKey)		
+	//token,err := jose.Encrypt(payload, jose.RSA1_5, jose.A256GCM, publicKey)
 	token,err := jose.Encrypt(payload, jose.RSA_OAEP, jose.A256GCM, publicKey)
 
     if(err==nil) {
@@ -292,7 +294,7 @@ func main() {
 ```
 
 #### ECDH-ES and ECDH-ES with AES Key Wrap key management family of algorithms
-ECDH-ES and ECDH-ES+A128KW, ECDH-ES+A192KW, ECDH-ES+A256KW key management requires `*ecdsa.PublicKey` elliptic curve key of corresponding length. **jose2go** [provides convinient utils](#dealing-with-keys) to construct `*ecdsa.PublicKey` instance from PEM encoded PKCS1 X509 certificate or PKIX data: `ecc.ReadPublic([]byte)` or directly from `X,Y` parameters: `ecc.NewPublic(x,y []byte)`under `jose2go/keys/ecc` package:
+ECDH-ES and ECDH-ES+A128KW, ECDH-ES+A192KW, ECDH-ES+A256KW key management requires `*ecdsa.PublicKey` elliptic curve key of corresponding length. **jose2go** [provides convenient utils](#dealing-with-keys) to construct `*ecdsa.PublicKey` instance from PEM encoded PKCS1 X509 certificate or PKIX data: `ecc.ReadPublic([]byte)` or directly from `X,Y` parameters: `ecc.NewPublic(x,y []byte)`under `jose2go/keys/ecc` package:
 
 ```Go
 package main
@@ -426,12 +428,12 @@ func main() {
 		fmt.Printf("\npayload = %v\n",payload)
 
         //and/or use headers
-        fmt.Printf("\nheaders = %v\n",headers)        
+        fmt.Printf("\nheaders = %v\n",headers)
 	}
 }
 ```
 
-**RS256, RS384, RS512**,**PS256, PS384, PS512** signatures expecting `*rsa.PublicKey` public key of corresponding length. **jose2go** [provides convinient utils](#dealing-with-keys) to construct `*rsa.PublicKey` instance from PEM encoded PKCS1 X509 certificate or PKIX data: `Rsa.ReadPublic([]byte)` under `jose2go/keys/rsa` package:
+**RS256, RS384, RS512**,**PS256, PS384, PS512** signatures expecting `*rsa.PublicKey` public key of corresponding length. **jose2go** [provides convenient utils](#dealing-with-keys) to construct `*rsa.PublicKey` instance from PEM encoded PKCS1 X509 certificate or PKIX data: `Rsa.ReadPublic([]byte)` under `jose2go/keys/rsa` package:
 
 ```Go
 package main
@@ -439,7 +441,7 @@ package main
 import (
     "fmt"
     "io/ioutil"
-    "github.com/dvsekhvalnov/jose2go/keys/rsa"
+    Rsa "github.com/dvsekhvalnov/jose2go/keys/rsa"
     "github.com/dvsekhvalnov/jose2go"
 )
 
@@ -466,7 +468,7 @@ func main() {
         fmt.Printf("\npayload = %v\n",payload)
 
         //and/or use headers
-        fmt.Printf("\nheaders = %v\n",headers)                
+        fmt.Printf("\nheaders = %v\n",headers)
     }
 }  
 ```
@@ -479,7 +481,7 @@ package main
 import (
     "fmt"
     "io/ioutil"
-    "github.com/dvsekhvalnov/jose2go/keys/rsa"
+    Rsa "github.com/dvsekhvalnov/jose2go/keys/rsa"
     "github.com/dvsekhvalnov/jose2go"
 )
 
@@ -506,7 +508,7 @@ func main() {
         fmt.Printf("\npayload = %v\n",payload)
 
         //and/or use headers
-        fmt.Printf("\nheaders = %v\n",headers)                
+        fmt.Printf("\nheaders = %v\n",headers)
     }
 }  
 ```
@@ -534,12 +536,12 @@ func main() {
 		fmt.Printf("\npayload = %v\n",payload)
 
         //and/or use headers
-        fmt.Printf("\nheaders = %v\n",headers)                
+        fmt.Printf("\nheaders = %v\n",headers)
 	}
 }
 ```
 
-**ES256, ES284, ES512** signatures expecting `*ecdsa.PublicKey` public elliptic curve key of corresponding length. **jose2go** [provides convinient utils](#dealing-with-keys) to construct `*ecdsa.PublicKey` instance from PEM encoded PKCS1 X509 certificate or PKIX data: `ecc.ReadPublic([]byte)` or directly from `X,Y` parameters: `ecc.NewPublic(x,y []byte)`under `jose2go/keys/ecc` package:
+**ES256, ES284, ES512** signatures expecting `*ecdsa.PublicKey` public elliptic curve key of corresponding length. **jose2go** [provides convenient utils](#dealing-with-keys) to construct `*ecdsa.PublicKey` instance from PEM encoded PKCS1 X509 certificate or PKIX data: `ecc.ReadPublic([]byte)` or directly from `X,Y` parameters: `ecc.NewPublic(x,y []byte)`under `jose2go/keys/ecc` package:
 
 ```Go
 package main
@@ -564,12 +566,12 @@ func main() {
         fmt.Printf("\npayload = %v\n",payload)
 
         //and/or use headers
-        fmt.Printf("\nheaders = %v\n",headers)                
+        fmt.Printf("\nheaders = %v\n",headers)
     }
 }
 ```
 
-**ECDH-ES** and **ECDH-ES+A128KW**, **ECDH-ES+A192KW**, **ECDH-ES+A256KW** key management expecting `*ecdsa.PrivateKey` private elliptic curve key of corresponding length.  **jose2go** [provides convinient utils](#dealing-with-keys) to construct `*ecdsa.PrivateKey` instance from PEM encoded PKCS1 or PKCS8 data: `ecc.ReadPrivate([]byte)` or directly from `X,Y,D` parameters: `ecc.NewPrivate(x,y,d []byte)` under `jose2go/keys/ecc` package:
+**ECDH-ES** and **ECDH-ES+A128KW**, **ECDH-ES+A192KW**, **ECDH-ES+A256KW** key management expecting `*ecdsa.PrivateKey` private elliptic curve key of corresponding length.  **jose2go** [provides convenient utils](#dealing-with-keys) to construct `*ecdsa.PrivateKey` instance from PEM encoded PKCS1 or PKCS8 data: `ecc.ReadPrivate([]byte)` or directly from `X,Y,D` parameters: `ecc.NewPrivate(x,y,d []byte)` under `jose2go/keys/ecc` package:
 
 ```Go
 package main
@@ -595,12 +597,12 @@ func main() {
         fmt.Printf("\npayload = %v\n",payload)
 
         //and/or use headers
-        fmt.Printf("\nheaders = %v\n",headers)                
+        fmt.Printf("\nheaders = %v\n",headers)
     }
 }
 ```
 
-### Adding extra headers    
+### Adding extra headers
 It's possible to pass additional headers while encoding token. **jose2go** provides convenience configuration helpers: `Header(name string, value interface{})` and `Headers(headers map[string]interface{})` that can be passed to `Sign(..)` and `Encrypt(..)` calls.
 
 Note: **jose2go** do not allow to override `alg`, `enc` and `zip` headers.
@@ -634,7 +636,7 @@ import (
 	"github.com/dvsekhvalnov/jose2go"
 	"github.com/dvsekhvalnov/jose2go/keys/rsa"
 	"io/ioutil"
-    "errors"
+	"errors"
 )
 
 func main() {
@@ -642,13 +644,13 @@ func main() {
 	token := "eyJhbGciOiJSUzI1NiIsImN0eSI6InRleHRcL3BsYWluIn0.eyJoZWxsbyI6ICJ3b3JsZCJ9.NL_dfVpZkhNn4bZpCyMq5TmnXbT4yiyecuB6Kax_lV8Yq2dG8wLfea-T4UKnrjLOwxlbwLwuKzffWcnWv3LVAWfeBxhGTa0c4_0TX_wzLnsgLuU6s9M2GBkAIuSMHY6UTFumJlEeRBeiqZNrlqvmAzQ9ppJHfWWkW4stcgLCLMAZbTqvRSppC1SMxnvPXnZSWn_Fk_q3oGKWw6Nf0-j-aOhK0S0Lcr0PV69ZE4xBYM9PUS1MpMe2zF5J3Tqlc1VBcJ94fjDj1F7y8twmMT3H1PI9RozO-21R0SiXZ_a93fxhE_l_dj5drgOek7jUN9uBDjkXUwJPAyp9YPehrjyLdw"
 
 	payload, _, err := jose.Decode(token,
-		func(headers map[string]interface{}, payload string) interface{} {            
+		func(headers map[string]interface{}, payload string) interface{} {
             //log something
 			fmt.Printf("\nHeaders before decoding: %v\n", headers)
 			fmt.Printf("\nPayload before decoding: %v\n", payload)
 
             //lookup key based on keyid header as en example
-            //or lookup based on something from payload, e.g. 'iss' claim for instance                        
+            //or lookup based on something from payload, e.g. 'iss' claim for instance
             key := FindKey(headers['keyid'])
 
             if(key==nil) {
@@ -690,7 +692,7 @@ func main() {
 
 	if(err==nil) {
 		//go use token
-		//payload = []byte{....}              
+		//payload = []byte{....}
 	}
 }
 ```
@@ -701,7 +703,7 @@ package main
 import (
     "fmt"
     "io/ioutil"
-    "github.com/dvsekhvalnov/jose2go/keys/rsa"
+    Rsa "github.com/dvsekhvalnov/jose2go/keys/rsa"
     "github.com/dvsekhvalnov/jose2go"
 )
 
@@ -736,7 +738,7 @@ package main
 import (
     "fmt"
     "io/ioutil"
-    "github.com/dvsekhvalnov/jose2go/keys/rsa"
+    Rsa "github.com/dvsekhvalnov/jose2go/keys/rsa"
     "github.com/dvsekhvalnov/jose2go"
 )
 
@@ -775,7 +777,7 @@ package main
 
 import (
 	"fmt"
-    "github.com/dvsekhvalnov/jose2go/keys/rsa"
+	Rsa "github.com/dvsekhvalnov/jose2go/keys/rsa"
 	"io/ioutil"
 )
 
@@ -800,7 +802,7 @@ package main
 
 import (
 	"fmt"
-    "github.com/dvsekhvalnov/jose2go/keys/rsa"
+	Rsa "github.com/dvsekhvalnov/jose2go/keys/rsa"
 	"io/ioutil"
 )
 
@@ -911,7 +913,7 @@ func main() {
 ### More examples
 Checkout `jose_test.go` for more examples.
 
-##Changelog
+## Changelog
 ### 1.2
 - interface to access token headers after decoding
 - interface to provide extra headers for token encoding

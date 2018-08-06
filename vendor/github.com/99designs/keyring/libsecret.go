@@ -30,10 +30,12 @@ func init() {
 			return &secretsKeyring{}, err
 		}
 
-		return &secretsKeyring{
+		ring := &secretsKeyring{
 			name:    cfg.LibSecretCollectionName,
 			service: service,
-		}, nil
+		}
+
+		return ring, ring.openSecrets()
 	})
 }
 

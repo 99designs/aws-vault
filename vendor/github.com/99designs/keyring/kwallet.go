@@ -38,12 +38,14 @@ func init() {
 			return nil, err
 		}
 
-		return &kwalletKeyring{
+		ring := &kwalletKeyring{
 			wallet: *wallet,
 			name:   cfg.ServiceName,
 			appID:  cfg.KWalletAppID,
 			folder: cfg.KWalletFolder,
-		}, nil
+		}
+
+		return ring, ring.openWallet()
 	})
 }
 

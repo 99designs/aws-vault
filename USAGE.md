@@ -152,6 +152,27 @@ then you can't use an AWS session, because AWS will return a 403 on the GetFeder
 operation. That is when you'll use the less secure solution described above.
 
 
+## Environment variables
+
+The following environment variables can be set to override the default flag
+values of `aws-vault` and its subcommands.
+
+For the `aws-vault` command:
+
+* `AWS_VAULT_BACKEND`: Secret backend to use (see the flag `--backend`)
+* `AWS_VAULT_KEYCHAIN_NAME`: Name of macOS keychain to use (see the flag `--keychain`)
+* `AWS_VAULT_PROMPT`: Prompt driver to use (see the flag `--prompt`)
+
+For the `aws-vault exec` subcommand:
+
+* `AWS_ASSUME_ROLE_TTL`: Expiration time for aws assumed role (see the flag `--assume-role-ttl)
+* `AWS_SESSION_TTL`:  Expiration time for aws session (see the flag `--session-ttl`)
+
+For the `aws-vault login` subcommand:
+
+* `AWS_FEDERATION_TOKEN_TTL`: Expiration time for aws console session (see the flag `--federation-token-ttl`)
+
+
 ## Example ~/.aws/config
 
 Here is an example ~/.aws/config file, to help show the configuation. It defines two AWS accounts:

@@ -81,7 +81,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		AssumeRoleDuration: input.AssumeRoleDuration,
 		MfaToken:           input.MfaToken,
 		MfaPrompt:          input.MfaPrompt,
-		Service:            input.Service
+		Service:            input.Service,
 		NoSession:          true,
 		Config:             awsConfig,
 	})
@@ -175,14 +175,14 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		app.Fatalf("Expected a response with SigninToken")
 		return
 	}
-
+  
+  destination := "https://console.aws.amazon.com/"
   if input.Service != "" {
   	destination = fmt.Sprintf(
   			"https://console.aws.amazon.com/%s",
   			input.Service,
   		)
 	  } else {
-  	destination := "https://console.aws.amazon.com/"
   	if profile, _ := awsConfig.Profile(input.Profile); profile.Region != "" {
   		destination = fmt.Sprintf(
   			"https://%s.console.aws.amazon.com/console/home?region=%s",

@@ -46,7 +46,6 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 		StringVar(&input.MfaToken)
 
 	cmd.Flag("service", "The AWS service you would like access").
-		Short('t').
 		StringVar(&input.Service)
 
 	cmd.Flag("federation-token-ttl", "Expiration time for aws console session").

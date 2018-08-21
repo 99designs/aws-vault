@@ -30,6 +30,7 @@ type LoginCommandInput struct {
 	UseStdout               bool
 	FederationTokenDuration time.Duration
 	AssumeRoleDuration      time.Duration
+	Service                 string
 }
 
 func ConfigureLoginCommand(app *kingpin.Application) {
@@ -43,6 +44,10 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 	cmd.Flag("mfa-token", "The mfa token to use").
 		Short('t').
 		StringVar(&input.MfaToken)
+
+	cmd.Flag("service", "The AWS service you would like access").
+		Short('t').
+		StringVar(&input.Service)
 
 	cmd.Flag("federation-token-ttl", "Expiration time for aws console session").
 		Default("12h").
@@ -76,6 +81,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		AssumeRoleDuration: input.AssumeRoleDuration,
 		MfaToken:           input.MfaToken,
 		MfaPrompt:          input.MfaPrompt,
+		Service:            input.Service
 		NoSession:          true,
 		Config:             awsConfig,
 	})
@@ -170,13 +176,20 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
-	destination := "https://console.aws.amazon.com/"
-	if profile, _ := awsConfig.Profile(input.Profile); profile.Region != "" {
-		destination = fmt.Sprintf(
-			"https://%s.console.aws.amazon.com/console/home?region=%s",
-			profile.Region, profile.Region,
-		)
-	}
+  if input.Service != "" {
+  	destination = fmt.Sprintf(
+  			"https://console.aws.amazon.com/%s",
+  			input.Service,
+  		)
+	  } else {
+  	destination := "https://console.aws.amazon.com/"
+  	if profile, _ := awsConfig.Profile(input.Profile); profile.Region != "" {
+  		destination = fmt.Sprintf(
+  			"https://%s.console.aws.amazon.com/console/home?region=%s",
+  			profile.Region, profile.Region,
+  		)
+  	}
+  }
 
 	loginUrl := fmt.Sprintf(
 		"https://signin.aws.amazon.com/federation?Action=login&Issuer=aws-vault&Destination=%s&SigninToken=%s",

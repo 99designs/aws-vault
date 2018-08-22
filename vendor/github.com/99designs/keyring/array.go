@@ -12,7 +12,7 @@ type ArrayKeyring struct {
 func NewArrayKeyring(initial []Item) *ArrayKeyring {
 	kr := &ArrayKeyring{}
 	for _, i := range initial {
-		kr.Set(i)
+		_ = kr.Set(i)
 	}
 	return kr
 }

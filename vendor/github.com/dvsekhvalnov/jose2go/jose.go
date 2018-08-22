@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+
 	"github.com/dvsekhvalnov/jose2go/compact"
 )
 
@@ -107,29 +108,29 @@ type JwcAlgorithm interface {
 	Name() string
 }
 
-func Zip(alg string) func(cfg *joseConfig) {
-	return func(cfg *joseConfig) {
-		cfg.compressionAlg = alg
+func Zip(alg string) func(cfg *JoseConfig) {
+	return func(cfg *JoseConfig) {
+		cfg.CompressionAlg = alg
 	}
 }
 
-func Header(name string, value interface{}) func(cfg *joseConfig) {
-	return func(cfg *joseConfig) {
-		cfg.headers[name] = value
+func Header(name string, value interface{}) func(cfg *JoseConfig) {
+	return func(cfg *JoseConfig) {
+		cfg.Headers[name] = value
 	}
 }
 
-func Headers(headers map[string]interface{}) func(cfg *joseConfig) {
-	return func(cfg *joseConfig) {
+func Headers(headers map[string]interface{}) func(cfg *JoseConfig) {
+	return func(cfg *JoseConfig) {
 		for k, v := range headers {
-			cfg.headers[k] = v
+			cfg.Headers[k] = v
 		}
 	}
 }
 
-type joseConfig struct {
-	compressionAlg string
-	headers        map[string]interface{}
+type JoseConfig struct {
+	CompressionAlg string
+	Headers        map[string]interface{}
 }
 
 // Sign produces signed JWT token given arbitrary string payload, signature algorithm to use (see constants for list of supported algs), signing key and extra options (see option functions)
@@ -137,7 +138,7 @@ type joseConfig struct {
 // signing alg implementation documentation.
 //
 // It returns 3 parts signed JWT token as string and not nil error if something went wrong.
-func Sign(payload string, signingAlg string, key interface{}, options ...func(*joseConfig)) (token string, err error) {
+func Sign(payload string, signingAlg string, key interface{}, options ...func(*JoseConfig)) (token string, err error) {
 	return SignBytes([]byte(payload), signingAlg, key, options...)
 }
 
@@ -146,10 +147,10 @@ func Sign(payload string, signingAlg string, key interface{}, options ...func(*j
 // signing alg implementation documentation.
 //
 // It returns 3 parts signed JWT token as string and not nil error if something went wrong.
-func SignBytes(payload []byte, signingAlg string, key interface{}, options ...func(*joseConfig)) (token string, err error) {
+func SignBytes(payload []byte, signingAlg string, key interface{}, options ...func(*JoseConfig)) (token string, err error) {
 	if signer, ok := jwsHashers[signingAlg]; ok {
 
-		cfg := &joseConfig{compressionAlg: "", headers: make(map[string]interface{})}
+		cfg := &JoseConfig{CompressionAlg: "", Headers: make(map[string]interface{})}
 
 		//apply extra options
 		for _, option := range options {
@@ -157,17 +158,17 @@ func SignBytes(payload []byte, signingAlg string, key interface{}, options ...fu
 		}
 
 		//make sure defaults and requires are managed by us
-		cfg.headers["alg"] = signingAlg
+		cfg.Headers["alg"] = signingAlg
 
-		if _, typ := cfg.headers["typ"]; !typ {
-			cfg.headers["typ"] = "JWT"
+		if _, typ := cfg.Headers["typ"]; !typ {
+			cfg.Headers["typ"] = "JWT"
 		}
 
 		paloadBytes := payload
 		var header []byte
 		var signature []byte
 
-		if header, err = json.Marshal(cfg.headers); err == nil {
+		if header, err = json.Marshal(cfg.Headers); err == nil {
 			securedInput := []byte(compact.Serialize(header, paloadBytes))
 
 			if signature, err = signer.Sign(securedInput, key); err == nil {
@@ -186,7 +187,7 @@ func SignBytes(payload []byte, signingAlg string, key interface{}, options ...fu
 // key management alg implementation documentation.
 //
 // It returns 5 parts encrypted JWT token as string and not nil error if something went wrong.
-func Encrypt(payload string, alg string, enc string, key interface{}, options ...func(*joseConfig)) (token string, err error) {
+func Encrypt(payload string, alg string, enc string, key interface{}, options ...func(*JoseConfig)) (token string, err error) {
 	return EncryptBytes([]byte(payload), alg, enc, key, options...)
 }
 
@@ -195,9 +196,9 @@ func Encrypt(payload string, alg string, enc string, key interface{}, options ..
 // key management alg implementation documentation.
 //
 // It returns 5 parts encrypted JWT token as string and not nil error if something went wrong.
-func EncryptBytes(payload []byte, alg string, enc string, key interface{}, options ...func(*joseConfig)) (token string, err error) {
+func EncryptBytes(payload []byte, alg string, enc string, key interface{}, options ...func(*JoseConfig)) (token string, err error) {
 
-	cfg := &joseConfig{compressionAlg: "", headers: make(map[string]interface{})}
+	cfg := &JoseConfig{CompressionAlg: "", Headers: make(map[string]interface{})}
 
 	//apply extra options
 	for _, option := range options {
@@ -205,24 +206,24 @@ func EncryptBytes(payload []byte, alg string, enc string, key interface{}, optio
 	}
 
 	//make sure required headers are managed by us
-	cfg.headers["alg"] = alg
-	cfg.headers["enc"] = enc
+	cfg.Headers["alg"] = alg
+	cfg.Headers["enc"] = enc
 
 	byteContent := payload
 
-	if cfg.compressionAlg != "" {
-		if zipAlg, ok := jwcCompressors[cfg.compressionAlg]; ok {
+	if cfg.CompressionAlg != "" {
+		if zipAlg, ok := jwcCompressors[cfg.CompressionAlg]; ok {
 			byteContent = zipAlg.Compress([]byte(payload))
-			cfg.headers["zip"] = cfg.compressionAlg
+			cfg.Headers["zip"] = cfg.CompressionAlg
 		} else {
-			return "", errors.New(fmt.Sprintf("jwt.Compress(): Unknown compression method '%v'", cfg.compressionAlg))
+			return "", errors.New(fmt.Sprintf("jwt.Compress(): Unknown compression method '%v'", cfg.CompressionAlg))
 		}
 
 	} else {
-		delete(cfg.headers, "zip") //we not allow to manage 'zip' header manually for encryption
+		delete(cfg.Headers, "zip") //we not allow to manage 'zip' header manually for encryption
 	}
 
-	return encrypt(byteContent, cfg.headers, key)
+	return encrypt(byteContent, cfg.Headers, key)
 }
 
 // This method is DEPRICATED and subject to be removed in next version.

@@ -14,6 +14,7 @@ const (
 	SecretServiceBackend BackendType = "secret-service"
 	KeychainBackend      BackendType = "keychain"
 	KWalletBackend       BackendType = "kwallet"
+	WinCredBackend       BackendType = "wincred"
 	FileBackend          BackendType = "file"
 )
 
@@ -43,7 +44,12 @@ func Open(cfg Config) (Keyring, error) {
 	debugf("Considering backends: %v", cfg.AllowedBackends)
 	for _, backend := range cfg.AllowedBackends {
 		if opener, ok := supportedBackends[backend]; ok {
-			return opener(cfg)
+			openBackend, err := opener(cfg)
+			if err != nil {
+				debugf("Failed backend %s: %s", backend, err)
+				continue
+			}
+			return openBackend, nil
 		}
 	}
 	return nil, ErrNoAvailImpl

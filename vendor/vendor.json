@@ -3,10 +3,10 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "D8hEjr7exRaY14eEFEXCSV6YXao=",
+			"checksumSHA1": "9wLOSn9IjNKpyYRYVvR59MHrtBI=",
 			"path": "github.com/99designs/keyring",
-			"revision": "5fbd4674c81065bd80b5adfee8a127c5c47e48ce",
-			"revisionTime": "2017-12-29T03:53:02Z"
+			"revision": "998b86358ae9d7c8bbbb1d57080a8eaca7ffc47b",
+			"revisionTime": "2018-08-02T12:37:33Z"
 		},
 		{
 			"checksumSHA1": "KmjnydoAbofMieIWm+it5OWERaM=",
@@ -177,52 +177,58 @@
 			"revisionTime": "2016-09-29T23:03:56Z"
 		},
 		{
-			"checksumSHA1": "rSFw3D9mMLfFx4GuETt5aWGWi64=",
+			"checksumSHA1": "qYKwR0bIWgy+Ec3xoY6yWKnYPhY=",
+			"path": "github.com/danieljoos/wincred",
+			"revision": "1dcb5a2463cd2b67210264eaa0eb356c801cf59e",
+			"revisionTime": "2018-08-05T16:33:52Z"
+		},
+		{
+			"checksumSHA1": "FJNxhMx09x2yXsqUkSS4c3K+U4M=",
 			"path": "github.com/dvsekhvalnov/jose2go",
-			"revision": "f21a8cedbbae609f623613ec8f81125c243212e6",
-			"revisionTime": "2017-02-16T13:13:08Z"
+			"revision": "3d3ad9f03cde980ebbfd2613dbde3f7c774c01a0",
+			"revisionTime": "2018-05-07T07:32:26Z"
 		},
 		{
 			"checksumSHA1": "X38qrRzL+rPyO4xZhm16ftyLkXs=",
 			"path": "github.com/dvsekhvalnov/jose2go/aes",
-			"revision": "6387d3c1f5abd8443b223577d5a7e0f4e0e5731f",
-			"revisionTime": "2015-08-16T20:43:22Z"
+			"revision": "3d3ad9f03cde980ebbfd2613dbde3f7c774c01a0",
+			"revisionTime": "2018-05-07T07:32:26Z"
 		},
 		{
 			"checksumSHA1": "RbRzJ9jDZJnCUKbJJy7e2OSTUro=",
 			"path": "github.com/dvsekhvalnov/jose2go/arrays",
-			"revision": "6387d3c1f5abd8443b223577d5a7e0f4e0e5731f",
-			"revisionTime": "2015-08-16T20:43:22Z"
+			"revision": "3d3ad9f03cde980ebbfd2613dbde3f7c774c01a0",
+			"revisionTime": "2018-05-07T07:32:26Z"
 		},
 		{
 			"checksumSHA1": "uQqU76qm0Q57HnnCEp56r43jGaU=",
 			"path": "github.com/dvsekhvalnov/jose2go/base64url",
-			"revision": "6387d3c1f5abd8443b223577d5a7e0f4e0e5731f",
-			"revisionTime": "2015-08-16T20:43:22Z"
+			"revision": "3d3ad9f03cde980ebbfd2613dbde3f7c774c01a0",
+			"revisionTime": "2018-05-07T07:32:26Z"
 		},
 		{
 			"checksumSHA1": "h/QQYYL/tuXhe8ELZvyk1wKrZz4=",
 			"path": "github.com/dvsekhvalnov/jose2go/compact",
-			"revision": "6387d3c1f5abd8443b223577d5a7e0f4e0e5731f",
-			"revisionTime": "2015-08-16T20:43:22Z"
+			"revision": "3d3ad9f03cde980ebbfd2613dbde3f7c774c01a0",
+			"revisionTime": "2018-05-07T07:32:26Z"
 		},
 		{
 			"checksumSHA1": "gjXFjcEV/LZG4U/lgm/CVYvvWOg=",
 			"path": "github.com/dvsekhvalnov/jose2go/kdf",
-			"revision": "6387d3c1f5abd8443b223577d5a7e0f4e0e5731f",
-			"revisionTime": "2015-08-16T20:43:22Z"
+			"revision": "3d3ad9f03cde980ebbfd2613dbde3f7c774c01a0",
+			"revisionTime": "2018-05-07T07:32:26Z"
 		},
 		{
 			"checksumSHA1": "o1OtVBn2DVAG07K6teBpkUNjqkM=",
 			"path": "github.com/dvsekhvalnov/jose2go/keys/ecc",
-			"revision": "6387d3c1f5abd8443b223577d5a7e0f4e0e5731f",
-			"revisionTime": "2015-08-16T20:43:22Z"
+			"revision": "3d3ad9f03cde980ebbfd2613dbde3f7c774c01a0",
+			"revisionTime": "2018-05-07T07:32:26Z"
 		},
 		{
 			"checksumSHA1": "gAEKTUiQk9JoMonf1G508SXpLw4=",
 			"path": "github.com/dvsekhvalnov/jose2go/padding",
-			"revision": "6387d3c1f5abd8443b223577d5a7e0f4e0e5731f",
-			"revisionTime": "2015-08-16T20:43:22Z"
+			"revision": "3d3ad9f03cde980ebbfd2613dbde3f7c774c01a0",
+			"revisionTime": "2018-05-07T07:32:26Z"
 		},
 		{
 			"checksumSHA1": "jK0knSGdB7hA/Pvc0mQBYkYxN/8=",
@@ -233,10 +239,10 @@
 			"versionExact": "v1.32.0"
 		},
 		{
-			"checksumSHA1": "prN+IUOs6KunsgMUPhYcUgfhTbs=",
+			"checksumSHA1": "ZHsrE1U3D/t9tck1ub2oHWpE4Is=",
 			"path": "github.com/godbus/dbus",
-			"revision": "b038411ec341afd52c6d36d8baae92a29e6e8a9e",
-			"revisionTime": "2017-03-22T22:34:42Z"
+			"revision": "46d8b1f64a1295f04c5f70555a62239f15465abd",
+			"revisionTime": "2018-07-22T06:16:18Z"
 		},
 		{
 			"checksumSHA1": "IZJQgK68T/tXTTezcUs5yLzmkTQ=",
@@ -255,13 +261,13 @@
 			"checksumSHA1": "SDnp6hhfnz8PkCZh1emnNz0ZVWA=",
 			"path": "github.com/keybase/go-keychain",
 			"revision": "15d3657f24fc7e290714ab795239c5bb33b091ea",
-			"revisionTime": "2018-03-06T22:15:04Z"
+			"revisionTime": "2018-08-01T17:02:00Z"
 		},
 		{
-			"checksumSHA1": "AXacfEchaUqT5RGmPmMXsOWRhv8=",
+			"checksumSHA1": "Li0PaRmaVBdibS/zs8myzc07L6o=",
 			"path": "github.com/mitchellh/go-homedir",
-			"revision": "756f7b183b7ab78acdbbee5c7f392838ed459dda",
-			"revisionTime": "2016-06-21T17:42:43Z"
+			"revision": "58046073cbffe2f25d425fe1331102f55cf719de",
+			"revisionTime": "2018-08-01T23:32:06Z"
 		},
 		{
 			"checksumSHA1": "1x5iL8daETet8FjM7l2qp9Swvls=",
@@ -270,10 +276,22 @@
 			"revisionTime": "2015-02-21T14:03:35Z"
 		},
 		{
-			"checksumSHA1": "YFTe389hjRtKKOZ7T7iyKQ0I/S8=",
+			"checksumSHA1": "BGm8lKZmvJbf/YOJLeL1rw2WVjA=",
 			"path": "golang.org/x/crypto/ssh/terminal",
-			"revision": "731db29863ea7213d9556d0170afb38987f401d4",
-			"revisionTime": "2014-12-07T23:59:03Z"
+			"revision": "56440b844dfe139a8ac053f4ecac0b20b79058f4",
+			"revisionTime": "2018-08-02T22:11:18Z"
+		},
+		{
+			"checksumSHA1": "nc3RG2Qgzn2aup/3/4RusWr+X0g=",
+			"path": "golang.org/x/sys/unix",
+			"revision": "0ffbfd41fbef8ffcf9b62b0b0aa3a5873ed7a4fe",
+			"revisionTime": "2018-08-02T19:25:30Z"
+		},
+		{
+			"checksumSHA1": "Hi7BmkvZh4plNNLGDHfPnCKy3i8=",
+			"path": "golang.org/x/sys/windows",
+			"revision": "0ffbfd41fbef8ffcf9b62b0b0aa3a5873ed7a4fe",
+			"revisionTime": "2018-08-02T19:25:30Z"
 		},
 		{
 			"checksumSHA1": "SeYI7DRWrd0Ku+CLavuwIz3EEmQ=",

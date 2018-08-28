@@ -14,6 +14,32 @@ $ aws-vault exec --help
 ```
 
 
+## Rotating Credentials
+
+Regularly rotating your access keys is a critical part of credential management. You can do this with the `aws-vault rotate <profile>` command as often as you like.
+
+The minimal IAM policy required to rotate your own credentials is:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "iam:CreateAccessKey",
+                "iam:DeleteAccessKey",
+                "iam:GetUser"
+            ],
+            "Resource": [
+                "arn:aws:iam::*:user/${aws:username}"
+            ]
+        }
+    ]
+}
+```
+
+
 ## Using aws-vault with multiple profiles
 
 In addition to using IAM roles to assume temporary privileges as described in
@@ -58,10 +84,18 @@ arguments from the wrapper to the original command.
 
 ## Backends
 
-You can choose different secret storage backends, which may be particularly useful on Linux, where
-you may prefer to use the system keyring. This can be specified on the command line with
-`aws-vault --backend=secret-service` or by setting the environment variable
-`export AWS_VAULT_BACKEND=secret-service`.
+You can choose among different pluggable secret storage backends. 
+
+By default, Linux uses an encrypted file but you may prefer to use the secret-service backend which [abstracts over Gnome/KDE](https://specifications.freedesktop.org/secret-service/). This can be specified on the command line with `aws-vault --backend=secret-service` or by setting the environment variable `export AWS_VAULT_BACKEND=secret-service`.
+
+
+## Removing stored sessions
+
+If you want to remove sessions managed by `aws-vault` before they expire, you can do this with the `--session-only` flag.
+
+```bash
+aws-vault remove <profile> --sessions-only
+```
 
 
 ## Listing profiles

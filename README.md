@@ -11,6 +11,7 @@ Currently the supported backends are:
 
 Check out the [announcement blog post](https://99designs.com.au/tech-blog/blog/2015/10/26/aws-vault/) for more details.
 
+
 ## Installing
 
 Download the [latest release](https://github.com/99designs/aws-vault/releases).
@@ -25,6 +26,7 @@ The macOS release is code-signed, and you can verify this with `codesign`:
     Authority=Developer ID Application: 99designs Inc (NRM9HVJ62Z)
     Authority=Developer ID Certification Authority
     Authority=Apple Root CA
+
 
 ## Usage
 
@@ -41,7 +43,19 @@ $ aws-vault exec home -- aws s3 ls
 bucket_1
 bucket_2
 
-# Inspect the environment
+# open a browser window and login to AWS Console
+$ aws-vault login home
+
+# List credentials
+$ aws-vault list
+Profile                  Credentials              Sessions
+=======                  ===========              ========
+home                     home                     -
+```
+
+
+## Security
+```bash
 $ aws-vault exec home -- env | grep AWS
 AWS_VAULT=work
 AWS_DEFAULT_REGION=us-east-1
@@ -52,16 +66,7 @@ AWS_SESSION_TOKEN=%%%
 AWS_SECURITY_TOKEN=%%%
 ```
 
-### Backends
-
-You can choose among different pluggable secret storage backends. By default, Linux uses an encrypted file. You can use your system keyring by choosing the secret-service backend which [abstracts over Gnome/KDE](https://specifications.freedesktop.org/secret-service/).
-
-See the [USAGE](./USAGE.md) document for more help and tips.
-
-## Security
-
-Notice in the above environment how a session token gets written out. This is because `aws-vault` uses Amazon's STS service
-to generate [temporary credentials](http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp.html) via the GetSessionToken or AssumeRole API calls. These expire in a short period of time, so the risk of leaking credentials is reduced.
+Notice in the above environment how a session token gets written out. This is because `aws-vault` uses Amazon's STS service to generate [temporary credentials](http://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp.html) via the `GetSessionToken` or `AssumeRole` API calls. These expire in a short period of time, so the risk of leaking credentials is reduced.
 
 The credentials are exposed to the subprocess in one of two ways:
 
@@ -71,20 +76,8 @@ The credentials are exposed to the subprocess in one of two ways:
 
 The default is to use environment variables, but you can opt-in to the local instance metadata server with the `--server` flag on the `exec` command.
 
-## MFA Tokens
 
-If you have an MFA device attached to your account, the STS service will generate session tokens that are *invalid* unless you provide an MFA code. To enable MFA for a profile, specify the MFA serial in `~/.aws/config`:
-
-```
-[profile default]
-mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
-```
-
-You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username]`.
-
-Note that if you have an account with an MFA associated, but you don't provide the IAM, you are unable to call IAM services, even if you have the correct permissions to do so.
-
-## Assuming Roles
+### Assuming Roles
 
 Best-practice is to have a read-only account that you use on a day-to-day basis, and then use [IAM roles to assume temporary admin privileges](http://docs.aws.amazon.com/cli/latest/userguide/cli-roles.html) along with an MFA.
 
@@ -106,46 +99,25 @@ Then when you use the `admin` profile, `aws-vault` will look in the `read-only` 
 
 **Note:** When assuming roles, `mfa_serial` will not be inherited from the profile designated in `source_profile` -- you must include a reference to `mfa_serial` in every profile you wish to use it with.
 
-## Rotating Credentials
 
-Regularly rotating your access keys is a critical part of credential management. You can do this with the `aws-vault rotate <profile>` command as often as you like.
+### MFA Tokens
 
-The minimal IAM policy required to rotate your own credentials is:
+If you have an MFA device attached to your account, the STS service will generate session tokens that are *invalid* unless you provide an MFA code. To enable MFA for a profile, specify the MFA serial in `~/.aws/config`:
 
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "iam:CreateAccessKey",
-                "iam:DeleteAccessKey",
-                "iam:GetUser"
-            ],
-            "Resource": [
-                "arn:aws:iam::*:user/${aws:username}"
-            ]
-        }
-    ]
-}
+```
+[profile default]
+mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
 ```
 
-## Removing stored sessions
+You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username]`.
 
-If you want to remove sessions managed by `aws-vault` before they expire, you can do this with the `--session-only` flag.
+Note that if you have an account with an MFA associated, but you don't provide the IAM, you are unable to call IAM services, even if you have the correct permissions to do so.
 
-```bash
-aws-vault remove <profile> --sessions-only
-```
 
 ## Development
 
-Developed with golang, to install run:
+Developed with go, to install run `go get github.com/99designs/aws-vault`
 
-```
-go get github.com/99designs/aws-vault
-```
 
 ### Self-signing your binary
 

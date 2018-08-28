@@ -90,16 +90,14 @@ Edit your `~/.aws/config` to add the role_arn and MFA serial number into a new p
 region=us-east-1
 
 [profile admin]
-mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
 source_profile = read-only
 role_arn = arn:aws:iam::123456789012:role/admin-access
+mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
 ```
 
 Then when you use the `admin` profile, `aws-vault` will look in the `read-only` profile's keychain for credentials and then use those credentials to assume the `admin` role. This assumed role is stored as a short duration session in your keychain so you will only have to enter MFA once per session.
 
-If you have an MFA device attached to your account, the STS service will generate session tokens that are *invalid* unless you provide an MFA code. To enable MFA for a profile, specify the `mfa_serial` in `~/.aws/config`. You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username]`. Note that if you have an account with an MFA associated, but you don't provide the IAM, you are unable to call IAM services, even if you have the correct permissions to do so.
-
-**Note:** When assuming roles, `mfa_serial` will not be inherited from the profile designated in `source_profile` -- you must include a reference to `mfa_serial` in every profile you wish to use it with.
+**Note:** If you have an MFA device attached to your account, the STS service will generate session tokens that are *invalid* unless you provide an MFA code. To enable MFA for a profile, specify the `mfa_serial` in `~/.aws/config`. You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username]`. If you have an account with an MFA associated, but you don't provide the IAM, you are unable to call IAM services, even if you have the correct permissions to do so. `mfa_serial` will not be inherited from the profile designated in `source_profile` - you must include a reference to `mfa_serial` in every profile you wish to use it with.
 
 
 ## Development

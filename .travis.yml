@@ -1,18 +1,18 @@
 language: go
-go_import_path: github.com/99designs/aws-vault
-
-install:
-  - go get -u github.com/kardianos/govendor
-  - govendor status
 
 go:
-  - "1.8.x"
-  - "1.9.x"
   - "1.10.x"
-  - "master"
+  - "1.11.x"
 
 os:
   - linux
   - osx
 
-osx_image: xcode7.3
+before_install:
+  - go get -u github.com/kardianos/govendor
+
+script:
+  - govendor status
+  - diff -u <(echo -n) <(gofmt -d $(git ls-files '*.go' | grep -v ^vendor/))
+  - go vet
+  - go test -race ./...

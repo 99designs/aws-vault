@@ -39,7 +39,7 @@ func ConfigPath() (string, error) {
 }
 
 // CreateConfig will create the config directory and file if they do not exist
-func CreateConfig() (error) {
+func CreateConfig() error {
 	file, err := ConfigPath()
 	if err != nil {
 		return err
@@ -57,7 +57,7 @@ func CreateConfig() (error) {
 		}
 		newFile.Close()
 		log.Printf("Config file %s created", file)
-        }
+	}
 	return nil
 }
 

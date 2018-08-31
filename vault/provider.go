@@ -323,8 +323,8 @@ func (p *VaultProvider) assumeRole(creds credentials.Value, profile Profile) (st
 	}
 
 	if profile.ExternalID != "" {
-                input.ExternalId = aws.String(profile.ExternalID)
-        }
+		input.ExternalId = aws.String(profile.ExternalID)
+	}
 
 	// if we don't have a session, we need to include MFA token in the AssumeRole call
 	if profile.MFASerial != "" {

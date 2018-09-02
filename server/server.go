@@ -29,12 +29,12 @@ func StartMetadataServer() error {
 	}
 
 	router := http.NewServeMux()
-	// The AWS .NET SDK checks this endpoint during obtaining credentials/refreshing them
-	router.HandleFunc("/latest/meta-data/iam/info/", infoHandler)
 	router.HandleFunc("/latest/meta-data/iam/security-credentials/", indexHandler)
 	router.HandleFunc("/latest/meta-data/iam/security-credentials/local-credentials", credentialsHandler)
 	// The AWS Go SDK checks the instance-id endpoint to validate the existence of EC2 Metadata
 	router.HandleFunc("/latest/meta-data/instance-id/", instanceIdHandler)
+	// The AWS .NET SDK checks this endpoint during obtaining credentials/refreshing them
+	router.HandleFunc("/latest/meta-data/iam/info/", infoHandlerStub)
 
 	l, err := net.Listen("tcp", metadataBind)
 	if err != nil {
@@ -49,9 +49,8 @@ type metadataHandler struct {
 	http.Handler
 }
 
-func infoHandler(w http.ResponseWriter, r *http.Request) {
-	var jsonStr = []byte(`{"Code" : "Success"}`)
-	fmt.Fprintf(w, string(jsonStr))
+func infoHandlerStub(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, `{"Code" : "Success"}`)
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {

@@ -6,7 +6,7 @@ import (
 	"github.com/99designs/keyring"
 )
 
-func ExampleListCommand() {
+func ExampleLsCommand() {
 	keyringImpl = keyring.NewArrayKeyring([]keyring.Item{
 		{Key: "llamas", Data: []byte(`{"AccessKeyID":"ABC","SecretAccessKey":"XYZ"}`)},
 	})

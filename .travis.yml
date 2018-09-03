@@ -14,5 +14,5 @@ before_install:
 script:
   - govendor status
   - diff -u <(echo -n) <(gofmt -d $(git ls-files '*.go' | grep -v ^vendor/))
-  - go vet
+  - go vet ./...
   - go test -race ./...

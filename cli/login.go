@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/99designs/aws-vault/prompt"
@@ -30,6 +31,7 @@ type LoginCommandInput struct {
 	UseStdout               bool
 	FederationTokenDuration time.Duration
 	AssumeRoleDuration      time.Duration
+	Region                  string
 }
 
 func ConfigureLoginCommand(app *kingpin.Application) {
@@ -72,12 +74,15 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
+	profile, _ := awsConfig.Profile(input.Profile)
+
 	provider, err := vault.NewVaultProvider(input.Keyring, input.Profile, vault.VaultOptions{
 		AssumeRoleDuration: input.AssumeRoleDuration,
 		MfaToken:           input.MfaToken,
 		MfaPrompt:          input.MfaPrompt,
 		NoSession:          true,
 		Config:             awsConfig,
+		Region:             profile.Region,
 	})
 	if err != nil {
 		app.Fatalf("Failed to create vault provider: %v", err)
@@ -96,7 +101,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 	// if AssumeRole isn't used, GetFederationToken has to be used for IAM credentials
 	if val.SessionToken == "" {
 		log.Printf("No session token found, calling GetFederationToken")
-		stsCreds, err := getFederationToken(val, input.FederationTokenDuration)
+		stsCreds, err := getFederationToken(val, input.FederationTokenDuration, provider.Region)
 		if err != nil {
 			app.Fatalf("Failed to call GetFederationToken: %v\n"+
 				"Login for non-assumed roles depends on permission to call sts:GetFederationToken", err)
@@ -119,7 +124,9 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
-	req, err := http.NewRequest("GET", "https://signin.aws.amazon.com/federation", nil)
+	loginURLPrefix, destination := generateLoginURL(provider.Region)
+
+	req, err := http.NewRequest("GET", loginURLPrefix, nil)
 	if err != nil {
 		app.Fatalf("%v", err)
 		return
@@ -170,30 +177,24 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
-	destination := "https://console.aws.amazon.com/"
-	if profile, _ := awsConfig.Profile(input.Profile); profile.Region != "" {
-		destination = fmt.Sprintf(
-			"https://%s.console.aws.amazon.com/console/home?region=%s",
-			profile.Region, profile.Region,
-		)
-	}
-
-	loginUrl := fmt.Sprintf(
-		"https://signin.aws.amazon.com/federation?Action=login&Issuer=aws-vault&Destination=%s&SigninToken=%s",
+	loginURL := fmt.Sprintf(
+		"%s?Action=login&Issuer=aws-vault&Destination=%s&SigninToken=%s",
+		loginURLPrefix,
 		url.QueryEscape(destination),
 		url.QueryEscape(signinToken),
 	)
 
 	if input.UseStdout {
-		fmt.Println(loginUrl)
-	} else if err = open.Run(loginUrl); err != nil {
+		fmt.Println(loginURL)
+	} else if err = open.Run(loginURL); err != nil {
 		log.Println(err)
-		fmt.Println(loginUrl)
+		fmt.Println(loginURL)
 	}
 }
 
-func getFederationToken(creds credentials.Value, d time.Duration) (*sts.Credentials, error) {
+func getFederationToken(creds credentials.Value, d time.Duration, region string) (*sts.Credentials, error) {
 	sess := session.New(&aws.Config{
+		Region:      aws.String(region),
 		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: creds}),
 	})
 	client := sts.New(sess)
@@ -215,4 +216,26 @@ func getFederationToken(creds credentials.Value, d time.Duration) (*sts.Credenti
 	}
 
 	return resp.Credentials, nil
+}
+
+func generateLoginURL(region string) (string, string) {
+	loginURLPrefix := "https://signin.aws.amazon.com/federation"
+	destination := "https://console.aws.amazon.com/"
+
+	if region != "" {
+		destinationDomain := "console.aws.amazon.com"
+		switch {
+		case strings.HasPrefix(region, "cn-"):
+			loginURLPrefix = "https://signin.amazonaws.cn/federation"
+			destinationDomain = "console.amazonaws.cn"
+		case strings.HasPrefix(region, "us-gov-"):
+			loginURLPrefix = "https://signin.amazonaws-us-gov.com/federation"
+			destinationDomain = "console.amazonaws-us-gov.com"
+		}
+		destination = fmt.Sprintf(
+			"https://%s.%s/console/home?region=%s",
+			region, destinationDomain, region,
+		)
+	}
+	return loginURLPrefix, destination
 }

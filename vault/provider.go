@@ -35,6 +35,7 @@ type VaultOptions struct {
 	NoSession          bool
 	Config             *Config
 	MasterCreds        *credentials.Value
+	Region             string
 }
 
 func (o VaultOptions) Validate() error {

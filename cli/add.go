@@ -75,6 +75,8 @@ func AddCommand(input AddCommandInput, keyring keyring.Keyring, awsConfigFile *v
 		}
 	}
 
+	// NB: if we change this to talk to AWS for validation, then look at
+	// recording the timestamp of the keys too, for use by info reporting.
 	creds := credentials.Value{AccessKeyID: accessKeyId, SecretAccessKey: secretKey}
 
 	ckr := &vault.CredentialKeyring{Keyring: keyring}

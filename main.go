@@ -22,6 +22,7 @@ func main() {
 	cli.ConfigureRemoveCommand(app, a)
 	cli.ConfigureLoginCommand(app, a)
 	cli.ConfigureServerCommand(app, a)
+	cli.ConfigureInfoCommand(app, a)
 
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 }

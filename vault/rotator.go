@@ -55,13 +55,11 @@ func (r *Rotator) Rotate(profile string) error {
 		oldMasterCreds.AccessKeyID[len(oldMasterCreds.AccessKeyID)-4:],
 		currentUserName)
 
-	// We need to use a session as some credentials will requiring assuming a role to
-	// get permission to create creds
 	oldSessionCreds, err := NewVaultCredentials(r.Keyring, profile, VaultOptions{
 		MfaToken:    r.MfaToken,
 		MfaPrompt:   r.MfaPrompt,
 		Config:      r.Config,
-		NoSession:   false,
+		NoSession:   !r.needsSessionToRotate(profile),
 		MasterCreds: &oldMasterCreds,
 	})
 	if err != nil {
@@ -117,7 +115,7 @@ func (r *Rotator) Rotate(profile string) error {
 		MfaToken:    r.MfaToken,
 		MfaPrompt:   r.MfaPrompt,
 		Config:      r.Config,
-		NoSession:   false,
+		NoSession:   !r.needsSessionToRotate(profile),
 		MasterCreds: &newMasterCreds,
 	})
 	if err != nil {
@@ -214,4 +212,29 @@ func retry(duration time.Duration, sleep time.Duration, callback func() error) (
 		time.Sleep(sleep)
 		log.Println("Retrying after error:", err)
 	}
+}
+
+// needsSessionToRotate attempts to resolve the dilemma around whether or not
+// profiles should use a session to be able to rotate.
+//
+// Some profiles require assuming a role to get permission to create new
+// credentials.  Alas, others which don't use a role are pure IAM and will
+// fail to create credentials when using an STS role, because AWS's IAM
+// systems hard-fail early when given STS credentials.
+//
+// This is a heuristic which might need to continue to evolve.  :(
+func (r *Rotator) needsSessionToRotate(profileName string) bool {
+	if r.MfaToken != "" {
+		return true
+	}
+	sourceProfile, known := r.Config.SourceProfile(profileName)
+	if !known {
+		// best guess
+		return false
+	}
+	if sourceProfile.Name != profileName {
+		// TODO: should this comparison be case-insensitive?
+		return true
+	}
+	return false
 }

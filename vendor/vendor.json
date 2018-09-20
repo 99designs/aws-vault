@@ -231,12 +231,12 @@
 			"revisionTime": "2018-05-07T07:32:26Z"
 		},
 		{
-			"checksumSHA1": "jK0knSGdB7hA/Pvc0mQBYkYxN/8=",
+			"checksumSHA1": "199mbv5rSBhFjcRyujh8jQqGbgI=",
 			"path": "github.com/go-ini/ini",
-			"revision": "32e4c1e6bc4e7d0d8451aa6b75200d19e37a536a",
-			"revisionTime": "2017-11-19T05:34:21Z",
-			"version": "v1.32.0",
-			"versionExact": "v1.32.0"
+			"revision": "fa25069db393aecc09b71267d0489b357781c860",
+			"revisionTime": "2018-09-10T19:25:51Z",
+			"version": "v1.38.2",
+			"versionExact": "v1.38.2"
 		},
 		{
 			"checksumSHA1": "ZHsrE1U3D/t9tck1ub2oHWpE4Is=",

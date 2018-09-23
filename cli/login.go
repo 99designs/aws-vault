@@ -32,6 +32,7 @@ type LoginCommandInput struct {
 	FederationTokenDuration time.Duration
 	AssumeRoleDuration      time.Duration
 	Region                  string
+	Service                 string
 }
 
 func ConfigureLoginCommand(app *kingpin.Application) {
@@ -45,6 +46,9 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 	cmd.Flag("mfa-token", "The mfa token to use").
 		Short('t').
 		StringVar(&input.MfaToken)
+
+	cmd.Flag("service", "The AWS service you would like access").
+		StringVar(&input.Service)
 
 	cmd.Flag("federation-token-ttl", "Expiration time for aws console session").
 		Default("12h").
@@ -80,6 +84,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		AssumeRoleDuration: input.AssumeRoleDuration,
 		MfaToken:           input.MfaToken,
 		MfaPrompt:          input.MfaPrompt,
+		Service:            input.Service,
 		NoSession:          true,
 		Config:             awsConfig,
 		Region:             profile.Region,
@@ -124,7 +129,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
-	loginURLPrefix, destination := generateLoginURL(provider.Region)
+	loginURLPrefix, destination := generateLoginURL(provider.Region, input.Service)
 
 	req, err := http.NewRequest("GET", loginURLPrefix, nil)
 	if err != nil {
@@ -218,7 +223,7 @@ func getFederationToken(creds credentials.Value, d time.Duration, region string)
 	return resp.Credentials, nil
 }
 
-func generateLoginURL(region string) (string, string) {
+func generateLoginURL(region string, service string) (string, string) {
 	loginURLPrefix := "https://signin.aws.amazon.com/federation"
 	destination := "https://console.aws.amazon.com/"
 
@@ -232,10 +237,17 @@ func generateLoginURL(region string) (string, string) {
 			loginURLPrefix = "https://signin.amazonaws-us-gov.com/federation"
 			destinationDomain = "console.amazonaws-us-gov.com"
 		}
-		destination = fmt.Sprintf(
-			"https://%s.%s/console/home?region=%s",
-			region, destinationDomain, region,
-		)
+		if service != "" {
+			destination = fmt.Sprintf(
+				"https://%s.%s/%s?region=%s",
+				region, destinationDomain, service, region,
+			)
+		} else {
+			destination = fmt.Sprintf(
+				"https://%s.%s/console/home?region=%s",
+				region, destinationDomain, region,
+			)
+		}
 	}
 	return loginURLPrefix, destination
 }

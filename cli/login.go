@@ -32,7 +32,7 @@ type LoginCommandInput struct {
 	FederationTokenDuration time.Duration
 	AssumeRoleDuration      time.Duration
 	Region                  string
-	Service                 string
+	Path                    string
 }
 
 func ConfigureLoginCommand(app *kingpin.Application) {
@@ -47,8 +47,8 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 		Short('t').
 		StringVar(&input.MfaToken)
 
-	cmd.Flag("service", "The AWS service you would like access").
-		StringVar(&input.Service)
+	cmd.Flag("path", "The AWS service you would like access").
+		StringVar(&input.Path)
 
 	cmd.Flag("federation-token-ttl", "Expiration time for aws console session").
 		Default("12h").
@@ -84,7 +84,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		AssumeRoleDuration: input.AssumeRoleDuration,
 		MfaToken:           input.MfaToken,
 		MfaPrompt:          input.MfaPrompt,
-		Service:            input.Service,
+		Path:               input.Path,
 		NoSession:          true,
 		Config:             awsConfig,
 		Region:             profile.Region,
@@ -129,7 +129,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
-	loginURLPrefix, destination := generateLoginURL(provider.Region, input.Service)
+	loginURLPrefix, destination := generateLoginURL(provider.Region, input.Path)
 
 	req, err := http.NewRequest("GET", loginURLPrefix, nil)
 	if err != nil {
@@ -223,7 +223,7 @@ func getFederationToken(creds credentials.Value, d time.Duration, region string)
 	return resp.Credentials, nil
 }
 
-func generateLoginURL(region string, service string) (string, string) {
+func generateLoginURL(region string, path string) (string, string) {
 	loginURLPrefix := "https://signin.aws.amazon.com/federation"
 	destination := "https://console.aws.amazon.com/"
 
@@ -237,10 +237,10 @@ func generateLoginURL(region string, service string) (string, string) {
 			loginURLPrefix = "https://signin.amazonaws-us-gov.com/federation"
 			destinationDomain = "console.amazonaws-us-gov.com"
 		}
-		if service != "" {
+		if path != "" {
 			destination = fmt.Sprintf(
 				"https://%s.%s/%s?region=%s",
-				region, destinationDomain, service, region,
+				region, destinationDomain, path, region,
 			)
 		} else {
 			destination = fmt.Sprintf(

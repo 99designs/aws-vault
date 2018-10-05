@@ -1,5 +1,3 @@
-// +build darwin
-
 package prompt
 
 import (
@@ -9,7 +7,7 @@ import (
 )
 
 func OSAScriptPrompt(prompt string) (string, error) {
-	cmd := exec.Command("/usr/bin/osascript", "-e", fmt.Sprintf(`
+	cmd := exec.Command("osascript", "-e", fmt.Sprintf(`
 		display dialog "%s" default answer "" buttons {"OK", "Cancel"} default button 1
         text returned of the result
         return result`,

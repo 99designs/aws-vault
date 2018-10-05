@@ -196,6 +196,16 @@ func (p *VaultProvider) RetrieveWithoutSessionToken() (credentials.Value, error)
 	return creds, nil
 }
 
+func (p *VaultProvider) HasRole() bool {
+	profile, exists := p.config.Profile(p.profile)
+	return exists && profile.RoleARN != ""
+}
+
+func (p *VaultProvider) HasMfa() bool {
+	profile, exists := p.Config.Profile(p.profile)
+	return exists && profile.MFASerial != ""
+}
+
 func (p VaultProvider) awsConfig() *aws.Config {
 	if region := os.Getenv("AWS_REGION"); region != "" {
 		log.Printf("Using region %q from AWS_REGION", region)

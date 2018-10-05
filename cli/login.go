@@ -89,6 +89,15 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
+	if provider.HasMfa() && !provider.HasRole() {
+		// Federated login requires GetFederationToken or AssumeRole tokens. Only AssumeRole and GetSessionToken
+		// support MFA and GetSessionToken cannot call GetFederationToken.
+		// https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_request.html#stsapi_comparison
+		// https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_enable-console-custom-url.html
+		log.Printf("Profile is configured for MFA but without an assumed role. This is not supported by " +
+			"federated login due to combined STS and federated login restrictions. Attempting login without MFA")
+	}
+
 	creds := credentials.NewCredentials(provider)
 	val, err := creds.Get()
 	if err != nil {

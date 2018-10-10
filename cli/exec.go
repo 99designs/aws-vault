@@ -34,7 +34,7 @@ type ExecCommandInput struct {
 }
 
 type AwsCredentialHelperData struct {
-	Version         string `json:"Version"`
+	Version         int    `json:"Version"`
 	AccessKeyID     string `json:"AccessKeyId"`
 	SecretAccessKey string `json:"SecretAccessKey"`
 	SessionToken    string `json:"SessionToken"`
@@ -133,13 +133,13 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 
 	if input.CredentialHelper {
 		credentialData := AwsCredentialHelperData{
-			Version:         "1",
+			Version:         1,
 			AccessKeyID:     val.AccessKeyID,
 			SecretAccessKey: val.SecretAccessKey,
 			SessionToken:    val.SessionToken,
 		}
 		if !input.NoSession {
-			credentialData.Expiration = time.Now().Add(input.Duration).Format("2006-01-02T15:04:05")
+			credentialData.Expiration = time.Now().Add(input.Duration).Format("2006-01-02T15:04:05Z")
 		}
 		json, err := json.Marshal(&credentialData)
 		if err != nil {

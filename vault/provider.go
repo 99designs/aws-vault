@@ -36,6 +36,7 @@ type VaultOptions struct {
 	Config             *Config
 	MasterCreds        *credentials.Value
 	Region             string
+	Path               string
 }
 
 func (o VaultOptions) Validate() error {

@@ -10,10 +10,14 @@ os:
   - windows
 
 before_install:
+  # install gcc to work around https://github.com/golang/go/issues/28065
+  - if [[ "$TRAVIS_OS_NAME" == "windows" ]]; then choco install mingw && which gcc ; fi
   - go get -u github.com/kardianos/govendor
 
 script:
-  - govendor status
-  - diff -u <(echo -n) <(gofmt -d $(git ls-files '*.go' | grep -v ^vendor/))
+  # govendor linting: skip on windows to work around https://github.com/kardianos/govendor/issues/233
+  - if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then govendor status ; fi
+  # gofmt linting: skip on windows to work around line ending differences
+  - if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then diff -u <(echo -n) <(gofmt -d $(git ls-files '*.go' | grep -v ^vendor/)) ; fi
   - go vet ./...
   - go test -race ./...

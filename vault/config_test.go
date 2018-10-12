@@ -211,9 +211,14 @@ func TestAddProfileToExistingNestedConfig(t *testing.T) {
 	)...)
 
 	b, _ := ioutil.ReadFile(f)
+	actual := normaliseLineEndings(b)
 
-	if !bytes.Equal(expected, b) {
-		t.Fatalf("Expected:\n%q\nGot:\n%q", expected, b)
+	if !bytes.Equal(expected, actual) {
+		t.Fatalf("Expected:\n%q\nGot:\n%q", expected, actual)
 	}
 
+}
+
+func normaliseLineEndings(b []byte) []byte {
+	return bytes.Replace(b, []byte("\r\n"), []byte("\n"), -1)
 }

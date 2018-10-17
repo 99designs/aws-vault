@@ -44,7 +44,7 @@ bucket_1
 bucket_2
 
 # open a browser window and login to AWS Console
-$ aws-vault login home
+$ aws-vault login home # the optional -s flag returns the link to STDOUT
 
 # List credentials
 $ aws-vault list

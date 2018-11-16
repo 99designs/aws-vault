@@ -1,3 +1,3 @@
-aws-vault
-aws-vault-*
+/aws-vault
+/aws-vault-*
 .DS_Store

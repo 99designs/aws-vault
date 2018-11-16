@@ -34,6 +34,8 @@ func ConfigPath() (string, error) {
 			return "", err
 		}
 		file = filepath.Join(home, "/.aws/config")
+	} else {
+		log.Printf("Using AWS_CONFIG_FILE value: %s", file)
 	}
 	return file, nil
 }

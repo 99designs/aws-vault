@@ -175,7 +175,8 @@ func GetUsernameFromSession(sess *session.Session) (string, error) {
 		// on the master credentials, but have permission to use assumeRole later
 		matches := getUserErrorRegexp.FindStringSubmatch(err.Error())
 		if len(matches) > 0 {
-			return matches[2], nil
+			pathParts := strings.Split(matches[2], "/")
+			return pathParts[len(pathParts)-1], nil
 		}
 
 		return "", err

@@ -9,10 +9,13 @@ require (
 	github.com/aws/aws-sdk-go v1.20.15
 	github.com/go-ini/ini v1.42.0
 	github.com/gopherjs/gopherjs v0.0.0-20190430165422-3e4dfb77656c // indirect
+	github.com/mdp/qrterminal v1.0.1
 	github.com/mitchellh/go-homedir v1.1.0
+	github.com/pkg/errors v0.8.1
 	github.com/skratchdot/open-golang v0.0.0-20190402232053-79abb63cd66e
 	github.com/smartystreets/assertions v1.0.0 // indirect
 	github.com/smartystreets/goconvey v0.0.0-20190330032615-68dc04aab96a // indirect
+	github.com/yawn/ykoath v1.0.2
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/ini.v1 v1.42.0 // indirect

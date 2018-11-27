@@ -52,6 +52,25 @@ Profile                  Credentials              Sessions
 home                     home                     -
 ```
 
+#### Yubikey
+
+Yubikey is supported, but not required, as a MFA device. Remove any existing MFA device on your account before attempting to add a Yubikey.
+
+```
+# Add your Yubikey (with optional require touch)
+$ aws-vault add-yubikey <aws username> <profile> --touch
+```
+
+Use the QR code output with a virtual MFA app, such as Google Authenticator, to provide a way to get a OTP should your Yubikey be unavailable for any reason. Open Yubico Authenticator to see the added config.
+
+Once added, commands that require a OTP, eg `exec`, will get one from your Yubikey *for any profile that has the same `mfa_serial=arn:aws:iam::123456789012:mfa/jonsmith` as the profile used when adding the Yubikey* (see [assuming-roles](#assuming-roles)).
+
+To login to the aws console you'll need to use Yubico Authenticator (or the app you scanned the QR code with) to generate a OTP as the [AWS SDK doesn't support U2F](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_u2f_supported_configurations.html#id_credentials_mfa_u2f_cliapi) (TOTP is used as a fallback, but that requires a code to be entered for console login). If you _really_ want to use your Yubkey for U2F when logging in to the console, setup 2 IAM accounts, one using U2F for use with the console and one using TOTP for commandline usage (AWS only allows 1 MFA device per IAM account).
+
+```
+# Remove Yubikey (for all profiles that use the same mfa_serial)
+$ aws-vault remove-yubikey <aws username> <profile>
+```
 
 ## Security
 ```bash
@@ -80,7 +99,7 @@ The default is to use environment variables, but you can opt-in to the local ins
 
 Best-practice is to have a read-only account that you use on a day-to-day basis, and then use [IAM roles to assume temporary admin privileges](http://docs.aws.amazon.com/cli/latest/userguide/cli-roles.html) along with an MFA.
 
-First you'll need to [setup an MFA token in the AWS Console](http://docs.aws.amazon.com/IAM/latest/UserGuide/GenerateMFAConfigAccount.html) and create a role with admin access.
+First you'll need to [setup an MFA token in the AWS Console](http://docs.aws.amazon.com/IAM/latest/UserGuide/GenerateMFAConfigAccount.html) (alternatively [use a Yubikey](#yubikey)) and create a role with admin access.
 
 Edit your `~/.aws/config` to add the role_arn and MFA serial number into a new profile:
 
@@ -164,3 +183,4 @@ codesign -s "Name of my certificate" ./aws-vault
  * https://github.com/realestate-com-au/credulous
  * https://github.com/dump247/aws-mock-metadata
  * http://boto.readthedocs.org/en/latest/boto_config_tut.html
+ * https://github.com/kreuzwerker/awsu

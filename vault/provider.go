@@ -8,6 +8,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/99designs/aws-vault/mfa"
+	"github.com/99designs/aws-vault/mfa/device/yubikey"
 	"github.com/99designs/aws-vault/prompt"
 	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws"
@@ -270,7 +272,13 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 	if p.VaultOptions.MfaSerial != "" {
 		params.SerialNumber = aws.String(p.VaultOptions.MfaSerial)
 		if p.MfaToken == "" {
-			token, err := p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", p.VaultOptions.MfaSerial))
+			// try yubikey first
+			token, err := p.otpFromYubikey(p.VaultOptions.MfaSerial)
+
+			if err != nil {
+				// unable to get otp from yubikey, prompt user
+				token, err := p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", p.VaultOptions.MfaSerial))
+			}
 			if err != nil {
 				return sts.Credentials{}, err
 			}
@@ -333,6 +341,31 @@ func (p *VaultProvider) assumeRoleFromSession(creds sts.Credentials, profile Pro
 	return *resp.Credentials, nil
 }
 
+// otpFromYubikeu attempts to get an otp from a yubikey, obviously will fail when no yubikey or not configured.
+func (p *VaultProvider) otpFromYubikey(serial string) (string, error) {
+	// try to get otp from yubikey
+	name, err := mfa.SerialToName(&serial)
+	if err != nil {
+		return "", err
+	}
+
+	cb := func(name string) error {
+		os.Stderr.WriteString("waiting for yubikey touch...\n")
+		return nil
+	}
+	token, err := yubikey.New(cb)
+	if err != nil {
+		return "", err
+	}
+
+	otp, err := token.GetOTP(time.Now(), name)
+	if err != nil {
+		return "", err
+	}
+
+	return otp, nil
+}
+
 // assumeRole uses IAM credentials to assume a role
 func (p *VaultProvider) assumeRole(creds credentials.Value, profile Profile) (sts.Credentials, error) {
 	client := sts.New(session.New(p.awsConfig().
@@ -353,7 +386,13 @@ func (p *VaultProvider) assumeRole(creds credentials.Value, profile Profile) (st
 	if p.VaultOptions.MfaSerial != "" {
 		input.SerialNumber = aws.String(p.VaultOptions.MfaSerial)
 		if p.MfaToken == "" {
-			token, err := p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", p.VaultOptions.MfaSerial))
+			// try yubikey first
+			token, err := p.otpFromYubikey(profile.MFASerial)
+
+			if err != nil {
+				// unable to get otp from yubikey, prompt user
+				token, err := p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", p.VaultOptions.MfaSerial))
+			}
 			if err != nil {
 				return sts.Credentials{}, err
 			}

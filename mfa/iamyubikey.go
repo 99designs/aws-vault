@@ -179,22 +179,22 @@ func CallerIdentityToSerial(i *string) (string, error) {
 
 }
 
-// SerialToName converts a MFA serial to a source name
+// SerialToName converts a MFA serial to a issuer:account name string that displays nicely in the
+// Yubico Authenticator app as
+// --------------------------------------------
+// |  issuer (substring before first :)       |
+// |  otp here (after Yubikey touch possibly) |
+// |  account name (substring after first :)  |
+// --------------------------------------------
 func SerialToName(i *string) (string, error) {
-
 	a, err := arn.Parse(*i)
 
 	if err != nil {
 		return "", errors.Wrapf(err, "unable to parse arn: %s", *i)
 	}
 
-	var (
-		issuer = fmt.Sprintf("aws/iam/%s", a.AccountID)
-		name   = strings.TrimPrefix(a.Resource, "device/")
-	)
-
 	return strings.Join([]string{
-		issuer,
-		name,
+		"aws",      // issuer
+		a.String(), // account name
 	}, ":"), nil
 }

@@ -61,9 +61,9 @@ func (m *MFA) Delete(username string) error {
 		return err
 	}
 
-	if err := m.deactivate(username, &serial); err != nil {
-		return err
-	}
+	// always call aws to disable mfa device and if successful remove from yubikey, ignore errors so multiple calls
+	// leave clean state (as far as possible)
+	m.deactivate(username, &serial)
 
 	if err := m.delete(&serial); err != nil {
 		return err

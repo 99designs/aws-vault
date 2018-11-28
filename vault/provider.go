@@ -277,7 +277,7 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 
 			if err != nil {
 				// unable to get otp from yubikey, prompt user
-				token, err := p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", p.VaultOptions.MfaSerial))
+				token, err = p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", p.VaultOptions.MfaSerial))
 			}
 			if err != nil {
 				return sts.Credentials{}, err
@@ -391,7 +391,7 @@ func (p *VaultProvider) assumeRole(creds credentials.Value, profile Profile) (st
 
 			if err != nil {
 				// unable to get otp from yubikey, prompt user
-				token, err := p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", p.VaultOptions.MfaSerial))
+				token, err = p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", p.VaultOptions.MfaSerial))
 			}
 			if err != nil {
 				return sts.Credentials{}, err

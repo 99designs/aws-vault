@@ -96,7 +96,6 @@ func (m *MFA) create(username string) (*string, []byte, error) {
 func (m *MFA) enable(username string, serial *string, secret []byte) error {
 
 	name, err := SerialToName(serial)
-
 	if err != nil {
 		return err
 	}
@@ -133,9 +132,6 @@ func (m *MFA) enable(username string, serial *string, secret []byte) error {
 
 // deactivate deactivates the virtual MFA device and removes it from the source
 func (m *MFA) deactivate(username string, serial *string) error {
-
-	//log.Debug(logDeactivateVirtualDevice, *serial)
-
 	_, err := m.iam.DeactivateMFADevice(&iam.DeactivateMFADeviceInput{
 		SerialNumber: serial,
 		UserName:     &username,
@@ -160,9 +156,6 @@ func (m *MFA) deactivate(username string, serial *string) error {
 
 // delete deletes the virtual MFA device
 func (m *MFA) delete(serial *string) error {
-
-	//log.Debug(logDeleteVirtualDevice, *serial)
-
 	_, err := m.iam.DeleteVirtualMFADevice(&iam.DeleteVirtualMFADeviceInput{
 		SerialNumber: serial,
 	})
@@ -177,13 +170,11 @@ func (m *MFA) delete(serial *string) error {
 
 // CallerIdentityToSerial converts a caller identity ARN to a MFA serial
 func CallerIdentityToSerial(i *string) (string, error) {
-
 	a, err := arn.Parse(*i)
 
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to parse %q as ARN", *i)
 	}
-
 	return strings.Replace(a.String(), ":user/", ":mfa/", 1), nil
 
 }
@@ -206,5 +197,4 @@ func SerialToName(i *string) (string, error) {
 		issuer,
 		name,
 	}, ":"), nil
-
 }

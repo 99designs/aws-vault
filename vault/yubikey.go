@@ -23,7 +23,7 @@ type Yubikey struct {
 }
 
 // Create adds a yubikey as a device device for an iam user and stores the config in a keychain
-func (y *Yubikey) Register(profile string) error {
+func (y *Yubikey) Register(profile string, requireTouch bool) error {
 	var err error
 
 	source, _ := y.Config.SourceProfile(profile)
@@ -52,14 +52,11 @@ func (y *Yubikey) Register(profile string) error {
 		masterCreds.AccessKeyID[len(masterCreds.AccessKeyID)-4:],
 		currentUserName)
 
-	cb := func(name string) error {
-		log.Println("waiting for yubikey touch...")
-		return nil
-	}
-	device, err := yubikey.New(cb)
+	device, err := yubikey.New()
 	if err != nil {
 		return err
 	}
+	device.RequireAddTouch(requireTouch)
 
 	m, err := mfa.New(sess, device)
 	if err != nil {
@@ -117,11 +114,7 @@ func (y *Yubikey) Remove(profile string) error {
 		masterCreds.AccessKeyID[len(masterCreds.AccessKeyID)-4:],
 		currentUserName)
 
-	cb := func(name string) error {
-		log.Println("waiting for yubikey touch...")
-		return nil
-	}
-	device, err := yubikey.New(cb)
+	device, err := yubikey.New()
 	if err != nil {
 		return err
 	}

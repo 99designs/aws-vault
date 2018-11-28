@@ -349,11 +349,7 @@ func (p *VaultProvider) otpFromYubikey(serial string) (string, error) {
 		return "", err
 	}
 
-	cb := func(name string) error {
-		os.Stderr.WriteString("waiting for yubikey touch...\n")
-		return nil
-	}
-	token, err := yubikey.New(cb)
+	token, err := yubikey.New()
 	if err != nil {
 		return "", err
 	}

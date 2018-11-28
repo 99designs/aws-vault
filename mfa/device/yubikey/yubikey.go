@@ -1,6 +1,7 @@
 package yubikey
 
 import (
+	"os"
 	"sync"
 	"time"
 
@@ -9,21 +10,23 @@ import (
 	"github.com/yawn/ykoath"
 )
 
-type touchRequiredCallback func(name string) error
-
 // Yubikey is a ReaderManager based on a Yubikey.
 type Yubikey struct {
 	client *ykoath.OATH
 	sync.Mutex
-	touchRequiredCallback
+	AddOptions AddOptions
+}
+
+// AddOptions configure Add() behaviour.
+type AddOptions struct {
+	requireTouch bool
 }
 
 // Ensure ReaderManager implemented.
 var _ device.ReaderManager = &Yubikey{}
 
 // New initializes a new Yubikey source.
-func New(cb touchRequiredCallback) (*Yubikey, error) {
-
+func New() (*Yubikey, error) {
 	oath, err := ykoath.New()
 
 	if err != nil {
@@ -37,15 +40,21 @@ func New(cb touchRequiredCallback) (*Yubikey, error) {
 	}
 
 	return &Yubikey{
-		client:                oath,
-		touchRequiredCallback: cb,
+		client:     oath,
+		AddOptions: AddOptions{},
 	}, nil
 
 }
 
+// RequireAddTouch sets whether a touch is required to provide a otp.
+func (y *Yubikey) RequireAddTouch(requireTouch bool) *Yubikey {
+	y.AddOptions.requireTouch = requireTouch
+	return y
+}
+
 // Add adds / overwrites a credential to a Yubikey.
 func (y *Yubikey) Add(name string, secret []byte) error {
-	return y.client.Put(name, ykoath.HmacSha1, ykoath.Totp, 6, secret, y.touchRequiredCallback != nil)
+	return y.client.Put(name, ykoath.HmacSha1, ykoath.Totp, 6, secret, y.AddOptions.requireTouch)
 }
 
 // Delete deletes a credential from a Yubikey.
@@ -67,10 +76,15 @@ func (y *Yubikey) GetOTP(now time.Time, name string) (string, error) {
 		return now
 	}
 
-	return y.client.Calculate(name, y.touchRequiredCallback)
+	return y.client.Calculate(name, touchRequiredCallback)
 }
 
 // Name returns the name of this reader.
 func (y *Yubikey) Name() string {
 	return "yubikey (ykoath)"
+}
+
+func touchRequiredCallback(name string) error {
+	os.Stderr.WriteString("waiting for yubikey touch...\n")
+	return nil
 }

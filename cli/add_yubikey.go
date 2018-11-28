@@ -9,9 +9,10 @@ import (
 )
 
 type AddYubikeyCommandInput struct {
-	Profile  string
-	Keyring  keyring.Keyring
-	Username string
+	Profile      string
+	Keyring      keyring.Keyring
+	Username     string
+	RequireTouch bool
 }
 
 func ConfigureAddYubikeyCommand(app *kingpin.Application) {
@@ -25,6 +26,9 @@ func ConfigureAddYubikeyCommand(app *kingpin.Application) {
 	cmd.Arg("profile", "Name of the profile").
 		Required().
 		StringVar(&input.Profile)
+
+	cmd.Flag("touch", "Require Yubikey touch to generate otp").
+		BoolVar(&input.RequireTouch)
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.Keyring = keyringImpl
@@ -42,7 +46,7 @@ func AddYubikeyCommand(app *kingpin.Application, input AddYubikeyCommandInput) {
 
 	fmt.Printf("Adding yubikey to user %s using profile %s)\n", input.Username, input.Profile)
 
-	if err := yubikey.Register(input.Profile); err != nil {
+	if err := yubikey.Register(input.Profile, input.RequireTouch); err != nil {
 		app.Fatalf("error registering yubikey", err)
 	}
 

@@ -53,7 +53,7 @@ func (m *MFA) Delete(username string) error {
 	res, err := m.sts.GetCallerIdentity(&sts.GetCallerIdentityInput{})
 
 	if err != nil {
-		return errors.Wrapf(err, "failed to determine serial number for device deletion")
+		return errors.Wrap(err, "failed to determine serial number for device deletion")
 	}
 
 	serial, err := CallerIdentityToSerial(res.Arn)
@@ -82,13 +82,13 @@ func (m *MFA) create(username string) (*string, []byte, error) {
 	})
 
 	if err != nil {
-		return nil, nil, errors.Wrapf(err, "error creating virtual device device")
+		return nil, nil, errors.Wrap(err, "error creating virtual device")
 	}
 
 	secret, err := base32.StdEncoding.DecodeString(string(res.VirtualMFADevice.Base32StringSeed))
 
 	if err != nil {
-		return nil, nil, errors.Wrapf(err, "error decoding secret")
+		return nil, nil, errors.Wrap(err, "error decoding secret")
 	}
 
 	return res.VirtualMFADevice.SerialNumber, secret, nil
@@ -102,19 +102,19 @@ func (m *MFA) enable(username string, serial *string, secret []byte) error {
 	}
 
 	if err = m.device.Add(name, secret); err != nil {
-		return errors.Wrapf(err, "error adding source", name, m.device.Name())
+		return errors.Wrapf(err, "error adding source %s %s", name, m.device.Name())
 	}
 
 	otp1, err := m.device.GetOTP(time.Now(), name)
 
 	if err != nil {
-		return errors.Wrapf(err, "error getting first otp")
+		return errors.Wrap(err, "error getting first otp")
 	}
 
 	otp2, err := m.device.GetOTP(time.Now().Add(30*time.Second), name)
 
 	if err != nil {
-		return errors.Wrapf(err, "error getting second otp")
+		return errors.Wrap(err, "error getting second otp")
 	}
 
 	fmt.Printf("Yubikey virtual mfa device enabled with codes %s and %s\n", otp1, otp2)
@@ -125,7 +125,7 @@ func (m *MFA) enable(username string, serial *string, secret []byte) error {
 		SerialNumber:        serial,
 		UserName:            &username,
 	}); err != nil {
-		return errors.Wrapf(err, "error enabling Yubikey as virtual mfa device")
+		return errors.Wrap(err, "error enabling Yubikey as virtual mfa device")
 	}
 
 	return nil

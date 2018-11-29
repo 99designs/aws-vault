@@ -44,7 +44,7 @@ func AddYubikeyCommand(app *kingpin.Application, input AddYubikeyCommandInput) {
 		Config:   awsConfig,
 	}
 
-	fmt.Printf("Adding yubikey to user %s using profile %s)\n", input.Username, input.Profile)
+	fmt.Printf("Adding yubikey to user %s using profile %s\n", input.Username, input.Profile)
 
 	if err := yubikey.Register(input.Profile, input.RequireTouch); err != nil {
 		app.Fatalf("error registering yubikey", err)

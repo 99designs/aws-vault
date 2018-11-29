@@ -14,6 +14,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// MFA combines IAM config with a MFA device
 type MFA struct {
 	iam    *iam.IAM
 	device device.ReaderManager

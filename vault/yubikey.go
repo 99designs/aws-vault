@@ -75,7 +75,7 @@ func (y *Yubikey) Register(profile string, requireTouch bool) error {
 		"Amazon",
 	)
 
-	qrterminal.GenerateHalfBlock(uri, qrterminal.L, os.Stderr)
+	qrterminal.Generate(uri, qrterminal.L, os.Stderr)
 
 	if serial != nil {
 		log.Println("success:", *serial)

@@ -144,6 +144,10 @@ given account:
 $ aws-vault login work
 ```
 
+## Using credential helper
+
+Ref: https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
+This allows you to use credentials of multiple profiles at the same time.
 
 ## Not using session credentials
 

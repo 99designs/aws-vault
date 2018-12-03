@@ -33,6 +33,7 @@ type ExecCommandInput struct {
 	NoSession        bool
 }
 
+// json metadata for AWS credential process. Ref: https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
 type AwsCredentialHelperData struct {
 	Version         int    `json:"Version"`
 	AccessKeyID     string `json:"AccessKeyId"`
@@ -64,7 +65,7 @@ func ConfigureExecCommand(app *kingpin.Application) {
 		Short('m').
 		StringVar(&input.MfaToken)
 
-	cmd.Flag("json", "AWS credential helper").
+	cmd.Flag("json", "AWS credential helper. Ref: https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes").
 		Short('j').
 		BoolVar(&input.CredentialHelper)
 

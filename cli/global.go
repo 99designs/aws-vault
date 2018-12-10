@@ -28,6 +28,9 @@ var GlobalFlags struct {
 	Backend      string
 	PromptDriver string
 	KeychainName string
+	PassDir      string
+	PassCmd      string
+	PassPrefix   string
 }
 
 func ConfigureGlobals(app *kingpin.Application) {
@@ -53,6 +56,18 @@ func ConfigureGlobals(app *kingpin.Application) {
 		OverrideDefaultFromEnvar("AWS_VAULT_KEYCHAIN_NAME").
 		StringVar(&GlobalFlags.KeychainName)
 
+	app.Flag("pass-dir", "Pass password store directory").
+		OverrideDefaultFromEnvar("AWS_VAULT_PASS_PASSWORD_STORE_DIR").
+		StringVar(&GlobalFlags.PassDir)
+
+	app.Flag("pass-cmd", "Name of the pass executable").
+		OverrideDefaultFromEnvar("AWS_VAULT_PASS_CMD").
+		StringVar(&GlobalFlags.PassCmd)
+
+	app.Flag("pass-prefix", "Prefix to prepend to the item path stored in pass").
+		OverrideDefaultFromEnvar("AWS_VAULT_PASS_PREFIX").
+		StringVar(&GlobalFlags.PassPrefix)
+
 	app.PreAction(func(c *kingpin.ParseContext) (err error) {
 		if !GlobalFlags.Debug {
 			log.SetOutput(ioutil.Discard)
@@ -70,6 +85,9 @@ func ConfigureGlobals(app *kingpin.Application) {
 				KeychainName:            GlobalFlags.KeychainName,
 				FileDir:                 "~/.awsvault/keys/",
 				FilePasswordFunc:        fileKeyringPassphrasePrompt,
+				PassDir:                 GlobalFlags.PassDir,
+				PassCmd:                 GlobalFlags.PassCmd,
+				PassPrefix:              GlobalFlags.PassPrefix,
 				LibSecretCollectionName: "awsvault",
 				KWalletAppID:            "aws-vault",
 				KWalletFolder:           "aws-vault",

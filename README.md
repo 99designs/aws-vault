@@ -4,6 +4,7 @@ Securely store and access credentials for AWS. AWS Vault stores IAM credentials 
 
 Currently the supported backends are:
 
+* Pass - the standard unix password manager
 * macOS Keychain
 * KWallet
 * freedesktop.org Secret Service
@@ -27,6 +28,7 @@ The macOS release is code-signed, and you can verify this with `codesign`:
     Authority=Developer ID Certification Authority
     Authority=Apple Root CA
 
+On Archlinux, `aws-vault` is available in the AUR.
 
 ## Usage
 

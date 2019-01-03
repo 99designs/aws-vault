@@ -3,10 +3,10 @@
 	"ignore": "test",
 	"package": [
 		{
-			"checksumSHA1": "9wLOSn9IjNKpyYRYVvR59MHrtBI=",
+			"checksumSHA1": "WhQPUMYs1QpqkiIDgCBGMNCMzWU=",
 			"path": "github.com/99designs/keyring",
-			"revision": "998b86358ae9d7c8bbbb1d57080a8eaca7ffc47b",
-			"revisionTime": "2018-08-02T12:37:33Z"
+			"revision": "370e8873a8dda4cecfe45812156f80c00d3601c2",
+			"revisionTime": "2018-12-21T23:44:55Z"
 		},
 		{
 			"checksumSHA1": "KmjnydoAbofMieIWm+it5OWERaM=",

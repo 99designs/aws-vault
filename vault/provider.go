@@ -384,6 +384,9 @@ func (p *KeyringProvider) Store(val credentials.Value) error {
 		Key:   p.Profile,
 		Label: fmt.Sprintf("aws-vault (%s)", p.Profile),
 		Data:  bytes,
+
+		// specific Keychain settings
+		KeychainNotTrustApplication: true,
 	})
 }
 

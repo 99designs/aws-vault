@@ -2,6 +2,7 @@ package keyring
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -23,6 +24,13 @@ func init() {
 		if cfg.PassDir == "" {
 			pass.dir = filepath.Join(os.Getenv("HOME"), ".password-store")
 		}
+
+		// fail if the pass program is not available
+		_, err := exec.LookPath(pass.passcmd)
+		if err != nil {
+			return nil, errors.New("The pass program is not available")
+		}
+
 		return pass, nil
 	})
 }

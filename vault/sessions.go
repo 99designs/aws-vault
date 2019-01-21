@@ -139,7 +139,7 @@ func (s *KeyringSessions) Store(profile string, session sts.Credentials, expires
 		Data:        bytes,
 
 		// specific Keychain settings
-		KeychainNotTrustApplication: true,
+		KeychainNotTrustApplication: false,
 	})
 }
 

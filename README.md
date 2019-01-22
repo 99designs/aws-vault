@@ -16,20 +16,12 @@ Check out the [announcement blog post](https://99designs.com.au/tech-blog/blog/2
 ## Installing
 
 You can install aws-vault:
-- macOS: via [homebrew](https://github.com/caskroom/homebrew-cask) with `brew cask install aws-vault`
-- Windows: via [choco](https://chocolatey.org/packages/aws-vault) with `choco install aws-vault`
-- Archlinux: available in the AUR
-- Downloading the [latest release](https://github.com/99designs/aws-vault/releases)
-- Compiling with `go get github.com/99designs/aws-vault`
+- by downloading the [latest release](https://github.com/99designs/aws-vault/releases)
+- on macOS via [homebrew](https://github.com/caskroom/homebrew-cask) with `brew cask install aws-vault`
+- on Windows via [choco](https://chocolatey.org/packages/aws-vault) with `choco install aws-vault`
+- on Archlinux via the [AUR](https://wiki.archlinux.org/index.php/Arch_User_Repository)
+- by compiling with `go get github.com/99designs/aws-vault`
 
-### macOS
-
-The [official macOS release](https://github.com/99designs/aws-vault/releases) is code-signed, and you can verify this with `codesign`:
-
-    $ codesign -dvv $(which aws-vault) 2>&1 | grep Authority
-    Authority=Developer ID Application: 99designs Inc (NRM9HVJ62Z)
-    Authority=Developer ID Certification Authority
-    Authority=Apple Root CA
 
 ## Usage
 
@@ -101,6 +93,16 @@ mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
 Then when you use the `admin` profile, `aws-vault` will look in the `read-only` profile's keychain for credentials and then use those credentials to assume the `admin` role. This assumed role is stored as a short duration session in your keychain so you will only have to enter MFA once per session.
 
 **Note:** If you have an MFA device attached to your account, the STS service will generate session tokens that are *invalid* unless you provide an MFA code. To enable MFA for a profile, specify the `mfa_serial` in `~/.aws/config`. You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username]`. If you have an account with an MFA associated, but you don't provide the IAM, you are unable to call IAM services, even if you have the correct permissions to do so. `mfa_serial` will not be inherited from the profile designated in `source_profile` - you must include a reference to `mfa_serial` in every profile you wish to use it with.
+
+## macOS code-signing
+
+The [macOS release builds](https://github.com/99designs/aws-vault/releases) are code-signed to avoid extra prompts in Keychain. You can verify this with:
+
+    $ codesign -dvv $(which aws-vault) 2>&1 | grep Authority
+    Authority=Developer ID Application: 99designs Inc (NRM9HVJ62Z)
+    Authority=Developer ID Certification Authority
+    Authority=Apple Root CA
+
 
 ## Development
 

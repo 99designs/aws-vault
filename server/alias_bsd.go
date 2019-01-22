@@ -1,4 +1,4 @@
-// build: freebsd
+// +build darwin freebsd
 
 package server
 

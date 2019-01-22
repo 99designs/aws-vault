@@ -24,13 +24,10 @@ aws-vault-darwin-amd64: $(SRC)
 aws-vault-windows-386.exe: $(SRC)
 	GOOS=windows GOARCH=386 go build -o $@ -ldflags="$(FLAGS)" .
 
-aws-vault-freebsd-386: $(SRC)
-	GOOS=freebsd GOARCH=386 go build -o $@ -ldflags="$(FLAGS)" .
-
 aws-vault-freebsd-amd64: $(SRC)
 	GOOS=freebsd GOARCH=amd64 go build -o $@ -ldflags="$(FLAGS)" .
 
-release: aws-vault-linux-amd64 aws-vault-darwin-amd64 aws-vault-windows-386.exe aws-vault-freebsd-386 aws-vault-freebsd-amd64
+release: aws-vault-linux-amd64 aws-vault-darwin-amd64 aws-vault-windows-386.exe aws-vault-freebsd-amd64
 
 clean:
-	rm -f aws-vault aws-vault-linux-amd64 aws-vault-darwin-amd64 aws-vault-windows-386.exe aws-vault-freebsd-386 aws-vault-freebsd-amd64
+	rm -f aws-vault aws-vault-linux-amd64 aws-vault-darwin-amd64 aws-vault-windows-386.exe aws-vault-freebsd-amd64

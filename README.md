@@ -4,31 +4,32 @@ Securely store and access credentials for AWS. AWS Vault stores IAM credentials 
 
 Currently the supported backends are:
 
-* Pass - the standard unix password manager
 * macOS Keychain
 * KWallet
 * freedesktop.org Secret Service
 * Encrypted file
+* Pass - the standard unix password manager
 
 Check out the [announcement blog post](https://99designs.com.au/tech-blog/blog/2015/10/26/aws-vault/) for more details.
 
 
 ## Installing
 
-Download the [latest release](https://github.com/99designs/aws-vault/releases).
+You can install aws-vault:
+- macOS: via [homebrew](https://github.com/caskroom/homebrew-cask) with `brew cask install aws-vault`
+- Windows: via [choco](https://chocolatey.org/packages/aws-vault) with `choco install aws-vault`
+- Archlinux: available in the AUR
+- Downloading the [latest release](https://github.com/99designs/aws-vault/releases)
+- Compiling with `go get github.com/99designs/aws-vault`
 
-On macOS, you may instead use [homebrew cask](https://github.com/caskroom/homebrew-cask) to install:
+### macOS
 
-    $ brew cask install aws-vault
-
-The macOS release is code-signed, and you can verify this with `codesign`:
+The [official macOS release](https://github.com/99designs/aws-vault/releases) is code-signed, and you can verify this with `codesign`:
 
     $ codesign -dvv $(which aws-vault) 2>&1 | grep Authority
     Authority=Developer ID Application: 99designs Inc (NRM9HVJ62Z)
     Authority=Developer ID Certification Authority
     Authority=Apple Root CA
-
-On Archlinux, `aws-vault` is available in the AUR.
 
 ## Usage
 
@@ -101,11 +102,9 @@ Then when you use the `admin` profile, `aws-vault` will look in the `read-only` 
 
 **Note:** If you have an MFA device attached to your account, the STS service will generate session tokens that are *invalid* unless you provide an MFA code. To enable MFA for a profile, specify the `mfa_serial` in `~/.aws/config`. You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username]`. If you have an account with an MFA associated, but you don't provide the IAM, you are unable to call IAM services, even if you have the correct permissions to do so. `mfa_serial` will not be inherited from the profile designated in `source_profile` - you must include a reference to `mfa_serial` in every profile you wish to use it with.
 
-
 ## Development
 
 Developed with golang, install with `go get github.com/99designs/aws-vault`
-
 
 ### Self-signing your binary
 

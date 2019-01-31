@@ -13,34 +13,9 @@ $ aws-vault --help-long
 $ aws-vault exec --help
 ```
 
+## Managing Profiles
 
-## Rotating Credentials
-
-Regularly rotating your access keys is a critical part of credential management. You can do this with the `aws-vault rotate <profile>` command as often as you like.
-
-The minimal IAM policy required to rotate your own credentials is:
-
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "iam:CreateAccessKey",
-                "iam:DeleteAccessKey",
-                "iam:GetUser"
-            ],
-            "Resource": [
-                "arn:aws:iam::*:user/${aws:username}"
-            ]
-        }
-    ]
-}
-```
-
-
-## Using aws-vault with multiple profiles
+### Using multiple profiles
 
 In addition to using IAM roles to assume temporary privileges as described in
 [README.md](./USAGE.md), aws-vault can also be used with multiple profiles directly. This allows you
@@ -67,38 +42,33 @@ $ aws-vault exec work -- aws s3 ls
 another_bucket
 ```
 
+### Example ~/.aws/config
 
-## Overriding the aws CLI to use aws-vault
+Here is an example ~/.aws/config file, to help show the configuation. It defines two AWS accounts:
+"home" and "work", both of which use MFA. The work account provides two roles, allowing the user to
+become either profile.
 
-If you want the `aws` command to use aws-vault automatically, you can create an overriding script
-(make it higher precedence in your PATH) that looks like the below:
+```ini
+[profile home]
+region = us-east-1
+mfa_serial = arn:aws:iam::IAM_ACCOUNTID:mfa/home-account
 
-```bash
-#!/bin/bash
-exec aws-vault exec "${AWS_DEFAULT_PROFILE:-work}" -- /usr/local/bin/aws "$@"
+[profile work]
+region = eu-west-1
+mfa_serial = arn:aws:iam::IAM_ACCOUNTID:mfa/work-account
+
+[profile work-read_only_role]
+role_arn = arn:aws:iam::IAM_ACCOUNTID:role/read_only_role
+source_profile = work
+mfa_serial = arn:aws:iam::IAM_ACCOUNTID:mfa/work-account
+
+[profile work-admin_role]
+role_arn = arn:aws:iam::IAM_ACCOUNTID:role/admin_role
+source_profile = work
+mfa_serial = arn:aws:iam::IAM_ACCOUNTID:mfa/work-account
 ```
 
-The exec helps reduce the number of processes that are hanging around. The `$@` passes on the
-arguments from the wrapper to the original command.
-
-
-## Backends
-
-You can choose among different pluggable secret storage backends. 
-
-By default, Linux uses an encrypted file but you may prefer to use the secret-service backend which [abstracts over Gnome/KDE](https://specifications.freedesktop.org/secret-service/). This can be specified on the command line with `aws-vault --backend=secret-service` or by setting the environment variable `export AWS_VAULT_BACKEND=secret-service`.
-
-
-## Removing stored sessions
-
-If you want to remove sessions managed by `aws-vault` before they expire, you can do this with the `--sessions-only` flag.
-
-```bash
-aws-vault remove <profile> --sessions-only
-```
-
-
-## Listing profiles
+### Listing profiles
 
 You can use the `aws-vault list` command to list out the defined profiles, and any session
 associated with them.
@@ -113,8 +83,7 @@ work-read_only_role      work
 work-admin_role          work                        
 ``` 
 
-
-## Removing profiles
+### Removing profiles
 
 The `aws-vault remove` command can be used to remove credentials. It works similarly to the
 `aws-vault add` command.
@@ -135,6 +104,41 @@ $ aws-vault remove work --sessions-only
 Deleted 1 sessions.
 ```
 
+## Environment variables
+
+The following environment variables can be set to override the default flag
+values of `aws-vault` and its subcommands.
+
+For the `aws-vault` command:
+
+* `AWS_VAULT_BACKEND`: Secret backend to use (see the flag `--backend`)
+* `AWS_VAULT_KEYCHAIN_NAME`: Name of macOS keychain to use (see the flag `--keychain`)
+* `AWS_VAULT_PROMPT`: Prompt driver to use (see the flag `--prompt`)
+
+For the `aws-vault exec` subcommand:
+
+* `AWS_ASSUME_ROLE_TTL`: Expiration time for aws assumed role (see the flag `--assume-role-ttl)
+* `AWS_SESSION_TTL`:  Expiration time for aws session (see the flag `--session-ttl`)
+
+For the `aws-vault login` subcommand:
+
+* `AWS_FEDERATION_TOKEN_TTL`: Expiration time for aws console session (see the flag `--federation-token-ttl`)
+
+
+## Backends
+
+You can choose among different pluggable secret storage backends. 
+
+By default, Linux uses an encrypted file but you may prefer to use the secret-service backend which [abstracts over Gnome/KDE](https://specifications.freedesktop.org/secret-service/). This can be specified on the command line with `aws-vault --backend=secret-service` or by setting the environment variable `export AWS_VAULT_BACKEND=secret-service`.
+
+
+## Removing stored sessions
+
+If you want to remove sessions managed by `aws-vault` before they expire, you can do this with the `--sessions-only` flag.
+
+```bash
+aws-vault remove <profile> --sessions-only
+```
 
 ## Logging into AWS console
 
@@ -190,49 +194,41 @@ then you can't use an AWS session, because AWS will return a 403 on the GetFeder
 operation. That is when you'll use the less secure solution described above.
 
 
-## Environment variables
+## Rotating Credentials
 
-The following environment variables can be set to override the default flag
-values of `aws-vault` and its subcommands.
+Regularly rotating your access keys is a critical part of credential management. You can do this with the `aws-vault rotate <profile>` command as often as you like.
 
-For the `aws-vault` command:
+The minimal IAM policy required to rotate your own credentials is:
 
-* `AWS_VAULT_BACKEND`: Secret backend to use (see the flag `--backend`)
-* `AWS_VAULT_KEYCHAIN_NAME`: Name of macOS keychain to use (see the flag `--keychain`)
-* `AWS_VAULT_PROMPT`: Prompt driver to use (see the flag `--prompt`)
-
-For the `aws-vault exec` subcommand:
-
-* `AWS_ASSUME_ROLE_TTL`: Expiration time for aws assumed role (see the flag `--assume-role-ttl)
-* `AWS_SESSION_TTL`:  Expiration time for aws session (see the flag `--session-ttl`)
-
-For the `aws-vault login` subcommand:
-
-* `AWS_FEDERATION_TOKEN_TTL`: Expiration time for aws console session (see the flag `--federation-token-ttl`)
-
-
-## Example ~/.aws/config
-
-Here is an example ~/.aws/config file, to help show the configuation. It defines two AWS accounts:
-"home" and "work", both of which use MFA. The work account provides two roles, allowing the user to
-become either profile.
-
-```ini
-[profile home]
-region = us-east-1
-mfa_serial = arn:aws:iam::IAM_ACCOUNTID:mfa/home-account
-
-[profile work]
-region = eu-west-1
-mfa_serial = arn:aws:iam::IAM_ACCOUNTID:mfa/work-account
-
-[profile work-read_only_role]
-role_arn = arn:aws:iam::IAM_ACCOUNTID:role/read_only_role
-source_profile = work
-mfa_serial = arn:aws:iam::IAM_ACCOUNTID:mfa/work-account
-
-[profile work-admin_role]
-role_arn = arn:aws:iam::IAM_ACCOUNTID:role/admin_role
-source_profile = work
-mfa_serial = arn:aws:iam::IAM_ACCOUNTID:mfa/work-account
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "iam:CreateAccessKey",
+                "iam:DeleteAccessKey",
+                "iam:GetUser"
+            ],
+            "Resource": [
+                "arn:aws:iam::*:user/${aws:username}"
+            ]
+        }
+    ]
+}
 ```
+
+
+## Overriding the aws CLI to use aws-vault
+
+If you want the `aws` command to use aws-vault automatically, you can create an overriding script
+(make it higher precedence in your PATH) that looks like the below:
+
+```bash
+#!/bin/bash
+exec aws-vault exec "${AWS_DEFAULT_PROFILE:-work}" -- /usr/local/bin/aws "$@"
+```
+
+The exec helps reduce the number of processes that are hanging around. The `$@` passes on the
+arguments from the wrapper to the original command.

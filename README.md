@@ -21,6 +21,22 @@ You can install aws-vault:
 - on Windows via [choco](https://chocolatey.org/packages/aws-vault) with `choco install aws-vault`
 - on Archlinux via the [AUR](https://wiki.archlinux.org/index.php/Arch_User_Repository)
 - by compiling with `go get github.com/99designs/aws-vault`
+- on linux via curl:
+
+   ```bash
+   curl -Lo aws-vault https://github.com/99designs/aws-vault/releases/download/$(curl -s https://api.github.com/repos/99designs/aws-vault/releases/latest | grep tag_name | cut -d '"' -f 4)/aws-vault-linux-amd64
+   chmod +x ./aws-vault
+   sudo mv ./aws-vault /usr/local/bin/
+   ```
+
+ - on macOS via curl:
+
+   ```bash
+   curl -Lo aws-vault https://github.com/99designs/aws-vault/releases/download/$(curl -s https://api.github.com/repos/99designs/aws-vault/releases/latest | grep tag_name | cut -d '"' -f 4)/aws-vault-darwin-amd64
+   chmod +x ./aws-vault
+   sudo mv ./aws-vault /usr/local/bin/
+   ```
+
 
 
 ## Usage

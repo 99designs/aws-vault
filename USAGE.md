@@ -117,7 +117,7 @@ For the `aws-vault` command:
 
 For the `aws-vault exec` subcommand:
 
-* `AWS_ASSUME_ROLE_TTL`: Expiration time for aws assumed role (see the flag `--assume-role-ttl)
+* `AWS_ASSUME_ROLE_TTL`: Expiration time for aws assumed role (see the flag `--assume-role-ttl`)
 * `AWS_SESSION_TTL`:  Expiration time for aws session (see the flag `--session-ttl`)
 
 For the `aws-vault login` subcommand:

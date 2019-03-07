@@ -1,3 +1,4 @@
+export GO111MODULE=on
 VERSION=$(shell git describe --tags --candidates=1 --dirty)
 FLAGS=-X main.Version=$(VERSION) -s -w
 CERT="Developer ID Application: 99designs Inc (NRM9HVJ62Z)"

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func ZenityPrompt(prompt string) (string, error) {
+func ZenityPrompt(prompt string, _profile string) (string, error) {
 	cmd := exec.Command("zenity", "--entry", "--title=aws-vault", fmt.Sprintf(`--text=%s`, prompt))
 
 	out, err := cmd.Output()

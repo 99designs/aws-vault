@@ -1,11 +1,14 @@
 package prompt
 
-import "fmt"
+import (
+	"fmt"
+)
 
-type PromptFunc func(string) (string, error)
+type PromptFunc func(string, string) (string, error)
 
 var Methods = map[string]PromptFunc{
 	"terminal": TerminalPrompt,
+	"ykman":    YkmanPrompt,
 }
 
 func Available() []string {

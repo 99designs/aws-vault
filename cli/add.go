@@ -61,11 +61,11 @@ func AddCommand(app *kingpin.Application, input AddCommandInput) {
 		}
 	} else {
 		var err error
-		if accessKeyId, err = prompt.TerminalPrompt("Enter Access Key ID: "); err != nil {
+		if accessKeyId, err = prompt.TerminalPrompt("Enter Access Key ID: ", ""); err != nil {
 			app.Fatalf(err.Error())
 			return
 		}
-		if secretKey, err = prompt.TerminalPrompt("Enter Secret Access Key: "); err != nil {
+		if secretKey, err = prompt.TerminalPrompt("Enter Secret Access Key: ", ""); err != nil {
 			app.Fatalf(err.Error())
 			return
 		}

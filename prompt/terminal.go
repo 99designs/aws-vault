@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func TerminalPrompt(prompt string, _profile string) (string, error) {
+func TerminalPrompt(prompt string, _ string) (string, error) {
 	fmt.Fprint(os.Stderr, prompt)
 
 	reader := bufio.NewReader(os.Stdin)

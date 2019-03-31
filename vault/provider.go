@@ -249,7 +249,7 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 	if profile, _ := p.Config.Profile(p.profile); profile.MFASerial != "" {
 		params.SerialNumber = aws.String(profile.MFASerial)
 		if p.MfaToken == "" {
-			token, err := p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", profile.MFASerial), profile.Name)
+			token, err := p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", profile.MFASerial), profile.MFASerial)
 			if err != nil {
 				return sts.Credentials{}, err
 			}
@@ -332,7 +332,7 @@ func (p *VaultProvider) assumeRole(creds credentials.Value, profile Profile) (st
 	if profile.MFASerial != "" {
 		input.SerialNumber = aws.String(profile.MFASerial)
 		if p.MfaToken == "" {
-			token, err := p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", profile.MFASerial), profile.Name)
+			token, err := p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", profile.MFASerial), profile.MFASerial)
 			if err != nil {
 				return sts.Credentials{}, err
 			}

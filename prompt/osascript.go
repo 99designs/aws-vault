@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func OSAScriptPrompt(prompt string, _profile string) (string, error) {
+func OSAScriptPrompt(prompt string, _ string) (string, error) {
 	cmd := exec.Command("osascript", "-e", fmt.Sprintf(`
 		display dialog "%s" default answer "" buttons {"OK", "Cancel"} default button 1
         text returned of the result

@@ -92,12 +92,16 @@ mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
 
 Then when you use the `admin` profile, `aws-vault` will look in the `read-only` profile's keychain for credentials and then use those credentials to assume the `admin` role. This assumed role is stored as a short duration session in your keychain so you will only have to enter MFA once per session.
 
-**Note:** If you have an MFA device attached to your account, the STS service will generate session tokens that are *invalid* unless you provide an MFA code. To enable MFA for a profile, specify the `mfa_serial` in `~/.aws/config`. You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username]`. If you have an account with an MFA associated, but you don't provide the IAM, you are unable to call IAM services, even if you have the correct permissions to do so. `mfa_serial` will not be inherited from the profile designated in `source_profile` - you must include a reference to `mfa_serial` in every profile you wish to use it with.
+**Note:** If you have an MFA device attached to your account, the STS service will generate session tokens that are *invalid* unless you provide an MFA code. To enable MFA for a profile, specify the `mfa_serial` in `~/.aws/config`. You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username]`. If you have an account with an MFA associated, but you don't provide the IAM, you are unable to call IAM services, even if you have the correct permissions to do so.
 
-Alternatively, you can also specify your `mfa_serial` on your source profile. This can be very convenient if you routinely assume multiple roles from the same source because you will only need to provide an MFA token once per source profile session:
+`mfa_serial` will be inherited from the profile designated in `source_profile`, which can be very convenient if you routinely assume multiple roles from the same source because you will only need to provide an MFA token once per source profile session.
+
+In the example below, profiles `admin-a` and `admin-b` do not specify an `mfa_serial`, but because `read-only` specifies an `mfa_serial`, the user will be prompted for a token when either profile is used if the keychain does not contain an active session for `read-only`.
+
+Another benefit of using this configuration strategy is that the user only needs to personalize the configuration of profiles which use access keys. The set of profiles for roles can be copy / pasted from documentation sources.
 
 ```ini
-[profile master]
+[profile read-only]
 mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
 
 [profile admin-a]
@@ -112,7 +116,7 @@ role_arn = arn:aws:iam::987654321987:role/admin-access
 You can also define a chain of roles to assume:
 
 ```ini
-[profile master]
+[profile read-only]
 mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
 
 [profile intermediary]

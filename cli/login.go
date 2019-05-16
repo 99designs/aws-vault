@@ -33,12 +33,17 @@ type LoginCommandInput struct {
 	AssumeRoleDuration      time.Duration
 	Region                  string
 	Path                    string
+	NoSession               bool
 }
 
 func ConfigureLoginCommand(app *kingpin.Application) {
 	input := LoginCommandInput{}
 
 	cmd := app.Command("login", "Generate a login link for the AWS Console")
+	cmd.Flag("no-session", "Use root credentials, no session created").
+		Short('n').
+		BoolVar(&input.NoSession)
+
 	cmd.Arg("profile", "Name of the profile").
 		Required().
 		StringVar(&input.Profile)
@@ -80,12 +85,17 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 
 	profile, _ := awsConfig.Profile(input.Profile)
 
+	noSession := input.NoSession
+	if profile.SourceProfile == "" {
+		noSession = true
+	}
+
 	provider, err := vault.NewVaultProvider(input.Keyring, input.Profile, vault.VaultOptions{
 		AssumeRoleDuration: input.AssumeRoleDuration,
 		MfaToken:           input.MfaToken,
 		MfaPrompt:          input.MfaPrompt,
 		Path:               input.Path,
-		NoSession:          true,
+		NoSession:          noSession,
 		Config:             awsConfig,
 		Region:             profile.Region,
 	})
@@ -144,7 +154,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 	q.Add("Session", string(jsonBytes))
 
 	// not needed for federation tokens
-	if !isFederated {
+	if noSession && !isFederated {
 		q.Add("SessionDuration", fmt.Sprintf("%.f", sessionDuration.Seconds()))
 	}
 

@@ -64,7 +64,7 @@ another_bucket
 
 ## Example ~/.aws/config
 
-Here is an example ~/.aws/config file, to help show the configuation. It defines two AWS accounts:
+Here is an example ~/.aws/config file, to help show the configuration. It defines two AWS accounts:
 "home" and "work", both of which use MFA. The work account provides two roles, allowing the user to
 become either profile.
 

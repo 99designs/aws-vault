@@ -237,5 +237,8 @@ func (r *Rotator) needsSessionToRotate(profileName string) bool {
 		// TODO: should this comparison be case-insensitive?
 		return true
 	}
+	if sourceProfile.MFASerial != "" {
+		return true
+	}
 	return false
 }

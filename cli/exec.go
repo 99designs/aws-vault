@@ -140,7 +140,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 			SessionToken:    val.SessionToken,
 		}
 		if !input.NoSession {
-			credentialData.Expiration = time.Now().UTC().Add(input.Duration).Format("2006-01-02T15:04:05Z")
+			credentialData.Expiration = creds.Expires().Format("2006-01-02T15:04:05Z")
 		}
 		json, err := json.Marshal(&credentialData)
 		if err != nil {

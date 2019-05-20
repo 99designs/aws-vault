@@ -107,7 +107,9 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 			log.Println(err)
 		}
 
-		// session lookup missed, we need to create a new one
+		// session lookup missed, we need to create a new one.
+		// If the selected profile has a SourceProfile, create a new VaultCredentials for the source
+		// to support using an existing session for master credentials and allow assume role chaining.
 		if profile, exists := p.config.Profile(p.profile); exists && profile.SourceProfile != "" {
 			creds, err := NewVaultCredentials(p.keyring, profile.SourceProfile, p.VaultOptions)
 			if err != nil {

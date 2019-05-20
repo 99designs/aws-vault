@@ -107,19 +107,39 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 			log.Println(err)
 		}
 
-		// session lookup missed, we need to create a new one
-		creds, err := p.getMasterCreds()
-		if err != nil {
-			return credentials.Value{}, err
-		}
+		// session lookup missed, we need to create a new one.
+		// If the selected profile has a SourceProfile, create a new VaultCredentials for the source
+		// to support using an existing session for master credentials and allow assume role chaining.
+		if profile, exists := p.config.Profile(p.profile); exists && profile.SourceProfile != "" {
+			creds, err := NewVaultCredentials(p.keyring, profile.SourceProfile, p.VaultOptions)
+			if err != nil {
+				log.Printf("Failed to create NewVaultCredentials for profile %q", profile.SourceProfile)
+				return credentials.Value{}, err
+			}
+			val, err := creds.Get()
+			if err != nil {
+				return credentials.Value{}, err
+			}
+			exp := creds.Expires()
+			session = sts.Credentials{
+				AccessKeyId:     &val.AccessKeyID,
+				SecretAccessKey: &val.SecretAccessKey,
+				SessionToken:    &val.SessionToken,
+				Expiration:      &exp,
+			}
+		} else {
+			creds, err := p.getMasterCreds()
+			if err != nil {
+				return credentials.Value{}, err
+			}
+			session, err = p.getSessionToken(&creds)
+			if err != nil {
+				return credentials.Value{}, err
+			}
 
-		session, err = p.getSessionToken(&creds)
-		if err != nil {
-			return credentials.Value{}, err
-		}
-
-		if err = p.sessions.Store(p.profile, session, time.Now().Add(p.SessionDuration)); err != nil {
-			return credentials.Value{}, err
+			if err = p.sessions.Store(p.profile, session, time.Now().Add(p.SessionDuration)); err != nil {
+				return credentials.Value{}, err
+			}
 		}
 	}
 

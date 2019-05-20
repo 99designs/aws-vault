@@ -80,12 +80,10 @@ mfa_serial = arn:aws:iam::IAM_ACCOUNTID:mfa/work-account
 [profile work-read_only_role]
 role_arn = arn:aws:iam::IAM_ACCOUNTID:role/read_only_role
 source_profile = work
-mfa_serial = arn:aws:iam::IAM_ACCOUNTID:mfa/work-account
 
 [profile work-admin_role]
 role_arn = arn:aws:iam::IAM_ACCOUNTID:role/admin_role
 source_profile = work
-mfa_serial = arn:aws:iam::IAM_ACCOUNTID:mfa/work-account
 ```
 
 ## Listing profiles

@@ -28,6 +28,7 @@ type ExecCommandInput struct {
 	MfaToken         string
 	MfaPrompt        prompt.PromptFunc
 	StartServer      bool
+	EcsServer        bool
 	CredentialHelper bool
 	Signals          chan os.Signal
 	NoSession        bool
@@ -73,6 +74,10 @@ func ConfigureExecCommand(app *kingpin.Application) {
 		Short('s').
 		BoolVar(&input.StartServer)
 
+	cmd.Flag("ecs-server", "Run the ECS server in the background for credentials").
+		Short('e').
+		BoolVar(&input.EcsServer)
+
 	cmd.Arg("profile", "Name of the profile").
 		Required().
 		HintAction(ProfileNames).
@@ -102,7 +107,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 
 	var setEnv = true
 
-	if input.NoSession && input.StartServer {
+	if input.NoSession && (input.StartServer || input.EcsServer) {
 		app.Fatalf("Can't start a credential server without a session")
 		return
 	}
@@ -164,7 +169,15 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 			env.Set("AWS_REGION", profile.Region)
 		}
 
-		if setEnv {
+		if input.EcsServer {
+			ecsServer, err := server.StartEcsCredentialServer(creds)
+			if err != nil {
+				app.Fatalf("Error starting ECS Credential Server: %v", err)
+			}
+			log.Println("Setting subprocess env AWS_CONTAINER_CREDENTIALS_FULL_URI, AWS_CONTAINER_AUTHORIZATION_TOKEN")
+			env.Set("AWS_CONTAINER_CREDENTIALS_FULL_URI", ecsServer.Url)
+			env.Set("AWS_CONTAINER_AUTHORIZATION_TOKEN", ecsServer.Authorization)
+		} else if setEnv {
 			log.Println("Setting subprocess env: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY")
 			env.Set("AWS_ACCESS_KEY_ID", val.AccessKeyID)
 			env.Set("AWS_SECRET_ACCESS_KEY", val.SecretAccessKey)

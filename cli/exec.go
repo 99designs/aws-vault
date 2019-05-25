@@ -26,6 +26,7 @@ type ExecCommandInput struct {
 	Args             []string
 	Keyring          keyring.Keyring
 	StartEc2Server   bool
+	StartEcsServer   bool
 	CredentialHelper bool
 	Config           vault.Config
 	SessionDuration  time.Duration
@@ -66,6 +67,14 @@ func ConfigureExecCommand(app *kingpin.Application) {
 	cmd.Flag("server", "Run a server in the background for credentials").
 		Short('s').
 		BoolVar(&input.StartEc2Server)
+
+	cmd.Flag("ec2-server", "Run a EC2 metadata server in the background for credentials").
+		Hidden().
+		BoolVar(&input.StartEc2Server)
+
+	cmd.Flag("ecs-server", "Run a ECS credential server in the background for credentials").
+		Hidden().
+		BoolVar(&input.StartEcsServer)
 
 	cmd.Arg("profile", "Name of the profile").
 		Required().
@@ -118,11 +127,20 @@ func ExecCommand(input ExecCommandInput) error {
 		return fmt.Errorf("aws-vault sessions should be nested with care, unset $AWS_VAULT to force")
 	}
 
+	if input.StartEc2Server && input.StartEcsServer {
+		return fmt.Errorf("Can't use --server with --ecs-server")
+	}
 	if input.StartEc2Server && input.CredentialHelper {
 		return fmt.Errorf("Can't use --server with --json")
 	}
 	if input.StartEc2Server && input.NoSession {
 		return fmt.Errorf("Can't use --server with --no-session")
+	}
+	if input.StartEcsServer && input.CredentialHelper {
+		return fmt.Errorf("Can't use --ecs-server with --json")
+	}
+	if input.StartEcsServer && input.NoSession {
+		return fmt.Errorf("Can't use --ecs-server with --no-session")
 	}
 
 	vault.UseSession = !input.NoSession
@@ -142,6 +160,10 @@ func ExecCommand(input ExecCommandInput) error {
 
 	if input.StartEc2Server {
 		return execEc2Server(input, config, creds)
+	}
+
+	if input.StartEcsServer {
+		return execEcsServer(input, config, creds)
 	}
 
 	if input.CredentialHelper {
@@ -171,6 +193,23 @@ func execEc2Server(input ExecCommandInput, config *vault.Config, creds *credenti
 	env := environ(os.Environ())
 	env.Set("AWS_VAULT", input.ProfileName)
 	unsetAwsEnvVars(env)
+
+	return execCmd(input.Command, input.Args, env)
+}
+
+func execEcsServer(input ExecCommandInput, config *vault.Config, creds *credentials.Credentials) error {
+	ecsServer, err := server.StartEcsCredentialServer(creds)
+	if err != nil {
+		return fmt.Errorf("Failed to start credential server: %w", err)
+	}
+
+	env := environ(os.Environ())
+	env.Set("AWS_VAULT", input.ProfileName)
+	unsetAwsEnvVars(env)
+
+	log.Println("Setting subprocess env AWS_CONTAINER_CREDENTIALS_FULL_URI, AWS_CONTAINER_AUTHORIZATION_TOKEN")
+	env.Set("AWS_CONTAINER_CREDENTIALS_FULL_URI", ecsServer.Url)
+	env.Set("AWS_CONTAINER_AUTHORIZATION_TOKEN", ecsServer.Authorization)
 
 	return execCmd(input.Command, input.Args, env)
 }

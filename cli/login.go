@@ -219,6 +219,11 @@ func getFederationToken(creds credentials.Value, d time.Duration, region string)
 		return nil, err
 	}
 
+  // truncate the username if it's longer than 32 characters or else GetFederationToken will fail. see: https://docs.aws.amazon.com/STS/latest/APIReference/API_GetFederationToken.html
+	if len(currentUsername) > 32 {
+		currentUsername = currentUsername[0:32]
+	}
+
 	params := &sts.GetFederationTokenInput{
 		Name:            aws.String(currentUsername),
 		DurationSeconds: aws.Int64(int64(d.Seconds())),

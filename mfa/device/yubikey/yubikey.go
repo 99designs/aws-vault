@@ -76,7 +76,11 @@ func (y *Yubikey) GetOTP(now time.Time, name string) (string, error) {
 		return now
 	}
 
-	return y.client.Calculate(name, touchRequiredCallback)
+	code, err := y.client.Calculate(name, touchRequiredCallback)
+	if err == nil && y.AddOptions.requireTouch {
+		os.Stderr.WriteString("OK\n")
+	}
+	return code, err
 }
 
 // Name returns the name of this reader.

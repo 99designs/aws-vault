@@ -1,14 +1,16 @@
 # AWS Vault
 
-Securely store and access credentials for AWS. AWS Vault stores IAM credentials in your operating system's secure keystore and then generates temporary credentials from those to expose to your shell and applications. It's designed to be complementary to the aws cli tools, and is aware of your [profiles and configuration in `~/.aws/config`](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files).
+AWS Vault is a tool to securely store and access AWS credentials in a development environment.
+
+AWS Vault stores IAM credentials in your operating system's secure keystore and then generates temporary credentials from those to expose to your shell and applications. It's designed to be complementary to the AWS CLI tools, and is aware of your [profiles and configuration in `~/.aws/config`](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files).
 
 Currently the supported backends are:
 
-* macOS Keychain
-* KWallet
-* freedesktop.org Secret Service
+* [macOS Keychain Access](https://support.apple.com/en-au/guide/keychain-access/kyca1083/mac)
+* [Secret Service](https://specifications.freedesktop.org/secret-service/)
+* [KWallet](https://github.com/KDE/kwallet)
+* [Pass](https://www.passwordstore.org/)
 * Encrypted file
-* Pass - the standard unix password manager
 
 Check out the [announcement blog post](https://99designs.com.au/tech-blog/blog/2015/10/26/aws-vault/) for more details.
 
@@ -128,7 +130,7 @@ source_profile = intermediary
 role_arn = arn:aws:iam::123456789012:role/target
 ```
 
-## macOS code-signing
+## macOS Code-signing
 
 The [macOS release builds](https://github.com/99designs/aws-vault/releases) are code-signed to avoid extra prompts in Keychain. You can verify this with:
 
@@ -137,14 +139,9 @@ The [macOS release builds](https://github.com/99designs/aws-vault/releases) are 
     Authority=Developer ID Certification Authority
     Authority=Apple Root CA
 
-
-## Development
-
-Developed with golang, install with `go get github.com/99designs/aws-vault`
-
 ### Self-signing your binary
 
-Binaries that call Keychain need to be signed, otherwise they always show the "allow access" prompt. Releases are signed by 99designs certificates, but if you are actively developing and want to mimic the behaviour of a signed release you can generate a self-signed code signing certificate.
+If you are developing or compiling the aws-vault binary yourself, you can generate a self-signed code signing certificate.
 
 Check out Apple's guide on it [here](http://web.archive.org/web/20090119080759/http://developer.apple.com/documentation/Security/Conceptual/CodeSigningGuide/Procedures/chapter_3_section_2.html), or find it in `Keychain Access > Certificate Assistant > Create Certificate > Code Signing Certificate`.
 

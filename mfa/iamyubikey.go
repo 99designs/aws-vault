@@ -163,8 +163,8 @@ func (m *MFA) delete(serial *string) error {
 	return nil
 }
 
-// callerIdentityToSerial converts a caller identity ARN to a MFA serial
-func callerIdentityToSerial(i *string) (string, error) {
+// CallerIdentityToSerial converts a caller identity ARN to a MFA serial
+func CallerIdentityToSerial(i *string) (string, error) {
 	a, err := arn.Parse(*i)
 
 	if err != nil {

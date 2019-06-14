@@ -54,7 +54,7 @@ func (m *MFA) Delete(username string) error {
 		return errors.Wrap(err, "failed to determine serial number for device deletion")
 	}
 
-	serial, err := CallerIdentityToSerial(res.Arn)
+	serial, err := callerIdentityToSerial(res.Arn)
 
 	if err != nil {
 		return err
@@ -163,8 +163,8 @@ func (m *MFA) delete(serial *string) error {
 	return nil
 }
 
-// CallerIdentityToSerial converts a caller identity ARN to a MFA serial
-func CallerIdentityToSerial(i *string) (string, error) {
+// callerIdentityToSerial converts a caller identity ARN to a MFA serial
+func callerIdentityToSerial(i *string) (string, error) {
 	a, err := arn.Parse(*i)
 
 	if err != nil {

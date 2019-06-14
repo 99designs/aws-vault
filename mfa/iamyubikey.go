@@ -23,7 +23,6 @@ type MFA struct {
 
 // New initializes a AWS virtual MFA device as target
 func New(sess *session.Session, d device.ReaderManager) (*MFA, error) {
-
 	return &MFA{
 		iam:    iam.New(sess),
 		sts:    sts.New(sess),
@@ -49,7 +48,6 @@ func (m *MFA) Add(username string) (*string, []byte, error) {
 // Delete removes a virtual MFA from the source including it's association with
 // the given IAM username
 func (m *MFA) Delete(username string) error {
-
 	res, err := m.sts.GetCallerIdentity(&sts.GetCallerIdentityInput{})
 
 	if err != nil {
@@ -71,12 +69,10 @@ func (m *MFA) Delete(username string) error {
 	}
 
 	return nil
-
 }
 
 // create creates the virtual MFA device
 func (m *MFA) create(username string) (*string, []byte, error) {
-
 	res, err := m.iam.CreateVirtualMFADevice(&iam.CreateVirtualMFADeviceInput{
 		VirtualMFADeviceName: &username,
 	})
@@ -95,7 +91,6 @@ func (m *MFA) create(username string) (*string, []byte, error) {
 }
 
 func (m *MFA) enable(username string, serial *string, secret []byte) error {
-
 	name, err := SerialToName(serial)
 	if err != nil {
 		return err
@@ -166,7 +161,6 @@ func (m *MFA) delete(serial *string) error {
 	}
 
 	return nil
-
 }
 
 // CallerIdentityToSerial converts a caller identity ARN to a MFA serial
@@ -176,8 +170,8 @@ func CallerIdentityToSerial(i *string) (string, error) {
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to parse %q as ARN", *i)
 	}
-	return strings.Replace(a.String(), ":user/", ":mfa/", 1), nil
 
+	return strings.Replace(a.String(), ":user/", ":mfa/", 1), nil
 }
 
 // SerialToName converts a MFA serial to a issuer:account name string that displays nicely in the

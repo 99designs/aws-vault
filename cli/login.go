@@ -63,6 +63,7 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 
 	cmd.Flag("assume-role-ttl", "Expiration time for aws assumed role").
 		Default("15m").
+		Envar("AWS_ASSUME_ROLE_TTL").
 		DurationVar(&input.AssumeRoleDuration)
 
 	cmd.Flag("stdout", "Print login URL to stdout instead of opening in default browser").

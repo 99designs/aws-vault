@@ -1,2 +1,5 @@
 /aws-vault
 /aws-vault-*
+
+# IDE
+.idea

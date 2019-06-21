@@ -8,6 +8,7 @@ import (
 
 	"github.com/99designs/aws-vault/mfa/device"
 	"github.com/aws/aws-sdk-go/aws/arn"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/sts"
@@ -134,7 +135,11 @@ func (m *MFA) deactivate(username string, serial *string) error {
 	})
 
 	if err != nil {
-		return errors.Wrapf(err, "failed to deactivate virtual AWS MFA device with serial %q", *serial)
+		awsErr, ok := err.(awserr.Error)
+
+		if !ok || ok && awsErr.Code() != "NoSuchEntity" {
+			return errors.Wrapf(err, "failed to deactivate virtual AWS MFA device with serial %q", *serial)
+		}
 	}
 
 	name, err := SerialToName(serial)
@@ -157,7 +162,11 @@ func (m *MFA) delete(serial *string) error {
 	})
 
 	if err != nil {
-		return errors.Wrapf(err, "failed to delete virtual AWS MFA device with serial %q", *serial)
+		awsErr, ok := err.(awserr.Error)
+
+		if !ok || ok && awsErr.Code() != "NoSuchEntity" {
+			return errors.Wrapf(err, "failed to delete virtual AWS MFA device with serial %q", *serial)
+		}
 	}
 
 	return nil

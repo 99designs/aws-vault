@@ -13,6 +13,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/mdp/qrterminal"
+	"github.com/pkg/errors"
 )
 
 // Yubikey represents a yubikey config
@@ -115,6 +116,27 @@ func (y *Yubikey) Remove(profile string, val credentials.Value) error {
 
 	if err := m.Delete(y.Username); err != nil {
 		return err
+	}
+
+	// now delete the session we just used that was created using TOTP from the deleted yubikey
+	// other sessions that used a TOTP from the yubikey may still be cached but there's not much
+	// we can do about that
+	krs, err := NewKeyringSessions(y.Keyring, y.Config)
+	if err != nil {
+		return errors.Wrap(err, "unable to create keyring sessions")
+	}
+
+	n, err := krs.Delete(profile)
+	if err != nil {
+		return errors.Wrapf(err, "unable to delete keyring session for %s", profile)
+	}
+
+	if n == 1 {
+		log.Printf("deleted session for '%s'", profile)
+	}
+	if n > 1 {
+		// this shouldn't be possible
+		log.Printf("deleted %d sessions for '%s' ", n, profile)
 	}
 
 	return nil

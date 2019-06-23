@@ -92,7 +92,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		noSession = true
 	}
 
-	provider, err := vault.NewVaultProvider(input.Keyring, input.Profile, vault.VaultOptions{
+	creds, err := vault.NewVaultCredentials(input.Keyring, input.Profile, vault.VaultOptions{
 		AssumeRoleDuration: input.AssumeRoleDuration,
 		MfaToken:           input.MfaToken,
 		MfaPrompt:          input.MfaPrompt,
@@ -102,11 +102,8 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		Region:             profile.Region,
 	})
 	if err != nil {
-		app.Fatalf("Failed to create vault provider: %v", err)
-		return
+		app.Fatalf("%v", err)
 	}
-
-	creds := credentials.NewCredentials(provider)
 	val, err := creds.Get()
 	if err != nil {
 		app.Fatalf(awsConfig.FormatCredentialError(err, input.Profile))
@@ -118,7 +115,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 	// if AssumeRole isn't used, GetFederationToken has to be used for IAM credentials
 	if val.SessionToken == "" {
 		log.Printf("No session token found, calling GetFederationToken")
-		stsCreds, err := getFederationToken(val, input.FederationTokenDuration, provider.Region)
+		stsCreds, err := getFederationToken(val, input.FederationTokenDuration, profile.Region)
 		if err != nil {
 			app.Fatalf("Failed to call GetFederationToken: %v\n"+
 				"Login for non-assumed roles depends on permission to call sts:GetFederationToken", err)
@@ -141,7 +138,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
-	loginURLPrefix, destination := generateLoginURL(provider.Region, input.Path)
+	loginURLPrefix, destination := generateLoginURL(profile.Region, input.Path)
 
 	req, err := http.NewRequest("GET", loginURLPrefix, nil)
 	if err != nil {

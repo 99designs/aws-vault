@@ -30,6 +30,7 @@ type VaultOptions struct {
 	SessionDuration    time.Duration
 	AssumeRoleDuration time.Duration
 	ExpiryWindow       time.Duration
+	MfaSerial          string
 	MfaToken           string
 	MfaPrompt          prompt.PromptFunc
 	NoSession          bool
@@ -266,10 +267,10 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 		DurationSeconds: aws.Int64(int64(p.SessionDuration.Seconds())),
 	}
 
-	if profile, _ := p.Config.Profile(p.profile); profile.MFASerial != "" {
-		params.SerialNumber = aws.String(profile.MFASerial)
+	if p.VaultOptions.MfaSerial != "" {
+		params.SerialNumber = aws.String(p.VaultOptions.MfaSerial)
 		if p.MfaToken == "" {
-			token, err := p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", profile.MFASerial))
+			token, err := p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", p.VaultOptions.MfaSerial))
 			if err != nil {
 				return sts.Credentials{}, err
 			}
@@ -349,10 +350,10 @@ func (p *VaultProvider) assumeRole(creds credentials.Value, profile Profile) (st
 	}
 
 	// if we don't have a session, we need to include MFA token in the AssumeRole call
-	if profile.MFASerial != "" {
-		input.SerialNumber = aws.String(profile.MFASerial)
+	if p.VaultOptions.MfaSerial != "" {
+		input.SerialNumber = aws.String(p.VaultOptions.MfaSerial)
 		if p.MfaToken == "" {
-			token, err := p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", profile.MFASerial))
+			token, err := p.MfaPrompt(fmt.Sprintf("Enter token for %s: ", p.VaultOptions.MfaSerial))
 			if err != nil {
 				return sts.Credentials{}, err
 			}
@@ -420,6 +421,14 @@ type VaultCredentials struct {
 }
 
 func NewVaultCredentials(k keyring.Keyring, profile string, opts VaultOptions) (*VaultCredentials, error) {
+	// always get the list of profiles for cycle detection
+	profiles, err := profileChain(profile, opts.Config)
+	if err != nil {
+		return nil, err
+	}
+	if len(opts.MfaSerial) == 0 {
+		opts.MfaSerial = findMfaSerial(profiles)
+	}
 	provider, err := NewVaultProvider(k, profile, opts)
 	if err != nil {
 		return nil, err
@@ -430,4 +439,26 @@ func NewVaultCredentials(k keyring.Keyring, profile string, opts VaultOptions) (
 
 func (v *VaultCredentials) Expires() time.Time {
 	return v.provider.expires
+}
+
+func findMfaSerial(profiles []Profile) string {
+	for _, profile := range profiles {
+		if len(profile.MFASerial) > 0 {
+			return profile.MFASerial
+		}
+	}
+	return ""
+}
+
+func profileChain(profile string, config *Config) ([]Profile, error) {
+	visited := map[string]bool{}
+	var profiles []Profile
+	for configProfile, exists := config.Profile(profile); exists; configProfile, exists = config.Profile(configProfile.SourceProfile) {
+		if _, ok := visited[configProfile.Name]; ok {
+			return nil, fmt.Errorf("source profile cycle detected for profile %v", profile)
+		}
+		visited[configProfile.Name] = true
+		profiles = append(profiles, configProfile)
+	}
+	return profiles, nil
 }

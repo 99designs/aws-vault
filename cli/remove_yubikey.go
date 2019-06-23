@@ -3,9 +3,10 @@ package cli
 import (
 	"fmt"
 
+	"github.com/99designs/aws-vault/prompt"
 	"github.com/99designs/aws-vault/vault"
 	"github.com/99designs/keyring"
-	"gopkg.in/alecthomas/kingpin.v2"
+	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
 type RemoveYubikeyCommandInput struct {
@@ -34,16 +35,32 @@ func ConfigureRemoveYubikeyCommand(app *kingpin.Application) {
 }
 
 func RemoveYubikeyCommand(app *kingpin.Application, input RemoveYubikeyCommandInput) {
+	awsConfig, err := vault.LoadConfigFromEnv()
+	creds, err := vault.NewVaultCredentials(input.Keyring, input.Profile, vault.VaultOptions{
+		NoSession: false, // we're aiming to use a cached session
+		Config:    awsConfig,
+		MfaPrompt: prompt.TerminalPrompt, // to avoid a panic when remove called when device doesn't exist
+	})
+	if err != nil {
+		app.Fatalf("%v", err)
+	}
+
+	val, err := creds.Get()
+	if err != nil {
+		app.Fatalf(awsConfig.FormatCredentialError(err, input.Profile))
+	}
+
 	yubikey := vault.Yubikey{
 		Keyring:  input.Keyring,
 		Username: input.Username,
 		Config:   awsConfig,
 	}
 
-	fmt.Printf("Removing yubikey for user %s using profile %s)\n", input.Username, input.Profile)
+	fmt.Printf("Removing yubikey for user %s using profile %s\n", input.Username, input.Profile)
 
-	if err := yubikey.Remove(input.Profile); err != nil {
+	if err := yubikey.Remove(input.Profile, val); err != nil {
 		app.Fatalf("error removing yubikey", err)
+		return
 	}
 
 	fmt.Printf("Done!\n")

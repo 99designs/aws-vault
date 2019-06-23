@@ -84,25 +84,14 @@ func (y *Yubikey) Register(profile string, requireTouch bool) error {
 	return nil
 }
 
-// Remove removes yubikey as mfa device from AWS then otp config from yubikey
-func (y *Yubikey) Remove(profile string) error {
+// Remove removes yubikey as mfa device from AWS, then otp config from yubikey, then cached session
+func (y *Yubikey) Remove(profile string, val credentials.Value) error {
 	var err error
 
 	source, _ := y.Config.SourceProfile(profile)
 
-	provider := &KeyringProvider{
-		Keyring: y.Keyring,
-		Profile: source.Name,
-		Region:  source.Region,
-	}
-
-	masterCreds, err := provider.Retrieve()
-	if err != nil {
-		return err
-	}
-
-	sess := session.New(&aws.Config{Region: aws.String(provider.Region),
-		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: masterCreds}),
+	sess := session.New(&aws.Config{Region: aws.String(source.Region),
+		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: val}),
 	})
 
 	currentUserName, err := GetUsernameFromSession(sess)
@@ -111,7 +100,7 @@ func (y *Yubikey) Remove(profile string) error {
 	}
 
 	log.Printf("Found access key  ****************%s for user %s",
-		masterCreds.AccessKeyID[len(masterCreds.AccessKeyID)-4:],
+		val.AccessKeyID[len(val.AccessKeyID)-4:],
 		currentUserName)
 
 	device, err := yubikey.New()

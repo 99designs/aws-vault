@@ -140,6 +140,7 @@ For the `aws-vault exec` subcommand:
 
 For the `aws-vault login` subcommand:
 
+* `AWS_ASSUME_ROLE_TTL`: Expiration time for aws assumed role console session when not using --no-session (see the flag `--assume-role-ttl`)
 * `AWS_FEDERATION_TOKEN_TTL`: Expiration time for aws console session (see the flag `--federation-token-ttl`)
 
 

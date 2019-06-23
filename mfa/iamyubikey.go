@@ -61,9 +61,10 @@ func (m *MFA) Delete(username string) error {
 		return err
 	}
 
-	// always call aws to disable mfa device and if successful remove from yubikey, ignore errors so multiple calls
-	// leave clean state (as far as possible)
-	m.deactivate(username, &serial)
+	err = m.deactivate(username, &serial)
+	if err != nil {
+		return err
+	}
 
 	if err := m.delete(&serial); err != nil {
 		return err
@@ -142,16 +143,6 @@ func (m *MFA) deactivate(username string, serial *string) error {
 		}
 	}
 
-	name, err := SerialToName(serial)
-
-	if err != nil {
-		return err
-	}
-
-	if err := m.device.Delete(name); err != nil {
-		return errors.Wrapf(err, "failed to remove %q from source %q", name, m.device.Name())
-	}
-
 	return nil
 }
 
@@ -167,6 +158,17 @@ func (m *MFA) delete(serial *string) error {
 		if !ok || ok && awsErr.Code() != "NoSuchEntity" {
 			return errors.Wrapf(err, "failed to delete virtual AWS MFA device with serial %q", *serial)
 		}
+	}
+
+	name, err := SerialToName(serial)
+
+	if err != nil {
+		return err
+	}
+
+	if err := m.device.Delete(name); err != nil {
+		fmt.Println(err) // underpowered or cred doesn't exist?
+		return errors.Wrapf(err, "failed to remove %q from source %q", name, m.device.Name())
 	}
 
 	return nil

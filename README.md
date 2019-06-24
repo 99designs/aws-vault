@@ -9,7 +9,7 @@ Currently the supported backends are:
 * [macOS Keychain Access](https://support.apple.com/en-au/guide/keychain-access/kyca1083/mac)
 * [Windows Credential Manager](https://support.microsoft.com/en-au/help/4026814/windows-accessing-credential-manager)
 * [Secret Service](https://specifications.freedesktop.org/secret-service/)
-* [KWallet](https://github.com/KDE/kwallet)
+* [KWallet](https://kde.org/applications/system/org.kde.kwalletmanager5)
 * [Pass](https://www.passwordstore.org/)
 * Encrypted file
 

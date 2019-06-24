@@ -16,7 +16,6 @@ require (
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect
 	github.com/keybase/go-keychain v0.0.0-20190301032907-79b9ae49810a // indirect
 	github.com/kr/pretty v0.1.0 // indirect
-	github.com/kr/pty v1.1.3 // indirect
 	github.com/mdp/qrterminal v1.0.1
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/pkg/errors v0.8.1

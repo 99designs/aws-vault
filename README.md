@@ -64,7 +64,7 @@ Use the QR code output with a virtual MFA app, such as Google Authenticator, to 
 
 Once added, commands that require a OTP, eg `exec`, will get one from your Yubikey *for any profile that has the same `mfa_serial=arn:aws:iam::123456789012:mfa/jonsmith` as the profile used when adding the Yubikey* (see [assuming-roles](#assuming-roles)).
 
-To login to the aws console you'll need to use Yubico Authenticator (or the app you scanned the QR code with) to generate a OTP as the [AWS SDK doesn't support U2F](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_u2f_supported_configurations.html#id_credentials_mfa_u2f_cliapi) (TOTP is used as a fallback, but that requires a code to be entered for console login).
+To login to the aws console you'll need to use Yubico Authenticator (or the app you scanned the QR code with) to generate a OTP as the [AWS SDK doesn't support U2F](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_u2f_supported_configurations.html#id_credentials_mfa_u2f_cliapi) (TOTP is used as a fallback, but that requires a code to be entered for console login). If you _really_ want to use your Yubkey for U2F when logging in to the console, setup 2 IAM accounts, one using U2F for use with the console and one using TOTP for commandline usage (AWS only allows 1 MFA device per IAM account).
 
 ```
 # Remove Yubikey (for all profiles that use the same mfa_serial)

@@ -7,6 +7,11 @@ os:
   - linux
   - osx
 
+addons:
+  apt:
+    packages:
+    - libpcsclite-dev
+
 env:
   - GO111MODULE=on
 

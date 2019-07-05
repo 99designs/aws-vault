@@ -15,7 +15,7 @@ require (
 	github.com/skratchdot/open-golang v0.0.0-20190402232053-79abb63cd66e
 	github.com/smartystreets/assertions v1.0.0 // indirect
 	github.com/smartystreets/goconvey v0.0.0-20190330032615-68dc04aab96a // indirect
-	github.com/yawn/ykoath v1.0.2
+	github.com/yawn/ykoath v1.0.3-0.20190705033542-5574cacb3f71
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/ini.v1 v1.42.0 // indirect

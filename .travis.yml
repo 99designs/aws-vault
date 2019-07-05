@@ -7,13 +7,8 @@ os:
   - linux
   - osx
 
-addons:
-  apt:
-    packages:
-    - libpcsclite-dev
-
 env:
-  - GO111MODULE=on
+  - GO111MODULE=on CGO_ENABLED=0
 
 script:
   - diff -u <(echo -n) <(gofmt -d $(git ls-files '*.go'))

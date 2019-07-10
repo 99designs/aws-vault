@@ -27,6 +27,7 @@ type ExecCommandInput struct {
 	RoleDuration     time.Duration
 	MfaToken         string
 	MfaPrompt        prompt.PromptFunc
+	MfaSerial        string
 	StartServer      bool
 	CredentialHelper bool
 	Signals          chan os.Signal
@@ -64,6 +65,10 @@ func ConfigureExecCommand(app *kingpin.Application) {
 	cmd.Flag("mfa-token", "The mfa token to use").
 		Short('m').
 		StringVar(&input.MfaToken)
+
+	cmd.Flag("mfa-serial-override", "Override the MFA Serial defined in AWS Profile").
+		OverrideDefaultFromEnvar("AWS_MFA_SERIAL").
+		StringVar(&input.MfaSerial)
 
 	cmd.Flag("json", "AWS credential helper. Ref: https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes").
 		Short('j').
@@ -110,6 +115,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 	creds, err := vault.NewVaultCredentials(input.Keyring, input.Profile, vault.VaultOptions{
 		SessionDuration:    input.Duration,
 		AssumeRoleDuration: input.RoleDuration,
+		MfaSerial:          input.MfaSerial,
 		MfaToken:           input.MfaToken,
 		MfaPrompt:          input.MfaPrompt,
 		NoSession:          input.NoSession,

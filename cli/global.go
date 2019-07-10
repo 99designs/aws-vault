@@ -92,6 +92,7 @@ func ConfigureGlobals(app *kingpin.Application) {
 				KWalletAppID:             "aws-vault",
 				KWalletFolder:            "aws-vault",
 				KeychainTrustApplication: true,
+				WinCredPrefix:            "aws-vault",
 			})
 			if err != nil {
 				return err

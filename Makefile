@@ -4,31 +4,25 @@ FLAGS=-X main.Version=$(VERSION) -s -w
 CERT="Developer ID Application: 99designs Inc (NRM9HVJ62Z)"
 SRC=$(shell find . -name '*.go')
 
-.PHONY: build install sign release clean
+.PHONY: all clean release
 
-build:
-	go build -o aws-vault -ldflags="$(FLAGS)" .
+all: aws-vault-linux-amd64 aws-vault-darwin-amd64 aws-vault-windows-386.exe aws-vault-freebsd-amd64
 
-install:
-	go install -ldflags="$(FLAGS)" .
+clean:
+	rm -f aws-vault-linux-amd64 aws-vault-darwin-amd64 aws-vault-windows-386.exe aws-vault-freebsd-amd64
 
-sign:
-	codesign -s $(CERT) ./aws-vault
+release: all
+	codesign -s $(CERT) aws-vault-darwin-amd64
+	@echo "\nTo update homebrew-cask run\n\n    cask-repair -v $(VERSION) aws-vault\n"
 
 aws-vault-linux-amd64: $(SRC)
 	GOOS=linux GOARCH=amd64 go build -o $@ -ldflags="$(FLAGS)" .
 
 aws-vault-darwin-amd64: $(SRC)
 	GOOS=darwin GOARCH=amd64 go build -o $@ -ldflags="$(FLAGS)" .
-	codesign -s $(CERT) $@
 
 aws-vault-windows-386.exe: $(SRC)
 	GOOS=windows GOARCH=386 go build -o $@ -ldflags="$(FLAGS)" .
 
 aws-vault-freebsd-amd64: $(SRC)
 	GOOS=freebsd GOARCH=amd64 go build -o $@ -ldflags="$(FLAGS)" .
-
-release: aws-vault-linux-amd64 aws-vault-darwin-amd64 aws-vault-windows-386.exe aws-vault-freebsd-amd64
-
-clean:
-	rm -f aws-vault aws-vault-linux-amd64 aws-vault-darwin-amd64 aws-vault-windows-386.exe aws-vault-freebsd-amd64

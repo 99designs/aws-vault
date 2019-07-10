@@ -11,8 +11,8 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
-	ini "github.com/go-ini/ini"
 	"github.com/mitchellh/go-homedir"
+	ini "gopkg.in/ini.v1"
 )
 
 func init() {

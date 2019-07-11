@@ -6,7 +6,7 @@ AWS Vault stores IAM credentials in your operating system's secure keystore and 
 
 Currently the supported backends are:
 
-* [macOS Keychain Access](https://support.apple.com/en-au/guide/keychain-access/kyca1083/mac)
+* [macOS Keychain](https://support.apple.com/en-au/guide/keychain-access/welcome/mac)
 * [Windows Credential Manager](https://support.microsoft.com/en-au/help/4026814/windows-accessing-credential-manager)
 * [Secret Service](https://specifications.freedesktop.org/secret-service/)
 * [KWallet](https://kde.org/applications/system/org.kde.kwalletmanager5)
@@ -20,16 +20,14 @@ Check out the [announcement blog post](https://99designs.com.au/tech-blog/blog/2
 
 You can install aws-vault:
 - by downloading the [latest release](https://github.com/99designs/aws-vault/releases)
-- on MacOS via [Homebrew Cask](https://github.com/caskroom/homebrew-cask) with `brew cask install aws-vault`
+- on macOS via [Homebrew Cask](https://github.com/caskroom/homebrew-cask) with `brew cask install aws-vault`
 - on Linux via [Homebrew on Linux](https://docs.brew.sh/Homebrew-on-Linux) with `brew install linuxbrew/extra/aws-vault`
 - on Windows via [choco](https://chocolatey.org/packages/aws-vault) with `choco install aws-vault`
 - on Archlinux via the [AUR](https://wiki.archlinux.org/index.php/Arch_User_Repository)
 - by compiling with `go get github.com/99designs/aws-vault`
 
 
-## Usage
-
-See the [USAGE](./USAGE.md) document for more help and tips.
+## Basic Usage
 
 ```bash
 # Store AWS credentials for the "home" profile
@@ -37,13 +35,13 @@ $ aws-vault add home
 Enter Access Key Id: ABDCDEFDASDASF
 Enter Secret Key: %
 
-# Execute a command using temporary credentials
+# Execute a command (using temporary credentials)
 $ aws-vault exec home -- aws s3 ls
 bucket_1
 bucket_2
 
-# open a browser window and login to AWS Console
-$ aws-vault login home # the optional -s flag returns the link to STDOUT
+# open a browser window and login to the AWS Console
+$ aws-vault login home
 
 # List credentials
 $ aws-vault list
@@ -51,6 +49,7 @@ Profile                  Credentials              Sessions
 =======                  ===========              ========
 home                     home                     -
 ```
+See the [USAGE](./USAGE.md) document for more help and tips.
 
 
 ## Security

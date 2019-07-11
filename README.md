@@ -4,11 +4,11 @@ AWS Vault is a tool to securely store and access AWS credentials in a developmen
 
 AWS Vault stores IAM credentials in your operating system's secure keystore and then generates temporary credentials from those to expose to your shell and applications. It's designed to be complementary to the AWS CLI tools, and is aware of your [profiles and configuration in `~/.aws/config`](http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files).
 
-Currently the supported backends are:
+The supported backends are:
 
 * [macOS Keychain](https://support.apple.com/en-au/guide/keychain-access/welcome/mac)
 * [Windows Credential Manager](https://support.microsoft.com/en-au/help/4026814/windows-accessing-credential-manager)
-* [Secret Service](https://specifications.freedesktop.org/secret-service/)
+* Secret Service ([Gnome Keyring](https://wiki.gnome.org/Projects/GnomeKeyring), [KWallet](https://kde.org/applications/system/org.kde.kwalletmanager5))
 * [KWallet](https://kde.org/applications/system/org.kde.kwalletmanager5)
 * [Pass](https://www.passwordstore.org/)
 * Encrypted file
@@ -33,7 +33,7 @@ You can install aws-vault:
 # Store AWS credentials for the "home" profile
 $ aws-vault add home
 Enter Access Key Id: ABDCDEFDASDASF
-Enter Secret Key: %
+Enter Secret Key: %%%
 
 # Execute a command (using temporary credentials)
 $ aws-vault exec home -- aws s3 ls
@@ -55,8 +55,7 @@ See the [USAGE](./USAGE.md) document for more help and tips.
 ## Security
 ```bash
 $ aws-vault exec home -- env | grep AWS
-AWS_VAULT=work
-AWS_DEFAULT_REGION=us-east-1
+AWS_VAULT=home
 AWS_REGION=us-east-1
 AWS_ACCESS_KEY_ID=%%%
 AWS_SECRET_ACCESS_KEY=%%%

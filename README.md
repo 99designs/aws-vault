@@ -23,7 +23,7 @@ You can install aws-vault:
 - on macOS via [Homebrew Cask](https://github.com/caskroom/homebrew-cask) with `brew cask install aws-vault`
 - on Linux via [Homebrew on Linux](https://docs.brew.sh/Homebrew-on-Linux) with `brew install linuxbrew/extra/aws-vault`
 - on Windows via [choco](https://chocolatey.org/packages/aws-vault) with `choco install aws-vault`
-- on Archlinux via the [AUR](https://wiki.archlinux.org/index.php/Arch_User_Repository)
+- on Archlinux via the [AUR](https://aur.archlinux.org/packages/aws-vault/)
 - by compiling with `go get github.com/99designs/aws-vault`
 
 

@@ -134,11 +134,11 @@ If desired, you can override (or set) your `mfa_serial` with an environment vari
 
 ```shell
 # Override MFA Serial with flag
-$ aws-vault exec --mfa-serial-override arn:aws:iam::123456789012:mfa/jonsmith ...
+$ aws-vault exec --mfa-serial-override arn:aws:iam::123456789012:mfa/jonsmith my_profile ...
 
 # Override MFA Serial with environment variable
 $ export AWS_MFA_SERIAL=arn:aws:iam::123456789012:mfa/jonsmith
-$ aws-vault exec ...
+$ aws-vault exec my_profile ...
 ```
 
 ## macOS Code-signing

@@ -130,6 +130,17 @@ source_profile = intermediary
 role_arn = arn:aws:iam::123456789012:role/target
 ```
 
+If desired, you can override (or set) your `mfa_serial` with an environment variable `AWS_MFA_SERIAL` or by setting the `--mfa-serial-override` flag from `aws-vault exec`. This behavior is `aws-vault` specific and isn't supported from the `awscli`.
+
+```shell
+# Override MFA Serial with flag
+$ aws-vault exec --mfa-serial-override arn:aws:iam::123456789012:mfa/jonsmith ...
+
+# Override MFA Serial with environment variable
+$ export AWS_MFA_SERIAL=arn:aws:iam::123456789012:mfa/jonsmith
+$ aws-vault exec ...
+```
+
 ## macOS Code-signing
 
 The [macOS release builds](https://github.com/99designs/aws-vault/releases) are code-signed to avoid extra prompts in Keychain. You can verify this with:

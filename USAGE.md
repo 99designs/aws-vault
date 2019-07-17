@@ -1,4 +1,4 @@
-# TOC
+# Usage
 
 * [Help](#help)
 * [Managing profiles](#managing-profiles)
@@ -18,7 +18,7 @@
 * [Rotating credentials](#rotating-credentials)
 * [Overriding the aws cli to use aws-vault](#overriding-the-aws-cli-to-use-aws-vault)
 
-# Help
+## Getting Help
 
 Context-sensitive help is available for every command in `aws-vault`.
 
@@ -33,9 +33,9 @@ $ aws-vault --help-long
 $ aws-vault exec --help
 ```
 
-# Managing Profiles
+## Managing Profiles
 
-## Using multiple profiles
+### Using multiple profiles
 
 In addition to using IAM roles to assume temporary privileges as described in
 [README.md](./USAGE.md), aws-vault can also be used with multiple profiles directly. This allows you
@@ -62,7 +62,7 @@ $ aws-vault exec work -- aws s3 ls
 another_bucket
 ```
 
-## Example ~/.aws/config
+### Example ~/.aws/config
 
 Here is an example ~/.aws/config file, to help show the configuration. It defines two AWS accounts:
 "home" and "work", both of which use MFA. The work account provides two roles, allowing the user to
@@ -86,7 +86,7 @@ role_arn = arn:aws:iam::IAM_ACCOUNTID:role/admin_role
 source_profile = work
 ```
 
-## Listing profiles
+### Listing profiles
 
 You can use the `aws-vault list` command to list out the defined profiles, and any session
 associated with them.
@@ -101,7 +101,7 @@ work-read_only_role      work
 work-admin_role          work                        
 ``` 
 
-## Removing profiles
+### Removing profiles
 
 The `aws-vault remove` command can be used to remove credentials. It works similarly to the
 `aws-vault add` command.
@@ -122,7 +122,7 @@ $ aws-vault remove work --sessions-only
 Deleted 1 sessions.
 ```
 
-# Environment variables
+## Environment variables
 
 The following environment variables can be set to override the default flag
 values of `aws-vault` and its subcommands.
@@ -144,14 +144,64 @@ For the `aws-vault login` subcommand:
 * `AWS_FEDERATION_TOKEN_TTL`: Expiration time for aws console session (see the flag `--federation-token-ttl`)
 
 
-# Backends
+## Backends
 
 You can choose among different pluggable secret storage backends. 
 
 By default, Linux uses an encrypted file but you may prefer to use the secret-service backend which [abstracts over Gnome/KDE](https://specifications.freedesktop.org/secret-service/). This can be specified on the command line with `aws-vault --backend=secret-service` or by setting the environment variable `export AWS_VAULT_BACKEND=secret-service`.
 
 
-# Removing stored sessions
+## MFA
+
+If you have an MFA device attached to your account, the STS service will generate session tokens that are *invalid* unless you provide an MFA code. To enable MFA for a profile, specify the `mfa_serial` in `~/.aws/config`. You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username]`. If you have an account with an MFA associated, but you don't provide the IAM, you are unable to call IAM services, even if you have the correct permissions to do so.
+
+`mfa_serial` will be inherited from the profile designated in `source_profile`, which can be very convenient if you routinely assume multiple roles from the same source because you will only need to provide an MFA token once per source profile session.
+
+In the example below, profiles `admin-a` and `admin-b` do not specify an `mfa_serial`, but because `read-only` specifies an `mfa_serial`, the user will be prompted for a token when either profile is used if the keychain does not contain an active session for `read-only`.
+
+Another benefit of using this configuration strategy is that the user only needs to personalize the configuration of profiles which use access keys. The set of profiles for roles can be copy / pasted from documentation sources.
+
+```ini
+[profile read-only]
+mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
+
+[profile admin-a]
+source_profile = read-only
+role_arn = arn:aws:iam::123456789012:role/admin-access
+
+[profile admin-b]
+source_profile = read-only
+role_arn = arn:aws:iam::987654321987:role/admin-access
+```
+
+You can also define a chain of roles to assume:
+
+```ini
+[profile read-only]
+mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
+
+[profile intermediary]
+source_profile = read-only
+role_arn = arn:aws:iam::123456789012:role/intermediary
+
+[profile target]
+source_profile = intermediary
+role_arn = arn:aws:iam::123456789012:role/target
+```
+
+If desired, you can override (or set) your `mfa_serial` with an environment variable `AWS_MFA_SERIAL` or by setting the `--mfa-serial-override` flag from `aws-vault exec`. This behavior is `aws-vault` specific and isn't supported from the `awscli`.
+
+```shell
+# Override MFA Serial with flag
+$ aws-vault exec --mfa-serial-override arn:aws:iam::123456789012:mfa/jonsmith my_profile ...
+
+# Override MFA Serial with environment variable
+$ export AWS_MFA_SERIAL=arn:aws:iam::123456789012:mfa/jonsmith
+$ aws-vault exec my_profile ...
+```
+
+
+## Removing stored sessions
 
 If you want to remove sessions managed by `aws-vault` before they expire, you can do this with the `--sessions-only` flag.
 
@@ -159,7 +209,7 @@ If you want to remove sessions managed by `aws-vault` before they expire, you ca
 aws-vault remove <profile> --sessions-only
 ```
 
-# Logging into AWS console
+## Logging into AWS console
 
 You can use the `aws-vault login` command to open a browser window and login to AWS Console for a
 given account:
@@ -167,12 +217,12 @@ given account:
 $ aws-vault login work
 ```
 
-# Using credential helper
+## Using credential helper
 
 Ref: https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
 This allows you to use credentials of multiple profiles at the same time.
 
-# Not using session credentials
+## Not using session credentials
 
 The way `aws-vault` works, whichever profile you use, it starts by opening a session with AWS. This
 is basically a signed request (with the IAM user credentials) to AWS to get a temporary set of
@@ -182,7 +232,7 @@ This allows for your base user credentials (that don't change often) to not be e
 applications that need a connection to AWS. There are however 2 use cases where this is a problem
 and we'll detail after a word of caution.
 
-## Considerations
+### Considerations
 
 Before considering the 2 use cases below that use the `--no-session` parameter, you should
 understand the trade-off you are making.  
@@ -216,7 +266,7 @@ the corresponding `AWS_SECRET_KEY_ID`.
   API, it will anyway only expose a set of *temporary* credentials and will therefore not lessen the
 security of the setup. You can execute the same test as before to see it for yourself.
 
-## Assuming a role for more than 1h
+### Assuming a role for more than 1h
 
 If you try to assume a role from an opened (temporary) session, AWS considers that as *role
 chaining* and it limits your ability to assume the target role to only **1h**. Trying to use
@@ -252,7 +302,7 @@ application wanting to **connect** to AWS will be able to do so **implicitely**,
 server was started with. Thanks to `aws-vault`, the credentials are not exposed, but the ability to
 use them to connect to AWS is!
 
-## Being able to perform certain STS operations
+### Being able to perform certain STS operations
 
 While using a standard `aws-vault` connection, using an IAM role or not, you cannot use any STS API
 (except `AssumeRole`) due to the usage of the AWS session (see
@@ -269,7 +319,7 @@ role. This means that the only way to call `GetFederationToken` is to use both `
 credentials (see before) and you should really check your design before going forward.
 
 
-# Rotating Credentials
+## Rotating Credentials
 
 Regularly rotating your access keys is a critical part of credential management. You can do this with the `aws-vault rotate <profile>` command as often as you like.
 
@@ -295,7 +345,7 @@ The minimal IAM policy required to rotate your own credentials is:
 ```
 
 
-# Overriding the aws CLI to use aws-vault
+## Overriding the aws CLI to use aws-vault
 
 If you want the `aws` command to use aws-vault automatically, you can create an overriding script
 (make it higher precedence in your PATH) that looks like the below:

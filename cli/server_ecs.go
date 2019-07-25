@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/99designs/aws-vault/prompt"
+	"github.com/99designs/aws-vault/server"
 	"github.com/99designs/aws-vault/vault"
 	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws"
@@ -22,9 +23,13 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-const kEcsCredsPrefix = "/creds/"
+const (
+	kEcsPrivilegedIP = "169.254.170.2"
+	kEcsCredsPrefix  = "/creds/"
+)
 
 type EcsServerCommandInput struct {
+	Privileged   bool
 	ServerPort   int
 	AuthToken    string
 	Duration     time.Duration
@@ -38,7 +43,10 @@ func ConfigureEcsServerCommand(app *kingpin.Application) {
 
 	cmd := app.Command("ecs-server", "Run a local ECS credentials server")
 
-	cmd.Flag("port", "Port to listen on for the credentials server").
+	cmd.Flag("privileged", "Start the server on the privileged IP+port used by ECS (requires superuser)").
+		BoolVar(&input.Privileged)
+
+	cmd.Flag("port", "Port to listen on for the credentials server (ignored in privileged mode)").
 		Default("9999").
 		Short('p').
 		IntVar(&input.ServerPort)
@@ -71,11 +79,28 @@ func EcsServerCommand(app *kingpin.Application, input EcsServerCommandInput) {
 	sess, err := session.NewSession()
 	app.FatalIfError(err, "Creating AWS session")
 
-	l, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", input.ServerPort))
+	addr := "localhost"
+	if input.Privileged {
+		fmt.Printf("Running in privileged mode\n")
+		if res, err := server.InstallNetworkAlias(kEcsPrivilegedIP); err != nil {
+			fmt.Print(string(res))
+			app.Fatalf("Error installing network alias: %s", err.Error())
+		}
+
+		addr = kEcsPrivilegedIP
+		input.ServerPort = 80
+	}
+
+	l, err := net.Listen("tcp", fmt.Sprintf("%s:%d", addr, input.ServerPort))
 	app.FatalIfError(err, "Binding port %d", input.ServerPort)
 
 	fmt.Printf("Local ECS credentials server running on %s\n", l.Addr())
-	fmt.Printf("Use AWS_CONTAINER_CREDENTIALS_FULL_URI=http://%s%s{profile_id}[/{role_arn}]\n", l.Addr(), kEcsCredsPrefix)
+
+	if input.Privileged {
+		fmt.Printf("Use AWS_CONTAINER_CREDENTIALS_RELATIVE_URI=%s{profile_id}[/{role_arn}]\n", kEcsCredsPrefix)
+	} else {
+		fmt.Printf("Use AWS_CONTAINER_CREDENTIALS_FULL_URI=http://%s%s{profile_id}[/{role_arn}]\n", l.Addr(), kEcsCredsPrefix)
+	}
 
 	if input.AuthToken != "" {
 		fmt.Printf("Authorization token required! Remember to also set AWS_CONTAINER_AUTHORIZATION_TOKEN to its value\n")
@@ -88,11 +113,8 @@ func EcsServerCommand(app *kingpin.Application, input EcsServerCommandInput) {
 			return
 		}
 
-		// Must make sure the remote ip is from the loopback, otherwise clients on the same network segment could
-		// potentially route traffic via 169.254.169.254:80
-		// See https://developer.apple.com/library/content/qa/qa1357/_index.html
-		if !net.ParseIP(ip).IsLoopback() {
-			ecsServerError(w, errors.New("Access denied from non-localhost address"), http.StatusUnauthorized)
+		if !net.ParseIP(ip).IsLoopback() && ip != kEcsPrivilegedIP {
+			ecsServerError(w, fmt.Errorf("Access denied from non-localhost address %s", ip), http.StatusUnauthorized)
 			return
 		}
 

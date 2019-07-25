@@ -2,8 +2,11 @@
 
 package server
 
-import "os/exec"
+import (
+	"fmt"
+	"os/exec"
+)
 
-func installNetworkAlias() ([]byte, error) {
-	return exec.Command("ip", "addr", "add", "169.254.169.254/24", "dev", "lo", "label", "lo:0").CombinedOutput()
+func InstallNetworkAlias(ip string) ([]byte, error) {
+	return exec.Command("ip", "addr", "add", fmt.Sprintf("%s/24", ip), "dev", "lo", "label", "lo:0").CombinedOutput()
 }

@@ -24,7 +24,7 @@ const (
 )
 
 func StartMetadataServer() error {
-	if _, err := installNetworkAlias(); err != nil {
+	if _, err := InstallNetworkAlias("169.254.169.254"); err != nil {
 		return err
 	}
 

@@ -132,6 +132,9 @@ For the `aws-vault` command:
 * `AWS_VAULT_BACKEND`: Secret backend to use (see the flag `--backend`)
 * `AWS_VAULT_KEYCHAIN_NAME`: Name of macOS keychain to use (see the flag `--keychain`)
 * `AWS_VAULT_PROMPT`: Prompt driver to use (see the flag `--prompt`)
+* `AWS_VAULT_PASS_PASSWORD_STORE_DIR`: Pass password store directory (see the flag `--pass-dir`)
+* `AWS_VAULT_PASS_CMD`: Name of the pass executable (see the flag `--pass-cmd`)
+* `AWS_VAULT_PASS_PREFIX`: Prefix to prepend to the item path stored in pass (see the flag `--pass-prefix`)
 
 For the `aws-vault exec` subcommand:
 

@@ -14,6 +14,7 @@ type RotateCommandInput struct {
 	Keyring   keyring.Keyring
 	MfaToken  string
 	MfaPrompt prompt.PromptFunc
+	NoRole    bool
 	NoSession bool
 }
 
@@ -25,6 +26,9 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 	cmd.Arg("profile", "Name of the profile").
 		Required().
 		StringVar(&input.Profile)
+
+	cmd.Flag("no-role", "No role assumed").
+		BoolVar(&input.NoRole)
 
 	cmd.Flag("no-session", "No session created (overrides heuristic)").
 		Short('n').
@@ -48,6 +52,7 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 		Keyring:   input.Keyring,
 		MfaToken:  input.MfaToken,
 		MfaPrompt: input.MfaPrompt,
+		NoRole:    input.NoRole,
 		NoSession: input.NoSession,
 		Config:    awsConfig,
 	}

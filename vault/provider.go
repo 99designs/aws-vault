@@ -33,6 +33,7 @@ type VaultOptions struct {
 	MfaSerial          string
 	MfaToken           string
 	MfaPrompt          prompt.PromptFunc
+	NoRole             bool
 	NoSession          bool
 	Config             *Config
 	MasterCreds        *credentials.Value
@@ -148,15 +149,17 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 		(*session.AccessKeyId)[len(*session.AccessKeyId)-4:],
 		session.Expiration.Sub(time.Now()).String())
 
-	if profile, exists := p.config.Profile(p.profile); exists && profile.RoleARN != "" {
-		session, err = p.assumeRoleFromSession(session, profile)
-		if err != nil {
-			return credentials.Value{}, err
-		}
+	if !p.NoRole {
+		if profile, exists := p.config.Profile(p.profile); exists && profile.RoleARN != "" {
+			session, err = p.assumeRoleFromSession(session, profile)
+			if err != nil {
+				return credentials.Value{}, err
+			}
 
-		log.Printf("Using role ****************%s (from session token), expires in %s",
-			(*session.AccessKeyId)[len(*session.AccessKeyId)-4:],
-			session.Expiration.Sub(time.Now()).String())
+			log.Printf("Using role ****************%s (from session token), expires in %s",
+				(*session.AccessKeyId)[len(*session.AccessKeyId)-4:],
+				session.Expiration.Sub(time.Now()).String())
+		}
 	}
 
 	window := p.ExpiryWindow
@@ -187,31 +190,33 @@ func (p *VaultProvider) RetrieveWithoutSessionToken() (credentials.Value, error)
 		return credentials.Value{}, err
 	}
 
-	if profile, exists := p.config.Profile(p.profile); exists && profile.RoleARN != "" {
-		session, err := p.assumeRole(creds, profile)
-		if err != nil {
-			return credentials.Value{}, err
+	if !p.NoRole {
+		if profile, exists := p.config.Profile(p.profile); exists && profile.RoleARN != "" {
+			session, err := p.assumeRole(creds, profile)
+			if err != nil {
+				return credentials.Value{}, err
+			}
+
+			log.Printf("Using role ****************%s, expires in %s",
+				(*session.AccessKeyId)[len(*session.AccessKeyId)-4:],
+				session.Expiration.Sub(time.Now()).String())
+
+			window := p.ExpiryWindow
+			if window == 0 {
+				window = time.Minute * 5
+			}
+
+			p.SetExpiration(*session.Expiration, window)
+			p.expires = *session.Expiration
+
+			value := credentials.Value{
+				AccessKeyID:     *session.AccessKeyId,
+				SecretAccessKey: *session.SecretAccessKey,
+				SessionToken:    *session.SessionToken,
+			}
+
+			return value, nil
 		}
-
-		log.Printf("Using role ****************%s, expires in %s",
-			(*session.AccessKeyId)[len(*session.AccessKeyId)-4:],
-			session.Expiration.Sub(time.Now()).String())
-
-		window := p.ExpiryWindow
-		if window == 0 {
-			window = time.Minute * 5
-		}
-
-		p.SetExpiration(*session.Expiration, window)
-		p.expires = *session.Expiration
-
-		value := credentials.Value{
-			AccessKeyID:     *session.AccessKeyId,
-			SecretAccessKey: *session.SecretAccessKey,
-			SessionToken:    *session.SessionToken,
-		}
-
-		return value, nil
 	}
 
 	// no role, exposes master credentials which don't expire

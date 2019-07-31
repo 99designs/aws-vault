@@ -14,15 +14,21 @@ type RotateCommandInput struct {
 	Keyring   keyring.Keyring
 	MfaToken  string
 	MfaPrompt prompt.PromptFunc
+	NoSession bool
 }
 
 func ConfigureRotateCommand(app *kingpin.Application) {
 	input := RotateCommandInput{}
 
 	cmd := app.Command("rotate", "Rotates credentials")
+
 	cmd.Arg("profile", "Name of the profile").
 		Required().
 		StringVar(&input.Profile)
+
+	cmd.Flag("no-session", "No session created (overrides heuristic)").
+		Short('n').
+		BoolVar(&input.NoSession)
 
 	cmd.Flag("mfa-token", "The mfa token to use").
 		Short('t').
@@ -37,10 +43,12 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 }
 
 func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
+
 	rotator := vault.Rotator{
 		Keyring:   input.Keyring,
 		MfaToken:  input.MfaToken,
 		MfaPrompt: input.MfaPrompt,
+		NoSession: input.NoSession,
 		Config:    awsConfig,
 	}
 

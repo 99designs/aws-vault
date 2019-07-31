@@ -19,6 +19,7 @@ type Rotator struct {
 	Keyring   keyring.Keyring
 	MfaToken  string
 	MfaPrompt prompt.PromptFunc
+	NoSession bool
 	Config    *Config
 }
 
@@ -59,7 +60,7 @@ func (r *Rotator) Rotate(profile string) error {
 		MfaToken:    r.MfaToken,
 		MfaPrompt:   r.MfaPrompt,
 		Config:      r.Config,
-		NoSession:   !r.needsSessionToRotate(profile),
+		NoSession:   r.NoSession || !r.needsSessionToRotate(profile),
 		MasterCreds: &oldMasterCreds,
 	})
 	if err != nil {
@@ -115,7 +116,7 @@ func (r *Rotator) Rotate(profile string) error {
 		MfaToken:    r.MfaToken,
 		MfaPrompt:   r.MfaPrompt,
 		Config:      r.Config,
-		NoSession:   !r.needsSessionToRotate(profile),
+		NoSession:   r.NoSession || !r.needsSessionToRotate(profile),
 		MasterCreds: &newMasterCreds,
 	})
 	if err != nil {

@@ -225,6 +225,19 @@ $ aws-vault login work
 Ref: https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
 This allows you to use credentials of multiple profiles at the same time.
 
+```ini
+[profile home]
+credential_process = aws-vault exec home --json
+```
+
+if `mfa_serial` is set, please define the prompt driver (for example `osascript` for macOS), else the prompt will not show up.
+
+```ini
+[profile work]
+mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
+credential_process = aws-vault exec work --json --prompt=osascript
+```
+
 ## Not using session credentials
 
 The way `aws-vault` works, whichever profile you use, it starts by opening a session with AWS. This

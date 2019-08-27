@@ -13,7 +13,7 @@ clean:
 
 release: all
 	codesign -s $(CERT) aws-vault-darwin-amd64
-	@echo "\nTo update homebrew-cask run\n\n    cask-repair -v $(VERSION) aws-vault\n"
+	@echo "\nTo update homebrew-cask run\n\n    cask-repair -v $(shell echo $(VERSION) | sed 's/v\(.*\)/\1/') aws-vault\n"
 
 aws-vault-linux-amd64: $(SRC)
 	GOOS=linux GOARCH=amd64 go build -o $@ -ldflags="$(FLAGS)" .

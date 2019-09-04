@@ -45,6 +45,7 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 		BoolVar(&input.NoSession)
 
 	cmd.Arg("profile", "Name of the profile").
+		Envar("AWS_VAULT").
 		Required().
 		HintAction(ProfileNames).
 		StringVar(&input.Profile)

@@ -110,7 +110,7 @@ func fileKeyringPassphrasePrompt(prompt string) (string, error) {
 		return password, nil
 	}
 
-	fmt.Printf("%s: ", prompt)
+	fmt.Fprintf(os.Stderr, "%s: ", prompt)
 	b, err := terminal.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
 		return "", err

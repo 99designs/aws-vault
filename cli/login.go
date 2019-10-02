@@ -34,6 +34,7 @@ type LoginCommandInput struct {
 	Region                  string
 	Path                    string
 	NoSession               bool
+	NoSaveSession           bool
 }
 
 func ConfigureLoginCommand(app *kingpin.Application) {
@@ -71,6 +72,10 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 		Short('s').
 		BoolVar(&input.UseStdout)
 
+	cmd.Flag("no-save-session", "Don't save session data to keyring").
+		OverrideDefaultFromEnvar("AWS_VAULT_NO_SAVE_SESSION").
+		BoolVar(&input.NoSaveSession)
+
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.MfaPrompt = prompt.Method(GlobalFlags.PromptDriver)
 		input.Keyring = keyringImpl
@@ -98,6 +103,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		MfaPrompt:          input.MfaPrompt,
 		Path:               input.Path,
 		NoSession:          noSession,
+		NoSaveSession:      input.NoSaveSession,
 		Config:             awsConfig,
 		Region:             profile.Region,
 	})

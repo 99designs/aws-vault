@@ -388,12 +388,13 @@ find information about this process but it boils down to this.
 1. Go to AWS and click on add a MFA
 2. Choose a virtual device
 3. Instead of scanning the code you can get it as text (keep it safe).
-4. Install [ykman] (https://support.yubico.com/support/solutions/articles/15000012643-yubikey-manager-cli-ykman-user-manual#Introductionmrzmm1)
+4. Install [ykman](https://support.yubico.com/support/solutions/articles/15000012643-yubikey-manager-cli-ykman-user-manual#Introductionmrzmm1)
 5. Run this: 
 
 ```bash 
 ykman oath add YOUR_YUBIKEY_PROFILE -t
 ```
+It will ask you for a base32 text. Here you can input the text you got in 3.
 
 6. Run this command twice (wait 30 secs in between):
 ```bash 

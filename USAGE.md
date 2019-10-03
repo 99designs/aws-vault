@@ -17,6 +17,7 @@
      * [Being able to perform certain sts operations](#being-able-to-perform-certain-sts-operations)
 * [Rotating credentials](#rotating-credentials)
 * [Overriding the aws cli to use aws-vault](#overriding-the-aws-cli-to-use-aws-vault)
+* [Using a yubikey as a virtual MFA](#using-a-yubikey-as-a-virtual-mfa)
 
 ## Getting Help
 
@@ -373,3 +374,38 @@ exec aws-vault exec "${AWS_DEFAULT_PROFILE:-work}" -- /usr/local/bin/aws "$@"
 
 The exec helps reduce the number of processes that are hanging around. The `$@` passes on the
 arguments from the wrapper to the original command.
+
+
+## Using a yubikey as a virtual MFA 
+
+There's been attempts in the past to support yubikeys natively (#392 , #230) there's another way to go
+at this problem. [Newer](https://support.yubico.com/support/solutions/articles/15000006419-using-your-yubikey-with-authenticator-codes) 
+yubikeys support generating TOTP tokens.
+
+In this [blog](https://hackernoon.com/use-a-yubikey-as-a-mfa-device-to-replace-google-authenticator-b4f4c0215f2) you can 
+find information about this process but it boils down to this.
+
+1. Go to AWS and click on add a MFA
+2. Choose a virtual device
+3. Instead of scanning the code you can get it as text (keep it safe).
+4. Install [ykman] (https://support.yubico.com/support/solutions/articles/15000012643-yubikey-manager-cli-ykman-user-manual#Introductionmrzmm1)
+5. Run this: 
+
+```bash 
+ykman oath add YOUR_YUBIKEY_PROFILE -t
+```
+
+6. Run this command twice (wait 30 secs in between):
+```bash 
+ykman oath code --single YOUR_YUBIKEY_PROFILE
+```
+
+Input both values as tokens and your device should register as a virtual MFA.
+
+
+7. Now if you want to run any aws-vault command you should run this: 
+```bash 
+aws-vault exec ${YOUR_AWS_VAULT_PROFILE}  -m `ykman oath code --single ${YOUR_YUBIKEY_PROFILE}` aws s3 ls
+```
+
+[Here](https://gist.github.com/chtorr/0ecc8fca27a4c5e186c636c262cc4757) There're some helper scripts for this.

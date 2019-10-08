@@ -6,6 +6,18 @@ ENV CGO_ENABLED=0 \
 
 WORKDIR /go/src/github.com/99designs/aws-vault
 ADD . /go/src/github.com/99designs/aws-vault
+RUN go get github.com/99designs/keyring \
+    github.com/aws/aws-sdk-go/aws \
+    github.com/aws/aws-sdk-go/aws/awserr \
+    github.com/aws/aws-sdk-go/aws/credentials \
+    github.com/aws/aws-sdk-go/aws/session \
+    github.com/aws/aws-sdk-go/service/iam \
+    github.com/aws/aws-sdk-go/service/sts \
+    github.com/mitchellh/go-homedir \
+    github.com/skratchdot/open-golang/open \
+    golang.org/x/crypto/ssh/terminal \
+    gopkg.in/alecthomas/kingpin.v2 \
+    gopkg.in/ini.v1
 RUN go build -a -tags netgo -ldflags '-w' -o /bin/aws-vault
 
 FROM alpine

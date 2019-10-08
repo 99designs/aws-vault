@@ -23,4 +23,7 @@ RUN go build -a -tags netgo -ldflags '-w' -o /bin/aws-vault
 FROM alpine
 COPY --from=build-env /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=build-env /bin/aws-vault /aws-vault
+RUN apk add python py-pip npm
+RUN pip install awscli
+RUN npm install -g s3audit
 ENTRYPOINT ["/aws-vault"]

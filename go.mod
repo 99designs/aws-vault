@@ -6,7 +6,7 @@ require (
 	github.com/99designs/keyring v1.1.2
 	github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc // indirect
 	github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf // indirect
-	github.com/aws/aws-sdk-go v1.20.17
+	github.com/aws/aws-sdk-go v1.25.19
 	github.com/gopherjs/gopherjs v0.0.0-20190430165422-3e4dfb77656c // indirect
 	github.com/kr/pty v1.1.8 // indirect
 	github.com/mitchellh/go-homedir v1.1.0

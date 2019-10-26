@@ -1,3 +1,5 @@
+github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 h1:/vQbFIOMbk2FiG/kXiLl8BRyzTWDw7gX/Hz7Dd5eDMs=
+github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4/go.mod h1:hN7oaIRCjzsZ2dE+yG5k+rsdt3qcwykqK6HVGcKwsw4=
 github.com/99designs/keyring v1.1.1 h1:3XSIPsh/MH5tHYT7ub1LoOkpGQuW/TdK//c04TnU2j4=
 github.com/99designs/keyring v1.1.1/go.mod h1:657DQuMrBZRtuL/voxVyiyb6zpMehlm5vLB9Qwrv904=
 github.com/99designs/keyring v1.1.2 h1:JJauROcU6x6Nh9uZb+8JgXFvyo0GUESLo1ixhpA0Kmw=

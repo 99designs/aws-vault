@@ -1,8 +1,8 @@
 version: '2.1'
 
 services:
+
   aws-vault:
-    image: 99designs/aws-vault
     build: .
     environment:
       - AWS_VAULT_BACKEND
@@ -10,3 +10,12 @@ services:
     volumes:
       - ~/.aws:/root/.aws
       - ~/.awsvault:/root/.awsvault
+
+  dev:
+    image: golang
+    volumes:
+      - .:/aws-vault
+      - /root/.aws
+      - /root/.awsvault
+    working_dir: /aws-vault
+    entrypoint: go run main.go

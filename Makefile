@@ -9,10 +9,9 @@ SRC=$(shell find . -name '*.go')
 all: aws-vault-linux-amd64 aws-vault-darwin-amd64 aws-vault-windows-386.exe aws-vault-freebsd-amd64
 
 clean:
-	rm -f aws-vault-linux-amd64 aws-vault-darwin-amd64 aws-vault-windows-386.exe aws-vault-freebsd-amd64
+	rm -f aws-vault-linux-amd64 aws-vault-darwin-amd64 aws-vault-darwin-amd64.dmg aws-vault-windows-386.exe aws-vault-freebsd-amd64
 
-release: all
-	codesign -s $(CERT) aws-vault-darwin-amd64
+release: all aws-vault-darwin-amd64.dmg
 	@echo "\nTo update homebrew-cask run\n\n    cask-repair -v $(shell echo $(VERSION) | sed 's/v\(.*\)/\1/') aws-vault\n"
 
 aws-vault-linux-amd64: $(SRC)
@@ -26,3 +25,6 @@ aws-vault-windows-386.exe: $(SRC)
 
 aws-vault-freebsd-amd64: $(SRC)
 	GOOS=freebsd GOARCH=amd64 go build -o $@ -ldflags="$(FLAGS)" .
+
+aws-vault-darwin-amd64.dmg: aws-vault-darwin-amd64
+	./bin/create-dmg aws-vault-darwin-amd64 $@

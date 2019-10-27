@@ -1,0 +1,54 @@
+#!/bin/bash
+#
+# create-dmg packages the aws-vault CLI binary for macOS
+# using Apple's signing and notorizing process
+#
+
+set -euo pipefail
+
+notarization_status() {
+  xcrun altool --notarization-info "$1" --username "$APPLE_ID_USERNAME" --password "$APPLE_ID_APP_PASSWORD" 2>&1 \
+    | awk -F ': ' '/Status:/ { print $2; }'
+}
+
+get_apple_id() {
+  /usr/libexec/PlistBuddy -c "print :Accounts:0:AccountID" ~/Library/Preferences/MobileMeAccounts.plist
+}
+
+BIN_PATH="$1"
+DMG_PATH="$2"
+APPLE_ID_USERNAME="${APPLE_ID_USERNAME:-$(get_apple_id)}"
+APPLE_ID_APP_PASSWORD="${APPLE_ID_APP_PASSWORD:-"@keychain:AC_PASSWORD"}"
+
+tmpdir="$(mktemp -d)"
+trap "rm -rf $tmpdir" EXIT
+
+cp -a $BIN_PATH $tmpdir/aws-vault
+src_path="$tmpdir/aws-vault"
+
+echo "Signing binary"
+codesign -s "Developer ID Application: 99designs Inc (NRM9HVJ62Z)" "$src_path"
+
+echo "Creating dmg"
+hdiutil create -quiet -srcfolder $src_path $DMG_PATH
+
+echo "Submitting notorization request"
+request_uuid=$(xcrun altool --notarize-app --primary-bundle-id "com.99designs.aws-vault" --username "$APPLE_ID_USERNAME" --password "$APPLE_ID_APP_PASSWORD" --file $DMG_PATH 2>&1 \
+  | awk '/RequestUUID/ { print $NF; }')
+
+echo "RequestUUID: $request_uuid"
+echo -n "Waiting for notorization to complete"
+while [[ "$(notarization_status "$request_uuid")" == "in progress" ]] ; do
+  echo -n .
+  sleep 10
+done
+echo
+
+status="$(notarization_status "$request_uuid")"
+if [[ "$status" != "success" ]] ; then
+  echo "Notorization status is: $status"
+  exit 1
+fi
+
+echo "Stapling"
+xcrun stapler staple -q $DMG_PATH

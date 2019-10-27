@@ -32,7 +32,6 @@ type ExecCommandInput struct {
 	CredentialHelper bool
 	Signals          chan os.Signal
 	NoSession        bool
-	NoSaveSession    bool
 }
 
 // json metadata for AWS credential process. Ref: https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
@@ -79,10 +78,6 @@ func ConfigureExecCommand(app *kingpin.Application) {
 		Short('s').
 		BoolVar(&input.StartServer)
 
-	cmd.Flag("no-save-session", "Don't save session data to keyring").
-		OverrideDefaultFromEnvar("AWS_VAULT_NO_SAVE_SESSION").
-		BoolVar(&input.NoSaveSession)
-
 	cmd.Arg("profile", "Name of the profile").
 		Required().
 		HintAction(ProfileNames).
@@ -124,7 +119,6 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 		MfaToken:           input.MfaToken,
 		MfaPrompt:          input.MfaPrompt,
 		NoSession:          input.NoSession,
-		NoSaveSession:      input.NoSaveSession,
 		Config:             awsConfig,
 	})
 	if err != nil {

@@ -34,7 +34,6 @@ type VaultOptions struct {
 	MfaToken           string
 	MfaPrompt          prompt.PromptFunc
 	NoSession          bool
-	NoSaveSession      bool
 	Config             *Config
 	MasterCreds        *credentials.Value
 	Region             string
@@ -139,10 +138,8 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 				return credentials.Value{}, err
 			}
 
-			if !p.NoSaveSession {
-				if err = p.sessions.Store(p.profile, session, time.Now().Add(p.SessionDuration)); err != nil {
-					return credentials.Value{}, err
-				}
+			if err = p.sessions.Store(p.profile, session, time.Now().Add(p.SessionDuration)); err != nil {
+				return credentials.Value{}, err
 			}
 		}
 	}

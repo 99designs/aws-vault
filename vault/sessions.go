@@ -1,6 +1,7 @@
 package vault
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -13,25 +14,46 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts"
 )
 
-var sessionKeyPattern = regexp.MustCompile(`^(.+?) session \((\d+)\)$`)
+var sessionKeyPattern = regexp.MustCompile(`^session:(?P<profile>[^:]+):(?P<mfaSerial>[^:]*):(?P<expiration>[^:]+)$`)
+var oldSessionKeyPatterns = []*regexp.Regexp{
+	regexp.MustCompile(`^(.+?) session \((\d+)\)$`),
+}
+var base64Encoding = base64.URLEncoding.WithPadding(base64.NoPadding)
 
 func IsSessionKey(s string) bool {
-	return sessionKeyPattern.MatchString(s)
+	if sessionKeyPattern.MatchString(s) {
+		return true
+	}
+	for _, pattern := range oldSessionKeyPatterns {
+		if pattern.MatchString(s) {
+			return true
+		}
+	}
+	return false
 }
 
 func parseKeyringSession(s string, conf *Config) (KeyringSession, error) {
 	matches := sessionKeyPattern.FindStringSubmatch(s)
 	if len(matches) == 0 {
-		return KeyringSession{}, errors.New("Failed to parse session name")
+		return KeyringSession{}, errors.New("failed to parse session name")
 	}
-	profile, _ := conf.Profile(matches[1])
-	return KeyringSession{Profile: profile, Name: s, SessionID: matches[2]}, nil
+	profileName, _ := base64Encoding.DecodeString(matches[1])
+	mfaSerial, _ := base64Encoding.DecodeString(matches[2])
+	sessionId := matches[3]
+	profile, _ := conf.Profile(string(profileName))
+	return KeyringSession{
+		Profile:   profile,
+		Name:      s,
+		SessionID: sessionId,
+		MfaSerial: string(mfaSerial),
+	}, nil
 }
 
 type KeyringSession struct {
 	Profile
 	Name      string
 	SessionID string
+	MfaSerial string
 }
 
 func (ks KeyringSession) IsExpired() bool {
@@ -71,9 +93,9 @@ func (s *KeyringSessions) Sessions() ([]KeyringSession, error) {
 
 	for _, k := range keys {
 		if IsSessionKey(k) {
-			ks, _ := parseKeyringSession(k, s.Config)
-			if ks.IsExpired() {
-				log.Printf("Session %s is expired, attempting deleting", k)
+			ks, err := parseKeyringSession(k, s.Config)
+			if err != nil || ks.IsExpired() {
+				log.Printf("Session %s is obsolete, attempting deleting", k)
 				if err := s.Keyring.Remove(k); err != nil {
 					log.Printf("Error deleting session: %v", err)
 				}
@@ -88,7 +110,7 @@ func (s *KeyringSessions) Sessions() ([]KeyringSession, error) {
 }
 
 // Retrieve searches sessions for specific profile, expects the profile to be provided, not the source
-func (s *KeyringSessions) Retrieve(profile string) (creds sts.Credentials, err error) {
+func (s *KeyringSessions) Retrieve(profile string, mfaSerial string) (creds sts.Credentials, err error) {
 	log.Printf("Looking for sessions for %s", profile)
 	sessions, err := s.Sessions()
 	if err != nil {
@@ -96,7 +118,7 @@ func (s *KeyringSessions) Retrieve(profile string) (creds sts.Credentials, err e
 	}
 
 	for _, session := range sessions {
-		if session.Profile.Name == profile {
+		if session.Profile.Name == profile && session.MfaSerial == mfaSerial {
 			item, err := s.Keyring.Get(session.Name)
 			if err != nil {
 				return creds, err
@@ -123,13 +145,18 @@ func (s *KeyringSessions) Retrieve(profile string) (creds sts.Credentials, err e
 }
 
 // Store stores a sessions for a specific profile, expects the profile to be provided, not the source
-func (s *KeyringSessions) Store(profile string, session sts.Credentials, expires time.Time) error {
+func (s *KeyringSessions) Store(profile string, mfaSerial string, session sts.Credentials) error {
 	bytes, err := json.Marshal(session)
 	if err != nil {
 		return err
 	}
 
-	key := fmt.Sprintf("%s session (%d)", profile, expires.Unix())
+	key := fmt.Sprintf(
+		"session:%s:%s:%d",
+		base64Encoding.EncodeToString([]byte(profile)),
+		base64Encoding.EncodeToString([]byte(mfaSerial)),
+		session.Expiration.Unix(),
+	)
 	log.Printf("Writing session for %s to keyring: %q", profile, key)
 
 	return s.Keyring.Set(keyring.Item{

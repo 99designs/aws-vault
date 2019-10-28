@@ -14,6 +14,8 @@ func TestIsSessionKey(t *testing.T) {
 		{"blah", false},
 		{"blah session (61633665646639303539)", true},
 		{"blah-iam session (32383863333237616430)", true},
+		{"session:c2Vzc2lvbg::1572281751", true},
+		{"session:c2Vzc2lvbg:YXJuOmF3czppYW06OjEyMzQ1Njc4OTA6bWZhL2pzdGV3bW9u:1572281751", true},
 	}
 
 	for _, tc := range testCases {

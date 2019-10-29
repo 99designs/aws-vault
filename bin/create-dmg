@@ -29,16 +29,19 @@ cp -a $BIN_PATH $tmpdir/aws-vault
 src_path="$tmpdir/aws-vault"
 
 echo "Signing binary"
-codesign -s "$CERT_ID" "$src_path"
+codesign --options runtime --timestamp --sign "$CERT_ID" "$src_path"
 
 echo "Creating dmg"
-hdiutil create -quiet -srcfolder $src_path $DMG_PATH
+hdiutil create -quiet -srcfolder "$src_path" "$DMG_PATH"
+
+echo "Signing dmg"
+codesign --timestamp --sign "$CERT_ID" "$DMG_PATH"
 
 echo "Submitting notorization request"
 request_uuid=$(xcrun altool --notarize-app --primary-bundle-id "$BUNDLE_ID" --username "$APPLE_ID_USERNAME" --password "$APPLE_ID_APP_PASSWORD" --file $DMG_PATH 2>&1 \
   | awk '/RequestUUID/ { print $NF; }')
+echo "Finished submitting, got Request UUID $request_uuid"
 
-echo "RequestUUID: $request_uuid"
 echo -n "Waiting for notorization to complete"
 while [[ "$(notarization_status "$request_uuid")" == "in progress" ]] ; do
   echo -n .

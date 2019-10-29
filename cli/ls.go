@@ -108,15 +108,19 @@ func LsCommand(app *kingpin.Application, input LsCommandInput) {
 			fmt.Fprintf(w, "-\t")
 		}
 
-		var sessionIDs []string
+		var sessionLabels []string
 		for _, sess := range sessions {
 			if profile.Name == sess.Profile.Name {
-				sessionIDs = append(sessionIDs, sess.SessionID)
+				label := fmt.Sprintf("%d", sess.Expiration.Unix())
+				if sess.MfaSerial != "" {
+					label += " (mfa)"
+				}
+				sessionLabels = append(sessionLabels, label)
 			}
 		}
 
 		if len(sessions) > 0 {
-			fmt.Fprintf(w, "%s\t\n", strings.Join(sessionIDs, ", "))
+			fmt.Fprintf(w, "%s\t\n", strings.Join(sessionLabels, ", "))
 		} else {
 			fmt.Fprintf(w, "-\t\n")
 		}

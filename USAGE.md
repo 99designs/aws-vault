@@ -72,18 +72,20 @@ become either profile.
 ```ini
 [profile home]
 region = us-east-1
-mfa_serial = arn:aws:iam::IAM_ACCOUNTID:mfa/home-account
+mfa_serial = arn:aws:iam::111111111111:mfa/home-account
 
 [profile work]
 region = eu-west-1
-mfa_serial = arn:aws:iam::IAM_ACCOUNTID:mfa/work-account
+mfa_serial = arn:aws:iam::111111111111:mfa/work-account
 
-[profile work-read_only_role]
-role_arn = arn:aws:iam::IAM_ACCOUNTID:role/read_only_role
+[profile work-read-only]
+region = us-east-1
+role_arn = arn:aws:iam::111111111111:role/ReadOnly
 source_profile = work
 
-[profile work-admin_role]
-role_arn = arn:aws:iam::IAM_ACCOUNTID:role/admin_role
+[profile work-admin]
+region = us-east-1
+role_arn = arn:aws:iam::111111111111:role/Administrator
 source_profile = work
 ```
 
@@ -98,8 +100,8 @@ Profile                  Credentials              Sessions
 =======                  ===========              ========                 
 home                     home                        
 work                     work                     1525456570  
-work-read_only_role      work                        
-work-admin_role          work                        
+work-read-only           work                        
+work-admin               work                        
 ``` 
 
 ### Removing profiles

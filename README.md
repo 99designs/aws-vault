@@ -80,19 +80,20 @@ Best-practice is to have a read-only account that you use on a day-to-day basis,
 
 First you'll need to [setup an MFA token in the AWS Console](http://docs.aws.amazon.com/IAM/latest/UserGuide/GenerateMFAConfigAccount.html) and create a role with admin access.
 
-Edit your `~/.aws/config` to add the role_arn and MFA serial number into a new profile:
+Edit your `~/.aws/config` to add the `role_arn` and `mfa_serial` into a new profile:
 
 ```ini
-[profile read-only]
+[profile prod]
 region=us-east-1
 
-[profile admin]
-source_profile = read-only
-role_arn = arn:aws:iam::123456789012:role/admin-access
-mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
+[profile prod-admin]
+region=us-east-1
+role_arn = arn:aws:iam::111111111111:role/Administrator
+mfa_serial = arn:aws:iam::222222222222:mfa/jonsmith
+source_profile = prod
 ```
 
-Then when you use the `admin` profile, `aws-vault` will look in the `read-only` profile's keychain for credentials and then use those credentials to assume the `admin` role. This assumed role is stored as a short duration session in your keychain so you will only have to enter MFA once per session.
+Then when you use the `prod-admin` profile, `aws-vault` will look in the `prod` profile's keychain for credentials and then use those credentials to assume the `Administrator` role. This assumed role is stored as a short duration session in your keychain so you will only have to enter MFA once per session.
 
 ## macOS Code-signing
 

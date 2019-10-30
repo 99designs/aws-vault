@@ -100,7 +100,7 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 	}
 
 	// sessions get stored by profile, not the source
-	session, err := p.sessions.Retrieve(p.profile)
+	session, err := p.sessions.Retrieve(p.profile, p.VaultOptions.MfaSerial)
 	if err != nil {
 		if err == keyring.ErrKeyNotFound {
 			log.Printf("Session not found in keyring for %s", p.profile)
@@ -138,7 +138,7 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 				return credentials.Value{}, err
 			}
 
-			if err = p.sessions.Store(p.profile, session, time.Now().Add(p.SessionDuration)); err != nil {
+			if err = p.sessions.Store(p.profile, p.VaultOptions.MfaSerial, session); err != nil {
 				return credentials.Value{}, err
 			}
 		}

@@ -73,10 +73,9 @@ The credentials are exposed to the subprocess in one of two ways:
 
 The default is to use environment variables, but you can opt-in to the local instance metadata server with the `--server` flag on the `exec` command.
 
-
 ### Assuming Roles
 
-[Best-practice is to create individual users](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#create-iam-users) for anyone who needs access to your AWS account, and [create Roles to delegate permissions](https://docs.aws.amazon.com/cli/latest/userguide/cli-roles.html).
+[Best-practice](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#delegate-using-roles) is to [create Roles to delegate permissions](https://docs.aws.amazon.com/cli/latest/userguide/cli-roles.html).
 
 First you'll need to create the users and roles in IAM. Next, edit your `~/.aws/config` to add profiles with a `role_arn`. For example:
 
@@ -99,10 +98,9 @@ Now when you use the `prod-admin` profile, `aws-vault` will look in the `jonsmit
 
 ### Using MFA
 
-You should also require that users provide a one-time key generated from a multi-factor authentication (MFA) device when they attempt to make a call using the `prod-admin` profile.
+For security, you should also require that users provide a one-time key generated from a multi-factor authentication (MFA) device.
 
-First you'll need to
-[setup an MFA device](https://docs.aws.amazon.com/IAM/latest/UserGuide/GenerateMFAConfigAccount.html). You can then [set up your IAM role to enforce MFA](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html#cli-configure-role-mfa). Next, add a line to the role profile that specifies the ARN of the user's MFA device. For example:
+First you'll need to [setup an MFA device](https://docs.aws.amazon.com/IAM/latest/UserGuide/GenerateMFAConfigAccount.html). You can then [set up IAM roles to enforce MFA](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html#cli-configure-role-mfa). Next, add a line to the role profile that specifies the ARN of the user's MFA device. For example:
 
 ```ini
 [profile jonsmith]
@@ -120,36 +118,27 @@ mfa_serial = arn:aws:iam::111111111111:mfa/jonsmith
 source_profile = jonsmith
 ```
 
-Now when you use the `prod-admin` profile `aws-vault` will prompt you for an MFA token. This assumed role's session is stored in your keychain so you will only have to enter your MFA once per session.
+Now when you use the `prod-admin` profile `aws-vault` will prompt you for an MFA token. This assumed role's session is stored in your keychain so you will only have to enter your MFA once.
 
-## macOS Code-signing
+
+## macOS Code Signing
 
 The [macOS release builds](https://github.com/99designs/aws-vault/releases) are code-signed to avoid extra prompts in Keychain. You can verify this with:
 
-    $ codesign -dvv $(which aws-vault) 2>&1 | grep Authority
-    Authority=Developer ID Application: 99designs Inc (NRM9HVJ62Z)
-    Authority=Developer ID Certification Authority
-    Authority=Apple Root CA
+    $ codesign --verify --verbose $(which aws-vault)
 
-### Self-signing your binary
+If you are developing or compiling the aws-vault binary yourself, you can [generate a self-signed certificate](https://support.apple.com/en-au/guide/keychain-access/kyca8916/mac) by accessing Keychain Access > Certificate Assistant > Create Certificate > Code Signing Certificate. You can then sign your binary with:
 
-If you are developing or compiling the aws-vault binary yourself, you can generate a self-signed code signing certificate.
+    $ go build .
+    $ codesign --sign "Name of my certificate" ./aws-vault
 
-Check out Apple's guide on it [here](https://web.archive.org/web/20090119080759/http://developer.apple.com/documentation/Security/Conceptual/CodeSigningGuide/Procedures/chapter_3_section_2.html), or find it in `Keychain Access > Certificate Assistant > Create Certificate > Code Signing Certificate`.
-
-You can then sign your binary like this:
-
-```bash
-make build
-codesign -s "Name of my certificate" ./aws-vault
-```
 
 ## References and Inspiration
 
  * https://github.com/pda/aws-keychain
  * https://docs.aws.amazon.com/IAM/latest/UserGuide/MFAProtectedAPI.html
  * https://docs.aws.amazon.com/IAM/latest/UserGuide/IAMBestPractices.html#create-iam-users
- * https://github.com/paperg/awsudo
+ * https://github.com/makethunder/awsudo
  * https://github.com/AdRoll/hologram
  * https://github.com/realestate-com-au/credulous
  * https://github.com/dump247/aws-mock-metadata

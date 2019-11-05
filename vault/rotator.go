@@ -18,6 +18,7 @@ import (
 type Rotator struct {
 	Keyring   keyring.Keyring
 	MfaToken  string
+	MfaSerial string
 	MfaPrompt prompt.PromptFunc
 	Config    *Config
 }
@@ -57,6 +58,7 @@ func (r *Rotator) Rotate(profile string) error {
 
 	oldSessionCreds, err := NewVaultCredentials(r.Keyring, profile, VaultOptions{
 		MfaToken:    r.MfaToken,
+		MfaSerial:   r.MfaSerial,
 		MfaPrompt:   r.MfaPrompt,
 		Config:      r.Config,
 		NoSession:   !r.needsSessionToRotate(profile),
@@ -113,6 +115,7 @@ func (r *Rotator) Rotate(profile string) error {
 
 	newSessionCreds, err := NewVaultCredentials(r.Keyring, profile, VaultOptions{
 		MfaToken:    r.MfaToken,
+		MfaSerial:   r.MfaSerial,
 		MfaPrompt:   r.MfaPrompt,
 		Config:      r.Config,
 		NoSession:   !r.needsSessionToRotate(profile),
@@ -226,6 +229,9 @@ func retry(duration time.Duration, sleep time.Duration, callback func() error) (
 // This is a heuristic which might need to continue to evolve.  :(
 func (r *Rotator) needsSessionToRotate(profileName string) bool {
 	if r.MfaToken != "" {
+		return true
+	}
+	if r.MfaSerial != "" {
 		return true
 	}
 	sourceProfile, known := r.Config.SourceProfile(profileName)

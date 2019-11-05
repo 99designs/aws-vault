@@ -13,6 +13,7 @@ type RotateCommandInput struct {
 	Profile   string
 	Keyring   keyring.Keyring
 	MfaToken  string
+	MfaSerial string
 	MfaPrompt prompt.PromptFunc
 }
 
@@ -28,6 +29,10 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 		Short('t').
 		StringVar(&input.MfaToken)
 
+	cmd.Flag("mfa-serial-override", "Override the MFA Serial defined in AWS Profile").
+		OverrideDefaultFromEnvar("AWS_MFA_SERIAL").
+		StringVar(&input.MfaSerial)
+
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.MfaPrompt = prompt.Method(GlobalFlags.PromptDriver)
 		input.Keyring = keyringImpl
@@ -40,6 +45,7 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 	rotator := vault.Rotator{
 		Keyring:   input.Keyring,
 		MfaToken:  input.MfaToken,
+		MfaSerial: input.MfaSerial,
 		MfaPrompt: input.MfaPrompt,
 		Config:    awsConfig,
 	}

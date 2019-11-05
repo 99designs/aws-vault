@@ -66,8 +66,12 @@ func ConfigureExecCommand(app *kingpin.Application) {
 		Short('m').
 		StringVar(&input.MfaToken)
 
-	cmd.Flag("mfa-serial-override", "Override the MFA Serial defined in AWS Profile").
-		OverrideDefaultFromEnvar("AWS_MFA_SERIAL").
+	cmd.Flag("mfa-serial-override", "Deprecated, use --mfa-serial instead").
+		Hidden().
+		StringVar(&input.MfaSerial)
+
+	cmd.Flag("mfa-serial", "The identification number of the MFA device to use").
+		Envar("AWS_MFA_SERIAL").
 		StringVar(&input.MfaSerial)
 
 	cmd.Flag("json", "AWS credential helper. Ref: https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes").

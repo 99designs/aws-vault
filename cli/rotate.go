@@ -29,8 +29,8 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 		Short('t').
 		StringVar(&input.MfaToken)
 
-	cmd.Flag("mfa-serial-override", "Override the MFA Serial defined in AWS Profile").
-		OverrideDefaultFromEnvar("AWS_MFA_SERIAL").
+	cmd.Flag("mfa-serial", "The identification number of the MFA device to use").
+		Envar("AWS_MFA_SERIAL").
 		StringVar(&input.MfaSerial)
 
 	cmd.Action(func(c *kingpin.ParseContext) error {

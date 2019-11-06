@@ -421,13 +421,10 @@ type VaultCredentials struct {
 }
 
 func NewVaultCredentials(k keyring.Keyring, profile string, opts VaultOptions) (*VaultCredentials, error) {
-	// always get the list of profiles for cycle detection
-	profiles, err := profileChain(profile, opts.Config)
-	if err != nil {
-		return nil, err
-	}
-	if len(opts.MfaSerial) == 0 {
-		opts.MfaSerial = findMfaSerial(profiles)
+	if opts.MfaSerial == "" {
+		if configProfile, exists := opts.Config.Profile(profile); exists {
+			opts.MfaSerial = configProfile.MFASerial
+		}
 	}
 	provider, err := NewVaultProvider(k, profile, opts)
 	if err != nil {
@@ -439,26 +436,4 @@ func NewVaultCredentials(k keyring.Keyring, profile string, opts VaultOptions) (
 
 func (v *VaultCredentials) Expires() time.Time {
 	return v.provider.expires
-}
-
-func findMfaSerial(profiles []Profile) string {
-	for _, profile := range profiles {
-		if len(profile.MFASerial) > 0 {
-			return profile.MFASerial
-		}
-	}
-	return ""
-}
-
-func profileChain(profile string, config *Config) ([]Profile, error) {
-	visited := map[string]bool{}
-	var profiles []Profile
-	for configProfile, exists := config.Profile(profile); exists; configProfile, exists = config.Profile(configProfile.SourceProfile) {
-		if _, ok := visited[configProfile.Name]; ok {
-			return nil, fmt.Errorf("source profile cycle detected for profile %v", profile)
-		}
-		visited[configProfile.Name] = true
-		profiles = append(profiles, configProfile)
-	}
-	return profiles, nil
 }

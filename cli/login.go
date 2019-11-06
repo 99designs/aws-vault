@@ -27,6 +27,7 @@ type LoginCommandInput struct {
 	Profile                 string
 	Keyring                 keyring.Keyring
 	MfaToken                string
+	MfaSerial               string
 	MfaPrompt               prompt.PromptFunc
 	UseStdout               bool
 	FederationTokenDuration time.Duration
@@ -52,6 +53,10 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 	cmd.Flag("mfa-token", "The mfa token to use").
 		Short('t').
 		StringVar(&input.MfaToken)
+
+	cmd.Flag("mfa-serial", "The identification number of the MFA device to use").
+		Envar("AWS_MFA_SERIAL").
+		StringVar(&input.MfaSerial)
 
 	cmd.Flag("path", "The AWS service you would like access").
 		StringVar(&input.Path)
@@ -95,6 +100,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 	creds, err := vault.NewVaultCredentials(input.Keyring, input.Profile, vault.VaultOptions{
 		AssumeRoleDuration: input.AssumeRoleDuration,
 		MfaToken:           input.MfaToken,
+		MfaSerial:          input.MfaSerial,
 		MfaPrompt:          input.MfaPrompt,
 		Path:               input.Path,
 		NoSession:          noSession,

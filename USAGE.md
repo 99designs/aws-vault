@@ -195,13 +195,13 @@ source_profile = intermediary
 role_arn = arn:aws:iam::123456789012:role/target
 ```
 
-If desired, you can override (or set) your `mfa_serial` with an environment variable `AWS_MFA_SERIAL` or by setting the `--mfa-serial-override` flag from `aws-vault exec`. This behavior is `aws-vault` specific and isn't supported from the `awscli`.
+If desired, you can set your `mfa_serial` with an environment variable `AWS_MFA_SERIAL` or by setting the `--mfa-serial` flag from `aws-vault exec`. This behavior is `aws-vault` specific and isn't supported from the `awscli`.
 
 ```shell
-# Override MFA Serial with flag
-$ aws-vault exec --mfa-serial-override arn:aws:iam::123456789012:mfa/jonsmith my_profile ...
+# Set MFA Serial with flag
+$ aws-vault exec --mfa-serial arn:aws:iam::123456789012:mfa/jonsmith my_profile ...
 
-# Override MFA Serial with environment variable
+# Set MFA Serial with environment variable
 $ export AWS_MFA_SERIAL=arn:aws:iam::123456789012:mfa/jonsmith
 $ aws-vault exec my_profile ...
 ```

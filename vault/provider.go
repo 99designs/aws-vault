@@ -68,26 +68,26 @@ func (o VaultOptions) ApplyDefaults() VaultOptions {
 type VaultProvider struct {
 	credentials.Expiry
 	VaultOptions
-	profile  string
-	expires  time.Time
-	keyring  keyring.Keyring
-	sessions *KeyringSessions
-	config   *Config
-	creds    map[string]credentials.Value
+	credentialName string
+	expires        time.Time
+	keyring        keyring.Keyring
+	sessions       *KeyringSessions
+	config         *Config
+	creds          map[string]credentials.Value
 }
 
-func NewVaultProvider(k keyring.Keyring, profile string, opts VaultOptions) (*VaultProvider, error) {
+func NewVaultProvider(k keyring.Keyring, credentialName string, opts VaultOptions) (*VaultProvider, error) {
 	opts = opts.ApplyDefaults()
 	if err := opts.Validate(); err != nil {
 		return nil, err
 	}
 	return &VaultProvider{
-		VaultOptions: opts,
-		keyring:      k,
-		sessions:     &KeyringSessions{k, opts.Config},
-		profile:      profile,
-		config:       opts.Config,
-		creds:        map[string]credentials.Value{},
+		VaultOptions:   opts,
+		keyring:        k,
+		sessions:       &KeyringSessions{k, opts.Config},
+		credentialName: credentialName,
+		config:         opts.Config,
+		creds:          map[string]credentials.Value{},
 	}, nil
 }
 
@@ -100,10 +100,10 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 	}
 
 	// sessions get stored by profile, not the source
-	session, err := p.sessions.Retrieve(p.profile, p.VaultOptions.MfaSerial)
+	session, err := p.sessions.Retrieve(p.credentialName, p.VaultOptions.MfaSerial)
 	if err != nil {
 		if err == keyring.ErrKeyNotFound {
-			log.Printf("Session not found in keyring for %s", p.profile)
+			log.Printf("Session not found in keyring for %s", p.credentialName)
 		} else {
 			log.Println(err)
 		}
@@ -111,7 +111,7 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 		// session lookup missed, we need to create a new one.
 		// If the selected profile has a SourceProfile, create a new VaultCredentials for the source
 		// to support using an existing session for master credentials and allow assume role chaining.
-		if profile, exists := p.config.Profile(p.profile); exists && profile.SourceProfile != "" {
+		if profile, exists := p.config.Profile(p.credentialName); exists && profile.SourceProfile != "" {
 			creds, err := NewVaultCredentials(p.keyring, profile.SourceProfile, p.VaultOptions)
 			if err != nil {
 				log.Printf("Failed to create NewVaultCredentials for profile %q", profile.SourceProfile)
@@ -138,7 +138,7 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 				return credentials.Value{}, err
 			}
 
-			if err = p.sessions.Store(p.profile, p.VaultOptions.MfaSerial, session); err != nil {
+			if err = p.sessions.Store(p.credentialName, p.VaultOptions.MfaSerial, session); err != nil {
 				return credentials.Value{}, err
 			}
 		}
@@ -148,7 +148,7 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 		(*session.AccessKeyId)[len(*session.AccessKeyId)-4:],
 		session.Expiration.Sub(time.Now()).String())
 
-	if profile, exists := p.config.Profile(p.profile); exists && profile.RoleARN != "" {
+	if profile, exists := p.config.Profile(p.credentialName); exists && profile.RoleARN != "" {
 		session, err = p.assumeRoleFromSession(session, profile)
 		if err != nil {
 			return credentials.Value{}, err
@@ -187,7 +187,7 @@ func (p *VaultProvider) RetrieveWithoutSessionToken() (credentials.Value, error)
 		return credentials.Value{}, err
 	}
 
-	if profile, exists := p.config.Profile(p.profile); exists && profile.RoleARN != "" {
+	if profile, exists := p.config.Profile(p.credentialName); exists && profile.RoleARN != "" {
 		session, err := p.assumeRole(creds, profile)
 		if err != nil {
 			return credentials.Value{}, err
@@ -229,7 +229,7 @@ func (p VaultProvider) awsConfig() *aws.Config {
 		return aws.NewConfig().WithRegion(region)
 	}
 
-	if profile, ok := p.Config.Profile(p.profile); ok {
+	if profile, ok := p.Config.Profile(p.credentialName); ok {
 		if profile.Region != "" {
 			log.Printf("Using region %q from profile", profile.Region)
 			return aws.NewConfig().WithRegion(profile.Region)
@@ -244,7 +244,7 @@ func (p *VaultProvider) getMasterCreds() (credentials.Value, error) {
 		return *p.MasterCreds, nil
 	}
 
-	source, _ := p.Config.SourceProfile(p.profile)
+	source, _ := p.Config.SourceProfile(p.credentialName)
 
 	val, ok := p.creds[source.Name]
 	if !ok {
@@ -285,7 +285,7 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 			Value: *creds,
 		}))))
 
-	source, _ := p.Config.SourceProfile(p.profile)
+	source, _ := p.Config.SourceProfile(p.credentialName)
 	log.Printf("Getting new session token for profile %s", source.Name)
 
 	resp, err := client.GetSessionToken(params)
@@ -297,7 +297,7 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 }
 
 func (p *VaultProvider) roleSessionName() string {
-	if profile, _ := p.Config.Profile(p.profile); profile.RoleSessionName != "" {
+	if profile, _ := p.Config.Profile(p.credentialName); profile.RoleSessionName != "" {
 		return profile.RoleSessionName
 	}
 

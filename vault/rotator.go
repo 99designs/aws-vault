@@ -22,10 +22,10 @@ type Rotator struct {
 }
 
 // Rotate creates a new key and deletes the old one
-func (r *Rotator) Rotate(profile string) error {
+func (r *Rotator) Rotate(profileName string) error {
 	var err error
 
-	source, _ := r.Config.SourceProfile(profile)
+	source, _ := r.Config.SourceProfile(profileName)
 
 	// --------------------------------
 	// Get the existing credentials
@@ -54,12 +54,12 @@ func (r *Rotator) Rotate(profile string) error {
 		oldMasterCreds.AccessKeyID[len(oldMasterCreds.AccessKeyID)-4:],
 		currentUserName)
 
-	oldSessionCreds, err := NewVaultCredentials(r.Keyring, profile, VaultOptions{
+	oldSessionCreds, err := NewVaultCredentials(r.Keyring, profileName, VaultOptions{
 		MfaToken:    r.MfaToken,
 		MfaSerial:   r.MfaSerial,
 		MfaPrompt:   r.MfaPrompt,
 		Config:      r.Config,
-		NoSession:   !r.needsSessionToRotate(profile),
+		NoSession:   !r.needsSessionToRotate(profileName),
 		MasterCreds: &oldMasterCreds,
 	})
 	if err != nil {
@@ -111,12 +111,12 @@ func (r *Rotator) Rotate(profile string) error {
 
 	log.Println("Using new credentials to delete the old new access key")
 
-	newSessionCreds, err := NewVaultCredentials(r.Keyring, profile, VaultOptions{
+	newSessionCreds, err := NewVaultCredentials(r.Keyring, profileName, VaultOptions{
 		MfaToken:    r.MfaToken,
 		MfaSerial:   r.MfaSerial,
 		MfaPrompt:   r.MfaPrompt,
 		Config:      r.Config,
-		NoSession:   !r.needsSessionToRotate(profile),
+		NoSession:   !r.needsSessionToRotate(profileName),
 		MasterCreds: &newMasterCreds,
 	})
 	if err != nil {
@@ -154,11 +154,11 @@ func (r *Rotator) Rotate(profile string) error {
 		return err
 	}
 
-	if n, _ := sessions.Delete(profile); n > 0 {
+	if n, _ := sessions.Delete(profileName); n > 0 {
 		log.Printf("Deleted %d existing sessions.", n)
 	}
 
-	log.Printf("Rotated credentials for profile %q in vault", profile)
+	log.Printf("Rotated credentials for profile %q in vault", profileName)
 	return nil
 }
 

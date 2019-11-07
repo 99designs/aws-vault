@@ -40,9 +40,9 @@ func ConfigureListCommand(app *kingpin.Application) {
 	})
 }
 
-func containsProfile(profile string, accounts []string) bool {
-	for _, account := range accounts {
-		if !vault.IsSessionKey(account) && account == profile {
+func contains(profileName string, credentialNames []string) bool {
+	for _, credentialName := range credentialNames {
+		if !vault.IsSessionKey(credentialName) && credentialName == profileName {
 			return true
 		}
 	}
@@ -56,16 +56,16 @@ func LsCommand(app *kingpin.Application, input LsCommandInput) {
 		return
 	}
 
-	accounts, err := input.Keyring.Keys()
+	credentialNames, err := input.Keyring.Keys()
 	if err != nil {
 		app.Fatalf(err.Error())
 		return
 	}
 
 	if input.OnlyCredentials {
-		for _, account := range accounts {
-			if !vault.IsSessionKey(account) {
-				fmt.Printf("%s\n", account)
+		for _, c := range credentialNames {
+			if !vault.IsSessionKey(c) {
+				fmt.Printf("%s\n", c)
 			}
 		}
 		return
@@ -79,9 +79,9 @@ func LsCommand(app *kingpin.Application, input LsCommandInput) {
 	}
 
 	if input.OnlySessions {
-		for _, account := range accounts {
-			if vault.IsSessionKey(account) {
-				fmt.Printf("%s\n", account)
+		for _, c := range credentialNames {
+			if vault.IsSessionKey(c) {
+				fmt.Printf("%s\n", c)
 			}
 		}
 		return
@@ -102,7 +102,7 @@ func LsCommand(app *kingpin.Application, input LsCommandInput) {
 		fmt.Fprintf(w, "%s\t", profile.Name)
 
 		source, _ := awsConfig.SourceProfile(profile.Name)
-		if containsProfile(source.Name, accounts) {
+		if contains(source.Name, credentialNames) {
 			fmt.Fprintf(w, "%s\t", source.Name)
 		} else {
 			fmt.Fprintf(w, "-\t")
@@ -127,10 +127,10 @@ func LsCommand(app *kingpin.Application, input LsCommandInput) {
 	}
 
 	// show credentials that don't have profiles
-	for _, account := range accounts {
-		if !vault.IsSessionKey(account) {
-			if _, ok := awsConfig.Profile(account); !ok {
-				fmt.Fprintf(w, "-\t%s\t-\t\n", account)
+	for _, c := range credentialNames {
+		if !vault.IsSessionKey(c) {
+			if _, ok := awsConfig.Profile(c); !ok {
+				fmt.Fprintf(w, "-\t%s\t-\t\n", c)
 			}
 		}
 	}
@@ -140,7 +140,7 @@ func LsCommand(app *kingpin.Application, input LsCommandInput) {
 		return
 	}
 
-	if len(accounts) == 0 {
+	if len(credentialNames) == 0 {
 		app.Fatalf("No credentials found")
 		return
 	}

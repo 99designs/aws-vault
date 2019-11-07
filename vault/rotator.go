@@ -31,9 +31,9 @@ func (r *Rotator) Rotate(profileName string) error {
 	// Get the existing credentials
 
 	provider := &KeyringProvider{
-		Keyring: r.Keyring,
-		Profile: source.Name,
-		Region:  source.Region,
+		Keyring:        r.Keyring,
+		CredentialName: source.Name,
+		Region:         source.Region,
 	}
 
 	oldMasterCreds, err := provider.Retrieve()

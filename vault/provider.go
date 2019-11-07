@@ -248,7 +248,7 @@ func (p *VaultProvider) getMasterCreds() (credentials.Value, error) {
 
 	val, ok := p.creds[source.Name]
 	if !ok {
-		creds := credentials.NewCredentials(&KeyringProvider{Keyring: p.keyring, Profile: source.Name})
+		creds := credentials.NewCredentials(&KeyringProvider{Keyring: p.keyring, CredentialName: source.Name})
 
 		var err error
 		if val, err = creds.Get(); err != nil {
@@ -373,9 +373,9 @@ func (p *VaultProvider) assumeRole(creds credentials.Value, profile Profile) (st
 }
 
 type KeyringProvider struct {
-	Keyring keyring.Keyring
-	Profile string
-	Region  string
+	Keyring        keyring.Keyring
+	CredentialName string
+	Region         string
 }
 
 func (p *KeyringProvider) IsExpired() bool {
@@ -383,8 +383,8 @@ func (p *KeyringProvider) IsExpired() bool {
 }
 
 func (p *KeyringProvider) Retrieve() (val credentials.Value, err error) {
-	log.Printf("Looking up keyring for %s", p.Profile)
-	item, err := p.Keyring.Get(p.Profile)
+	log.Printf("Looking up keyring for %s", p.CredentialName)
+	item, err := p.Keyring.Get(p.CredentialName)
 	if err != nil {
 		log.Println("Error from keyring", err)
 		return val, err
@@ -402,8 +402,8 @@ func (p *KeyringProvider) Store(val credentials.Value) error {
 	}
 
 	return p.Keyring.Set(keyring.Item{
-		Key:   p.Profile,
-		Label: fmt.Sprintf("aws-vault (%s)", p.Profile),
+		Key:   p.CredentialName,
+		Label: fmt.Sprintf("aws-vault (%s)", p.CredentialName),
 		Data:  bytes,
 
 		// specific Keychain settings
@@ -412,7 +412,7 @@ func (p *KeyringProvider) Store(val credentials.Value) error {
 }
 
 func (p *KeyringProvider) Delete() error {
-	return p.Keyring.Remove(p.Profile)
+	return p.Keyring.Remove(p.CredentialName)
 }
 
 type VaultCredentials struct {

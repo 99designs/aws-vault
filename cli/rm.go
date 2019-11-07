@@ -23,6 +23,7 @@ func ConfigureRemoveCommand(app *kingpin.Application) {
 
 	cmd.Arg("profile", "Name of the profile").
 		Required().
+		HintAction(ProfileNames).
 		StringVar(&input.ProfileName)
 
 	cmd.Flag("sessions-only", "Only remove sessions, leave credentials intact").

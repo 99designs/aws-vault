@@ -244,12 +244,3 @@ func (e *environ) Set(key, val string) {
 	e.Unset(key)
 	*e = append(*e, key+"="+val)
 }
-
-// ProfileNames returns a slice of profile names from the AWS config
-func ProfileNames() []string {
-	var profileNames []string
-	for _, profile := range awsConfig.Profiles() {
-		profileNames = append(profileNames, profile.Name)
-	}
-	return profileNames
-}

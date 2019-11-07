@@ -23,6 +23,7 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 	cmd := app.Command("rotate", "Rotates credentials")
 	cmd.Arg("profile", "Name of the profile").
 		Required().
+		HintAction(ProfileNames).
 		StringVar(&input.ProfileName)
 
 	cmd.Flag("mfa-token", "The mfa token to use").

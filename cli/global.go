@@ -118,3 +118,12 @@ func fileKeyringPassphrasePrompt(prompt string) (string, error) {
 	fmt.Println()
 	return string(b), nil
 }
+
+// ProfileNames returns a slice of profile names from the AWS config
+func ProfileNames() []string {
+	var profileNames []string
+	for _, profile := range awsConfig.Profiles() {
+		profileNames = append(profileNames, profile.Name)
+	}
+	return profileNames
+}

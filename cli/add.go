@@ -13,10 +13,10 @@ import (
 )
 
 type AddCommandInput struct {
-	Profile   string
-	Keyring   keyring.Keyring
-	FromEnv   bool
-	AddConfig bool
+	ProfileName string
+	Keyring     keyring.Keyring
+	FromEnv     bool
+	AddConfig   bool
 }
 
 func ConfigureAddCommand(app *kingpin.Application) {
@@ -25,7 +25,7 @@ func ConfigureAddCommand(app *kingpin.Application) {
 	cmd := app.Command("add", "Adds credentials, prompts if none provided")
 	cmd.Arg("profile", "Name of the profile").
 		Required().
-		StringVar(&input.Profile)
+		StringVar(&input.ProfileName)
 
 	cmd.Flag("env", "Read the credentials from the environment").
 		BoolVar(&input.FromEnv)
@@ -44,9 +44,9 @@ func ConfigureAddCommand(app *kingpin.Application) {
 func AddCommand(app *kingpin.Application, input AddCommandInput) {
 	var accessKeyId, secretKey string
 
-	if source, _ := awsConfig.SourceProfile(input.Profile); source.Name != input.Profile {
+	if source, _ := awsConfig.SourceProfile(input.ProfileName); source.Name != input.ProfileName {
 		app.Fatalf("Your profile has a source_profile of %s, adding credentials to %s won't have any effect",
-			source.Name, input.Profile)
+			source.Name, input.ProfileName)
 		return
 	}
 
@@ -72,14 +72,14 @@ func AddCommand(app *kingpin.Application, input AddCommandInput) {
 	}
 
 	creds := credentials.Value{AccessKeyID: accessKeyId, SecretAccessKey: secretKey}
-	provider := &vault.KeyringProvider{Keyring: input.Keyring, Profile: input.Profile}
+	provider := &vault.KeyringProvider{Keyring: input.Keyring, Profile: input.ProfileName}
 
 	if err := provider.Store(creds); err != nil {
 		app.Fatalf(err.Error())
 		return
 	}
 
-	fmt.Printf("Added credentials to profile %q in vault\n", input.Profile)
+	fmt.Printf("Added credentials to profile %q in vault\n", input.ProfileName)
 
 	sessions, err := vault.NewKeyringSessions(input.Keyring, awsConfig)
 	if err != nil {
@@ -87,17 +87,17 @@ func AddCommand(app *kingpin.Application, input AddCommandInput) {
 		return
 	}
 
-	if n, _ := sessions.Delete(input.Profile); n > 0 {
+	if n, _ := sessions.Delete(input.ProfileName); n > 0 {
 		fmt.Printf("Deleted %d existing sessions.\n", n)
 	}
 
-	if _, hasProfile := awsConfig.Profile(input.Profile); !hasProfile {
+	if _, hasProfile := awsConfig.Profile(input.ProfileName); !hasProfile {
 		if input.AddConfig {
 			// copy a source profile if one exists
-			newProfileFromSource, _ := awsConfig.SourceProfile(input.Profile)
-			newProfileFromSource.Name = input.Profile
+			newProfileFromSource, _ := awsConfig.SourceProfile(input.ProfileName)
+			newProfileFromSource.Name = input.ProfileName
 
-			log.Printf("Adding profile %s to config at %s", input.Profile, awsConfig.Path)
+			log.Printf("Adding profile %s to config at %s", input.ProfileName, awsConfig.Path)
 			if err = awsConfig.Add(newProfileFromSource); err != nil {
 				app.Fatalf("Error adding profile: %#v", err)
 			}

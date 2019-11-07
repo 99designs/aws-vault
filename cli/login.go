@@ -24,7 +24,7 @@ import (
 const allowAllIAMPolicy = `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"*","Resource":"*"}]}`
 
 type LoginCommandInput struct {
-	Profile                 string
+	ProfileName             string
 	Keyring                 keyring.Keyring
 	MfaToken                string
 	MfaSerial               string
@@ -48,7 +48,7 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 	cmd.Arg("profile", "Name of the profile").
 		Required().
 		HintAction(ProfileNames).
-		StringVar(&input.Profile)
+		StringVar(&input.ProfileName)
 
 	cmd.Flag("mfa-token", "The mfa token to use").
 		Short('t').
@@ -90,14 +90,14 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
-	profile, _ := awsConfig.Profile(input.Profile)
+	profile, _ := awsConfig.Profile(input.ProfileName)
 
 	noSession := input.NoSession
 	if profile.SourceProfile == "" {
 		noSession = true
 	}
 
-	creds, err := vault.NewVaultCredentials(input.Keyring, input.Profile, vault.VaultOptions{
+	creds, err := vault.NewVaultCredentials(input.Keyring, input.ProfileName, vault.VaultOptions{
 		AssumeRoleDuration: input.AssumeRoleDuration,
 		MfaToken:           input.MfaToken,
 		MfaSerial:          input.MfaSerial,
@@ -112,7 +112,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 	}
 	val, err := creds.Get()
 	if err != nil {
-		app.Fatalf(awsConfig.FormatCredentialError(err, input.Profile))
+		app.Fatalf(awsConfig.FormatCredentialError(err, input.ProfileName))
 	}
 
 	var isFederated bool

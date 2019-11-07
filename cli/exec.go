@@ -19,7 +19,7 @@ import (
 )
 
 type ExecCommandInput struct {
-	Profile          string
+	ProfileName      string
 	Command          string
 	Args             []string
 	Keyring          keyring.Keyring
@@ -85,7 +85,7 @@ func ConfigureExecCommand(app *kingpin.Application) {
 	cmd.Arg("profile", "Name of the profile").
 		Required().
 		HintAction(ProfileNames).
-		StringVar(&input.Profile)
+		StringVar(&input.ProfileName)
 
 	cmd.Arg("cmd", "Command to execute").
 		Default(os.Getenv("SHELL")).
@@ -116,7 +116,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 		return
 	}
 
-	creds, err := vault.NewVaultCredentials(input.Keyring, input.Profile, vault.VaultOptions{
+	creds, err := vault.NewVaultCredentials(input.Keyring, input.ProfileName, vault.VaultOptions{
 		SessionDuration:    input.Duration,
 		AssumeRoleDuration: input.RoleDuration,
 		MfaSerial:          input.MfaSerial,
@@ -131,7 +131,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 
 	val, err := creds.Get()
 	if err != nil {
-		app.Fatalf(awsConfig.FormatCredentialError(err, input.Profile))
+		app.Fatalf(awsConfig.FormatCredentialError(err, input.ProfileName))
 	}
 
 	if input.StartServer {
@@ -160,7 +160,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 	} else {
 
 		env := environ(os.Environ())
-		env.Set("AWS_VAULT", input.Profile)
+		env.Set("AWS_VAULT", input.ProfileName)
 
 		env.Unset("AWS_ACCESS_KEY_ID")
 		env.Unset("AWS_SECRET_ACCESS_KEY")
@@ -168,7 +168,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 		env.Unset("AWS_DEFAULT_PROFILE")
 		env.Unset("AWS_PROFILE")
 
-		if profile, _ := awsConfig.Profile(input.Profile); profile.Region != "" {
+		if profile, _ := awsConfig.Profile(input.ProfileName); profile.Region != "" {
 			log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s", profile.Region, profile.Region)
 			env.Set("AWS_DEFAULT_REGION", profile.Region)
 			env.Set("AWS_REGION", profile.Region)

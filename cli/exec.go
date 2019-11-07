@@ -53,13 +53,13 @@ func ConfigureExecCommand(app *kingpin.Application) {
 
 	cmd.Flag("session-ttl", "Expiration time for aws session").
 		Default("4h").
-		OverrideDefaultFromEnvar("AWS_SESSION_TTL").
+		Envar("AWS_SESSION_TTL").
 		Short('t').
 		DurationVar(&input.Duration)
 
 	cmd.Flag("assume-role-ttl", "Expiration time for aws assumed role").
 		Default("15m").
-		OverrideDefaultFromEnvar("AWS_ASSUME_ROLE_TTL").
+		Envar("AWS_ASSUME_ROLE_TTL").
 		DurationVar(&input.RoleDuration)
 
 	cmd.Flag("mfa-token", "The mfa token to use").

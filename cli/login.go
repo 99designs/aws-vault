@@ -63,13 +63,13 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 
 	cmd.Flag("federation-token-ttl", "Expiration time for aws console session").
 		Default("12h").
-		OverrideDefaultFromEnvar("AWS_FEDERATION_TOKEN_TTL").
+		Envar("AWS_FEDERATION_TOKEN_TTL").
 		Short('f').
 		DurationVar(&input.FederationTokenDuration)
 
 	cmd.Flag("assume-role-ttl", "Expiration time for aws assumed role").
 		Default("15m").
-		OverrideDefaultFromEnvar("AWS_ASSUME_ROLE_TTL").
+		Envar("AWS_ASSUME_ROLE_TTL").
 		DurationVar(&input.AssumeRoleDuration)
 
 	cmd.Flag("stdout", "Print login URL to stdout instead of opening in default browser").

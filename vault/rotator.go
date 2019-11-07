@@ -25,15 +25,16 @@ type Rotator struct {
 func (r *Rotator) Rotate(profileName string) error {
 	var err error
 
-	source, _ := r.Config.SourceProfile(profileName)
+	profile, _ := r.Config.Profile(profileName)
+	credentialName := profile.CredentialName()
 
 	// --------------------------------
 	// Get the existing credentials
 
 	provider := &KeyringProvider{
 		Keyring:        r.Keyring,
-		CredentialName: source.Name,
-		Region:         source.Region,
+		CredentialName: credentialName,
+		Region:         profile.Region,
 	}
 
 	oldMasterCreds, err := provider.Retrieve()
@@ -54,7 +55,7 @@ func (r *Rotator) Rotate(profileName string) error {
 		oldMasterCreds.AccessKeyID[len(oldMasterCreds.AccessKeyID)-4:],
 		currentUserName)
 
-	oldSessionCreds, err := NewVaultCredentials(r.Keyring, profileName, VaultOptions{
+	oldSessionCreds, err := NewVaultCredentials(r.Keyring, credentialName, VaultOptions{
 		MfaToken:    r.MfaToken,
 		MfaSerial:   r.MfaSerial,
 		MfaPrompt:   r.MfaPrompt,
@@ -199,16 +200,17 @@ func (r *Rotator) needsSessionToRotate(profileName string) bool {
 	if r.MfaSerial != "" {
 		return true
 	}
-	sourceProfile, known := r.Config.SourceProfile(profileName)
+	profile, known := r.Config.Profile(profileName)
 	if !known {
-		// best guess
 		return false
 	}
-	if sourceProfile.Name != profileName {
-		// TODO: should this comparison be case-insensitive?
+	if profile.RoleARN != "" {
 		return true
 	}
-	if sourceProfile.MFASerial != "" {
+	if profile.SourceProfile != "" {
+		return true
+	}
+	if profile.MFASerial != "" {
 		return true
 	}
 	return false

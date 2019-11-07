@@ -127,6 +127,16 @@ func (p Profile) Hash() ([]byte, error) {
 	return b, nil
 }
 
+// CredentialName returns the name of the profile that credentials
+// are expected to be stored under for this profile
+func (p *Profile) CredentialName() string {
+	if p.SourceProfile != "" {
+		return p.SourceProfile
+	} else {
+		return p.Name
+	}
+}
+
 func readProfileFromIni(f *ini.File, sectionName string, profile *Profile) error {
 	if f == nil {
 		return errors.New("No ini file available")
@@ -203,31 +213,21 @@ func (c *Config) Add(profile Profile) error {
 	return c.iniFile.SaveTo(c.Path)
 }
 
-// SourceProfile returns the source profile of the given profile. If there isn't any,
-// the named profile, a new profile is returned. False is only returned if no profile by the name exists.
-func (c *Config) SourceProfile(name string) (Profile, bool) {
-	profile, ok := c.Profile(name)
-	if profile.SourceProfile != "" {
-		return c.Profile(profile.SourceProfile)
-	}
-	return profile, ok
-}
-
 // FormatCredentialError formats errors with some user friendly context
 func (c *Config) FormatCredentialError(err error, profileName string) string {
-	source, _ := c.SourceProfile(profileName)
-	sourceDescr := profileName
+	profile, _ := c.Profile(profileName)
+	credentialProfileName := profile.CredentialName()
 
-	// add custom formatting for source_profile
-	if source.Name != profileName {
-		sourceDescr = fmt.Sprintf("%s (source profile for %s)", source.Name, profileName)
+	sourceDescr := profileName
+	if credentialProfileName != profileName {
+		sourceDescr = fmt.Sprintf("%s (source profile for %s)", credentialProfileName, profileName)
 	}
 
 	if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "NoCredentialProviders" {
 		return fmt.Sprintf(
 			"No credentials found for profile %s.\n"+
 				"Use 'aws-vault add %s' to set up credentials or 'aws-vault list' to see what credentials exist",
-			sourceDescr, source.Name)
+			sourceDescr, credentialProfileName)
 	}
 
 	return fmt.Sprintf("Failed to get credentials for %s: %v", sourceDescr, err)

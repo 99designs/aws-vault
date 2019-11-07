@@ -244,19 +244,19 @@ func (p *VaultProvider) getMasterCreds() (credentials.Value, error) {
 		return *p.MasterCreds, nil
 	}
 
-	source, _ := p.Config.SourceProfile(p.credentialName)
+	profile, _ := p.Config.Profile(p.credentialName)
 
-	val, ok := p.creds[source.Name]
+	val, ok := p.creds[profile.SourceProfile]
 	if !ok {
-		creds := credentials.NewCredentials(&KeyringProvider{Keyring: p.keyring, CredentialName: source.Name})
+		creds := credentials.NewCredentials(&KeyringProvider{Keyring: p.keyring, CredentialName: profile.CredentialName()})
 
 		var err error
 		if val, err = creds.Get(); err != nil {
-			log.Printf("Failed to find credentials for profile %q in keyring", source.Name)
+			log.Printf("Failed to find credentials for profile %q in keyring", profile.CredentialName())
 			return val, err
 		}
 
-		p.creds[source.Name] = val
+		p.creds[profile.SourceProfile] = val
 	}
 
 	return val, nil
@@ -285,8 +285,8 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 			Value: *creds,
 		}))))
 
-	source, _ := p.Config.SourceProfile(p.credentialName)
-	log.Printf("Getting new session token for profile %s", source.Name)
+	profile, _ := p.Config.Profile(p.credentialName)
+	log.Printf("Getting new session token for profile %s", profile.SourceProfile)
 
 	resp, err := client.GetSessionToken(params)
 	if err != nil {

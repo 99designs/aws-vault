@@ -101,9 +101,9 @@ func LsCommand(app *kingpin.Application, input LsCommandInput) {
 	for _, profile := range awsConfig.Profiles() {
 		fmt.Fprintf(w, "%s\t", profile.Name)
 
-		source, _ := awsConfig.SourceProfile(profile.Name)
-		if contains(source.Name, credentialNames) {
-			fmt.Fprintf(w, "%s\t", source.Name)
+		c := profile.CredentialName()
+		if contains(c, credentialNames) {
+			fmt.Fprintf(w, "%s\t", c)
 		} else {
 			fmt.Fprintf(w, "-\t")
 		}

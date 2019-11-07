@@ -114,7 +114,7 @@ func TestConfigParsingDefault(t *testing.T) {
 	}
 }
 
-func TestSourceProfileFromConfig(t *testing.T) {
+func TestCredentialNameFromConfig(t *testing.T) {
 	f := newConfigFile(t, exampleConfig)
 	defer os.Remove(f)
 
@@ -123,13 +123,13 @@ func TestSourceProfileFromConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	source, ok := cfg.SourceProfile("withmfa")
+	profile, ok := cfg.Profile("withmfa")
 	if !ok {
-		t.Fatalf("Should have found a source")
+		t.Fatalf("Should have found a profile")
 	}
 
-	if source.Name != "user2" {
-		t.Fatalf("Expected source name %q, got %q", "user2", source.Name)
+	if profile.CredentialName() != "user2" {
+		t.Fatalf("Expected CredentialName name %q, got %q", "user2", profile.SourceProfile)
 	}
 }
 

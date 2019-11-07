@@ -10,7 +10,7 @@ import (
 )
 
 type RemoveCommandInput struct {
-	Profile      string
+	ProfileName  string
 	Keyring      keyring.Keyring
 	SessionsOnly bool
 }
@@ -23,7 +23,8 @@ func ConfigureRemoveCommand(app *kingpin.Application) {
 
 	cmd.Arg("profile", "Name of the profile").
 		Required().
-		StringVar(&input.Profile)
+		HintAction(ProfileNames).
+		StringVar(&input.ProfileName)
 
 	cmd.Flag("sessions-only", "Only remove sessions, leave credentials intact").
 		Short('s').
@@ -38,8 +39,8 @@ func ConfigureRemoveCommand(app *kingpin.Application) {
 
 func RemoveCommand(app *kingpin.Application, input RemoveCommandInput) {
 	if !input.SessionsOnly {
-		provider := &vault.KeyringProvider{Keyring: input.Keyring, Profile: input.Profile}
-		r, err := prompt.TerminalPrompt(fmt.Sprintf("Delete credentials for profile %q? (Y|n)", input.Profile))
+		provider := &vault.KeyringProvider{Keyring: input.Keyring, CredentialName: input.ProfileName}
+		r, err := prompt.TerminalPrompt(fmt.Sprintf("Delete credentials for profile %q? (Y|n)", input.ProfileName))
 		if err != nil {
 			app.Fatalf(err.Error())
 			return
@@ -60,7 +61,7 @@ func RemoveCommand(app *kingpin.Application, input RemoveCommandInput) {
 		return
 	}
 
-	n, err := sessions.Delete(input.Profile)
+	n, err := sessions.Delete(input.ProfileName)
 	if err != nil {
 		app.Fatalf(err.Error())
 		return

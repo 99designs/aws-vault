@@ -10,11 +10,11 @@ import (
 )
 
 type RotateCommandInput struct {
-	Profile   string
-	Keyring   keyring.Keyring
-	MfaToken  string
-	MfaSerial string
-	MfaPrompt prompt.PromptFunc
+	ProfileName string
+	Keyring     keyring.Keyring
+	MfaToken    string
+	MfaSerial   string
+	MfaPrompt   prompt.PromptFunc
 }
 
 func ConfigureRotateCommand(app *kingpin.Application) {
@@ -23,7 +23,8 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 	cmd := app.Command("rotate", "Rotates credentials")
 	cmd.Arg("profile", "Name of the profile").
 		Required().
-		StringVar(&input.Profile)
+		HintAction(ProfileNames).
+		StringVar(&input.ProfileName)
 
 	cmd.Flag("mfa-token", "The mfa token to use").
 		Short('t').
@@ -50,10 +51,10 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 		Config:    awsConfig,
 	}
 
-	fmt.Printf("Rotating credentials for profile %q (takes 10-20 seconds)\n", input.Profile)
+	fmt.Printf("Rotating credentials for profile %q (takes 10-20 seconds)\n", input.ProfileName)
 
-	if err := rotator.Rotate(input.Profile); err != nil {
-		app.Fatalf(awsConfig.FormatCredentialError(err, input.Profile))
+	if err := rotator.Rotate(input.ProfileName); err != nil {
+		app.Fatalf(awsConfig.FormatCredentialError(err, input.ProfileName))
 		return
 	}
 

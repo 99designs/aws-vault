@@ -3,8 +3,6 @@ package vault
 import (
 	"fmt"
 	"log"
-	"regexp"
-	"strings"
 	"time"
 
 	"github.com/99designs/aws-vault/prompt"
@@ -24,18 +22,18 @@ type Rotator struct {
 }
 
 // Rotate creates a new key and deletes the old one
-func (r *Rotator) Rotate(profile string) error {
+func (r *Rotator) Rotate(profileName string) error {
 	var err error
 
-	source, _ := r.Config.SourceProfile(profile)
+	source, _ := r.Config.SourceProfile(profileName)
 
 	// --------------------------------
 	// Get the existing credentials
 
 	provider := &KeyringProvider{
-		Keyring: r.Keyring,
-		Profile: source.Name,
-		Region:  source.Region,
+		Keyring:        r.Keyring,
+		CredentialName: source.Name,
+		Region:         source.Region,
 	}
 
 	oldMasterCreds, err := provider.Retrieve()
@@ -56,12 +54,12 @@ func (r *Rotator) Rotate(profile string) error {
 		oldMasterCreds.AccessKeyID[len(oldMasterCreds.AccessKeyID)-4:],
 		currentUserName)
 
-	oldSessionCreds, err := NewVaultCredentials(r.Keyring, profile, VaultOptions{
+	oldSessionCreds, err := NewVaultCredentials(r.Keyring, profileName, VaultOptions{
 		MfaToken:    r.MfaToken,
 		MfaSerial:   r.MfaSerial,
 		MfaPrompt:   r.MfaPrompt,
 		Config:      r.Config,
-		NoSession:   !r.needsSessionToRotate(profile),
+		NoSession:   !r.needsSessionToRotate(profileName),
 		MasterCreds: &oldMasterCreds,
 	})
 	if err != nil {
@@ -113,12 +111,12 @@ func (r *Rotator) Rotate(profile string) error {
 
 	log.Println("Using new credentials to delete the old new access key")
 
-	newSessionCreds, err := NewVaultCredentials(r.Keyring, profile, VaultOptions{
+	newSessionCreds, err := NewVaultCredentials(r.Keyring, profileName, VaultOptions{
 		MfaToken:    r.MfaToken,
 		MfaSerial:   r.MfaSerial,
 		MfaPrompt:   r.MfaPrompt,
 		Config:      r.Config,
-		NoSession:   !r.needsSessionToRotate(profile),
+		NoSession:   !r.needsSessionToRotate(profileName),
 		MasterCreds: &newMasterCreds,
 	})
 	if err != nil {
@@ -156,45 +154,12 @@ func (r *Rotator) Rotate(profile string) error {
 		return err
 	}
 
-	if n, _ := sessions.Delete(profile); n > 0 {
+	if n, _ := sessions.Delete(profileName); n > 0 {
 		log.Printf("Deleted %d existing sessions.", n)
 	}
 
-	log.Printf("Rotated credentials for profile %q in vault", profile)
+	log.Printf("Rotated credentials for profile %q in vault", profileName)
 	return nil
-}
-
-var (
-	getUserErrorRegexp = regexp.MustCompile(`^AccessDenied: User: arn:aws:iam::(\d+):user/(.+) is not`)
-)
-
-// GetUsernameFromSession returns the IAM username (or root) associated with the current aws session
-func GetUsernameFromSession(sess *session.Session) (string, error) {
-	client := iam.New(sess)
-
-	resp, err := client.GetUser(&iam.GetUserInput{})
-	if err != nil {
-		// Even if GetUser fails, the current user is included in the error. This happens when you have o IAM permissions
-		// on the master credentials, but have permission to use assumeRole later
-		matches := getUserErrorRegexp.FindStringSubmatch(err.Error())
-		if len(matches) > 0 {
-			pathParts := strings.Split(matches[2], "/")
-			return pathParts[len(pathParts)-1], nil
-		}
-
-		return "", err
-	}
-
-	if resp.User.UserName != nil {
-		return *resp.User.UserName, nil
-	}
-
-	if resp.User.Arn != nil {
-		arnParts := strings.Split(*resp.User.Arn, ":")
-		return arnParts[len(arnParts)-1], nil
-	}
-
-	return "", fmt.Errorf("Couldn't determine current username")
 }
 
 func retry(duration time.Duration, sleep time.Duration, callback func() error) (err error) {

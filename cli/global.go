@@ -43,29 +43,29 @@ func ConfigureGlobals(app *kingpin.Application) {
 		BoolVar(&GlobalFlags.Debug)
 
 	app.Flag("backend", fmt.Sprintf("Secret backend to use %v", backendsAvailable)).
-		OverrideDefaultFromEnvar("AWS_VAULT_BACKEND").
+		Envar("AWS_VAULT_BACKEND").
 		EnumVar(&GlobalFlags.Backend, backendsAvailable...)
 
 	app.Flag("prompt", fmt.Sprintf("Prompt driver to use %v", promptsAvailable)).
 		Default("terminal").
-		OverrideDefaultFromEnvar("AWS_VAULT_PROMPT").
+		Envar("AWS_VAULT_PROMPT").
 		EnumVar(&GlobalFlags.PromptDriver, promptsAvailable...)
 
 	app.Flag("keychain", "Name of macOS keychain to use, if it doesn't exist it will be created").
 		Default("aws-vault").
-		OverrideDefaultFromEnvar("AWS_VAULT_KEYCHAIN_NAME").
+		Envar("AWS_VAULT_KEYCHAIN_NAME").
 		StringVar(&GlobalFlags.KeychainName)
 
 	app.Flag("pass-dir", "Pass password store directory").
-		OverrideDefaultFromEnvar("AWS_VAULT_PASS_PASSWORD_STORE_DIR").
+		Envar("AWS_VAULT_PASS_PASSWORD_STORE_DIR").
 		StringVar(&GlobalFlags.PassDir)
 
 	app.Flag("pass-cmd", "Name of the pass executable").
-		OverrideDefaultFromEnvar("AWS_VAULT_PASS_CMD").
+		Envar("AWS_VAULT_PASS_CMD").
 		StringVar(&GlobalFlags.PassCmd)
 
 	app.Flag("pass-prefix", "Prefix to prepend to the item path stored in pass").
-		OverrideDefaultFromEnvar("AWS_VAULT_PASS_PREFIX").
+		Envar("AWS_VAULT_PASS_PREFIX").
 		StringVar(&GlobalFlags.PassPrefix)
 
 	app.PreAction(func(c *kingpin.ParseContext) (err error) {
@@ -117,4 +117,13 @@ func fileKeyringPassphrasePrompt(prompt string) (string, error) {
 	}
 	fmt.Println()
 	return string(b), nil
+}
+
+// ProfileNames returns a slice of profile names from the AWS config
+func ProfileNames() []string {
+	var profileNames []string
+	for _, profile := range awsConfig.Profiles() {
+		profileNames = append(profileNames, profile.Name)
+	}
+	return profileNames
 }

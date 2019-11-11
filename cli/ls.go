@@ -50,11 +50,7 @@ func contains(profileName string, credentialNames []string) bool {
 }
 
 func LsCommand(app *kingpin.Application, input LsCommandInput) {
-	krs, err := vault.NewKeyringSessions(input.Keyring, awsConfig)
-	if err != nil {
-		app.Fatalf(err.Error())
-		return
-	}
+	krs := vault.NewKeyringSessions(input.Keyring)
 
 	credentialNames, err := input.Keyring.Keys()
 	if err != nil {
@@ -72,8 +68,8 @@ func LsCommand(app *kingpin.Application, input LsCommandInput) {
 	}
 
 	if input.OnlyProfiles {
-		for _, profile := range awsConfig.Profiles() {
-			fmt.Printf("%s\n", profile.Name)
+		for _, profileName := range awsConfigFile.ProfileNames() {
+			fmt.Printf("%s\n", profileName)
 		}
 		return
 	}
@@ -98,19 +94,20 @@ func LsCommand(app *kingpin.Application, input LsCommandInput) {
 	fmt.Fprintln(w, "=======\t===========\t========\t")
 
 	// list out known profiles first
-	for _, profile := range awsConfig.Profiles() {
-		fmt.Fprintf(w, "%s\t", profile.Name)
+	for _, profileName := range awsConfigFile.ProfileNames() {
+		fmt.Fprintf(w, "%s\t", profileName)
 
-		c := profile.CredentialName()
-		if contains(c, credentialNames) {
-			fmt.Fprintf(w, "%s\t", c)
+		profileConfig := vault.Config{}
+		err := configLoader.LoadFromProfile(profileName, &profileConfig)
+		if err != nil && contains(profileConfig.CredentialName, credentialNames) {
+			fmt.Fprintf(w, "%s\t", profileConfig.CredentialName)
 		} else {
 			fmt.Fprintf(w, "-\t")
 		}
 
 		var sessionLabels []string
 		for _, sess := range sessions {
-			if profile.Name == sess.Profile.Name {
+			if profileName == sess.ProfileName {
 				label := fmt.Sprintf("%d", sess.Expiration.Unix())
 				if sess.MfaSerial != "" {
 					label += " (mfa)"
@@ -129,7 +126,9 @@ func LsCommand(app *kingpin.Application, input LsCommandInput) {
 	// show credentials that don't have profiles
 	for _, c := range credentialNames {
 		if !vault.IsSessionKey(c) {
-			if _, ok := awsConfig.Profile(c); !ok {
+			profileConfig := vault.Config{}
+			err := configLoader.LoadFromProfile(c, &profileConfig)
+			if err != nil {
 				fmt.Fprintf(w, "-\t%s\t-\t\n", c)
 			}
 		}

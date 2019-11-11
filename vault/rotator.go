@@ -5,7 +5,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/99designs/aws-vault/prompt"
 	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -14,27 +13,20 @@ import (
 )
 
 type Rotator struct {
-	Keyring   keyring.Keyring
-	MfaToken  string
-	MfaSerial string
-	MfaPrompt prompt.PromptFunc
-	Config    *Config
+	Keyring keyring.Keyring
+	config  *Config
 }
 
 // Rotate creates a new key and deletes the old one
 func (r *Rotator) Rotate(profileName string) error {
 	var err error
 
-	profile, _ := r.Config.Profile(profileName)
-	credentialName := profile.CredentialName()
-
 	// --------------------------------
 	// Get the existing credentials
 
 	provider := &KeyringProvider{
 		Keyring:        r.Keyring,
-		CredentialName: credentialName,
-		Region:         profile.Region,
+		CredentialName: r.config.CredentialName,
 	}
 
 	oldMasterCreds, err := provider.Retrieve()
@@ -42,7 +34,7 @@ func (r *Rotator) Rotate(profileName string) error {
 		return err
 	}
 
-	oldSess := session.New(&aws.Config{Region: aws.String(provider.Region),
+	oldSess := session.New(&aws.Config{Region: aws.String(r.config.Region),
 		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: oldMasterCreds}),
 	})
 
@@ -55,13 +47,12 @@ func (r *Rotator) Rotate(profileName string) error {
 		oldMasterCreds.AccessKeyID[len(oldMasterCreds.AccessKeyID)-4:],
 		currentUserName)
 
-	oldSessionCreds, err := NewVaultCredentials(r.Keyring, credentialName, VaultOptions{
-		MfaToken:    r.MfaToken,
-		MfaSerial:   r.MfaSerial,
-		MfaPrompt:   r.MfaPrompt,
-		Config:      r.Config,
-		NoSession:   !r.needsSessionToRotate(profileName),
-		MasterCreds: &oldMasterCreds,
+	oldSessionCreds, err := NewVaultCredentials(r.Keyring, r.config.CredentialName, &Config{
+		MfaToken:  r.config.MfaToken,
+		MfaSerial: r.config.MfaSerial,
+		MfaPrompt: r.config.MfaPrompt,
+		NoSession: !r.needsSessionToRotate(profileName),
+		// MasterCreds: &oldMasterCreds,
 	})
 	if err != nil {
 		return err
@@ -112,13 +103,12 @@ func (r *Rotator) Rotate(profileName string) error {
 
 	log.Println("Using new credentials to delete the old new access key")
 
-	newSessionCreds, err := NewVaultCredentials(r.Keyring, profileName, VaultOptions{
-		MfaToken:    r.MfaToken,
-		MfaSerial:   r.MfaSerial,
-		MfaPrompt:   r.MfaPrompt,
-		Config:      r.Config,
-		NoSession:   !r.needsSessionToRotate(profileName),
-		MasterCreds: &newMasterCreds,
+	newSessionCreds, err := NewVaultCredentials(r.Keyring, profileName, &Config{
+		MfaToken:  r.config.MfaToken,
+		MfaSerial: r.config.MfaSerial,
+		MfaPrompt: r.config.MfaPrompt,
+		NoSession: !r.needsSessionToRotate(profileName),
+		// MasterCreds: &newMasterCreds,
 	})
 	if err != nil {
 		return err
@@ -150,11 +140,7 @@ func (r *Rotator) Rotate(profileName string) error {
 	// --------------------------------
 	// Delete old sessions
 
-	sessions, err := NewKeyringSessions(r.Keyring, r.Config)
-	if err != nil {
-		return err
-	}
-
+	sessions := NewKeyringSessions(r.Keyring)
 	if n, _ := sessions.Delete(profileName); n > 0 {
 		log.Printf("Deleted %d existing sessions.", n)
 	}
@@ -194,24 +180,15 @@ func retry(duration time.Duration, sleep time.Duration, callback func() error) (
 //
 // This is a heuristic which might need to continue to evolve.  :(
 func (r *Rotator) needsSessionToRotate(profileName string) bool {
-	if r.MfaToken != "" {
+	if r.config.MfaToken != "" {
 		return true
 	}
-	if r.MfaSerial != "" {
+	if r.config.MfaSerial != "" {
 		return true
 	}
-	profile, known := r.Config.Profile(profileName)
-	if !known {
-		return false
-	}
-	if profile.RoleARN != "" {
+	if r.config.RoleARN != "" {
 		return true
 	}
-	if profile.SourceProfile != "" {
-		return true
-	}
-	if profile.MFASerial != "" {
-		return true
-	}
+
 	return false
 }

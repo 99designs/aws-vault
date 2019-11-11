@@ -12,7 +12,7 @@ import (
 )
 
 // see http://docs.aws.amazon.com/cli/latest/userguide/cli-multiple-profiles.html
-var exampleConfig = []byte(`# an example profile file
+var exampleConfig = []byte(`
 [default]
 region=us-west-2
 output=json
@@ -30,9 +30,16 @@ source_profile=user2
 role_arn=arn:aws:iam::4451234513441615400570:role/aws_admin
 mfa_serial=arn:aws:iam::1234513441:mfa/blah
 region=us-east-1
+
+[profile testparentprofile1]
+region=us-east-1
+
+[profile testparentprofile2]
+parent_profile=testparentprofile1
 `)
 
-var nestedConfig = []byte(`[profile testing]
+var nestedConfig = []byte(`
+[profile testing]
 aws_access_key_id=foo
 aws_secret_access_key=bar
 region=us-west-2
@@ -216,4 +223,28 @@ func TestAddProfileToExistingNestedConfig(t *testing.T) {
 		t.Fatalf("Expected:\n%q\nGot:\n%q", expected, b)
 	}
 
+}
+
+func TestParentProfile(t *testing.T) {
+	f := newConfigFile(t, exampleConfig)
+	defer os.Remove(f)
+
+	configFile, err := vault.LoadConfig(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	configLoader := &vault.ConfigLoader{File: configFile}
+	config := vault.Config{}
+	err = configLoader.LoadFromProfile("testparentprofile2", &config)
+	if err != nil {
+		t.Fatalf("Should have found a profile")
+	}
+
+	if config.CredentialsName != "testparentprofile1" {
+		t.Fatalf("Expected CredentialsName name %q, got %q", "testparentprofile1", config.CredentialsName)
+	}
+	if config.Region != "us-east-1" {
+		t.Fatalf("Expected CredentialsName name %q, got %q", "us-east-1", config.CredentialsName)
+	}
 }

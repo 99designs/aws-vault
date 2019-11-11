@@ -19,7 +19,8 @@ const (
 
 var (
 	keyringImpl      keyring.Keyring
-	awsConfig        *vault.Config
+	awsConfigFile    *vault.ConfigFile
+	configLoader     *vault.ConfigLoader
 	promptsAvailable = prompt.Available()
 )
 
@@ -98,8 +99,9 @@ func ConfigureGlobals(app *kingpin.Application) {
 				return err
 			}
 		}
-		if awsConfig == nil {
-			awsConfig, err = vault.LoadConfigFromEnv()
+		if awsConfigFile == nil {
+			awsConfigFile, err = vault.LoadConfigFromEnv()
+			configLoader = &vault.ConfigLoader{File: awsConfigFile}
 		}
 		return err
 	})
@@ -117,13 +119,4 @@ func fileKeyringPassphrasePrompt(prompt string) (string, error) {
 	}
 	fmt.Println()
 	return string(b), nil
-}
-
-// ProfileNames returns a slice of profile names from the AWS config
-func ProfileNames() []string {
-	var profileNames []string
-	for _, profile := range awsConfig.Profiles() {
-		profileNames = append(profileNames, profile.Name)
-	}
-	return profileNames
 }

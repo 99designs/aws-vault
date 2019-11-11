@@ -23,7 +23,7 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 	cmd := app.Command("rotate", "Rotates credentials")
 	cmd.Arg("profile", "Name of the profile").
 		Required().
-		HintAction(ProfileNames).
+		HintAction(awsConfigFile.ProfileNames).
 		StringVar(&input.ProfileName)
 
 	cmd.Flag("mfa-token", "The mfa token to use").
@@ -44,17 +44,17 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 
 func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 	rotator := vault.Rotator{
-		Keyring:   input.Keyring,
-		MfaToken:  input.MfaToken,
-		MfaSerial: input.MfaSerial,
-		MfaPrompt: input.MfaPrompt,
-		Config:    awsConfig,
+		Keyring: input.Keyring,
+		// MfaToken: input.MfaToken,
+		// MfaSerial: input.MfaSerial,
+		// MfaPrompt: input.MfaPrompt,
+		// Config:    awsConfig,
 	}
 
 	fmt.Printf("Rotating credentials for profile %q (takes 10-20 seconds)\n", input.ProfileName)
 
 	if err := rotator.Rotate(input.ProfileName); err != nil {
-		app.Fatalf(awsConfig.FormatCredentialError(err, input.ProfileName))
+		app.Fatalf(awsConfigFile.FormatCredentialError(err, input.ProfileName))
 		return
 	}
 

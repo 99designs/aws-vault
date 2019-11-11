@@ -9,7 +9,6 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
-	"time"
 
 	"github.com/99designs/aws-vault/prompt"
 	"github.com/99designs/aws-vault/server"
@@ -23,15 +22,14 @@ type ExecCommandInput struct {
 	Command          string
 	Args             []string
 	Keyring          keyring.Keyring
-	Duration         time.Duration
-	RoleDuration     time.Duration
-	MfaToken         string
-	MfaPrompt        prompt.PromptFunc
-	MfaSerial        string
 	StartServer      bool
 	CredentialHelper bool
 	Signals          chan os.Signal
-	NoSession        bool
+	Config           vault.Config
+}
+
+type AwsConfigOverride struct {
+	MfaSerial string
 }
 
 // json metadata for AWS credential process. Ref: https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
@@ -49,30 +47,30 @@ func ConfigureExecCommand(app *kingpin.Application) {
 	cmd := app.Command("exec", "Executes a command with AWS credentials in the environment")
 	cmd.Flag("no-session", "Use root credentials, no session created").
 		Short('n').
-		BoolVar(&input.NoSession)
+		BoolVar(&input.Config.NoSession)
 
 	cmd.Flag("session-ttl", "Expiration time for aws session").
 		Default("4h").
 		Envar("AWS_SESSION_TTL").
 		Short('t').
-		DurationVar(&input.Duration)
+		DurationVar(&input.Config.SessionDuration)
 
 	cmd.Flag("assume-role-ttl", "Expiration time for aws assumed role").
 		Default("15m").
 		Envar("AWS_ASSUME_ROLE_TTL").
-		DurationVar(&input.RoleDuration)
+		DurationVar(&input.Config.AssumeRoleDuration)
 
 	cmd.Flag("mfa-token", "The mfa token to use").
 		Short('m').
-		StringVar(&input.MfaToken)
+		StringVar(&input.Config.MfaToken)
 
 	cmd.Flag("mfa-serial-override", "Deprecated, use --mfa-serial instead").
 		Hidden().
-		StringVar(&input.MfaSerial)
+		StringVar(&input.Config.MfaSerial)
 
 	cmd.Flag("mfa-serial", "The identification number of the MFA device to use").
-		Envar("AWS_MFA_SERIAL").
-		StringVar(&input.MfaSerial)
+		// Envar("AWS_MFA_SERIAL").
+		StringVar(&input.Config.MfaSerial)
 
 	cmd.Flag("json", "AWS credential helper. Ref: https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes").
 		Short('j').
@@ -84,7 +82,7 @@ func ConfigureExecCommand(app *kingpin.Application) {
 
 	cmd.Arg("profile", "Name of the profile").
 		Required().
-		HintAction(ProfileNames).
+		HintAction(awsConfigFile.ProfileNames).
 		StringVar(&input.ProfileName)
 
 	cmd.Arg("cmd", "Command to execute").
@@ -96,7 +94,7 @@ func ConfigureExecCommand(app *kingpin.Application) {
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.Keyring = keyringImpl
-		input.MfaPrompt = prompt.Method(GlobalFlags.PromptDriver)
+		input.Config.MfaPrompt = prompt.Method(GlobalFlags.PromptDriver)
 		input.Signals = make(chan os.Signal)
 		ExecCommand(app, input)
 		return nil
@@ -111,27 +109,24 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 
 	var setEnv = true
 
-	if input.NoSession && input.StartServer {
+	if input.Config.NoSession && input.StartServer {
 		app.Fatalf("Can't start a credential server without a session")
 		return
 	}
 
-	creds, err := vault.NewVaultCredentials(input.Keyring, input.ProfileName, vault.VaultOptions{
-		SessionDuration:    input.Duration,
-		AssumeRoleDuration: input.RoleDuration,
-		MfaSerial:          input.MfaSerial,
-		MfaToken:           input.MfaToken,
-		MfaPrompt:          input.MfaPrompt,
-		NoSession:          input.NoSession,
-		Config:             awsConfig,
-	})
+	err := configLoader.LoadFromProfile(input.ProfileName, &input.Config)
+	if err != nil {
+		app.Fatalf("%v", err)
+	}
+
+	creds, err := vault.NewVaultCredentials(input.Keyring, input.ProfileName, &input.Config)
 	if err != nil {
 		app.Fatalf("%v", err)
 	}
 
 	val, err := creds.Get()
 	if err != nil {
-		app.Fatalf(awsConfig.FormatCredentialError(err, input.ProfileName))
+		app.Fatalf(awsConfigFile.FormatCredentialError(err, input.ProfileName))
 	}
 
 	if input.StartServer {
@@ -149,7 +144,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 			SecretAccessKey: val.SecretAccessKey,
 			SessionToken:    val.SessionToken,
 		}
-		if !input.NoSession {
+		if !input.Config.NoSession {
 			credentialData.Expiration = creds.Expires().Format("2006-01-02T15:04:05Z")
 		}
 		json, err := json.Marshal(&credentialData)
@@ -168,11 +163,9 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 		env.Unset("AWS_DEFAULT_PROFILE")
 		env.Unset("AWS_PROFILE")
 
-		if profile, _ := awsConfig.Profile(input.ProfileName); profile.Region != "" {
-			log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s", profile.Region, profile.Region)
-			env.Set("AWS_DEFAULT_REGION", profile.Region)
-			env.Set("AWS_REGION", profile.Region)
-		}
+		log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s", input.Config.Region, input.Config.Region)
+		env.Set("AWS_DEFAULT_REGION", input.Config.Region)
+		env.Set("AWS_REGION", input.Config.Region)
 
 		if setEnv {
 			log.Println("Setting subprocess env: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY")

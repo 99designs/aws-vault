@@ -44,10 +44,10 @@ func ConfigureAddCommand(app *kingpin.Application) {
 func AddCommand(app *kingpin.Application, input AddCommandInput) {
 	var accessKeyId, secretKey string
 
-	profile, _ := awsConfig.Profile(input.ProfileName)
-	if profile.SourceProfile != "" {
+	p, _ := awsConfigFile.ProfileSection(input.ProfileName)
+	if p.SourceProfile != "" {
 		app.Fatalf("Your profile has a source_profile of %s, adding credentials to %s won't have any effect",
-			profile.SourceProfile, input.ProfileName)
+			p.SourceProfile, input.ProfileName)
 		return
 	}
 
@@ -82,23 +82,19 @@ func AddCommand(app *kingpin.Application, input AddCommandInput) {
 
 	fmt.Printf("Added credentials to profile %q in vault\n", input.ProfileName)
 
-	sessions, err := vault.NewKeyringSessions(input.Keyring, awsConfig)
-	if err != nil {
-		app.Fatalf(err.Error())
-		return
-	}
+	sessions := vault.NewKeyringSessions(input.Keyring)
 
 	if n, _ := sessions.Delete(input.ProfileName); n > 0 {
 		fmt.Printf("Deleted %d existing sessions.\n", n)
 	}
 
-	if _, hasProfile := awsConfig.Profile(input.ProfileName); !hasProfile {
+	if _, hasProfile := awsConfigFile.ProfileSection(input.ProfileName); !hasProfile {
 		if input.AddConfig {
-			newProfile := vault.Profile{
+			newProfileSection := vault.ProfileSection{
 				Name: input.ProfileName,
 			}
-			log.Printf("Adding profile %s to config at %s", input.ProfileName, awsConfig.Path)
-			if err = awsConfig.Add(newProfile); err != nil {
+			log.Printf("Adding profile %s to config at %s", input.ProfileName, awsConfigFile.Path)
+			if err := awsConfigFile.Add(newProfileSection); err != nil {
 				app.Fatalf("Error adding profile: %#v", err)
 			}
 		}

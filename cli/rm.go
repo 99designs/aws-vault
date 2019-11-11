@@ -23,7 +23,7 @@ func ConfigureRemoveCommand(app *kingpin.Application) {
 
 	cmd.Arg("profile", "Name of the profile").
 		Required().
-		HintAction(ProfileNames).
+		HintAction(awsConfigFile.ProfileNames).
 		StringVar(&input.ProfileName)
 
 	cmd.Flag("sessions-only", "Only remove sessions, leave credentials intact").
@@ -55,11 +55,7 @@ func RemoveCommand(app *kingpin.Application, input RemoveCommandInput) {
 		fmt.Printf("Deleted credentials.\n")
 	}
 
-	sessions, err := vault.NewKeyringSessions(input.Keyring, awsConfig)
-	if err != nil {
-		app.Fatalf(err.Error())
-		return
-	}
+	sessions := vault.NewKeyringSessions(input.Keyring)
 
 	n, err := sessions.Delete(input.ProfileName)
 	if err != nil {

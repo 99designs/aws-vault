@@ -44,10 +44,10 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 	}
 
 	// sessions get stored by profile, not the source
-	session, err := p.sessions.Retrieve(p.config.CredentialName, p.config.MfaSerial)
+	session, err := p.sessions.Retrieve(p.config.CredentialsName, p.config.MfaSerial)
 	if err != nil {
 		if err == keyring.ErrKeyNotFound {
-			log.Printf("Session not found in keyring for %s", p.config.CredentialName)
+			log.Printf("Session not found in keyring for %s", p.config.CredentialsName)
 		} else {
 			log.Println(err)
 		}
@@ -56,9 +56,9 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 		// If the selected profile has a RoleARN, create a new VaultCredentials for the source
 		// to support using an existing session for master credentials and allow assume role chaining.
 		if p.config.RoleARN != "" {
-			creds, err := NewVaultCredentials(p.keyring, p.config.CredentialName, p.config)
+			creds, err := NewVaultCredentials(p.keyring, p.config.CredentialsName, p.config)
 			if err != nil {
-				log.Printf("Failed to create NewVaultCredentials for profile %q", p.config.CredentialName)
+				log.Printf("Failed to create NewVaultCredentials for profile %q", p.config.CredentialsName)
 				return credentials.Value{}, err
 			}
 			val, err := creds.Get()
@@ -86,7 +86,7 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 				return credentials.Value{}, err
 			}
 
-			if err = p.sessions.Store(p.config.CredentialName, p.config.MfaSerial, session); err != nil {
+			if err = p.sessions.Store(p.config.CredentialsName, p.config.MfaSerial, session); err != nil {
 				return credentials.Value{}, err
 			}
 		}
@@ -159,17 +159,17 @@ func (p *VaultProvider) getMasterCreds() (credentials.Value, error) {
 		return *p.MasterCreds, nil
 	}
 
-	val, ok := p.creds[p.config.CredentialName]
+	val, ok := p.creds[p.config.CredentialsName]
 	if !ok {
-		creds := credentials.NewCredentials(&KeyringProvider{Keyring: p.keyring, CredentialName: p.config.CredentialName})
+		creds := credentials.NewCredentials(&KeyringProvider{Keyring: p.keyring, CredentialsName: p.config.CredentialsName})
 
 		var err error
 		if val, err = creds.Get(); err != nil {
-			log.Printf("Failed to find credentials for profile %q in keyring", p.config.CredentialName)
+			log.Printf("Failed to find credentials for profile %q in keyring", p.config.CredentialsName)
 			return val, err
 		}
 
-		p.creds[p.config.CredentialName] = val
+		p.creds[p.config.CredentialsName] = val
 	}
 
 	return val, nil
@@ -198,7 +198,7 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 			aws.NewConfig().WithCredentials(
 				credentials.NewCredentials(&credentials.StaticProvider{Value: *creds}))))
 
-	log.Printf("Getting new session token for profile %s", p.config.CredentialName)
+	log.Printf("Getting new session token for profile %s", p.config.CredentialsName)
 
 	resp, err := client.GetSessionToken(params)
 	if err != nil {

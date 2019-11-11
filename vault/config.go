@@ -259,9 +259,9 @@ func (c *ConfigLoader) populateFromConfigFile(config *Config, profileName string
 	}
 
 	if psection.SourceProfile != "" {
-		config.CredentialName = psection.SourceProfile
+		config.CredentialsName = psection.SourceProfile
 	} else {
-		config.CredentialName = profileName
+		config.CredentialsName = profileName
 	}
 
 	if psection.ParentProfile != "" {
@@ -311,8 +311,8 @@ func (c *ConfigLoader) LoadFromProfile(profileName string, config *Config) error
 }
 
 type Config struct {
-	ProfileName    string
-	CredentialName string
+	ProfileName     string
+	CredentialsName string
 
 	MfaSerial       string
 	RoleARN         string

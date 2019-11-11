@@ -58,18 +58,18 @@ func LsCommand(app *kingpin.Application, input LsCommandInput) {
 		return
 	}
 
-	credentialNames := []string{}
+	credentialsNames := []string{}
 	sessionNames := []string{}
 	for _, c := range keys {
 		if vault.IsSessionKey(c) {
 			sessionNames = append(sessionNames, c)
 		} else {
-			credentialNames = append(credentialNames, c)
+			credentialsNames = append(credentialsNames, c)
 		}
 	}
 
 	if input.OnlyCredentials {
-		for _, c := range credentialNames {
+		for _, c := range credentialsNames {
 			fmt.Printf("%s\n", c)
 		}
 		return
@@ -106,10 +106,10 @@ func LsCommand(app *kingpin.Application, input LsCommandInput) {
 		config := vault.Config{}
 		configLoader.LoadFromProfile(profileName, &config)
 
-		if contains(credentialNames, config.CredentialName) {
-			fmt.Fprintf(w, "%s\t", config.CredentialName)
-		} else if config.CredentialName != "" {
-			fmt.Fprintf(w, "[%s missing]\t", config.CredentialName)
+		if contains(credentialsNames, config.CredentialsName) {
+			fmt.Fprintf(w, "%s\t", config.CredentialsName)
+		} else if config.CredentialsName != "" {
+			fmt.Fprintf(w, "[%s missing]\t", config.CredentialsName)
 		} else {
 			fmt.Fprintf(w, "-\t")
 		}
@@ -133,7 +133,7 @@ func LsCommand(app *kingpin.Application, input LsCommandInput) {
 	}
 
 	// show credentials that don't have profiles
-	for _, c := range credentialNames {
+	for _, c := range credentialsNames {
 		profileConfig := vault.Config{}
 		err := configLoader.LoadFromProfile(c, &profileConfig)
 		if err != nil {

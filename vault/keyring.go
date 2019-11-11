@@ -11,7 +11,7 @@ import (
 
 type KeyringProvider struct {
 	Keyring        keyring.Keyring
-	CredentialName string
+	CredentialsName string
 }
 
 func (p *KeyringProvider) IsExpired() bool {
@@ -19,8 +19,8 @@ func (p *KeyringProvider) IsExpired() bool {
 }
 
 func (p *KeyringProvider) Retrieve() (val credentials.Value, err error) {
-	log.Printf("Looking up keyring for %s", p.CredentialName)
-	item, err := p.Keyring.Get(p.CredentialName)
+	log.Printf("Looking up keyring for %s", p.CredentialsName)
+	item, err := p.Keyring.Get(p.CredentialsName)
 	if err != nil {
 		log.Println("Error from keyring", err)
 		return val, err
@@ -38,8 +38,8 @@ func (p *KeyringProvider) Store(val credentials.Value) error {
 	}
 
 	return p.Keyring.Set(keyring.Item{
-		Key:   p.CredentialName,
-		Label: fmt.Sprintf("aws-vault (%s)", p.CredentialName),
+		Key:   p.CredentialsName,
+		Label: fmt.Sprintf("aws-vault (%s)", p.CredentialsName),
 		Data:  bytes,
 
 		// specific Keychain settings
@@ -48,5 +48,5 @@ func (p *KeyringProvider) Store(val credentials.Value) error {
 }
 
 func (p *KeyringProvider) Delete() error {
-	return p.Keyring.Remove(p.CredentialName)
+	return p.Keyring.Remove(p.CredentialsName)
 }

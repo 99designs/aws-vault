@@ -78,7 +78,7 @@ func AddCommand(app *kingpin.Application, input AddCommandInput) {
 	}
 
 	creds := credentials.Value{AccessKeyID: accessKeyId, SecretAccessKey: secretKey}
-	provider := &vault.KeyringProvider{Keyring: input.Keyring, CredentialName: input.ProfileName}
+	provider := &vault.KeyringProvider{Keyring: input.Keyring, CredentialsName: input.ProfileName}
 
 	if err := provider.Store(creds); err != nil {
 		app.Fatalf(err.Error())

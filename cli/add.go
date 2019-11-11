@@ -50,6 +50,11 @@ func AddCommand(app *kingpin.Application, input AddCommandInput) {
 			p.SourceProfile, input.ProfileName)
 		return
 	}
+	if p.ParentProfile != "" {
+		app.Fatalf("Your profile has a parent_profile of %s, adding credentials to %s won't have any effect",
+			p.ParentProfile, input.ProfileName)
+		return
+	}
 
 	if input.FromEnv {
 		if accessKeyId = os.Getenv("AWS_ACCESS_KEY_ID"); accessKeyId == "" {

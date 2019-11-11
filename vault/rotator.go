@@ -27,7 +27,8 @@ func Rotate(profileName string, keyring keyring.Keyring, config *Config) error {
 		return err
 	}
 
-	oldSess := session.New(&aws.Config{Region: aws.String(config.Region),
+	oldSess := session.New(&aws.Config{
+		Region:      aws.String(config.Region),
 		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: oldMasterCreds}),
 	})
 
@@ -63,7 +64,8 @@ func Rotate(profileName string, keyring keyring.Keyring, config *Config) error {
 		iamUserName = aws.String(currentUserName)
 	}
 
-	oldSessionClient := iam.New(session.New(&aws.Config{Region: aws.String(provider.Region),
+	oldSessionClient := iam.New(session.New(&aws.Config{
+		Region:      aws.String(config.Region),
 		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: oldSessionVal}),
 	}))
 
@@ -106,7 +108,8 @@ func Rotate(profileName string, keyring keyring.Keyring, config *Config) error {
 			return err
 		}
 
-		newClient := iam.New(session.New(&aws.Config{Region: aws.String(provider.Region),
+		newClient := iam.New(session.New(&aws.Config{
+			Region:      aws.String(config.Region),
 			Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: newVal}),
 		}))
 
@@ -152,27 +155,4 @@ func retry(duration time.Duration, sleep time.Duration, callback func() error) (
 		time.Sleep(sleep)
 		log.Println("Retrying after error:", err)
 	}
-}
-
-// needsSessionToRotate attempts to resolve the dilemma around whether or not
-// profiles should use a session to be able to rotate.
-//
-// Some profiles require assuming a role to get permission to create new
-// credentials.  Alas, others which don't use a role are pure IAM and will
-// fail to create credentials when using an STS role, because AWS's IAM
-// systems hard-fail early when given STS credentials.
-//
-// This is a heuristic which might need to continue to evolve.  :(
-func needsSessionToRotate(config *Config) bool {
-	if config.MfaToken != "" {
-		return true
-	}
-	if config.MfaSerial != "" {
-		return true
-	}
-	if config.RoleARN != "" {
-		return true
-	}
-
-	return false
 }

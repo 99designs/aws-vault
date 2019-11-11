@@ -3,12 +3,10 @@ package cli
 import (
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/99designs/aws-vault/vault"
 	"github.com/99designs/keyring"
 )
 
 func ExampleExecCommand() {
-	awsConfig = &vault.Config{}
 	keyringImpl = keyring.NewArrayKeyring([]keyring.Item{
 		{Key: "llamas", Data: []byte(`{"AccessKeyID":"ABC","SecretAccessKey":"XYZ"}`)},
 	})

@@ -12,7 +12,6 @@ import (
 type KeyringProvider struct {
 	Keyring        keyring.Keyring
 	CredentialName string
-	Region         string
 }
 
 func (p *KeyringProvider) IsExpired() bool {

@@ -196,8 +196,7 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 	client := sts.New(
 		session.New(
 			aws.NewConfig().WithCredentials(
-				credentials.NewCredentials(&credentials.StaticProvider{Value: *creds}),
-			)))
+				credentials.NewCredentials(&credentials.StaticProvider{Value: *creds}))))
 
 	log.Printf("Getting new session token for profile %s", p.config.CredentialName)
 
@@ -220,12 +219,10 @@ func (p *VaultProvider) roleSessionName() string {
 
 // assumeRoleFromSession takes a session created with GetSessionToken and uses that to assume a role
 func (p *VaultProvider) assumeRoleFromSession(creds sts.Credentials, config *Config) (sts.Credentials, error) {
-	client := sts.New(session.New(aws.NewConfig().
-		WithCredentials(credentials.NewStaticCredentials(
-			*creds.AccessKeyId,
-			*creds.SecretAccessKey,
-			*creds.SessionToken,
-		))))
+	client := sts.New(
+		session.New(
+			aws.NewConfig().WithCredentials(
+				credentials.NewStaticCredentials(*creds.AccessKeyId, *creds.SecretAccessKey, *creds.SessionToken))))
 
 	input := &sts.AssumeRoleInput{
 		RoleArn:         aws.String(config.RoleARN),

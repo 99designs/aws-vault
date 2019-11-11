@@ -33,7 +33,6 @@ func IsSessionKey(s string) bool {
 	return false
 }
 
-// func parseSessionKey(key string, conf *ConfigLoader) (KeyringSession, error) {
 func parseSessionKey(key string) (KeyringSession, error) {
 	matches := sessionKeyPattern.FindStringSubmatch(key)
 	if len(matches) == 0 {
@@ -51,9 +50,8 @@ func parseSessionKey(key string) (KeyringSession, error) {
 	if err != nil {
 		return KeyringSession{}, err
 	}
-	// profile, _ := conf.Profile(string(profileName))
+
 	return KeyringSession{
-		// Profile:    profile,
 		ProfileName: string(profileName),
 		Key:         key,
 		Expiration:  time.Unix(tsInt, 0),
@@ -83,16 +81,16 @@ func (ks KeyringSession) IsExpired() bool {
 }
 
 type KeyringSessions struct {
-	Keyring keyring.Keyring
+	keyring keyring.Keyring
 }
 
 func NewKeyringSessions(k keyring.Keyring) *KeyringSessions {
-	return &KeyringSessions{Keyring: k}
+	return &KeyringSessions{keyring: k}
 }
 
 func (s *KeyringSessions) Sessions() ([]KeyringSession, error) {
 	log.Printf("Looking up all keys in keyring")
-	keys, err := s.Keyring.Keys()
+	keys, err := s.keyring.Keys()
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +102,7 @@ func (s *KeyringSessions) Sessions() ([]KeyringSession, error) {
 			ks, err := parseSessionKey(k)
 			if err != nil || ks.IsExpired() {
 				log.Printf("Session %s is obsolete, attempting deleting", k)
-				if err := s.Keyring.Remove(k); err != nil {
+				if err := s.keyring.Remove(k); err != nil {
 					log.Printf("Error deleting session: %v", err)
 				}
 				continue
@@ -118,16 +116,16 @@ func (s *KeyringSessions) Sessions() ([]KeyringSession, error) {
 }
 
 // Retrieve searches sessions for specific profile, expects the profile to be provided, not the source
-func (s *KeyringSessions) Retrieve(profile string, mfaSerial string) (creds sts.Credentials, err error) {
-	log.Printf("Looking for sessions for %s", profile)
+func (s *KeyringSessions) Retrieve(profileName string, mfaSerial string) (creds sts.Credentials, err error) {
+	log.Printf("Looking for sessions for %s", profileName)
 	sessions, err := s.Sessions()
 	if err != nil {
 		return creds, err
 	}
 
 	for _, session := range sessions {
-		if session.ProfileName == profile && session.MfaSerial == mfaSerial {
-			item, err := s.Keyring.Get(session.Key)
+		if session.ProfileName == profileName && session.MfaSerial == mfaSerial {
+			item, err := s.keyring.Get(session.Key)
 			if err != nil {
 				return creds, err
 			}
@@ -139,12 +137,11 @@ func (s *KeyringSessions) Retrieve(profile string, mfaSerial string) (creds sts.
 			// double check the actual expiry time
 			if creds.Expiration.Before(time.Now()) {
 				log.Printf("Session %q is expired, deleting", session.Key)
-				if err = s.Keyring.Remove(session.ProfileName); err != nil {
+				if err = s.keyring.Remove(session.ProfileName); err != nil {
 					return creds, err
 				}
 			}
 
-			// success!
 			return creds, nil
 		}
 	}
@@ -162,7 +159,7 @@ func (s *KeyringSessions) Store(profile string, mfaSerial string, session sts.Cr
 	key := formatSessionKey(profile, mfaSerial, session.Expiration)
 	log.Printf("Writing session for %s to keyring: %q", profile, key)
 
-	return s.Keyring.Set(keyring.Item{
+	return s.keyring.Set(keyring.Item{
 		Key:         key,
 		Label:       "aws-vault session for " + profile,
 		Description: "aws-vault session for " + profile,
@@ -184,7 +181,7 @@ func (s *KeyringSessions) Delete(profile string) (n int, err error) {
 	for _, session := range sessions {
 		if session.ProfileName == profile {
 			log.Printf("Session %q matches profile %q", session.Key, profile)
-			if err = s.Keyring.Remove(session.Key); err != nil {
+			if err = s.keyring.Remove(session.Key); err != nil {
 				return n, err
 			}
 			n++

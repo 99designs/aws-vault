@@ -28,14 +28,8 @@ type LoginCommandInput struct {
 	Keyring                 keyring.Keyring
 	UseStdout               bool
 	FederationTokenDuration time.Duration
-	AssumeRoleDuration      time.Duration
 	Path                    string
 	Config                  vault.Config
-	// MfaToken                string
-	// MfaSerial               string
-	// MfaPrompt               prompt.PromptFunc
-	// Region                  string
-	// NoSession               bool
 }
 
 func ConfigureLoginCommand(app *kingpin.Application) {
@@ -70,7 +64,7 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 	cmd.Flag("assume-role-ttl", "Expiration time for aws assumed role").
 		Default("15m").
 		Envar("AWS_ASSUME_ROLE_TTL").
-		DurationVar(&input.AssumeRoleDuration)
+		DurationVar(&input.Config.AssumeRoleDuration)
 
 	cmd.Flag("stdout", "Print login URL to stdout instead of opening in default browser").
 		Short('s').
@@ -106,11 +100,11 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 
 	val, err := creds.Get()
 	if err != nil {
-		app.Fatalf(awsConfigFile.FormatCredentialError(err, input.ProfileName))
+		app.Fatalf(FormatCredentialError(err, input.ProfileName))
 	}
 
-	var isFederated bool
-	var sessionDuration = input.FederationTokenDuration
+	isFederated := false
+	sessionDuration := input.FederationTokenDuration
 
 	// if AssumeRole isn't used, GetFederationToken has to be used for IAM credentials
 	if val.SessionToken == "" {

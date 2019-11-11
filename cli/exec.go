@@ -28,10 +28,6 @@ type ExecCommandInput struct {
 	Config           vault.Config
 }
 
-type AwsConfigOverride struct {
-	MfaSerial string
-}
-
 // json metadata for AWS credential process. Ref: https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
 type AwsCredentialHelperData struct {
 	Version         int    `json:"Version"`
@@ -69,7 +65,6 @@ func ConfigureExecCommand(app *kingpin.Application) {
 		StringVar(&input.Config.MfaSerial)
 
 	cmd.Flag("mfa-serial", "The identification number of the MFA device to use").
-		// Envar("AWS_MFA_SERIAL").
 		StringVar(&input.Config.MfaSerial)
 
 	cmd.Flag("json", "AWS credential helper. Ref: https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes").
@@ -126,7 +121,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 
 	val, err := creds.Get()
 	if err != nil {
-		app.Fatalf(awsConfigFile.FormatCredentialError(err, input.ProfileName))
+		app.Fatalf(FormatCredentialError(err, input.ProfileName))
 	}
 
 	if input.StartServer {
@@ -167,9 +162,11 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 		env.Unset("AWS_DEFAULT_PROFILE")
 		env.Unset("AWS_PROFILE")
 
-		log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s", input.Config.Region, input.Config.Region)
-		env.Set("AWS_DEFAULT_REGION", input.Config.Region)
-		env.Set("AWS_REGION", input.Config.Region)
+		if input.Config.Region != "" {
+			log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s", input.Config.Region, input.Config.Region)
+			env.Set("AWS_DEFAULT_REGION", input.Config.Region)
+			env.Set("AWS_REGION", input.Config.Region)
+		}
 
 		if setEnv {
 			log.Println("Setting subprocess env: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY")

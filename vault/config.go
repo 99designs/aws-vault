@@ -191,25 +191,6 @@ func (c *ConfigFile) Add(profile ProfileSection) error {
 	return c.iniFile.SaveTo(c.Path)
 }
 
-// FormatCredentialError formats errors with some user friendly context
-func (c *ConfigFile) FormatCredentialError(err error, profileName string) string {
-	// profile, _ := c.Profile(profileName)
-
-	sourceDescr := profileName
-	// if profile.CredentialName != profileName {
-	// 	sourceDescr = fmt.Sprintf("%s (source profile for %s)", profile.CredentialName, profileName)
-	// }
-
-	// if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "NoCredentialProviders" {
-	// 	return fmt.Sprintf(
-	// 		"No credentials found for profile %s.\n"+
-	// 			"Use 'aws-vault add %s' to set up credentials or 'aws-vault list' to see what credentials exist",
-	// 		sourceDescr, profile.CredentialName)
-	// }
-
-	return fmt.Sprintf("Failed to get credentials for %s: %v", sourceDescr, err)
-}
-
 // ProfileNames returns a slice of profile names from the AWS config
 func (c *ConfigFile) ProfileNames() []string {
 	var profileNames []string
@@ -253,12 +234,12 @@ func (c *ConfigLoader) populateFromDefaults(config *Config) {
 
 func (c *ConfigLoader) populateFromConfigFile(config *Config, profileName string) error {
 	if !c.visitProfile(profileName) {
-		fmt.Errorf("Loop detected in config file for profile '%s'", profileName)
+		return fmt.Errorf("Loop detected in config file for profile '%s'", profileName)
 	}
 
 	psection, ok := c.File.ProfileSection(profileName)
 	if !ok {
-		fmt.Errorf("Can't find profile '%s' in config file", profileName)
+		return fmt.Errorf("Can't find profile '%s' in config file", profileName)
 	}
 
 	if config.MfaSerial == "" {

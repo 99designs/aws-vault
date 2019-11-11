@@ -69,24 +69,24 @@ func TestConfigParsingProfiles(t *testing.T) {
 	}
 
 	var testCases = []struct {
-		expected vault.Profile
+		expected vault.ProfileSection
 		ok       bool
 	}{
-		{vault.Profile{Name: "user2", Region: "us-east-1"}, true},
-		{vault.Profile{Name: "withsource", SourceProfile: "user2", Region: "us-east-1"}, true},
-		{vault.Profile{
+		{vault.ProfileSection{Name: "user2", Region: "us-east-1"}, true},
+		{vault.ProfileSection{Name: "withsource", SourceProfile: "user2", Region: "us-east-1"}, true},
+		{vault.ProfileSection{
 			Name:          "withmfa",
 			SourceProfile: "user2",
 			Region:        "us-east-1",
 			RoleARN:       "arn:aws:iam::4451234513441615400570:role/aws_admin",
-			MFASerial:     "arn:aws:iam::1234513441:mfa/blah",
+			MfaSerial:     "arn:aws:iam::1234513441:mfa/blah",
 		}, true},
-		{vault.Profile{Name: "nopenotthere"}, false},
+		{vault.ProfileSection{Name: "nopenotthere"}, false},
 	}
 
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("profile_%s", tc.expected.Name), func(t *testing.T) {
-			actual, ok := cfg.Profile(tc.expected.Name)
+			actual, ok := cfg.ProfileSection(tc.expected.Name)
 			if ok != tc.ok {
 				t.Fatalf("Expected second param to be %v, got %v", tc.ok, ok)
 			}
@@ -106,12 +106,12 @@ func TestConfigParsingDefault(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	def, ok := cfg.Profile("default")
+	def, ok := cfg.ProfileSection("default")
 	if !ok {
 		t.Fatalf("Expected to find default profile")
 	}
 
-	expected := vault.Profile{
+	expected := vault.ProfileSection{
 		Name:   "default",
 		Region: "us-west-2",
 	}
@@ -130,7 +130,7 @@ func TestCredentialNameFromConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	profile, ok := cfg.Profile("withmfa")
+	profile, ok := cfg.ProfileSection("withmfa")
 	if !ok {
 		t.Fatalf("Should have found a profile")
 	}
@@ -149,12 +149,12 @@ func TestProfilesFromConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	profiles := cfg.Profiles()
-	expected := []vault.Profile{
-		vault.Profile{Name: "default", Region: "us-west-2"},
-		vault.Profile{Name: "user2", Region: "us-east-1"},
-		vault.Profile{Name: "withsource", Region: "us-east-1", SourceProfile: "user2"},
-		vault.Profile{Name: "withmfa", MFASerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", SourceProfile: "user2"},
+	profiles, _ := cfg.profiles()
+	expected := []vault.ProfileSection{
+		vault.ProfileSection{Name: "default", Region: "us-west-2"},
+		vault.ProfileSection{Name: "user2", Region: "us-east-1"},
+		vault.ProfileSection{Name: "withsource", Region: "us-east-1", SourceProfile: "user2"},
+		vault.ProfileSection{Name: "withmfa", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", SourceProfile: "user2"},
 	}
 
 	if !reflect.DeepEqual(expected, profiles) {
@@ -171,9 +171,9 @@ func TestAddProfileToExistingConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = cfg.Add(vault.Profile{
+	err = cfg.Add(vault.ProfileSection{
 		Name:          "llamas",
-		MFASerial:     "testserial",
+		MfaSerial:     "testserial",
 		Region:        "us-east-1",
 		SourceProfile: "default",
 	})
@@ -181,13 +181,13 @@ func TestAddProfileToExistingConfig(t *testing.T) {
 		t.Fatalf("Error adding profile: %#v", err)
 	}
 
-	profiles := cfg.Profiles()
-	expected := []vault.Profile{
-		vault.Profile{Name: "default", Region: "us-west-2"},
-		vault.Profile{Name: "user2", Region: "us-east-1"},
-		vault.Profile{Name: "withsource", Region: "us-east-1", SourceProfile: "user2"},
-		vault.Profile{Name: "withmfa", MFASerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", SourceProfile: "user2"},
-		vault.Profile{Name: "llamas", MFASerial: "testserial", Region: "us-east-1", SourceProfile: "default"},
+	profiles, _ := cfg.profiles()
+	expected := []vault.ProfileSection{
+		vault.ProfileSection{Name: "default", Region: "us-west-2"},
+		vault.ProfileSection{Name: "user2", Region: "us-east-1"},
+		vault.ProfileSection{Name: "withsource", Region: "us-east-1", SourceProfile: "user2"},
+		vault.ProfileSection{Name: "withmfa", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", SourceProfile: "user2"},
+		vault.ProfileSection{Name: "llamas", MfaSerial: "testserial", Region: "us-east-1", SourceProfile: "default"},
 	}
 
 	if !reflect.DeepEqual(expected, profiles) {
@@ -204,9 +204,9 @@ func TestAddProfileToExistingNestedConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = cfg.Add(vault.Profile{
+	err = cfg.Add(vault.ProfileSection{
 		Name:      "llamas",
-		MFASerial: "testserial",
+		MfaSerial: "testserial",
 		Region:    "us-east-1",
 	})
 	if err != nil {

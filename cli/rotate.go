@@ -29,8 +29,11 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 		StringVar(&input.Config.MfaToken)
 
 	cmd.Flag("mfa-serial", "The identification number of the MFA device to use").
-		Envar("AWS_MFA_SERIAL").
 		StringVar(&input.Config.MfaSerial)
+
+	cmd.Flag("no-session", "Use root credentials, no session created").
+		Short('n').
+		BoolVar(&input.Config.NoSession)
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.Config.MfaPrompt = prompt.Method(GlobalFlags.PromptDriver)
@@ -48,7 +51,8 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 
 	fmt.Printf("Rotating credentials for profile %q (takes 10-20 seconds)\n", input.ProfileName)
 	if err := vault.Rotate(input.ProfileName, input.Keyring, &input.Config); err != nil {
-		app.Fatalf(awsConfigFile.FormatCredentialError(err, input.ProfileName))
+		fmt.Println("Rotation failed. Try using --no-session")
+		app.Fatalf(err.Error())
 		return
 	}
 

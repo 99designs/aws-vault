@@ -59,10 +59,10 @@ func parseSessionKey(key string) (KeyringSession, error) {
 	}, nil
 }
 
-func formatSessionKey(profile string, mfaSerial string, expiration *time.Time) string {
+func formatSessionKey(profileName string, mfaSerial string, expiration *time.Time) string {
 	return fmt.Sprintf(
 		"session,%s,%s,%d",
-		base64Encoding.EncodeToString([]byte(profile)),
+		base64Encoding.EncodeToString([]byte(profileName)),
 		base64Encoding.EncodeToString([]byte(mfaSerial)),
 		expiration.Unix(),
 	)
@@ -150,19 +150,19 @@ func (s *KeyringSessions) Retrieve(profileName string, mfaSerial string) (creds 
 }
 
 // Store stores a sessions for a specific profile, expects the profile to be provided, not the source
-func (s *KeyringSessions) Store(profile string, mfaSerial string, session sts.Credentials) error {
+func (s *KeyringSessions) Store(profileName string, mfaSerial string, session sts.Credentials) error {
 	bytes, err := json.Marshal(session)
 	if err != nil {
 		return err
 	}
 
-	key := formatSessionKey(profile, mfaSerial, session.Expiration)
-	log.Printf("Writing session for %s to keyring: %q", profile, key)
+	key := formatSessionKey(profileName, mfaSerial, session.Expiration)
+	log.Printf("Writing session for %s to keyring: %q", profileName, key)
 
 	return s.keyring.Set(keyring.Item{
 		Key:         key,
-		Label:       "aws-vault session for " + profile,
-		Description: "aws-vault session for " + profile,
+		Label:       "aws-vault session for " + profileName,
+		Description: "aws-vault session for " + profileName,
 		Data:        bytes,
 
 		// specific Keychain settings
@@ -171,16 +171,16 @@ func (s *KeyringSessions) Store(profile string, mfaSerial string, session sts.Cr
 }
 
 // Delete deletes any sessions for a specific profile, expects the profile to be provided, not the source
-func (s *KeyringSessions) Delete(profile string) (n int, err error) {
-	log.Printf("Looking for sessions for %s", profile)
+func (s *KeyringSessions) Delete(profileName string) (n int, err error) {
+	log.Printf("Looking for sessions for %s", profileName)
 	sessions, err := s.Sessions()
 	if err != nil {
 		return n, err
 	}
 
 	for _, session := range sessions {
-		if session.ProfileName == profile {
-			log.Printf("Session %q matches profile %q", session.Key, profile)
+		if session.ProfileName == profileName {
+			log.Printf("Session %q matches profile %q", session.Key, profileName)
 			if err = s.keyring.Remove(session.Key); err != nil {
 				return n, err
 			}

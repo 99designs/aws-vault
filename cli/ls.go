@@ -109,7 +109,7 @@ func LsCommand(app *kingpin.Application, input LsCommandInput) {
 		if contains(credentialsNames, config.CredentialsName) {
 			fmt.Fprintf(w, "%s\t", config.CredentialsName)
 		} else if config.CredentialsName != "" {
-			fmt.Fprintf(w, "[%s missing]\t", config.CredentialsName)
+			fmt.Fprintf(w, "%s (missing)\t", config.CredentialsName)
 		} else {
 			fmt.Fprintf(w, "-\t")
 		}
@@ -133,11 +133,10 @@ func LsCommand(app *kingpin.Application, input LsCommandInput) {
 	}
 
 	// show credentials that don't have profiles
-	for _, c := range credentialsNames {
-		profileConfig := vault.Config{}
-		err := configLoader.LoadFromProfile(c, &profileConfig)
-		if err != nil {
-			fmt.Fprintf(w, "-\t%s\t-\t\n", c)
+	for _, credentialName := range credentialsNames {
+		_, ok := awsConfigFile.ProfileSection(credentialName)
+		if !ok {
+			fmt.Fprintf(w, "-\t%s\t-\t\n", credentialName)
 		}
 	}
 

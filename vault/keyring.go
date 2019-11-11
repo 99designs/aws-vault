@@ -10,7 +10,7 @@ import (
 )
 
 type KeyringProvider struct {
-	Keyring        keyring.Keyring
+	Keyring         keyring.Keyring
 	CredentialsName string
 }
 

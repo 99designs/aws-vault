@@ -129,8 +129,8 @@ type ProfileSection struct {
 	ParentProfile   string `ini:"parent_profile,omitempty"`
 }
 
-// Profiles returns all the profiles in the config
-func (c *ConfigFile) profiles() []ProfileSection {
+// Profiles returns all the profile sections in the config
+func (c *ConfigFile) ProfileSections() []ProfileSection {
 	var result []ProfileSection
 
 	if c.iniFile == nil {
@@ -194,7 +194,7 @@ func (c *ConfigFile) Add(profile ProfileSection) error {
 // ProfileNames returns a slice of profile names from the AWS config
 func (c *ConfigFile) ProfileNames() []string {
 	var profileNames []string
-	for _, profile := range c.profiles() {
+	for _, profile := range c.ProfileSections() {
 		profileNames = append(profileNames, profile.Name)
 	}
 	return profileNames
@@ -239,7 +239,8 @@ func (c *ConfigLoader) populateFromConfigFile(config *Config, profileName string
 
 	psection, ok := c.File.ProfileSection(profileName)
 	if !ok {
-		return fmt.Errorf("Can't find profile '%s' in config file", profileName)
+		// ignore missing profiles
+		log.Printf("Can't find profile '%s' in config file", profileName)
 	}
 
 	if config.MfaSerial == "" {

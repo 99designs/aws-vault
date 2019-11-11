@@ -1,6 +1,7 @@
 package vault
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -35,76 +36,27 @@ func NewVaultProvider(k keyring.Keyring, profileName string, opts *Config) (*Vau
 	}, nil
 }
 
-// Retrieve returns credentials protected by a GetSessionToken. If there is an associated
-// role in the profile then AssumeRole is applied. The benefit of a session is that it doesn't
-// require MFA or a user prompt to access the keychain item, much like sudo.
+// Retrieve returns credentials protected by GetSessionToken and AssumeRole where possible
 func (p *VaultProvider) Retrieve() (credentials.Value, error) {
+	if p.config.NoSession && p.config.RoleARN == "" {
+		return p.getMasterCreds()
+	}
 	if p.config.NoSession {
-		return p.RetrieveWithoutSessionToken()
+		return p.getCredsWithRole()
+	}
+	if p.config.RoleARN == "" {
+		return p.getCredsWithSession()
 	}
 
-	// sessions get stored by profile, not the source
-	session, err := p.sessions.Retrieve(p.config.CredentialsName, p.config.MfaSerial)
+	return p.getCredsWithSessionAndRole()
+}
+
+func (p *VaultProvider) getCredsWithSession() (credentials.Value, error) {
+	log.Println("Getting credentials with GetSessionToken")
+
+	session, err := p.getSessionToken()
 	if err != nil {
-		if err == keyring.ErrKeyNotFound {
-			log.Printf("Session not found in keyring for %s", p.config.CredentialsName)
-		} else {
-			log.Println(err)
-		}
-
-		// session lookup missed, we need to create a new one.
-		// If the selected profile has a RoleARN, create a new VaultCredentials for the source
-		// to support using an existing session for master credentials and allow assume role chaining.
-		if p.config.RoleARN != "" {
-			creds, err := NewVaultCredentials(p.keyring, p.config.CredentialsName, p.config)
-			if err != nil {
-				log.Printf("Failed to create NewVaultCredentials for profile %q", p.config.CredentialsName)
-				return credentials.Value{}, err
-			}
-			val, err := creds.Get()
-			if err != nil {
-				return credentials.Value{}, err
-			}
-			exp, err := creds.ExpiresAt()
-			if err != nil {
-				return credentials.Value{}, err
-			}
-
-			session = sts.Credentials{
-				AccessKeyId:     &val.AccessKeyID,
-				SecretAccessKey: &val.SecretAccessKey,
-				SessionToken:    &val.SessionToken,
-				Expiration:      &exp,
-			}
-		} else {
-			creds, err := p.getMasterCreds()
-			if err != nil {
-				return credentials.Value{}, err
-			}
-			session, err = p.getSessionToken(&creds)
-			if err != nil {
-				return credentials.Value{}, err
-			}
-
-			if err = p.sessions.Store(p.config.CredentialsName, p.config.MfaSerial, session); err != nil {
-				return credentials.Value{}, err
-			}
-		}
-	}
-
-	log.Printf("Using session ****************%s, expires in %s",
-		(*session.AccessKeyId)[len(*session.AccessKeyId)-4:],
-		session.Expiration.Sub(time.Now()).String())
-
-	if p.config.RoleARN != "" {
-		session, err = p.assumeRoleFromSession(session, p.config)
-		if err != nil {
-			return credentials.Value{}, err
-		}
-
-		log.Printf("Using role ****************%s (from session token), expires in %s",
-			(*session.AccessKeyId)[len(*session.AccessKeyId)-4:],
-			session.Expiration.Sub(time.Now()).String())
+		return credentials.Value{}, nil
 	}
 
 	p.SetExpiration(*session.Expiration, DefaultExpirationWindow)
@@ -115,42 +67,66 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 		SessionToken:    *session.SessionToken,
 	}
 
+	log.Printf("Using session token ****************%s, expires in %s", (*session.AccessKeyId)[len(*session.AccessKeyId)-4:], session.Expiration.Sub(time.Now()).String())
 	return value, nil
 }
 
-// RetrieveWithoutSessionToken returns credentials that are either the master credentials or
-// a session created with AssumeRole. This allows for usecases where a token created with AssumeRole
-// wouldn't work.
-func (p *VaultProvider) RetrieveWithoutSessionToken() (credentials.Value, error) {
-	log.Println("Skipping session token and using master credentials directly")
+func (p *VaultProvider) getCredsWithSessionAndRole() (credentials.Value, error) {
+	log.Println("Getting credentials with GetSessionToken and AssumeRole")
+
+	session, err := p.getSessionToken()
+	if err != nil {
+		return credentials.Value{}, nil
+	}
+
+	role, err := p.assumeRoleFromSession(session)
+	if err != nil {
+		return credentials.Value{}, err
+	}
+
+	p.SetExpiration(*role.Expiration, DefaultExpirationWindow)
+
+	creds := credentials.Value{
+		AccessKeyID:     *role.AccessKeyId,
+		SecretAccessKey: *role.SecretAccessKey,
+		SessionToken:    *role.SessionToken,
+	}
+
+	log.Printf("Using session token ****************%s with role ****************%s, expires in %s",
+		(*session.AccessKeyId)[len(*session.AccessKeyId)-4:],
+		(*role.AccessKeyId)[len(*role.AccessKeyId)-4:],
+		role.Expiration.Sub(time.Now()).String())
+
+	return creds, nil
+}
+
+// getCredsWithRole returns credentials a session created with AssumeRole
+func (p *VaultProvider) getCredsWithRole() (credentials.Value, error) {
+	log.Println("Getting credentials with AssumeRole")
+
+	if p.config.RoleARN == "" {
+		return credentials.Value{}, errors.New("No role defined")
+	}
 
 	creds, err := p.getMasterCreds()
 	if err != nil {
 		return credentials.Value{}, err
 	}
 
-	if p.config.RoleARN != "" {
-		session, err := p.assumeRole(creds, p.config)
-		if err != nil {
-			return credentials.Value{}, err
-		}
-
-		log.Printf("Using role ****************%s, expires in %s",
-			(*session.AccessKeyId)[len(*session.AccessKeyId)-4:],
-			session.Expiration.Sub(time.Now()).String())
-
-		p.SetExpiration(*session.Expiration, DefaultExpirationWindow)
-
-		value := credentials.Value{
-			AccessKeyID:     *session.AccessKeyId,
-			SecretAccessKey: *session.SecretAccessKey,
-			SessionToken:    *session.SessionToken,
-		}
-
-		return value, nil
+	role, err := p.assumeRoleFromCreds(creds)
+	if err != nil {
+		return credentials.Value{}, err
 	}
 
-	// no role, exposes master credentials which don't expire
+	p.SetExpiration(*role.Expiration, DefaultExpirationWindow)
+
+	creds = credentials.Value{
+		AccessKeyID:     *role.AccessKeyId,
+		SecretAccessKey: *role.SecretAccessKey,
+		SessionToken:    *role.SessionToken,
+	}
+
+	log.Printf("Using role ****************%s, expires in %s", (*role.AccessKeyId)[len(*role.AccessKeyId)-4:], role.Expiration.Sub(time.Now()).String())
 	return creds, nil
 }
 
@@ -175,7 +151,7 @@ func (p *VaultProvider) getMasterCreds() (credentials.Value, error) {
 	return val, nil
 }
 
-func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentials, error) {
+func (p *VaultProvider) createSessionToken() (sts.Credentials, error) {
 	params := &sts.GetSessionTokenInput{
 		DurationSeconds: aws.Int64(int64(p.config.SessionDuration.Seconds())),
 	}
@@ -193,10 +169,12 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 		}
 	}
 
-	client := sts.New(
-		session.New(
-			aws.NewConfig().WithCredentials(
-				credentials.NewCredentials(&credentials.StaticProvider{Value: *creds}))))
+	creds, err := p.getMasterCreds()
+	if err != nil {
+		return sts.Credentials{}, err
+	}
+
+	client := newStsClient(credentials.NewStaticCredentialsFromCreds(creds))
 
 	log.Printf("Getting new session token for profile %s", p.config.CredentialsName)
 
@@ -208,6 +186,24 @@ func (p *VaultProvider) getSessionToken(creds *credentials.Value) (sts.Credentia
 	return *resp.Credentials, nil
 }
 
+func (p *VaultProvider) getSessionToken() (sts.Credentials, error) {
+	session, err := p.sessions.Retrieve(p.config.CredentialsName, p.config.MfaSerial)
+	if err != nil {
+		// session lookup missed, we need to create a new one.
+		session, err = p.createSessionToken()
+		if err != nil {
+			return sts.Credentials{}, err
+		}
+
+		err = p.sessions.Store(p.config.CredentialsName, p.config.MfaSerial, session)
+		if err != nil {
+			return sts.Credentials{}, err
+		}
+	}
+
+	return session, err
+}
+
 func (p *VaultProvider) roleSessionName() string {
 	if p.config.RoleSessionName != "" {
 		return p.config.RoleSessionName
@@ -217,24 +213,25 @@ func (p *VaultProvider) roleSessionName() string {
 	return fmt.Sprintf("%d", time.Now().UTC().UnixNano())
 }
 
+func newStsClient(creds *credentials.Credentials) *sts.STS {
+	return sts.New(session.New(aws.NewConfig().WithCredentials(creds)))
+}
+
 // assumeRoleFromSession takes a session created with GetSessionToken and uses that to assume a role
-func (p *VaultProvider) assumeRoleFromSession(creds sts.Credentials, config *Config) (sts.Credentials, error) {
-	client := sts.New(
-		session.New(
-			aws.NewConfig().WithCredentials(
-				credentials.NewStaticCredentials(*creds.AccessKeyId, *creds.SecretAccessKey, *creds.SessionToken))))
+func (p *VaultProvider) assumeRoleFromSession(session sts.Credentials) (sts.Credentials, error) {
+	client := newStsClient(credentials.NewStaticCredentials(*session.AccessKeyId, *session.SecretAccessKey, *session.SessionToken))
 
 	input := &sts.AssumeRoleInput{
-		RoleArn:         aws.String(config.RoleARN),
+		RoleArn:         aws.String(p.config.RoleARN),
 		RoleSessionName: aws.String(p.roleSessionName()),
 		DurationSeconds: aws.Int64(int64(p.config.AssumeRoleDuration.Seconds())),
 	}
 
-	if config.ExternalID != "" {
-		input.ExternalId = aws.String(config.ExternalID)
+	if p.config.ExternalID != "" {
+		input.ExternalId = aws.String(p.config.ExternalID)
 	}
 
-	log.Printf("Assuming role %s from session token", config.RoleARN)
+	log.Printf("Assuming role %s from session token", p.config.RoleARN)
 	resp, err := client.AssumeRole(input)
 	if err != nil {
 		return sts.Credentials{}, err
@@ -243,21 +240,22 @@ func (p *VaultProvider) assumeRoleFromSession(creds sts.Credentials, config *Con
 	return *resp.Credentials, nil
 }
 
-// assumeRole uses IAM credentials to assume a role
-func (p *VaultProvider) assumeRole(creds credentials.Value, config *Config) (sts.Credentials, error) {
-	client := sts.New(
-		session.New(
-			aws.NewConfig().WithCredentials(
-				credentials.NewCredentials(&credentials.StaticProvider{Value: creds}))))
+// assumeRoleFromCreds uses IAM credentials to assume a role
+func (p *VaultProvider) assumeRoleFromCreds(creds credentials.Value) (sts.Credentials, error) {
+	if p.config.RoleARN == "" {
+		return sts.Credentials{}, errors.New("No role defined")
+	}
+
+	client := newStsClient(credentials.NewStaticCredentialsFromCreds(creds))
 
 	input := &sts.AssumeRoleInput{
-		RoleArn:         aws.String(config.RoleARN),
+		RoleArn:         aws.String(p.config.RoleARN),
 		RoleSessionName: aws.String(p.roleSessionName()),
 		DurationSeconds: aws.Int64(int64(p.config.AssumeRoleDuration.Seconds())),
 	}
 
-	if config.ExternalID != "" {
-		input.ExternalId = aws.String(config.ExternalID)
+	if p.config.ExternalID != "" {
+		input.ExternalId = aws.String(p.config.ExternalID)
 	}
 
 	// if we don't have a session, we need to include MFA token in the AssumeRole call
@@ -274,7 +272,7 @@ func (p *VaultProvider) assumeRole(creds credentials.Value, config *Config) (sts
 		}
 	}
 
-	log.Printf("Assuming role %s with iam credentials", config.RoleARN)
+	log.Printf("Assuming role %s with iam credentials", p.config.RoleARN)
 	resp, err := client.AssumeRole(input)
 	if err != nil {
 		return sts.Credentials{}, err

@@ -14,9 +14,9 @@ import (
 
 const DefaultExpirationWindow = 5 * time.Minute
 
+// VaultProvider implements
 type VaultProvider struct {
 	credentials.Expiry
-	expires     time.Time
 	keyring     keyring.Keyring
 	sessions    *KeyringSessions
 	config      *Config
@@ -66,7 +66,11 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 			if err != nil {
 				return credentials.Value{}, err
 			}
-			exp := creds.Expires()
+			exp, err := creds.ExpiresAt()
+			if err != nil {
+				return credentials.Value{}, err
+			}
+
 			session = sts.Credentials{
 				AccessKeyId:     &val.AccessKeyID,
 				SecretAccessKey: &val.SecretAccessKey,
@@ -105,7 +109,6 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 	}
 
 	p.SetExpiration(*session.Expiration, DefaultExpirationWindow)
-	p.expires = *session.Expiration
 
 	value := credentials.Value{
 		AccessKeyID:     *session.AccessKeyId,
@@ -138,7 +141,6 @@ func (p *VaultProvider) RetrieveWithoutSessionToken() (credentials.Value, error)
 			session.Expiration.Sub(time.Now()).String())
 
 		p.SetExpiration(*session.Expiration, DefaultExpirationWindow)
-		p.expires = *session.Expiration
 
 		value := credentials.Value{
 			AccessKeyID:     *session.AccessKeyId,
@@ -285,20 +287,11 @@ func (p *VaultProvider) assumeRole(creds credentials.Value, config *Config) (sts
 	return *resp.Credentials, nil
 }
 
-type VaultCredentials struct {
-	*credentials.Credentials
-	provider *VaultProvider
-}
-
-func NewVaultCredentials(k keyring.Keyring, profileName string, opts *Config) (*VaultCredentials, error) {
+func NewVaultCredentials(k keyring.Keyring, profileName string, opts *Config) (*credentials.Credentials, error) {
 	provider, err := NewVaultProvider(k, profileName, opts)
 	if err != nil {
 		return nil, err
 	}
 
-	return &VaultCredentials{credentials.NewCredentials(provider), provider}, nil
-}
-
-func (v *VaultCredentials) Expires() time.Time {
-	return v.provider.expires
+	return credentials.NewCredentials(provider), nil
 }

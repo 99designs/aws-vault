@@ -145,7 +145,11 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 			SessionToken:    val.SessionToken,
 		}
 		if !input.Config.NoSession {
-			credentialData.Expiration = creds.Expires().Format("2006-01-02T15:04:05Z")
+			credsExprest, err := creds.ExpiresAt()
+			if err != nil {
+				app.Fatalf("Error getting credential expiration: %v", err)
+			}
+			credentialData.Expiration = credsExprest.Format("2006-01-02T15:04:05Z")
 		}
 		json, err := json.Marshal(&credentialData)
 		if err != nil {

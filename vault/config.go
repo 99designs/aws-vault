@@ -349,12 +349,14 @@ type Config struct {
 func (c *Config) Validate() error {
 	if c.SessionDuration < MinSessionDuration {
 		return errors.New("Minimum session duration is " + MinSessionDuration.String())
-	} else if c.SessionDuration > MaxSessionDuration {
+	}
+	if c.SessionDuration > MaxSessionDuration {
 		return errors.New("Maximum session duration is " + MaxSessionDuration.String())
 	}
 	if c.AssumeRoleDuration < MinAssumeRoleDuration {
 		return errors.New("Minimum duration for assumed roles is " + MinAssumeRoleDuration.String())
-	} else if c.AssumeRoleDuration > MaxAssumeRoleDuration {
+	}
+	if c.AssumeRoleDuration > MaxAssumeRoleDuration {
 		return errors.New("Maximum duration for assumed roles is " + MaxAssumeRoleDuration.String())
 	}
 

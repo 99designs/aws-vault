@@ -14,7 +14,6 @@ import (
 
 const DefaultExpirationWindow = 5 * time.Minute
 
-// VaultProvider implements
 type VaultProvider struct {
 	credentials.Expiry
 	keyring     keyring.Keyring

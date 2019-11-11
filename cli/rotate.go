@@ -12,9 +12,7 @@ import (
 type RotateCommandInput struct {
 	ProfileName string
 	Keyring     keyring.Keyring
-	MfaToken    string
-	MfaSerial   string
-	MfaPrompt   prompt.PromptFunc
+	Config      vault.Config
 }
 
 func ConfigureRotateCommand(app *kingpin.Application) {
@@ -28,14 +26,14 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 
 	cmd.Flag("mfa-token", "The mfa token to use").
 		Short('t').
-		StringVar(&input.MfaToken)
+		StringVar(&input.Config.MfaToken)
 
 	cmd.Flag("mfa-serial", "The identification number of the MFA device to use").
 		Envar("AWS_MFA_SERIAL").
-		StringVar(&input.MfaSerial)
+		StringVar(&input.Config.MfaSerial)
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
-		input.MfaPrompt = prompt.Method(GlobalFlags.PromptDriver)
+		input.Config.MfaPrompt = prompt.Method(GlobalFlags.PromptDriver)
 		input.Keyring = keyringImpl
 		RotateCommand(app, input)
 		return nil
@@ -43,17 +41,13 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 }
 
 func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
-	rotator := vault.Rotator{
-		Keyring: input.Keyring,
-		// MfaToken: input.MfaToken,
-		// MfaSerial: input.MfaSerial,
-		// MfaPrompt: input.MfaPrompt,
-		// Config:    awsConfig,
+	err := configLoader.LoadFromProfile(input.ProfileName, &input.Config)
+	if err != nil {
+		app.Fatalf("%v", err)
 	}
 
 	fmt.Printf("Rotating credentials for profile %q (takes 10-20 seconds)\n", input.ProfileName)
-
-	if err := rotator.Rotate(input.ProfileName); err != nil {
+	if err := vault.Rotate(input.ProfileName, input.Keyring, &input.Config); err != nil {
 		app.Fatalf(awsConfigFile.FormatCredentialError(err, input.ProfileName))
 		return
 	}

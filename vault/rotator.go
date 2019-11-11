@@ -12,21 +12,14 @@ import (
 	"github.com/aws/aws-sdk-go/service/iam"
 )
 
-type Rotator struct {
-	Keyring keyring.Keyring
-	config  *Config
-}
-
-// Rotate creates a new key and deletes the old one
-func (r *Rotator) Rotate(profileName string) error {
-	var err error
+func Rotate(profileName string, keyring keyring.Keyring, config *Config) error {
 
 	// --------------------------------
 	// Get the existing credentials
 
 	provider := &KeyringProvider{
-		Keyring:        r.Keyring,
-		CredentialName: r.config.CredentialName,
+		Keyring:        keyring,
+		CredentialName: config.CredentialName,
 	}
 
 	oldMasterCreds, err := provider.Retrieve()
@@ -34,7 +27,7 @@ func (r *Rotator) Rotate(profileName string) error {
 		return err
 	}
 
-	oldSess := session.New(&aws.Config{Region: aws.String(r.config.Region),
+	oldSess := session.New(&aws.Config{Region: aws.String(config.Region),
 		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: oldMasterCreds}),
 	})
 
@@ -47,17 +40,12 @@ func (r *Rotator) Rotate(profileName string) error {
 		oldMasterCreds.AccessKeyID[len(oldMasterCreds.AccessKeyID)-4:],
 		currentUserName)
 
-	oldSessionCreds, err := NewVaultCredentials(r.Keyring, r.config.CredentialName, &Config{
-		MfaToken:  r.config.MfaToken,
-		MfaSerial: r.config.MfaSerial,
-		MfaPrompt: r.config.MfaPrompt,
-		NoSession: !r.needsSessionToRotate(profileName),
-		// MasterCreds: &oldMasterCreds,
-	})
+	oldSessionProvider, err := NewVaultProvider(keyring, profileName, config)
 	if err != nil {
 		return err
 	}
-
+	oldSessionProvider.MasterCreds = &oldMasterCreds
+	oldSessionCreds := credentials.NewCredentials(oldSessionProvider)
 	oldSessionVal, err := oldSessionCreds.Get()
 	if err != nil {
 		return err
@@ -103,16 +91,12 @@ func (r *Rotator) Rotate(profileName string) error {
 
 	log.Println("Using new credentials to delete the old new access key")
 
-	newSessionCreds, err := NewVaultCredentials(r.Keyring, profileName, &Config{
-		MfaToken:  r.config.MfaToken,
-		MfaSerial: r.config.MfaSerial,
-		MfaPrompt: r.config.MfaPrompt,
-		NoSession: !r.needsSessionToRotate(profileName),
-		// MasterCreds: &newMasterCreds,
-	})
+	newSessionProvider, err := NewVaultProvider(keyring, profileName, config)
 	if err != nil {
 		return err
 	}
+	newSessionProvider.MasterCreds = &newMasterCreds
+	newSessionCreds := credentials.NewCredentials(newSessionProvider)
 
 	log.Printf("Waiting for new IAM credentials to propagate (takes up to 10 seconds)")
 
@@ -140,7 +124,7 @@ func (r *Rotator) Rotate(profileName string) error {
 	// --------------------------------
 	// Delete old sessions
 
-	sessions := NewKeyringSessions(r.Keyring)
+	sessions := NewKeyringSessions(keyring)
 	if n, _ := sessions.Delete(profileName); n > 0 {
 		log.Printf("Deleted %d existing sessions.", n)
 	}
@@ -179,14 +163,14 @@ func retry(duration time.Duration, sleep time.Duration, callback func() error) (
 // systems hard-fail early when given STS credentials.
 //
 // This is a heuristic which might need to continue to evolve.  :(
-func (r *Rotator) needsSessionToRotate(profileName string) bool {
-	if r.config.MfaToken != "" {
+func needsSessionToRotate(config *Config) bool {
+	if config.MfaToken != "" {
 		return true
 	}
-	if r.config.MfaSerial != "" {
+	if config.MfaSerial != "" {
 		return true
 	}
-	if r.config.RoleARN != "" {
+	if config.RoleARN != "" {
 		return true
 	}
 

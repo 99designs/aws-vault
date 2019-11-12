@@ -240,7 +240,7 @@ func (c *ConfigLoader) populateFromConfigFile(config *Config, profileName string
 	psection, ok := c.File.ProfileSection(profileName)
 	if !ok {
 		// ignore missing profiles
-		log.Printf("Can't find profile '%s' in config file", profileName)
+		log.Printf("Profile '%s' missing in config file", profileName)
 	}
 
 	if config.MfaSerial == "" {

@@ -18,7 +18,7 @@ func Rotate(profileName string, keyring keyring.Keyring, config *Config) error {
 	// Get the existing credentials
 
 	provider := &KeyringProvider{
-		Keyring:        keyring,
+		Keyring:         keyring,
 		CredentialsName: config.CredentialsName,
 	}
 

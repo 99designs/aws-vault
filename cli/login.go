@@ -100,11 +100,10 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 
 	val, err := creds.Get()
 	if err != nil {
-		app.Fatalf(FormatCredentialError(err, input.ProfileName))
+		app.Fatalf(FormatCredentialError(err, input.Config.CredentialsName))
 	}
 
 	isFederated := false
-	sessionDuration := input.FederationTokenDuration
 
 	// if AssumeRole isn't used, GetFederationToken has to be used for IAM credentials
 	if val.SessionToken == "" {
@@ -140,7 +139,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
-	log.Printf("Creating login token, expires in %s", sessionDuration)
+	log.Printf("Creating login token, expires in %s", input.FederationTokenDuration)
 
 	q := req.URL.Query()
 	q.Add("Action", "getSigninToken")
@@ -148,7 +147,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 
 	// not needed for federation tokens
 	if input.Config.NoSession && !isFederated {
-		q.Add("SessionDuration", fmt.Sprintf("%.f", sessionDuration.Seconds()))
+		q.Add("SessionDuration", fmt.Sprintf("%.f", input.FederationTokenDuration.Seconds()))
 	}
 
 	req.URL.RawQuery = q.Encode()

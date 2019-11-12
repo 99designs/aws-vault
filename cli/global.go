@@ -101,8 +101,8 @@ func ConfigureGlobals(app *kingpin.Application) {
 		}
 		if awsConfigFile == nil {
 			awsConfigFile, err = vault.LoadConfigFromEnv()
-			configLoader = &vault.ConfigLoader{File: awsConfigFile}
 		}
+		configLoader = &vault.ConfigLoader{File: awsConfigFile}
 		return err
 	})
 }
@@ -122,6 +122,6 @@ func fileKeyringPassphrasePrompt(prompt string) (string, error) {
 }
 
 // FormatCredentialError formats errors with some user friendly context
-func FormatCredentialError(err error, profileName string) string {
-	return fmt.Sprintf("Failed to get credentials for %s: %v", profileName, err)
+func FormatCredentialError(err error, credentialsName string) string {
+	return fmt.Sprintf("Failed to get credentials for %s: %v", credentialsName, err)
 }

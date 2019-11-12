@@ -13,9 +13,7 @@ var getUserErrorRegexp = regexp.MustCompile(`^AccessDenied: User: arn:aws:iam::(
 
 // GetUsernameFromSession returns the IAM username (or root) associated with the current aws session
 func GetUsernameFromSession(sess *session.Session) (string, error) {
-	client := iam.New(sess)
-
-	resp, err := client.GetUser(&iam.GetUserInput{})
+	resp, err := iam.New(sess).GetUser(&iam.GetUserInput{})
 	if err != nil {
 		// Even if GetUser fails, the current user is included in the error. This happens when you have o IAM permissions
 		// on the master credentials, but have permission to use assumeRole later

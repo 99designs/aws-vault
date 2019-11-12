@@ -1,26 +1,35 @@
 package vault
 
 import (
-	"crypto/md5"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
-	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/99designs/aws-vault/prompt"
 	"github.com/mitchellh/go-homedir"
 	ini "gopkg.in/ini.v1"
+)
+
+const (
+	MaxSessionDuration    = time.Hour * 36
+	MinSessionDuration    = time.Minute * 15
+	MinAssumeRoleDuration = time.Minute * 15
+	MaxAssumeRoleDuration = time.Hour * 12
+
+	DefaultSessionDuration    = time.Hour * 4
+	DefaultAssumeRoleDuration = time.Minute * 15
 )
 
 func init() {
 	ini.PrettyFormat = false
 }
 
-// Config is an abstraction over what is in ~/.aws/config
-type Config struct {
+// ConfigFile is an abstraction over what is in ~/.aws/config
+type ConfigFile struct {
 	Path    string
 	iniFile *ini.File
 }
@@ -63,9 +72,9 @@ func CreateConfig() error {
 	return nil
 }
 
-// LoadConfig loads and parses a config. No error is returned if the file doesn't exist
-func LoadConfig(path string) (*Config, error) {
-	config := &Config{
+// LoadConfig loads and parses a config file. No error is returned if the file doesn't exist
+func LoadConfig(path string) (*ConfigFile, error) {
+	config := &ConfigFile{
 		Path: path,
 	}
 	if _, err := os.Stat(path); err == nil {
@@ -86,7 +95,7 @@ func LoadConfig(path string) (*Config, error) {
 }
 
 // LoadConfigFromEnv finds the config file from the environment
-func LoadConfigFromEnv() (*Config, error) {
+func LoadConfigFromEnv() (*ConfigFile, error) {
 	file, err := ConfigPath()
 	if err != nil {
 		return nil, err
@@ -96,7 +105,7 @@ func LoadConfigFromEnv() (*Config, error) {
 	return LoadConfig(file)
 }
 
-func (c *Config) parseFile() error {
+func (c *ConfigFile) parseFile() error {
 	log.Printf("Parsing config file %s", c.Path)
 	f, err := ini.LoadSources(ini.LoadOptions{
 		AllowNestedValues: true,
@@ -108,42 +117,21 @@ func (c *Config) parseFile() error {
 	return nil
 }
 
-type Profile struct {
+// ProfileSection is a profile section of config
+type ProfileSection struct {
 	Name            string `ini:"-"`
-	MFASerial       string `ini:"mfa_serial,omitempty"`
+	MfaSerial       string `ini:"mfa_serial,omitempty"`
 	RoleARN         string `ini:"role_arn,omitempty"`
 	ExternalID      string `ini:"external_id,omitempty"`
 	Region          string `ini:"region,omitempty"`
-	SourceProfile   string `ini:"source_profile,omitempty"`
 	RoleSessionName string `ini:"role_session_name,omitempty"`
+	SourceProfile   string `ini:"source_profile,omitempty"`
+	ParentProfile   string `ini:"parent_profile,omitempty"`
 }
 
-func (p Profile) Hash() ([]byte, error) {
-	hasher := md5.New()
-	if err := json.NewEncoder(hasher).Encode(p); err != nil {
-		return nil, err
-	}
-	b := hasher.Sum(nil)
-	return b, nil
-}
-
-func readProfileFromIni(f *ini.File, sectionName string, profile *Profile) error {
-	if f == nil {
-		return errors.New("No ini file available")
-	}
-	section, err := f.GetSection(sectionName)
-	if err != nil {
-		return err
-	}
-	if err = section.MapTo(&profile); err != nil {
-		return err
-	}
-	return nil
-}
-
-// Profiles returns all the profiles in the config
-func (c *Config) Profiles() []Profile {
-	var result []Profile
+// Profiles returns all the profile sections in the config
+func (c *ConfigFile) ProfileSections() []ProfileSection {
+	var result []ProfileSection
 
 	if c.iniFile == nil {
 		return result
@@ -151,7 +139,7 @@ func (c *Config) Profiles() []Profile {
 
 	for _, section := range c.iniFile.SectionStrings() {
 		if section != "DEFAULT" {
-			profile, _ := c.Profile(strings.TrimPrefix(section, "profile "))
+			profile, _ := c.ProfileSection(strings.TrimPrefix(section, "profile "))
 			result = append(result, profile)
 		}
 	}
@@ -159,10 +147,10 @@ func (c *Config) Profiles() []Profile {
 	return result
 }
 
-// Profile returns the  profile with the matching name. If there isn't any,
+// Profile returns the profile section with the matching name. If there isn't any,
 // an empty profile with the provided name is returned, along with false.
-func (c *Config) Profile(name string) (Profile, bool) {
-	profile := Profile{
+func (c *ConfigFile) ProfileSection(name string) (ProfileSection, bool) {
+	profile := ProfileSection{
 		Name: name,
 	}
 	if c.iniFile == nil {
@@ -184,7 +172,7 @@ func (c *Config) Profile(name string) (Profile, bool) {
 }
 
 // Add the profile to the configuration file
-func (c *Config) Add(profile Profile) error {
+func (c *ConfigFile) Add(profile ProfileSection) error {
 	if c.iniFile == nil {
 		return errors.New("No iniFile to add to")
 	}
@@ -203,32 +191,156 @@ func (c *Config) Add(profile Profile) error {
 	return c.iniFile.SaveTo(c.Path)
 }
 
-// SourceProfile returns the source profile of the given profile. If there isn't any,
-// the named profile, a new profile is returned. False is only returned if no profile by the name exists.
-func (c *Config) SourceProfile(name string) (Profile, bool) {
-	profile, ok := c.Profile(name)
-	if profile.SourceProfile != "" {
-		return c.Profile(profile.SourceProfile)
+// ProfileNames returns a slice of profile names from the AWS config
+func (c *ConfigFile) ProfileNames() []string {
+	var profileNames []string
+	for _, profile := range c.ProfileSections() {
+		profileNames = append(profileNames, profile.Name)
 	}
-	return profile, ok
+	return profileNames
 }
 
-// FormatCredentialError formats errors with some user friendly context
-func (c *Config) FormatCredentialError(err error, profileName string) string {
-	source, _ := c.SourceProfile(profileName)
-	sourceDescr := profileName
+type CliFlags struct {
+	MfaSerial string
+}
 
-	// add custom formatting for source_profile
-	if source.Name != profileName {
-		sourceDescr = fmt.Sprintf("%s (source profile for %s)", source.Name, profileName)
+type ConfigLoader struct {
+	File            *ConfigFile
+	visitedProfiles []string
+}
+
+func (c *ConfigLoader) visitProfile(name string) bool {
+	for _, p := range c.visitedProfiles {
+		if p == name {
+			return false
+		}
+	}
+	c.visitedProfiles = append(c.visitedProfiles, name)
+	return true
+}
+
+func (c *ConfigLoader) resetLoopDetection() {
+	c.visitedProfiles = []string{}
+}
+
+func (c *ConfigLoader) populateFromDefaults(config *Config) {
+	if config.AssumeRoleDuration == 0 {
+		config.AssumeRoleDuration = DefaultAssumeRoleDuration
+	}
+	if config.SessionDuration == 0 {
+		config.SessionDuration = DefaultSessionDuration
+	}
+}
+
+func (c *ConfigLoader) populateFromConfigFile(config *Config, profileName string) error {
+	if !c.visitProfile(profileName) {
+		return fmt.Errorf("Loop detected in config file for profile '%s'", profileName)
 	}
 
-	if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "NoCredentialProviders" {
-		return fmt.Sprintf(
-			"No credentials found for profile %s.\n"+
-				"Use 'aws-vault add %s' to set up credentials or 'aws-vault list' to see what credentials exist",
-			sourceDescr, source.Name)
+	psection, ok := c.File.ProfileSection(profileName)
+	if !ok {
+		// ignore missing profiles
+		log.Printf("Profile '%s' missing in config file", profileName)
 	}
 
-	return fmt.Sprintf("Failed to get credentials for %s: %v", sourceDescr, err)
+	if config.MfaSerial == "" {
+		config.MfaSerial = psection.MfaSerial
+	}
+	if config.RoleARN == "" {
+		config.RoleARN = psection.RoleARN
+	}
+	if config.ExternalID == "" {
+		config.ExternalID = psection.ExternalID
+	}
+	if config.Region == "" {
+		config.Region = psection.Region
+	}
+	if config.RoleSessionName == "" {
+		config.RoleSessionName = psection.RoleSessionName
+	}
+
+	if psection.SourceProfile != "" {
+		config.CredentialsName = psection.SourceProfile
+	} else {
+		config.CredentialsName = profileName
+	}
+
+	if psection.ParentProfile != "" {
+		err := c.populateFromConfigFile(config, psection.ParentProfile)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (c *ConfigLoader) populateFromEnv(profile *Config) {
+	if region := os.Getenv("AWS_DEFAULT_REGION"); region != "" && profile.Region == "" {
+		log.Printf("Using region %q from AWS_DEFAULT_REGION", region)
+		profile.Region = region
+	}
+
+	if region := os.Getenv("AWS_REGION"); region != "" && profile.Region == "" {
+		log.Printf("Using region %q from AWS_REGION", region)
+		profile.Region = region
+	}
+
+	if mfaSerial := os.Getenv("AWS_MFA_SERIAL"); mfaSerial != "" && profile.MfaSerial == "" {
+		log.Printf("Using mfa_serial %q from AWS_MFA_SERIAL", mfaSerial)
+		profile.MfaSerial = mfaSerial
+	}
+}
+
+func (c *ConfigLoader) LoadFromProfile(profileName string, config *Config) error {
+	config.ProfileName = profileName
+	c.populateFromDefaults(config)
+	c.populateFromEnv(config)
+
+	c.resetLoopDetection()
+	err := c.populateFromConfigFile(config, profileName)
+	if err != nil {
+		return err
+	}
+
+	err = config.Validate()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type Config struct {
+	ProfileName     string
+	CredentialsName string
+
+	MfaSerial       string
+	RoleARN         string
+	ExternalID      string
+	Region          string
+	RoleSessionName string
+
+	SessionDuration    time.Duration
+	AssumeRoleDuration time.Duration
+	MfaToken           string
+	MfaPrompt          prompt.PromptFunc
+	NoSession          bool
+}
+
+func (c *Config) Validate() error {
+	if c.SessionDuration < MinSessionDuration {
+		return errors.New("Minimum session duration is " + MinSessionDuration.String())
+	}
+	if c.SessionDuration > MaxSessionDuration {
+		return errors.New("Maximum session duration is " + MaxSessionDuration.String())
+	}
+	if c.AssumeRoleDuration < MinAssumeRoleDuration {
+		return errors.New("Minimum duration for assumed roles is " + MinAssumeRoleDuration.String())
+	}
+	if c.AssumeRoleDuration > MaxAssumeRoleDuration {
+		return errors.New("Maximum duration for assumed roles is " + MaxAssumeRoleDuration.String())
+	}
+
+	return nil
 }

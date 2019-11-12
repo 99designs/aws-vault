@@ -13,7 +13,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/99designs/aws-vault/vault"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 )
 
 const (
@@ -114,7 +114,7 @@ func StartCredentialProxy() error {
 	return StartCredentialProxyWithSudo()
 }
 
-func StartCredentialsServer(creds *vault.VaultCredentials) error {
+func StartCredentialsServer(creds *credentials.Credentials) error {
 	if !checkServerRunning(metadataBind) {
 		if err := StartCredentialProxy(); err != nil {
 			return err
@@ -150,11 +150,16 @@ func StartCredentialsServer(creds *vault.VaultCredentials) error {
 			http.Error(w, err.Error(), http.StatusGatewayTimeout)
 			return
 		}
+		credsExpiresAt, err := creds.ExpiresAt()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusGatewayTimeout)
+			return
+		}
 
 		log.Printf("Serving credentials via http ****************%s, expiration of %s (%s)",
 			val.AccessKeyID[len(val.AccessKeyID)-4:],
-			creds.Expires().Format(awsTimeFormat),
-			creds.Expires().Sub(time.Now()).String())
+			credsExpiresAt.Format(awsTimeFormat),
+			credsExpiresAt.Sub(time.Now()).String())
 
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"Code":            "Success",
@@ -163,7 +168,7 @@ func StartCredentialsServer(creds *vault.VaultCredentials) error {
 			"AccessKeyId":     val.AccessKeyID,
 			"SecretAccessKey": val.SecretAccessKey,
 			"Token":           val.SessionToken,
-			"Expiration":      creds.Expires().Format(awsTimeFormat),
+			"Expiration":      credsExpiresAt.Format(awsTimeFormat),
 		})
 	}))
 

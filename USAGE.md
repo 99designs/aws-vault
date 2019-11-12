@@ -1,22 +1,24 @@
 # Usage
 
-* [Help](#help)
-* [Managing profiles](#managing-profiles)
-    * [Using multiple profiles](#using-multiple-profiles)
-    * [Example ~/.aws/config](#example-~/.aws/config)
-    * [Listing profiles](#listing-profiles)
-    * [Removing profiles](#removing-profiles)
+* [Getting Help](#getting-help)
+* [Config](#config)
 * [Environment variables](#environment-variables)
+* [Managing Profiles](#managing-profiles)
+  * [Using multiple profiles](#using-multiple-profiles)
+  * [Example ~/.aws/config](#example---aws-config)
+  * [Listing profiles](#listing-profiles)
+  * [Removing profiles](#removing-profiles)
 * [Backends](#backends)
+* [MFA](#mfa)
 * [Removing stored sessions](#removing-stored-sessions)
-* [Logging into aws console](#logging-into-aws-console)
+* [Logging into AWS console](#logging-into-aws-console)
 * [Using credential helper](#using-credential-helper)
 * [Not using session credentials](#not-using-session-credentials)
-     * [Considerations](#considerations)
-     * [Assuming a role for more than 1h](#assuming-a-role-for-more-than-1h)
-     * [Being able to perform certain sts operations](#being-able-to-perform-certain-sts-operations)
-* [Rotating credentials](#rotating-credentials)
-* [Overriding the aws cli to use aws-vault](#overriding-the-aws-cli-to-use-aws-vault)
+  * [Considerations](#considerations)
+  * [Assuming a role for more than 1h](#assuming-a-role-for-more-than-1h)
+  * [Being able to perform certain STS operations](#being-able-to-perform-certain-sts-operations)
+* [Rotating Credentials](#rotating-credentials)
+* [Overriding the aws CLI to use aws-vault](#overriding-the-aws-cli-to-use-aws-vault)
 * [Using a yubikey as a virtual MFA](#using-a-yubikey-as-a-virtual-mfa)
 
 ## Getting Help
@@ -33,6 +35,50 @@ $ aws-vault --help-long
 # Show the most detailed information about the exec command
 $ aws-vault exec --help
 ```
+
+
+## Config
+
+aws-vault uses your `~/.aws/config` to load AWS config. This should work identically to the config specified by the [aws-cli docs](https://docs.aws.amazon.com/cli/latest/topic/config-vars.html).
+
+aws-vault also recognises an extra config variable, `parent_profile`. This variable sets a profile to inherit configuration from. In the following example, the `work-admin` profile inherits `region` and `mfa_serial` from the `work` profile.
+
+```ini
+[profile work]
+region = eu-west-1
+mfa_serial = arn:aws:iam::111111111111:mfa/work-account
+
+[profile work-admin]
+role_arn = arn:aws:iam::111111111111:role/Administrator
+parent_profile = work
+```
+
+
+## Environment variables
+
+The following environment variables can be set to override the default flag
+values of `aws-vault` and its subcommands.
+
+For the `aws-vault` command:
+
+* `AWS_VAULT_BACKEND`: Secret backend to use (see the flag `--backend`)
+* `AWS_VAULT_KEYCHAIN_NAME`: Name of macOS keychain to use (see the flag `--keychain`)
+* `AWS_VAULT_PROMPT`: Prompt driver to use (see the flag `--prompt`)
+* `AWS_VAULT_PASS_PASSWORD_STORE_DIR`: Pass password store directory (see the flag `--pass-dir`)
+* `AWS_VAULT_PASS_CMD`: Name of the pass executable (see the flag `--pass-cmd`)
+* `AWS_VAULT_PASS_PREFIX`: Prefix to prepend to the item path stored in pass (see the flag `--pass-prefix`)
+
+For the `aws-vault exec` subcommand:
+
+* `AWS_ASSUME_ROLE_TTL`: Expiration time for aws assumed role (see the flag `--assume-role-ttl`)
+* `AWS_SESSION_TTL`:  Expiration time for aws session (see the flag `--session-ttl`)
+* `AWS_MFA_SERIAL`: The identification number of the MFA device to use  (see the flag `--mfa-serial`)
+
+For the `aws-vault login` subcommand:
+
+* `AWS_FEDERATION_TOKEN_TTL`: Expiration time for aws console session (see the flag `--federation-token-ttl`)
+* `AWS_MFA_SERIAL`: The identification number of the MFA device to use  (see the flag `--mfa-serial`)
+
 
 ## Managing Profiles
 
@@ -77,11 +123,7 @@ mfa_serial = arn:aws:iam::111111111111:mfa/home-account
 [profile work]
 region = eu-west-1
 mfa_serial = arn:aws:iam::111111111111:mfa/work-account
-
-[profile work-read-only]
-region = us-east-1
 role_arn = arn:aws:iam::111111111111:role/ReadOnly
-source_profile = work
 
 [profile work-admin]
 region = us-east-1
@@ -124,30 +166,6 @@ Deleted 1 sessions.
 $ aws-vault remove work --sessions-only
 Deleted 1 sessions.
 ```
-
-## Environment variables
-
-The following environment variables can be set to override the default flag
-values of `aws-vault` and its subcommands.
-
-For the `aws-vault` command:
-
-* `AWS_VAULT_BACKEND`: Secret backend to use (see the flag `--backend`)
-* `AWS_VAULT_KEYCHAIN_NAME`: Name of macOS keychain to use (see the flag `--keychain`)
-* `AWS_VAULT_PROMPT`: Prompt driver to use (see the flag `--prompt`)
-* `AWS_VAULT_PASS_PASSWORD_STORE_DIR`: Pass password store directory (see the flag `--pass-dir`)
-* `AWS_VAULT_PASS_CMD`: Name of the pass executable (see the flag `--pass-cmd`)
-* `AWS_VAULT_PASS_PREFIX`: Prefix to prepend to the item path stored in pass (see the flag `--pass-prefix`)
-
-For the `aws-vault exec` subcommand:
-
-* `AWS_ASSUME_ROLE_TTL`: Expiration time for aws assumed role (see the flag `--assume-role-ttl`)
-* `AWS_SESSION_TTL`:  Expiration time for aws session (see the flag `--session-ttl`)
-
-For the `aws-vault login` subcommand:
-
-* `AWS_ASSUME_ROLE_TTL`: Expiration time for aws assumed role console session when not using --no-session (see the flag `--assume-role-ttl`)
-* `AWS_FEDERATION_TOKEN_TTL`: Expiration time for aws console session (see the flag `--federation-token-ttl`)
 
 
 ## Backends

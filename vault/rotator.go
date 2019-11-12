@@ -12,7 +12,14 @@ import (
 	"github.com/aws/aws-sdk-go/service/iam"
 )
 
+func newSession(region string, creds *credentials.Credentials) *session.Session {
+	return session.New(aws.NewConfig().WithRegion(region).WithCredentials(creds))
+}
+
 func Rotate(profileName string, keyring keyring.Keyring, config *Config) error {
+	if profileName != config.CredentialsName {
+		return fmt.Errorf("Profile '%s' uses credentials from '%s'. Try rotating '%s' instead", profileName, config.CredentialsName, config.CredentialsName)
+	}
 
 	// --------------------------------
 	// Get the existing credentials
@@ -22,35 +29,31 @@ func Rotate(profileName string, keyring keyring.Keyring, config *Config) error {
 		CredentialsName: config.CredentialsName,
 	}
 
+	vaultCredentials, err := NewVaultCredentials(keyring, profileName, config)
+	if err != nil {
+		return err
+	}
+
+	oldVaultSession := newSession(config.Region, vaultCredentials)
+
 	oldMasterCreds, err := provider.Retrieve()
 	if err != nil {
 		return err
 	}
 
-	oldSess := session.New(&aws.Config{
-		Region:      aws.String(config.Region),
-		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: oldMasterCreds}),
-	})
-
-	currentUserName, err := GetUsernameFromSession(oldSess)
+	oldCredentialsValue, err := vaultCredentials.Get()
 	if err != nil {
 		return err
 	}
 
-	log.Printf("Found old access key  ****************%s for user %s",
+	currentUserName, err := GetUsernameFromSession(oldVaultSession)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Found old access key ****************%s for user %s",
 		oldMasterCreds.AccessKeyID[len(oldMasterCreds.AccessKeyID)-4:],
 		currentUserName)
-
-	oldSessionProvider, err := NewVaultProvider(keyring, profileName, config)
-	if err != nil {
-		return err
-	}
-	oldSessionProvider.MasterCreds = &oldMasterCreds
-	oldSessionCreds := credentials.NewCredentials(oldSessionProvider)
-	oldSessionVal, err := oldSessionCreds.Get()
-	if err != nil {
-		return err
-	}
 
 	// --------------------------------
 	// Create new access key
@@ -60,16 +63,11 @@ func Rotate(profileName string, keyring keyring.Keyring, config *Config) error {
 	var iamUserName *string
 
 	// A username is needed for some IAM calls if the credentials have assumed a role
-	if oldSessionVal.SessionToken != "" || currentUserName != "root" {
+	if oldCredentialsValue.SessionToken != "" || currentUserName != "root" {
 		iamUserName = aws.String(currentUserName)
 	}
 
-	oldSessionClient := iam.New(session.New(&aws.Config{
-		Region:      aws.String(config.Region),
-		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: oldSessionVal}),
-	}))
-
-	createOut, err := oldSessionClient.CreateAccessKey(&iam.CreateAccessKeyInput{
+	createOut, err := iam.New(oldVaultSession).CreateAccessKey(&iam.CreateAccessKeyInput{
 		UserName: iamUserName,
 	})
 	if err != nil {
@@ -84,44 +82,7 @@ func Rotate(profileName string, keyring keyring.Keyring, config *Config) error {
 	}
 
 	if err := provider.Store(newMasterCreds); err != nil {
-		return fmt.Errorf("Error storing new access key %v: %v",
-			newMasterCreds.AccessKeyID, err)
-	}
-
-	// --------------------------------
-	// Use new credentials to delete old access key
-
-	log.Println("Using new credentials to delete the old new access key")
-
-	newSessionProvider, err := NewVaultProvider(keyring, profileName, config)
-	if err != nil {
-		return err
-	}
-	newSessionProvider.MasterCreds = &newMasterCreds
-	newSessionCreds := credentials.NewCredentials(newSessionProvider)
-
-	log.Printf("Waiting for new IAM credentials to propagate (takes up to 10 seconds)")
-
-	err = retry(time.Second*20, time.Second*5, func() error {
-		newVal, err := newSessionCreds.Get()
-		if err != nil {
-			return err
-		}
-
-		newClient := iam.New(session.New(&aws.Config{
-			Region:      aws.String(config.Region),
-			Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: newVal}),
-		}))
-
-		_, err = newClient.DeleteAccessKey(&iam.DeleteAccessKeyInput{
-			AccessKeyId: aws.String(oldMasterCreds.AccessKeyID),
-			UserName:    iamUserName,
-		})
-		return err
-	})
-
-	if err != nil {
-		return fmt.Errorf("Can't delete old access key %v: %v", oldMasterCreds.AccessKeyID, err)
+		return fmt.Errorf("Error storing new access key %v: %v", newMasterCreds.AccessKeyID, err)
 	}
 
 	// --------------------------------
@@ -130,6 +91,28 @@ func Rotate(profileName string, keyring keyring.Keyring, config *Config) error {
 	sessions := NewKeyringSessions(keyring)
 	if n, _ := sessions.Delete(profileName); n > 0 {
 		log.Printf("Deleted %d existing sessions.", n)
+	}
+
+	// expire the credentials
+	vaultCredentials.Expire()
+
+	// --------------------------------
+	// Use new credentials to delete old access key
+
+	log.Println("Using new credentials to delete the old new access key")
+	log.Println("Waiting for new IAM credentials to propagate (takes up to 10 seconds)")
+
+	newIamClient := iam.New(newSession(config.Region, vaultCredentials))
+
+	err = retry(time.Second*20, time.Second*5, func() error {
+		_, err = newIamClient.DeleteAccessKey(&iam.DeleteAccessKeyInput{
+			AccessKeyId: aws.String(oldMasterCreds.AccessKeyID),
+			UserName:    iamUserName,
+		})
+		return err
+	})
+	if err != nil {
+		return fmt.Errorf("Can't delete old access key %v: %v", oldMasterCreds.AccessKeyID, err)
 	}
 
 	log.Printf("Rotated credentials for profile %q in vault", profileName)

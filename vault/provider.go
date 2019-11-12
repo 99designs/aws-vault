@@ -17,11 +17,10 @@ const DefaultExpirationWindow = 5 * time.Minute
 
 type VaultProvider struct {
 	credentials.Expiry
-	keyring     keyring.Keyring
-	sessions    *KeyringSessions
-	config      *Config
-	creds       map[string]credentials.Value
-	MasterCreds *credentials.Value
+	keyring          keyring.Keyring
+	sessions         *KeyringSessions
+	config           *Config
+	masterCredsCache *credentials.Value
 }
 
 func NewVaultProvider(k keyring.Keyring, profileName string, opts *Config) (*VaultProvider, error) {
@@ -32,13 +31,15 @@ func NewVaultProvider(k keyring.Keyring, profileName string, opts *Config) (*Vau
 		config:   opts,
 		keyring:  k,
 		sessions: &KeyringSessions{k},
-		creds:    map[string]credentials.Value{},
 	}, nil
 }
 
 // Retrieve returns credentials protected by GetSessionToken and AssumeRole where possible
 func (p *VaultProvider) Retrieve() (credentials.Value, error) {
+	defer p.clearCache()
+
 	if p.config.NoSession && p.config.RoleARN == "" {
+		log.Println("Using master credentials")
 		return p.getMasterCreds()
 	}
 	if p.config.NoSession {
@@ -131,24 +132,19 @@ func (p *VaultProvider) getCredsWithRole() (credentials.Value, error) {
 }
 
 func (p *VaultProvider) getMasterCreds() (credentials.Value, error) {
-	if p.MasterCreds != nil {
-		return *p.MasterCreds, nil
-	}
-
-	val, ok := p.creds[p.config.CredentialsName]
-	if !ok {
+	if p.masterCredsCache == nil {
 		creds := credentials.NewCredentials(&KeyringProvider{Keyring: p.keyring, CredentialsName: p.config.CredentialsName})
 
-		var err error
-		if val, err = creds.Get(); err != nil {
+		val, err := creds.Get()
+		if err != nil {
 			log.Printf("Failed to find credentials for profile %q in keyring", p.config.CredentialsName)
 			return val, err
 		}
 
-		p.creds[p.config.CredentialsName] = val
+		p.masterCredsCache = &val
 	}
 
-	return val, nil
+	return *p.masterCredsCache, nil
 }
 
 func (p *VaultProvider) createSessionToken() (sts.Credentials, error) {
@@ -174,7 +170,7 @@ func (p *VaultProvider) createSessionToken() (sts.Credentials, error) {
 		return sts.Credentials{}, err
 	}
 
-	client := newStsClient(credentials.NewStaticCredentialsFromCreds(creds))
+	client := newStsClient(credentials.NewStaticCredentialsFromCreds(creds), p.config.Region)
 
 	log.Printf("Getting new session token for profile %s", p.config.CredentialsName)
 
@@ -213,13 +209,13 @@ func (p *VaultProvider) roleSessionName() string {
 	return fmt.Sprintf("%d", time.Now().UTC().UnixNano())
 }
 
-func newStsClient(creds *credentials.Credentials) *sts.STS {
-	return sts.New(session.New(aws.NewConfig().WithCredentials(creds)))
+func newStsClient(creds *credentials.Credentials, region string) *sts.STS {
+	return sts.New(session.New(aws.NewConfig().WithCredentials(creds).WithRegion(region)))
 }
 
 // assumeRoleFromSession takes a session created with GetSessionToken and uses that to assume a role
 func (p *VaultProvider) assumeRoleFromSession(session sts.Credentials) (sts.Credentials, error) {
-	client := newStsClient(credentials.NewStaticCredentials(*session.AccessKeyId, *session.SecretAccessKey, *session.SessionToken))
+	client := newStsClient(credentials.NewStaticCredentials(*session.AccessKeyId, *session.SecretAccessKey, *session.SessionToken), p.config.Region)
 
 	input := &sts.AssumeRoleInput{
 		RoleArn:         aws.String(p.config.RoleARN),
@@ -246,7 +242,7 @@ func (p *VaultProvider) assumeRoleFromCreds(creds credentials.Value) (sts.Creden
 		return sts.Credentials{}, errors.New("No role defined")
 	}
 
-	client := newStsClient(credentials.NewStaticCredentialsFromCreds(creds))
+	client := newStsClient(credentials.NewStaticCredentialsFromCreds(creds), p.config.Region)
 
 	input := &sts.AssumeRoleInput{
 		RoleArn:         aws.String(p.config.RoleARN),
@@ -279,6 +275,10 @@ func (p *VaultProvider) assumeRoleFromCreds(creds credentials.Value) (sts.Creden
 	}
 
 	return *resp.Credentials, nil
+}
+
+func (p *VaultProvider) clearCache() {
+	p.masterCredsCache = nil
 }
 
 func NewVaultCredentials(k keyring.Keyring, profileName string, opts *Config) (*credentials.Credentials, error) {

@@ -9,8 +9,12 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 )
 
-func NewKeyringProvider(keyring keyring.Keyring, credentialsName string) *KeyringProvider {
-	return &KeyringProvider{keyring, credentialsName}
+func NewKeyringCredentials(k keyring.Keyring, credentialsName string) *credentials.Credentials {
+	return credentials.NewCredentials(NewKeyringProvider(k, credentialsName))
+}
+
+func NewKeyringProvider(k keyring.Keyring, credentialsName string) *KeyringProvider {
+	return &KeyringProvider{k, credentialsName}
 }
 
 type KeyringProvider struct {

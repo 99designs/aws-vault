@@ -116,7 +116,7 @@ func (s *KeyringSessions) Sessions() ([]KeyringSession, error) {
 }
 
 // Retrieve searches sessions for specific profile, expects the profile to be provided, not the source
-func (s *KeyringSessions) Retrieve(profileName string, mfaSerial string) (creds sts.Credentials, err error) {
+func (s *KeyringSessions) Retrieve(profileName string, mfaSerial string) (creds *sts.Credentials, err error) {
 	log.Printf("Looking for sessions for %s", profileName)
 	sessions, err := s.Sessions()
 	if err != nil {
@@ -150,7 +150,7 @@ func (s *KeyringSessions) Retrieve(profileName string, mfaSerial string) (creds 
 }
 
 // Store stores a sessions for a specific profile, expects the profile to be provided, not the source
-func (s *KeyringSessions) Store(profileName string, mfaSerial string, session sts.Credentials) error {
+func (s *KeyringSessions) Store(profileName string, mfaSerial string, session *sts.Credentials) error {
 	bytes, err := json.Marshal(session)
 	if err != nil {
 		return err

@@ -200,10 +200,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 }
 
 func getFederationToken(creds credentials.Value, d time.Duration, region string) (*sts.Credentials, error) {
-	sess := session.New(&aws.Config{
-		Region:      aws.String(region),
-		Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: creds}),
-	})
+	sess := session.Must(session.NewSession(aws.NewConfig().WithCredentials(credentials.NewStaticCredentialsFromCreds(creds)).WithRegion(region)))
 	client := sts.New(sess)
 
 	currentUsername, err := vault.GetUsernameFromSession(sess)

@@ -8,13 +8,8 @@ import (
 	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/iam"
 )
-
-func newSession(region string, creds *credentials.Credentials) *session.Session {
-	return session.New(aws.NewConfig().WithRegion(region).WithCredentials(creds))
-}
 
 func Rotate(profileName string, keyring keyring.Keyring, config *Config) error {
 	if profileName != config.CredentialsName {
@@ -24,19 +19,15 @@ func Rotate(profileName string, keyring keyring.Keyring, config *Config) error {
 	// --------------------------------
 	// Get the existing credentials
 
-	provider := &KeyringProvider{
-		keyring:         keyring,
-		credentialsName: config.CredentialsName,
-	}
+	keyringProvider := NewKeyringProvider(keyring, config.CredentialsName)
+	keyringCredentials := credentials.NewCredentials(keyringProvider)
 
-	vaultCredentials, err := NewVaultCredentials(keyring, config)
+	oldMasterCreds, err := keyringCredentials.Get()
 	if err != nil {
 		return err
 	}
 
-	oldVaultSession := newSession(config.Region, vaultCredentials)
-
-	oldMasterCreds, err := provider.Retrieve()
+	vaultCredentials, err := NewVaultCredentials(keyring, config)
 	if err != nil {
 		return err
 	}
@@ -45,6 +36,7 @@ func Rotate(profileName string, keyring keyring.Keyring, config *Config) error {
 	if err != nil {
 		return err
 	}
+	oldVaultSession := newSession(vaultCredentials, config.Region)
 
 	currentUserName, err := GetUsernameFromSession(oldVaultSession)
 	if err != nil {
@@ -81,7 +73,7 @@ func Rotate(profileName string, keyring keyring.Keyring, config *Config) error {
 		SecretAccessKey: *createOut.AccessKey.SecretAccessKey,
 	}
 
-	if err := provider.Store(newMasterCreds); err != nil {
+	if err := keyringProvider.Store(newMasterCreds); err != nil {
 		return fmt.Errorf("Error storing new access key %v: %v", newMasterCreds.AccessKeyID, err)
 	}
 
@@ -102,7 +94,7 @@ func Rotate(profileName string, keyring keyring.Keyring, config *Config) error {
 	log.Println("Using new credentials to delete the old new access key")
 	log.Println("Waiting for new IAM credentials to propagate (takes up to 10 seconds)")
 
-	newIamClient := iam.New(newSession(config.Region, vaultCredentials))
+	newIamClient := iam.New(newSession(vaultCredentials, config.Region))
 
 	err = retry(time.Second*20, time.Second*5, func() error {
 		_, err = newIamClient.DeleteAccessKey(&iam.DeleteAccessKeyInput{

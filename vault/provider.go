@@ -15,11 +15,21 @@ import (
 
 const DefaultExpirationWindow = 5 * time.Minute
 
-type VaultProvider struct {
-	credentials.Expiry
-	masterCreds *credentials.Credentials
-	sessions    *KeyringSessions
-	config      *Config
+func newSession(creds *credentials.Credentials, region string) *session.Session {
+	return session.Must(session.NewSession(aws.NewConfig().WithRegion(region).WithCredentials(creds)))
+}
+
+func newStsClient(creds *credentials.Credentials, region string) *sts.STS {
+	return sts.New(newSession(creds, region))
+}
+
+func NewVaultCredentials(k keyring.Keyring, config *Config) (*credentials.Credentials, error) {
+	provider, err := NewVaultProvider(k, config)
+	if err != nil {
+		return nil, err
+	}
+
+	return credentials.NewCredentials(provider), nil
 }
 
 func NewVaultProvider(k keyring.Keyring, config *Config) (*VaultProvider, error) {
@@ -28,10 +38,17 @@ func NewVaultProvider(k keyring.Keyring, config *Config) (*VaultProvider, error)
 	}
 
 	return &VaultProvider{
-		masterCreds: credentials.NewCredentials(NewKeyringProvider(k, config.CredentialsName)),
+		masterCreds: NewKeyringCredentials(k, config.CredentialsName),
 		config:      config,
 		sessions:    &KeyringSessions{k},
 	}, nil
+}
+
+type VaultProvider struct {
+	credentials.Expiry
+	masterCreds *credentials.Credentials
+	sessions    *KeyringSessions
+	config      *Config
 }
 
 // Retrieve returns credentials protected by GetSessionToken and AssumeRole where possible
@@ -119,17 +136,17 @@ func (p *VaultProvider) getCredsWithRole() (credentials.Value, error) {
 
 	p.SetExpiration(*role.Expiration, DefaultExpirationWindow)
 
-	creds = credentials.Value{
+	log.Printf("Using role ****************%s, expires in %s", (*role.AccessKeyId)[len(*role.AccessKeyId)-4:], role.Expiration.Sub(time.Now()).String())
+	return credentials.Value{
 		AccessKeyID:     *role.AccessKeyId,
 		SecretAccessKey: *role.SecretAccessKey,
 		SessionToken:    *role.SessionToken,
-	}
-
-	log.Printf("Using role ****************%s, expires in %s", (*role.AccessKeyId)[len(*role.AccessKeyId)-4:], role.Expiration.Sub(time.Now()).String())
-	return creds, nil
+	}, nil
 }
 
-func (p *VaultProvider) createSessionToken() (sts.Credentials, error) {
+func (p *VaultProvider) createSessionToken() (*sts.Credentials, error) {
+	log.Printf("Creating new session token for profile %s", p.config.CredentialsName)
+
 	params := &sts.GetSessionTokenInput{
 		DurationSeconds: aws.Int64(int64(p.config.SessionDuration.Seconds())),
 	}
@@ -139,7 +156,7 @@ func (p *VaultProvider) createSessionToken() (sts.Credentials, error) {
 		if p.config.MfaToken == "" {
 			token, err := p.config.MfaPrompt(fmt.Sprintf("Enter token for %s: ", p.config.MfaSerial))
 			if err != nil {
-				return sts.Credentials{}, err
+				return nil, err
 			}
 			params.TokenCode = aws.String(token)
 		} else {
@@ -147,35 +164,28 @@ func (p *VaultProvider) createSessionToken() (sts.Credentials, error) {
 		}
 	}
 
-	creds, err := p.masterCreds.Get()
-	if err != nil {
-		return sts.Credentials{}, err
-	}
-
-	client := newStsClient(credentials.NewStaticCredentialsFromCreds(creds), p.config.Region)
-
-	log.Printf("Getting new session token for profile %s", p.config.CredentialsName)
+	client := newStsClient(p.masterCreds, p.config.Region)
 
 	resp, err := client.GetSessionToken(params)
 	if err != nil {
-		return sts.Credentials{}, err
+		return nil, err
 	}
 
-	return *resp.Credentials, nil
+	return resp.Credentials, nil
 }
 
-func (p *VaultProvider) getSessionToken() (sts.Credentials, error) {
+func (p *VaultProvider) getSessionToken() (*sts.Credentials, error) {
 	session, err := p.sessions.Retrieve(p.config.CredentialsName, p.config.MfaSerial)
 	if err != nil {
 		// session lookup missed, we need to create a new one.
 		session, err = p.createSessionToken()
 		if err != nil {
-			return sts.Credentials{}, err
+			return nil, err
 		}
 
 		err = p.sessions.Store(p.config.CredentialsName, p.config.MfaSerial, session)
 		if err != nil {
-			return sts.Credentials{}, err
+			return nil, err
 		}
 	}
 
@@ -191,12 +201,8 @@ func (p *VaultProvider) roleSessionName() string {
 	return fmt.Sprintf("%d", time.Now().UTC().UnixNano())
 }
 
-func newStsClient(creds *credentials.Credentials, region string) *sts.STS {
-	return sts.New(session.New(aws.NewConfig().WithCredentials(creds).WithRegion(region)))
-}
-
 // assumeRoleFromSession takes a session created with GetSessionToken and uses that to assume a role
-func (p *VaultProvider) assumeRoleFromSession(session sts.Credentials) (sts.Credentials, error) {
+func (p *VaultProvider) assumeRoleFromSession(session *sts.Credentials) (sts.Credentials, error) {
 	client := newStsClient(credentials.NewStaticCredentials(*session.AccessKeyId, *session.SecretAccessKey, *session.SessionToken), p.config.Region)
 
 	input := &sts.AssumeRoleInput{
@@ -257,13 +263,4 @@ func (p *VaultProvider) assumeRoleFromCreds(creds credentials.Value) (sts.Creden
 	}
 
 	return *resp.Credentials, nil
-}
-
-func NewVaultCredentials(k keyring.Keyring, config *Config) (*credentials.Credentials, error) {
-	provider, err := NewVaultProvider(k, config)
-	if err != nil {
-		return nil, err
-	}
-
-	return credentials.NewCredentials(provider), nil
 }

@@ -22,12 +22,13 @@ func Rotate(profileName string, keyring keyring.Keyring, config *Config) error {
 	keyringProvider := NewKeyringProvider(keyring, config.CredentialsName)
 	keyringCredentials := credentials.NewCredentials(keyringProvider)
 
-	oldMasterCreds, err := keyringCredentials.Get()
+	vaultProvider, err := NewVaultProvider(keyring, config)
 	if err != nil {
 		return err
 	}
+	vaultCredentials := credentials.NewCredentials(vaultProvider)
 
-	vaultCredentials, err := NewVaultCredentials(keyring, config)
+	oldMasterCreds, err := keyringCredentials.Get()
 	if err != nil {
 		return err
 	}
@@ -85,7 +86,8 @@ func Rotate(profileName string, keyring keyring.Keyring, config *Config) error {
 		log.Printf("Deleted %d existing sessions.", n)
 	}
 
-	// expire the credentials
+	// expire the cached credentials
+	vaultProvider.ForceRefresh()
 	vaultCredentials.Expire()
 
 	// --------------------------------
@@ -96,7 +98,7 @@ func Rotate(profileName string, keyring keyring.Keyring, config *Config) error {
 
 	newIamClient := iam.New(newSession(vaultCredentials, config.Region))
 
-	err = retry(time.Second*20, time.Second*5, func() error {
+	err = retry(time.Second*60, time.Second*5, func() error {
 		_, err = newIamClient.DeleteAccessKey(&iam.DeleteAccessKeyInput{
 			AccessKeyId: aws.String(oldMasterCreds.AccessKeyID),
 			UserName:    iamUserName,

@@ -46,9 +46,15 @@ func NewVaultProvider(k keyring.Keyring, config *Config) (*VaultProvider, error)
 
 type VaultProvider struct {
 	credentials.Expiry
-	masterCreds *credentials.Credentials
-	sessions    *KeyringSessions
-	config      *Config
+	masterCreds         *credentials.Credentials
+	sessions            *KeyringSessions
+	config              *Config
+	forceSessionRefresh bool
+}
+
+func (p *VaultProvider) ForceRefresh() {
+	p.masterCreds.Expire()
+	p.forceSessionRefresh = true
 }
 
 // Retrieve returns credentials protected by GetSessionToken and AssumeRole where possible
@@ -175,6 +181,10 @@ func (p *VaultProvider) createSessionToken() (*sts.Credentials, error) {
 }
 
 func (p *VaultProvider) getSessionToken() (*sts.Credentials, error) {
+	if p.forceSessionRefresh {
+		return p.createSessionToken()
+	}
+
 	session, err := p.sessions.Retrieve(p.config.CredentialsName, p.config.MfaSerial)
 	if err != nil {
 		// session lookup missed, we need to create a new one.

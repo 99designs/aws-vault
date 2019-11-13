@@ -9,9 +9,13 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 )
 
+func NewKeyringProvider(keyring keyring.Keyring, credentialsName string) *KeyringProvider {
+	return &KeyringProvider{keyring, credentialsName}
+}
+
 type KeyringProvider struct {
-	Keyring         keyring.Keyring
-	CredentialsName string
+	keyring         keyring.Keyring
+	credentialsName string
 }
 
 func (p *KeyringProvider) IsExpired() bool {
@@ -19,8 +23,8 @@ func (p *KeyringProvider) IsExpired() bool {
 }
 
 func (p *KeyringProvider) Retrieve() (val credentials.Value, err error) {
-	log.Printf("Looking up keyring for %s", p.CredentialsName)
-	item, err := p.Keyring.Get(p.CredentialsName)
+	log.Printf("Looking up keyring for %s", p.credentialsName)
+	item, err := p.keyring.Get(p.credentialsName)
 	if err != nil {
 		log.Println("Error from keyring", err)
 		return val, err
@@ -37,9 +41,9 @@ func (p *KeyringProvider) Store(val credentials.Value) error {
 		return err
 	}
 
-	return p.Keyring.Set(keyring.Item{
-		Key:   p.CredentialsName,
-		Label: fmt.Sprintf("aws-vault (%s)", p.CredentialsName),
+	return p.keyring.Set(keyring.Item{
+		Key:   p.credentialsName,
+		Label: fmt.Sprintf("aws-vault (%s)", p.credentialsName),
 		Data:  bytes,
 
 		// specific Keychain settings
@@ -48,5 +52,5 @@ func (p *KeyringProvider) Store(val credentials.Value) error {
 }
 
 func (p *KeyringProvider) Delete() error {
-	return p.Keyring.Remove(p.CredentialsName)
+	return p.keyring.Remove(p.credentialsName)
 }

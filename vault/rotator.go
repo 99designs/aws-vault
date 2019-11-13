@@ -25,11 +25,11 @@ func Rotate(profileName string, keyring keyring.Keyring, config *Config) error {
 	// Get the existing credentials
 
 	provider := &KeyringProvider{
-		Keyring:         keyring,
-		CredentialsName: config.CredentialsName,
+		keyring:         keyring,
+		credentialsName: config.CredentialsName,
 	}
 
-	vaultCredentials, err := NewVaultCredentials(keyring, profileName, config)
+	vaultCredentials, err := NewVaultCredentials(keyring, config)
 	if err != nil {
 		return err
 	}

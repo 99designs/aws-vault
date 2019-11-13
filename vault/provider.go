@@ -17,30 +17,28 @@ const DefaultExpirationWindow = 5 * time.Minute
 
 type VaultProvider struct {
 	credentials.Expiry
-	keyring          keyring.Keyring
-	sessions         *KeyringSessions
-	config           *Config
-	masterCredsCache *credentials.Value
+	masterCreds *credentials.Credentials
+	sessions    *KeyringSessions
+	config      *Config
 }
 
-func NewVaultProvider(k keyring.Keyring, profileName string, opts *Config) (*VaultProvider, error) {
-	if err := opts.Validate(); err != nil {
+func NewVaultProvider(k keyring.Keyring, config *Config) (*VaultProvider, error) {
+	if err := config.Validate(); err != nil {
 		return nil, err
 	}
+
 	return &VaultProvider{
-		config:   opts,
-		keyring:  k,
-		sessions: &KeyringSessions{k},
+		masterCreds: credentials.NewCredentials(NewKeyringProvider(k, config.CredentialsName)),
+		config:      config,
+		sessions:    &KeyringSessions{k},
 	}, nil
 }
 
 // Retrieve returns credentials protected by GetSessionToken and AssumeRole where possible
 func (p *VaultProvider) Retrieve() (credentials.Value, error) {
-	defer p.clearCache()
-
 	if p.config.NoSession && p.config.RoleARN == "" {
 		log.Println("Using master credentials")
-		return p.getMasterCreds()
+		return p.masterCreds.Get()
 	}
 	if p.config.NoSession {
 		return p.getCredsWithRole()
@@ -109,7 +107,7 @@ func (p *VaultProvider) getCredsWithRole() (credentials.Value, error) {
 		return credentials.Value{}, errors.New("No role defined")
 	}
 
-	creds, err := p.getMasterCreds()
+	creds, err := p.masterCreds.Get()
 	if err != nil {
 		return credentials.Value{}, err
 	}
@@ -131,22 +129,6 @@ func (p *VaultProvider) getCredsWithRole() (credentials.Value, error) {
 	return creds, nil
 }
 
-func (p *VaultProvider) getMasterCreds() (credentials.Value, error) {
-	if p.masterCredsCache == nil {
-		creds := credentials.NewCredentials(&KeyringProvider{Keyring: p.keyring, CredentialsName: p.config.CredentialsName})
-
-		val, err := creds.Get()
-		if err != nil {
-			log.Printf("Failed to find credentials for profile %q in keyring", p.config.CredentialsName)
-			return val, err
-		}
-
-		p.masterCredsCache = &val
-	}
-
-	return *p.masterCredsCache, nil
-}
-
 func (p *VaultProvider) createSessionToken() (sts.Credentials, error) {
 	params := &sts.GetSessionTokenInput{
 		DurationSeconds: aws.Int64(int64(p.config.SessionDuration.Seconds())),
@@ -165,7 +147,7 @@ func (p *VaultProvider) createSessionToken() (sts.Credentials, error) {
 		}
 	}
 
-	creds, err := p.getMasterCreds()
+	creds, err := p.masterCreds.Get()
 	if err != nil {
 		return sts.Credentials{}, err
 	}
@@ -277,12 +259,8 @@ func (p *VaultProvider) assumeRoleFromCreds(creds credentials.Value) (sts.Creden
 	return *resp.Credentials, nil
 }
 
-func (p *VaultProvider) clearCache() {
-	p.masterCredsCache = nil
-}
-
-func NewVaultCredentials(k keyring.Keyring, profileName string, opts *Config) (*credentials.Credentials, error) {
-	provider, err := NewVaultProvider(k, profileName, opts)
+func NewVaultCredentials(k keyring.Keyring, config *Config) (*credentials.Credentials, error) {
+	provider, err := NewVaultProvider(k, config)
 	if err != nil {
 		return nil, err
 	}

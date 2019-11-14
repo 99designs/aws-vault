@@ -30,6 +30,7 @@ source_profile=user2
 role_arn=arn:aws:iam::4451234513441615400570:role/aws_admin
 mfa_serial=arn:aws:iam::1234513441:mfa/blah
 region=us-east-1
+duration_seconds=1200
 
 [profile testparentprofile1]
 region=us-east-1
@@ -185,18 +186,10 @@ func TestAddProfileToExistingConfig(t *testing.T) {
 	}
 
 	profilesSections := cfg.ProfileSections()
-	expected := []vault.ProfileSection{
-		vault.ProfileSection{Name: "default", MfaSerial: "", RoleARN: "", ExternalID: "", Region: "us-west-2", RoleSessionName: "", SourceProfile: "", ParentProfile: ""},
-		vault.ProfileSection{Name: "user2", MfaSerial: "", RoleARN: "", ExternalID: "", Region: "us-east-1", RoleSessionName: "", SourceProfile: "", ParentProfile: ""},
-		vault.ProfileSection{Name: "withsource", MfaSerial: "", RoleARN: "", ExternalID: "", Region: "us-east-1", RoleSessionName: "", SourceProfile: "user2", ParentProfile: ""},
-		vault.ProfileSection{Name: "withmfa", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", ExternalID: "", Region: "us-east-1", RoleSessionName: "", SourceProfile: "user2", ParentProfile: ""},
-		vault.ProfileSection{Name: "testparentprofile1", MfaSerial: "", RoleARN: "", ExternalID: "", Region: "us-east-1", RoleSessionName: "", SourceProfile: "", ParentProfile: ""},
-		vault.ProfileSection{Name: "testparentprofile2", MfaSerial: "", RoleARN: "", ExternalID: "", Region: "", RoleSessionName: "", SourceProfile: "", ParentProfile: "testparentprofile1"},
-		vault.ProfileSection{Name: "llamas", MfaSerial: "testserial", RoleARN: "", ExternalID: "", Region: "us-east-1", RoleSessionName: "", SourceProfile: "default", ParentProfile: ""},
-	}
+	expected := []vault.ProfileSection{vault.ProfileSection{Name: "default", MfaSerial: "", RoleARN: "", ExternalID: "", Region: "us-west-2", RoleSessionName: "", DurationSeconds: "", SourceProfile: "", ParentProfile: ""}, vault.ProfileSection{Name: "user2", MfaSerial: "", RoleARN: "", ExternalID: "", Region: "us-east-1", RoleSessionName: "", DurationSeconds: "", SourceProfile: "", ParentProfile: ""}, vault.ProfileSection{Name: "withsource", MfaSerial: "", RoleARN: "", ExternalID: "", Region: "us-east-1", RoleSessionName: "", DurationSeconds: "", SourceProfile: "user2", ParentProfile: ""}, vault.ProfileSection{Name: "withmfa", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", ExternalID: "", Region: "us-east-1", RoleSessionName: "", DurationSeconds: "1200", SourceProfile: "user2", ParentProfile: ""}, vault.ProfileSection{Name: "testparentprofile1", MfaSerial: "", RoleARN: "", ExternalID: "", Region: "us-east-1", RoleSessionName: "", DurationSeconds: "", SourceProfile: "", ParentProfile: ""}, vault.ProfileSection{Name: "testparentprofile2", MfaSerial: "", RoleARN: "", ExternalID: "", Region: "", RoleSessionName: "", DurationSeconds: "", SourceProfile: "", ParentProfile: "testparentprofile1"}, vault.ProfileSection{Name: "llamas", MfaSerial: "testserial", RoleARN: "", ExternalID: "", Region: "us-east-1", RoleSessionName: "", DurationSeconds: "", SourceProfile: "default", ParentProfile: ""}}
 
 	if !reflect.DeepEqual(expected, profilesSections) {
-		t.Fatalf("Expected: %#v, got: %#v", expected, profilesSections)
+		t.Fatalf("Expected: %#v\nGot: %#v", expected, profilesSections)
 	}
 }
 

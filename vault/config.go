@@ -125,6 +125,7 @@ type ProfileSection struct {
 	ExternalID      string `ini:"external_id,omitempty"`
 	Region          string `ini:"region,omitempty"`
 	RoleSessionName string `ini:"role_session_name,omitempty"`
+	DurationSeconds string `ini:"duration_seconds,omitempty"`
 	SourceProfile   string `ini:"source_profile,omitempty"`
 	ParentProfile   string `ini:"parent_profile,omitempty"`
 }
@@ -200,10 +201,6 @@ func (c *ConfigFile) ProfileNames() []string {
 	return profileNames
 }
 
-type CliFlags struct {
-	MfaSerial string
-}
-
 type ConfigLoader struct {
 	File            *ConfigFile
 	visitedProfiles []string
@@ -258,6 +255,11 @@ func (c *ConfigLoader) populateFromConfigFile(config *Config, profileName string
 	if config.RoleSessionName == "" {
 		config.RoleSessionName = psection.RoleSessionName
 	}
+	if config.AssumeRoleDuration == 0 {
+		if d, err := time.ParseDuration(psection.DurationSeconds + "s"); err == nil {
+			config.AssumeRoleDuration = d
+		}
+	}
 
 	if psection.SourceProfile != "" {
 		config.CredentialsName = psection.SourceProfile
@@ -294,7 +296,6 @@ func (c *ConfigLoader) populateFromEnv(profile *Config) {
 
 func (c *ConfigLoader) LoadFromProfile(profileName string, config *Config) error {
 	config.ProfileName = profileName
-	c.populateFromDefaults(config)
 	c.populateFromEnv(config)
 
 	c.resetLoopDetection()
@@ -303,10 +304,9 @@ func (c *ConfigLoader) LoadFromProfile(profileName string, config *Config) error
 		return err
 	}
 
-	err = config.Validate()
-	if err != nil {
-		return err
-	}
+	c.populateFromDefaults(config)
+
+	config.Validate()
 
 	return nil
 }

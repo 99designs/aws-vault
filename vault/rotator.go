@@ -19,25 +19,25 @@ func Rotate(profileName string, keyring keyring.Keyring, config *Config) error {
 	// --------------------------------
 	// Get the existing credentials
 
-	keyringProvider := NewKeyringProvider(keyring, config.CredentialsName)
+	keyringProvider := NewMasterCredentialsProvider(keyring, config.CredentialsName)
 	keyringCredentials := credentials.NewCredentials(keyringProvider)
 
-	vaultProvider, err := NewVaultProvider(keyring, config)
+	tempCredsProvider, err := NewTempCredentialsProvider(keyring, config)
 	if err != nil {
 		return err
 	}
-	vaultCredentials := credentials.NewCredentials(vaultProvider)
+	creds := credentials.NewCredentials(tempCredsProvider)
 
 	oldMasterCreds, err := keyringCredentials.Get()
 	if err != nil {
 		return err
 	}
 
-	oldCredentialsValue, err := vaultCredentials.Get()
+	oldCredentialsValue, err := creds.Get()
 	if err != nil {
 		return err
 	}
-	oldVaultSession := newSession(vaultCredentials, config.Region)
+	oldVaultSession := newSession(creds, config.Region)
 
 	currentUserName, err := GetUsernameFromSession(oldVaultSession)
 	if err != nil {
@@ -87,8 +87,8 @@ func Rotate(profileName string, keyring keyring.Keyring, config *Config) error {
 	}
 
 	// expire the cached credentials
-	vaultProvider.ForceRefresh()
-	vaultCredentials.Expire()
+	tempCredsProvider.ForceRefresh()
+	creds.Expire()
 
 	// --------------------------------
 	// Use new credentials to delete old access key
@@ -96,7 +96,7 @@ func Rotate(profileName string, keyring keyring.Keyring, config *Config) error {
 	log.Println("Using new credentials to delete the old new access key")
 	log.Println("Waiting for new IAM credentials to propagate (takes up to 10 seconds)")
 
-	newIamClient := iam.New(newSession(vaultCredentials, config.Region))
+	newIamClient := iam.New(newSession(creds, config.Region))
 
 	err = retry(time.Second*60, time.Second*5, func() error {
 		_, err = newIamClient.DeleteAccessKey(&iam.DeleteAccessKeyInput{

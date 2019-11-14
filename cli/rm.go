@@ -39,7 +39,7 @@ func ConfigureRemoveCommand(app *kingpin.Application) {
 
 func RemoveCommand(app *kingpin.Application, input RemoveCommandInput) {
 	if !input.SessionsOnly {
-		provider := vault.NewKeyringProvider(input.Keyring, input.ProfileName)
+		provider := vault.NewMasterCredentialsProvider(input.Keyring, input.ProfileName)
 		r, err := prompt.TerminalPrompt(fmt.Sprintf("Delete credentials for profile %q? (Y|n)", input.ProfileName))
 		if err != nil {
 			app.Fatalf(err.Error())

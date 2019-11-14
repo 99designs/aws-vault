@@ -23,8 +23,9 @@ func newStsClient(creds *credentials.Credentials, region string) *sts.STS {
 	return sts.New(newSession(creds, region))
 }
 
-func NewVaultCredentials(k keyring.Keyring, config *Config) (*credentials.Credentials, error) {
-	provider, err := NewVaultProvider(k, config)
+// NewTempCredentials creates temporary credentials
+func NewTempCredentials(k keyring.Keyring, config *Config) (*credentials.Credentials, error) {
+	provider, err := NewTempCredentialsProvider(k, config)
 	if err != nil {
 		return nil, err
 	}
@@ -32,19 +33,21 @@ func NewVaultCredentials(k keyring.Keyring, config *Config) (*credentials.Creden
 	return credentials.NewCredentials(provider), nil
 }
 
-func NewVaultProvider(k keyring.Keyring, config *Config) (*VaultProvider, error) {
+// NewTempCredentials creates a provider for temporary credentials
+func NewTempCredentialsProvider(k keyring.Keyring, config *Config) (*TempCredentialsProvider, error) {
 	if err := config.Validate(); err != nil {
 		return nil, err
 	}
 
-	return &VaultProvider{
-		masterCreds: NewKeyringCredentials(k, config.CredentialsName),
+	return &TempCredentialsProvider{
+		masterCreds: NewMasterCredentials(k, config.CredentialsName),
 		config:      config,
 		sessions:    &KeyringSessions{k},
 	}, nil
 }
 
-type VaultProvider struct {
+// TempCredentialsProvider provides credentials protected by GetSessionToken and AssumeRole where possible
+type TempCredentialsProvider struct {
 	credentials.Expiry
 	masterCreds         *credentials.Credentials
 	sessions            *KeyringSessions
@@ -52,13 +55,12 @@ type VaultProvider struct {
 	forceSessionRefresh bool
 }
 
-func (p *VaultProvider) ForceRefresh() {
+func (p *TempCredentialsProvider) ForceRefresh() {
 	p.masterCreds.Expire()
 	p.forceSessionRefresh = true
 }
 
-// Retrieve returns credentials protected by GetSessionToken and AssumeRole where possible
-func (p *VaultProvider) Retrieve() (credentials.Value, error) {
+func (p *TempCredentialsProvider) Retrieve() (credentials.Value, error) {
 	if p.config.NoSession && p.config.RoleARN == "" {
 		log.Println("Using master credentials")
 		return p.masterCreds.Get()
@@ -73,7 +75,7 @@ func (p *VaultProvider) Retrieve() (credentials.Value, error) {
 	return p.getCredsWithSessionAndRole()
 }
 
-func (p *VaultProvider) getCredsWithSession() (credentials.Value, error) {
+func (p *TempCredentialsProvider) getCredsWithSession() (credentials.Value, error) {
 	log.Println("Getting credentials with GetSessionToken")
 
 	session, err := p.getSessionToken()
@@ -93,7 +95,7 @@ func (p *VaultProvider) getCredsWithSession() (credentials.Value, error) {
 	return value, nil
 }
 
-func (p *VaultProvider) getCredsWithSessionAndRole() (credentials.Value, error) {
+func (p *TempCredentialsProvider) getCredsWithSessionAndRole() (credentials.Value, error) {
 	log.Println("Getting credentials with GetSessionToken and AssumeRole")
 
 	session, err := p.getSessionToken()
@@ -123,7 +125,7 @@ func (p *VaultProvider) getCredsWithSessionAndRole() (credentials.Value, error) 
 }
 
 // getCredsWithRole returns credentials a session created with AssumeRole
-func (p *VaultProvider) getCredsWithRole() (credentials.Value, error) {
+func (p *TempCredentialsProvider) getCredsWithRole() (credentials.Value, error) {
 	log.Println("Getting credentials with AssumeRole")
 
 	if p.config.RoleARN == "" {
@@ -150,7 +152,7 @@ func (p *VaultProvider) getCredsWithRole() (credentials.Value, error) {
 	}, nil
 }
 
-func (p *VaultProvider) createSessionToken() (*sts.Credentials, error) {
+func (p *TempCredentialsProvider) createSessionToken() (*sts.Credentials, error) {
 	log.Printf("Creating new session token for profile %s", p.config.CredentialsName)
 
 	params := &sts.GetSessionTokenInput{
@@ -180,7 +182,7 @@ func (p *VaultProvider) createSessionToken() (*sts.Credentials, error) {
 	return resp.Credentials, nil
 }
 
-func (p *VaultProvider) getSessionToken() (*sts.Credentials, error) {
+func (p *TempCredentialsProvider) getSessionToken() (*sts.Credentials, error) {
 	if p.forceSessionRefresh {
 		return p.createSessionToken()
 	}
@@ -202,7 +204,7 @@ func (p *VaultProvider) getSessionToken() (*sts.Credentials, error) {
 	return session, err
 }
 
-func (p *VaultProvider) roleSessionName() string {
+func (p *TempCredentialsProvider) roleSessionName() string {
 	if p.config.RoleSessionName != "" {
 		return p.config.RoleSessionName
 	}
@@ -212,7 +214,7 @@ func (p *VaultProvider) roleSessionName() string {
 }
 
 // assumeRoleFromSession takes a session created with GetSessionToken and uses that to assume a role
-func (p *VaultProvider) assumeRoleFromSession(session *sts.Credentials) (sts.Credentials, error) {
+func (p *TempCredentialsProvider) assumeRoleFromSession(session *sts.Credentials) (sts.Credentials, error) {
 	client := newStsClient(credentials.NewStaticCredentials(*session.AccessKeyId, *session.SecretAccessKey, *session.SessionToken), p.config.Region)
 
 	input := &sts.AssumeRoleInput{
@@ -235,7 +237,7 @@ func (p *VaultProvider) assumeRoleFromSession(session *sts.Credentials) (sts.Cre
 }
 
 // assumeRoleFromCreds uses IAM credentials to assume a role
-func (p *VaultProvider) assumeRoleFromCreds(creds credentials.Value) (sts.Credentials, error) {
+func (p *TempCredentialsProvider) assumeRoleFromCreds(creds credentials.Value) (sts.Credentials, error) {
 	if p.config.RoleARN == "" {
 		return sts.Credentials{}, errors.New("No role defined")
 	}

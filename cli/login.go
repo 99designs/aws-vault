@@ -93,7 +93,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		app.Fatalf("%v", err)
 	}
 
-	creds, err := vault.NewVaultCredentials(input.Keyring, &input.Config)
+	creds, err := vault.NewTempCredentials(input.Keyring, &input.Config)
 	if err != nil {
 		app.Fatalf("%v", err)
 	}

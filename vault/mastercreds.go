@@ -9,24 +9,25 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 )
 
-func NewKeyringCredentials(k keyring.Keyring, credentialsName string) *credentials.Credentials {
-	return credentials.NewCredentials(NewKeyringProvider(k, credentialsName))
+func NewMasterCredentials(k keyring.Keyring, credentialsName string) *credentials.Credentials {
+	return credentials.NewCredentials(NewMasterCredentialsProvider(k, credentialsName))
 }
 
-func NewKeyringProvider(k keyring.Keyring, credentialsName string) *KeyringProvider {
-	return &KeyringProvider{k, credentialsName}
+func NewMasterCredentialsProvider(k keyring.Keyring, credentialsName string) *MasterCredentialsProvider {
+	return &MasterCredentialsProvider{k, credentialsName}
 }
 
-type KeyringProvider struct {
+// MasterCredentialsProvider stores and retrieves master credentials
+type MasterCredentialsProvider struct {
 	keyring         keyring.Keyring
 	credentialsName string
 }
 
-func (p *KeyringProvider) IsExpired() bool {
+func (p *MasterCredentialsProvider) IsExpired() bool {
 	return false
 }
 
-func (p *KeyringProvider) Retrieve() (val credentials.Value, err error) {
+func (p *MasterCredentialsProvider) Retrieve() (val credentials.Value, err error) {
 	log.Printf("Looking up keyring for %s", p.credentialsName)
 	item, err := p.keyring.Get(p.credentialsName)
 	if err != nil {
@@ -39,7 +40,7 @@ func (p *KeyringProvider) Retrieve() (val credentials.Value, err error) {
 	return val, err
 }
 
-func (p *KeyringProvider) Store(val credentials.Value) error {
+func (p *MasterCredentialsProvider) Store(val credentials.Value) error {
 	bytes, err := json.Marshal(val)
 	if err != nil {
 		return err
@@ -55,6 +56,6 @@ func (p *KeyringProvider) Store(val credentials.Value) error {
 	})
 }
 
-func (p *KeyringProvider) Delete() error {
+func (p *MasterCredentialsProvider) Delete() error {
 	return p.keyring.Remove(p.credentialsName)
 }

@@ -73,6 +73,13 @@ The credentials are exposed to the subprocess in one of two ways:
 
 The default is to use environment variables, but you can opt-in to the local instance metadata server with the `--server` flag on the `exec` command.
 
+If you already have set any of the below environment variables and you want to use `--server` remember to delete them previosuly from your System Environment Variables. **Otherwise you always will need to execute all commands that requires authentication with the `aws-vault` first** , e.g : `aws-vault ec2 describe-instances`, since the vault will use the local variables if any as primary option:
+
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+AWS_SECURITY_TOKEN
+AWS_SESSION_TOKEN
+
 ### Assuming Roles
 
 [Best-practice](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#delegate-using-roles) is to [create Roles to delegate permissions](https://docs.aws.amazon.com/cli/latest/userguide/cli-roles.html).

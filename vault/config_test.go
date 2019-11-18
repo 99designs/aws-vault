@@ -74,13 +74,7 @@ func TestConfigParsingProfiles(t *testing.T) {
 	}{
 		{vault.ProfileSection{Name: "user2", Region: "us-east-1"}, true},
 		{vault.ProfileSection{Name: "withsource", SourceProfile: "user2", Region: "us-east-1"}, true},
-		{vault.ProfileSection{
-			Name:          "withmfa",
-			SourceProfile: "user2",
-			Region:        "us-east-1",
-			RoleARN:       "arn:aws:iam::4451234513441615400570:role/aws_admin",
-			MfaSerial:     "arn:aws:iam::1234513441:mfa/blah",
-		}, true},
+		{vault.ProfileSection{Name: "withmfa", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: "1200", SourceProfile: "user2"}, true},
 		{vault.ProfileSection{Name: "nopenotthere"}, false},
 	}
 
@@ -156,9 +150,9 @@ func TestProfilesFromConfig(t *testing.T) {
 		vault.ProfileSection{Name: "default", Region: "us-west-2"},
 		vault.ProfileSection{Name: "user2", Region: "us-east-1"},
 		vault.ProfileSection{Name: "withsource", Region: "us-east-1", SourceProfile: "user2"},
-		vault.ProfileSection{Name: "withmfa", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", SourceProfile: "user2"},
-		vault.ProfileSection{Name: "testparentprofile1", MfaSerial: "", RoleARN: "", ExternalID: "", Region: "us-east-1", RoleSessionName: "", SourceProfile: "", ParentProfile: ""},
-		vault.ProfileSection{Name: "testparentprofile2", MfaSerial: "", RoleARN: "", ExternalID: "", Region: "", RoleSessionName: "", SourceProfile: "", ParentProfile: "testparentprofile1"},
+		vault.ProfileSection{Name: "withmfa", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: "1200", SourceProfile: "user2"},
+		vault.ProfileSection{Name: "testparentprofile1", Region: "us-east-1"},
+		vault.ProfileSection{Name: "testparentprofile2", ParentProfile: "testparentprofile1"},
 	}
 
 	if !reflect.DeepEqual(expected, profilesSections) {

@@ -28,3 +28,9 @@ aws-vault-freebsd-amd64: $(SRC)
 
 aws-vault-darwin-amd64.dmg: aws-vault-darwin-amd64
 	./bin/create-dmg aws-vault-darwin-amd64 $@
+
+install:
+	rm -f aws-vault
+	go build .
+	codesign --options runtime --timestamp --sign "Developer ID Application: 99designs Inc (NRM9HVJ62Z)" aws-vault
+	mv aws-vault ~/bin/

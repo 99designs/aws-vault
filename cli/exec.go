@@ -5,10 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
-	"os/signal"
 	"strings"
-	"syscall"
 
 	"github.com/99designs/aws-vault/prompt"
 	"github.com/99designs/aws-vault/server"
@@ -180,41 +177,9 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 			}
 		}
 
-		cmd := exec.Command(input.Command, input.Args...)
-		cmd.Env = env
-		cmd.Stdin = os.Stdin
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		signal.Notify(input.Signals, os.Interrupt, os.Kill)
-
-		if err := cmd.Start(); err != nil {
+		err = exec(input.Command, input.Args, env)
+		if err != nil {
 			app.Fatalf("%v", err)
-		}
-		// wait for the command to finish
-		waitCh := make(chan error, 1)
-		go func() {
-			waitCh <- cmd.Wait()
-			close(waitCh)
-		}()
-
-		for {
-			select {
-			case sig := <-input.Signals:
-				if err = cmd.Process.Signal(sig); err != nil {
-					app.Errorf("%v", err)
-					break
-				}
-			case err := <-waitCh:
-				var waitStatus syscall.WaitStatus
-				if exitError, ok := err.(*exec.ExitError); ok {
-					waitStatus = exitError.Sys().(syscall.WaitStatus)
-					os.Exit(waitStatus.ExitStatus())
-				}
-				if err != nil {
-					app.Fatalf("%v", err)
-				}
-				return
-			}
 		}
 	}
 }

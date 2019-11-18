@@ -3,7 +3,7 @@
 package cli
 
 import (
-	"errors"
+	"fmt"
 	"os"
 	osexec "os/exec"
 	"os/signal"
@@ -21,7 +21,7 @@ func exec(command string, args []string, env []string) error {
 	signal.Notify(sigChan)
 
 	if err := cmd.Start(); err != nil {
-		return errors.New("Failed to start command: %v", err)
+		return fmt.Errorf("Failed to start command: %v", err)
 	}
 
 	go func() {
@@ -32,8 +32,8 @@ func exec(command string, args []string, env []string) error {
 	}()
 
 	if err := cmd.Wait(); err != nil {
-		ecmd.Process.Signal(os.Kill)
-		return errors.New("Failed to wait for command termination: %v", err)
+		cmd.Process.Signal(os.Kill)
+		return fmt.Errorf("Failed to wait for command termination: %v", err)
 	}
 
 	waitStatus := cmd.ProcessState.Sys().(syscall.WaitStatus)

@@ -334,10 +334,18 @@ would have on an EC2 instance. When your application will want to connect to AWS
 credentials (typically in env variables), it will instead contact this server that will issue a new
 set of temporary credentials (using the same profile as the one the server was started with). This
 server will work only for the duration of the session (`--session-ttl`).  
+
 Note that this approach has the **major drawback** that while this `aws-vault` server runs, any
 application wanting to **connect** to AWS will be able to do so **implicitely**, with the profile the
 server was started with. Thanks to `aws-vault`, the credentials are not exposed, but the ability to
 use them to connect to AWS is!
+
+Also, note that if you already have set any of the below environment variables and you want to use `--server` remember to delete them previosuly from your System Environment Variables. **Otherwise you always will need to execute all commands that requires authentication with the `aws-vault` first** , e.g : `aws-vault ec2 describe-instances`, since the vault will use the local variables if any as primary option:
+
+* AWS_ACCESS_KEY_ID
+* AWS_SECRET_ACCESS_KEY
+* AWS_SECURITY_TOKEN
+* AWS_SESSION_TOKEN
 
 ### Being able to perform certain STS operations
 

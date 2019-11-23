@@ -7,7 +7,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/99designs/aws-vault/prompt"
 	"github.com/99designs/aws-vault/server"
 	"github.com/99designs/aws-vault/vault"
 	"github.com/99designs/keyring"
@@ -86,7 +85,7 @@ func ConfigureExecCommand(app *kingpin.Application) {
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.Keyring = keyringImpl
-		input.Config.MfaPrompt = prompt.Method(GlobalFlags.PromptDriver)
+		input.Config.MfaPromptMethod = GlobalFlags.PromptDriver
 		input.Signals = make(chan os.Signal)
 		ExecCommand(app, input)
 		return nil
@@ -109,21 +108,25 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 	err := configLoader.LoadFromProfile(input.ProfileName, &input.Config)
 	if err != nil {
 		app.Fatalf("%v", err)
+		return
 	}
 
 	creds, err := vault.NewTempCredentials(input.Keyring, &input.Config)
 	if err != nil {
 		app.Fatalf("%v", err)
+		return
 	}
 
 	val, err := creds.Get()
 	if err != nil {
 		app.Fatalf(FormatCredentialError(err, input.Config.CredentialsName))
+		return
 	}
 
 	if input.StartServer {
 		if err := server.StartCredentialsServer(creds); err != nil {
 			app.Fatalf("Failed to start credential server: %v", err)
+			return
 		} else {
 			setEnv = false
 		}
@@ -140,12 +143,14 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 			credsExprest, err := creds.ExpiresAt()
 			if err != nil {
 				app.Fatalf("Error getting credential expiration: %v", err)
+				return
 			}
 			credentialData.Expiration = credsExprest.Format("2006-01-02T15:04:05Z")
 		}
 		json, err := json.Marshal(&credentialData)
 		if err != nil {
 			app.Fatalf("Error creating credential json")
+			return
 		}
 		fmt.Printf(string(json))
 	} else {
@@ -180,6 +185,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 		err = exec(input.Command, input.Args, env)
 		if err != nil {
 			app.Fatalf("%v", err)
+			return
 		}
 	}
 }

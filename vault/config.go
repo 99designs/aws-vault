@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/99designs/aws-vault/prompt"
 	"github.com/mitchellh/go-homedir"
 	ini "gopkg.in/ini.v1"
 )
@@ -324,7 +323,7 @@ type Config struct {
 	SessionDuration    time.Duration
 	AssumeRoleDuration time.Duration
 	MfaToken           string
-	MfaPrompt          prompt.PromptFunc
+	MfaPromptMethod    string
 	NoSession          bool
 }
 

@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/99designs/aws-vault/prompt"
 	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -80,7 +81,7 @@ func (p *TempCredentialsProvider) getCredsWithSession() (credentials.Value, erro
 
 	session, err := p.getSessionToken()
 	if err != nil {
-		return credentials.Value{}, nil
+		return credentials.Value{}, err
 	}
 
 	p.SetExpiration(*session.Expiration, DefaultExpirationWindow)
@@ -100,10 +101,11 @@ func (p *TempCredentialsProvider) getCredsWithSessionAndRole() (credentials.Valu
 
 	session, err := p.getSessionToken()
 	if err != nil {
-		return credentials.Value{}, nil
+		return credentials.Value{}, err
 	}
 
-	role, err := p.assumeRoleFromSession(session)
+	sessionCreds := credentials.NewStaticCredentials(*session.AccessKeyId, *session.SecretAccessKey, *session.SessionToken)
+	role, err := p.assumeRoleFromCreds(sessionCreds, false)
 	if err != nil {
 		return credentials.Value{}, err
 	}
@@ -132,12 +134,7 @@ func (p *TempCredentialsProvider) getCredsWithRole() (credentials.Value, error) 
 		return credentials.Value{}, errors.New("No role defined")
 	}
 
-	creds, err := p.masterCreds.Get()
-	if err != nil {
-		return credentials.Value{}, err
-	}
-
-	role, err := p.assumeRoleFromCreds(creds)
+	role, err := p.assumeRoleFromCreds(p.masterCreds, true)
 	if err != nil {
 		return credentials.Value{}, err
 	}
@@ -154,27 +151,23 @@ func (p *TempCredentialsProvider) getCredsWithRole() (credentials.Value, error) 
 
 func (p *TempCredentialsProvider) createSessionToken() (*sts.Credentials, error) {
 	log.Printf("Creating new session token for profile %s", p.config.CredentialsName)
+	var err error
 
-	params := &sts.GetSessionTokenInput{
+	input := &sts.GetSessionTokenInput{
 		DurationSeconds: aws.Int64(int64(p.config.SessionDuration.Seconds())),
 	}
 
 	if p.config.MfaSerial != "" {
-		params.SerialNumber = aws.String(p.config.MfaSerial)
-		if p.config.MfaToken == "" {
-			token, err := p.config.MfaPrompt(fmt.Sprintf("Enter token for %s: ", p.config.MfaSerial))
-			if err != nil {
-				return nil, err
-			}
-			params.TokenCode = aws.String(token)
-		} else {
-			params.TokenCode = aws.String(p.config.MfaToken)
+		input.SerialNumber = aws.String(p.config.MfaSerial)
+		input.TokenCode, err = getMfaToken(p.config)
+		if err != nil {
+			return nil, err
 		}
 	}
 
 	client := newStsClient(p.masterCreds, p.config.Region)
 
-	resp, err := client.GetSessionToken(params)
+	resp, err := client.GetSessionToken(input)
 	if err != nil {
 		return nil, err
 	}
@@ -213,36 +206,10 @@ func (p *TempCredentialsProvider) roleSessionName() string {
 	return fmt.Sprintf("%d", time.Now().UTC().UnixNano())
 }
 
-// assumeRoleFromSession takes a session created with GetSessionToken and uses that to assume a role
-func (p *TempCredentialsProvider) assumeRoleFromSession(session *sts.Credentials) (sts.Credentials, error) {
-	client := newStsClient(credentials.NewStaticCredentials(*session.AccessKeyId, *session.SecretAccessKey, *session.SessionToken), p.config.Region)
-
-	input := &sts.AssumeRoleInput{
-		RoleArn:         aws.String(p.config.RoleARN),
-		RoleSessionName: aws.String(p.roleSessionName()),
-		DurationSeconds: aws.Int64(int64(p.config.AssumeRoleDuration.Seconds())),
-	}
-
-	if p.config.ExternalID != "" {
-		input.ExternalId = aws.String(p.config.ExternalID)
-	}
-
-	log.Printf("Assuming role %s from session token", p.config.RoleARN)
-	resp, err := client.AssumeRole(input)
-	if err != nil {
-		return sts.Credentials{}, err
-	}
-
-	return *resp.Credentials, nil
-}
-
-// assumeRoleFromCreds uses IAM credentials to assume a role
-func (p *TempCredentialsProvider) assumeRoleFromCreds(creds credentials.Value) (sts.Credentials, error) {
-	if p.config.RoleARN == "" {
-		return sts.Credentials{}, errors.New("No role defined")
-	}
-
-	client := newStsClient(credentials.NewStaticCredentialsFromCreds(creds), p.config.Region)
+// assumeRoleFromCreds uses the master credentials to assume a role
+func (p *TempCredentialsProvider) assumeRoleFromCreds(creds *credentials.Credentials, includeMfa bool) (*sts.Credentials, error) {
+	var err error
+	client := newStsClient(creds, p.config.Region)
 
 	input := &sts.AssumeRoleInput{
 		RoleArn:         aws.String(p.config.RoleARN),
@@ -255,24 +222,33 @@ func (p *TempCredentialsProvider) assumeRoleFromCreds(creds credentials.Value) (
 	}
 
 	// if we don't have a session, we need to include MFA token in the AssumeRole call
-	if p.config.MfaSerial != "" {
+	if includeMfa && p.config.MfaSerial != "" {
 		input.SerialNumber = aws.String(p.config.MfaSerial)
-		if p.config.MfaToken == "" {
-			token, err := p.config.MfaPrompt(fmt.Sprintf("Enter token for %s: ", p.config.MfaSerial))
-			if err != nil {
-				return sts.Credentials{}, err
-			}
-			input.TokenCode = aws.String(token)
-		} else {
-			input.TokenCode = aws.String(p.config.MfaToken)
+		input.TokenCode, err = getMfaToken(p.config)
+		if err != nil {
+			return nil, err
 		}
 	}
 
-	log.Printf("Assuming role %s with iam credentials", p.config.RoleARN)
+	log.Printf("Assuming role %s", p.config.RoleARN)
 	resp, err := client.AssumeRole(input)
 	if err != nil {
-		return sts.Credentials{}, err
+		return nil, err
 	}
 
-	return *resp.Credentials, nil
+	return resp.Credentials, nil
+}
+
+func getMfaToken(c *Config) (*string, error) {
+	if c.MfaToken != "" {
+		return aws.String(c.MfaToken), nil
+	}
+
+	if c.MfaPromptMethod != "" {
+		promptFunc := prompt.Method(c.MfaPromptMethod)
+		token, err := promptFunc(fmt.Sprintf("Enter token for %s: ", c.MfaSerial))
+		return aws.String(token), err
+	}
+
+	return nil, errors.New("No prompt found")
 }

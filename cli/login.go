@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/99designs/aws-vault/prompt"
 	"github.com/99designs/aws-vault/vault"
 	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws"
@@ -71,7 +70,7 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 		BoolVar(&input.UseStdout)
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
-		input.Config.MfaPrompt = prompt.Method(GlobalFlags.PromptDriver)
+		input.Config.MfaPromptMethod = GlobalFlags.PromptDriver
 		input.Keyring = keyringImpl
 		LoginCommand(app, input)
 		return nil

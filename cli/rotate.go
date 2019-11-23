@@ -3,7 +3,6 @@ package cli
 import (
 	"fmt"
 
-	"github.com/99designs/aws-vault/prompt"
 	"github.com/99designs/aws-vault/vault"
 	"github.com/99designs/keyring"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -36,7 +35,7 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 		BoolVar(&input.Config.NoSession)
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
-		input.Config.MfaPrompt = prompt.Method(GlobalFlags.PromptDriver)
+		input.Config.MfaPromptMethod = GlobalFlags.PromptDriver
 		input.Keyring = keyringImpl
 		RotateCommand(app, input)
 		return nil

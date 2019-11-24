@@ -16,12 +16,8 @@ import (
 
 const DefaultExpirationWindow = 5 * time.Minute
 
-func newSession(creds *credentials.Credentials, region string) *session.Session {
-	return session.Must(session.NewSession(aws.NewConfig().WithRegion(region).WithCredentials(creds)))
-}
-
-func newStsClient(creds *credentials.Credentials, region string) *sts.STS {
-	return sts.New(newSession(creds, region))
+func newSession(creds *credentials.Credentials, region string) (*session.Session, error) {
+	return session.NewSession(aws.NewConfig().WithRegion(region).WithCredentials(creds))
 }
 
 // NewTempCredentials creates temporary credentials
@@ -165,7 +161,11 @@ func (p *TempCredentialsProvider) createSessionToken() (*sts.Credentials, error)
 		}
 	}
 
-	client := newStsClient(p.masterCreds, p.config.Region)
+	sess, err := newSession(p.masterCreds, p.config.Region)
+	if err != nil {
+		return nil, err
+	}
+	client := sts.New(sess)
 
 	resp, err := client.GetSessionToken(input)
 	if err != nil {
@@ -209,7 +209,11 @@ func (p *TempCredentialsProvider) roleSessionName() string {
 // assumeRoleFromCreds uses the master credentials to assume a role
 func (p *TempCredentialsProvider) assumeRoleFromCreds(creds *credentials.Credentials, includeMfa bool) (*sts.Credentials, error) {
 	var err error
-	client := newStsClient(creds, p.config.Region)
+	sess, err := newSession(creds, p.config.Region)
+	if err != nil {
+		return nil, err
+	}
+	client := sts.New(sess)
 
 	input := &sts.AssumeRoleInput{
 		RoleArn:         aws.String(p.config.RoleARN),

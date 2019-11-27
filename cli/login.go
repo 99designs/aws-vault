@@ -107,7 +107,7 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 	// if AssumeRole isn't used, GetFederationToken has to be used for IAM credentials
 	if val.SessionToken == "" {
 		log.Printf("No session token found, calling GetFederationToken")
-		stsCreds, err := getFederationToken(val, input.FederationTokenDuration, input.Config.Region)
+		stsCreds, err := getFederationToken(creds, input.FederationTokenDuration, input.Config.Region)
 		if err != nil {
 			app.Fatalf("Failed to call GetFederationToken: %v\n"+
 				"Login for non-assumed roles depends on permission to call sts:GetFederationToken", err)
@@ -198,8 +198,8 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 	}
 }
 
-func getFederationToken(creds credentials.Value, d time.Duration, region string) (*sts.Credentials, error) {
-	sess := session.Must(session.NewSession(aws.NewConfig().WithCredentials(credentials.NewStaticCredentialsFromCreds(creds)).WithRegion(region)))
+func getFederationToken(creds *credentials.Credentials, d time.Duration, region string) (*sts.Credentials, error) {
+	sess := session.Must(session.NewSession(aws.NewConfig().WithRegion(region).WithCredentials(creds)))
 	client := sts.New(sess)
 
 	currentUsername, err := vault.GetUsernameFromSession(sess)

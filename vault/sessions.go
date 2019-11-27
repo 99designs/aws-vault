@@ -76,7 +76,7 @@ type KeyringSession struct {
 }
 
 func (ks KeyringSession) IsExpired() bool {
-	log.Printf("Session %q expires in %v", ks.Key, ks.Expiration.Sub(time.Now()).String())
+	log.Printf("Session %q expires in %v", ks.Key, time.Until(ks.Expiration).String())
 	return time.Now().After(ks.Expiration)
 }
 

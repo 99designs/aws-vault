@@ -45,10 +45,6 @@ func StartMetadataServer() error {
 	return http.Serve(l, router)
 }
 
-type metadataHandler struct {
-	http.Handler
-}
-
 func infoHandlerStub(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, `{"Code" : "Success"}`)
 }
@@ -70,7 +66,11 @@ func credentialsHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
 
-	io.Copy(w, resp.Body)
+	_, err = io.Copy(w, resp.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func instanceIdHandler(w http.ResponseWriter, r *http.Request) {
@@ -159,9 +159,9 @@ func StartCredentialsServer(creds *credentials.Credentials) error {
 		log.Printf("Serving credentials via http ****************%s, expiration of %s (%s)",
 			val.AccessKeyID[len(val.AccessKeyID)-4:],
 			credsExpiresAt.Format(awsTimeFormat),
-			credsExpiresAt.Sub(time.Now()).String())
+			time.Until(credsExpiresAt).String())
 
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		err = json.NewEncoder(w).Encode(map[string]interface{}{
 			"Code":            "Success",
 			"LastUpdated":     time.Now().Format(awsTimeFormat),
 			"Type":            "AWS-HMAC",
@@ -170,6 +170,10 @@ func StartCredentialsServer(creds *credentials.Credentials) error {
 			"Token":           val.SessionToken,
 			"Expiration":      credsExpiresAt.Format(awsTimeFormat),
 		})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}))
 
 	return nil

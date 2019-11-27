@@ -56,7 +56,10 @@ func CreateConfig() error {
 	}
 	dir := filepath.Dir(file)
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		os.Mkdir(dir, 0700)
+		err = os.Mkdir(dir, 0700)
+		if err != nil {
+			return err
+		}
 		log.Printf("Config directory %s created", dir)
 	}
 	if _, err := os.Stat(file); os.IsNotExist(err) {
@@ -305,9 +308,7 @@ func (c *ConfigLoader) LoadFromProfile(profileName string, config *Config) error
 
 	c.populateFromDefaults(config)
 
-	config.Validate()
-
-	return nil
+	return config.Validate()
 }
 
 type Config struct {

@@ -104,7 +104,11 @@ func LsCommand(app *kingpin.Application, input LsCommandInput) {
 		fmt.Fprintf(w, "%s\t", profileName)
 
 		config := vault.Config{}
-		configLoader.LoadFromProfile(profileName, &config)
+		err := configLoader.LoadFromProfile(profileName, &config)
+		if err != nil {
+			app.Fatalf(err.Error())
+			return
+		}
 
 		if contains(credentialsNames, config.CredentialsName) {
 			fmt.Fprintf(w, "%s\t", config.CredentialsName)

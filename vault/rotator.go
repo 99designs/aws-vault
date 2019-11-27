@@ -23,10 +23,6 @@ func getUsernameIfAssumingRole(sess *session.Session, config *Config) (*string, 
 	return nil, nil
 }
 
-func formatKeyForDisplay(k string) string {
-	return fmt.Sprintf("****************%s", k[len(k)-4:])
-}
-
 func Rotate(keyring keyring.Keyring, config *Config) error {
 
 	masterCredsProvider := NewMasterCredentialsProvider(keyring, config.CredentialsName)
@@ -112,7 +108,7 @@ func retry(maxTime time.Duration, sleep time.Duration, f func() error) (err erro
 			return
 		}
 
-		elapsed := time.Now().Sub(t0)
+		elapsed := time.Since(t0)
 		if elapsed > maxTime {
 			return fmt.Errorf("After %d attempts, last error: %s", i, err)
 		}

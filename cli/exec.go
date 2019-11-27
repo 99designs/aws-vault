@@ -150,7 +150,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 			app.Fatalf("Error creating credential json")
 			return
 		}
-		fmt.Printf(string(json))
+		fmt.Print(string(json))
 	} else {
 
 		env := environ(os.Environ())

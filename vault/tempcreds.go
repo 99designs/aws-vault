@@ -20,6 +20,10 @@ func newSession(creds *credentials.Credentials, region string) (*session.Session
 	return session.NewSession(aws.NewConfig().WithRegion(region).WithCredentials(creds))
 }
 
+func formatKeyForDisplay(k string) string {
+	return fmt.Sprintf("****************%s", k[len(k)-4:])
+}
+
 // NewTempCredentials creates temporary credentials
 func NewTempCredentials(k keyring.Keyring, config *Config) (*credentials.Credentials, error) {
 	provider, err := NewTempCredentialsProvider(k, config)
@@ -88,7 +92,7 @@ func (p *TempCredentialsProvider) getCredsWithSession() (credentials.Value, erro
 		SessionToken:    *session.SessionToken,
 	}
 
-	log.Printf("Using session token ****************%s, expires in %s", (*session.AccessKeyId)[len(*session.AccessKeyId)-4:], session.Expiration.Sub(time.Now()).String())
+	log.Printf("Using session token %s, expires in %s", formatKeyForDisplay(*session.AccessKeyId), time.Until(*session.Expiration).String())
 	return value, nil
 }
 
@@ -114,10 +118,10 @@ func (p *TempCredentialsProvider) getCredsWithSessionAndRole() (credentials.Valu
 		SessionToken:    *role.SessionToken,
 	}
 
-	log.Printf("Using session token ****************%s with role ****************%s, expires in %s",
-		(*session.AccessKeyId)[len(*session.AccessKeyId)-4:],
-		(*role.AccessKeyId)[len(*role.AccessKeyId)-4:],
-		role.Expiration.Sub(time.Now()).String())
+	log.Printf("Using session token %s with role %s, expires in %s",
+		formatKeyForDisplay(*session.AccessKeyId),
+		formatKeyForDisplay(*role.AccessKeyId),
+		time.Until(*role.Expiration).String())
 
 	return creds, nil
 }
@@ -137,7 +141,7 @@ func (p *TempCredentialsProvider) getCredsWithRole() (credentials.Value, error) 
 
 	p.SetExpiration(*role.Expiration, DefaultExpirationWindow)
 
-	log.Printf("Using role ****************%s, expires in %s", (*role.AccessKeyId)[len(*role.AccessKeyId)-4:], role.Expiration.Sub(time.Now()).String())
+	log.Printf("Using role %s, expires in %s", formatKeyForDisplay(*role.AccessKeyId), time.Until(*role.Expiration).String())
 	return credentials.Value{
 		AccessKeyID:     *role.AccessKeyId,
 		SecretAccessKey: *role.SecretAccessKey,

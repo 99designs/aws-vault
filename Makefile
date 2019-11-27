@@ -1,15 +1,15 @@
 export GO111MODULE=on
 VERSION=$(shell git describe --tags --candidates=1 --dirty)
 FLAGS=-X main.Version=$(VERSION) -s -w
-CERT="Developer ID Application: 99designs Inc (NRM9HVJ62Z)"
+CERT_ID ?= Developer ID Application: 99designs Inc (NRM9HVJ62Z)
 SRC=$(shell find . -name '*.go')
 
-.PHONY: all clean release
+.PHONY: all clean release install
 
 all: aws-vault-linux-amd64 aws-vault-darwin-amd64 aws-vault-windows-386.exe aws-vault-freebsd-amd64
 
 clean:
-	rm -f aws-vault-linux-amd64 aws-vault-darwin-amd64 aws-vault-darwin-amd64.dmg aws-vault-windows-386.exe aws-vault-freebsd-amd64
+	rm -f aws-vault aws-vault-linux-amd64 aws-vault-darwin-amd64 aws-vault-darwin-amd64.dmg aws-vault-windows-386.exe aws-vault-freebsd-amd64
 
 release: all aws-vault-darwin-amd64.dmg
 	@echo "\nTo update homebrew-cask run\n\n    cask-repair -v $(shell echo $(VERSION) | sed 's/v\(.*\)/\1/') aws-vault\n"
@@ -32,5 +32,5 @@ aws-vault-darwin-amd64.dmg: aws-vault-darwin-amd64
 install:
 	rm -f aws-vault
 	go build .
-	codesign --options runtime --timestamp --sign "Developer ID Application: 99designs Inc (NRM9HVJ62Z)" aws-vault
+	codesign --options runtime --timestamp --sign "$(CERT_ID)" aws-vault
 	mv aws-vault ~/bin/

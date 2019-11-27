@@ -35,7 +35,7 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 	input := LoginCommandInput{}
 
 	cmd := app.Command("login", "Generate a login link for the AWS Console")
-	cmd.Flag("no-session", "Use root credentials, no session created").
+	cmd.Flag("no-session", "Use master credentials, no session created").
 		Short('n').
 		BoolVar(&input.Config.NoSession)
 

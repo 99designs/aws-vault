@@ -36,7 +36,7 @@ func ConfigureExecCommand(app *kingpin.Application) {
 	input := ExecCommandInput{}
 
 	cmd := app.Command("exec", "Executes a command with AWS credentials in the environment")
-	cmd.Flag("no-session", "Use root credentials, no session created").
+	cmd.Flag("no-session", "Use master credentials, no session created").
 		Short('n').
 		BoolVar(&input.Config.NoSession)
 

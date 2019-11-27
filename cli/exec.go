@@ -20,7 +20,6 @@ type ExecCommandInput struct {
 	Keyring          keyring.Keyring
 	StartServer      bool
 	CredentialHelper bool
-	Signals          chan os.Signal
 	Config           vault.Config
 }
 
@@ -86,7 +85,6 @@ func ConfigureExecCommand(app *kingpin.Application) {
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.Keyring = keyringImpl
 		input.Config.MfaPromptMethod = GlobalFlags.PromptDriver
-		input.Signals = make(chan os.Signal)
 		ExecCommand(app, input)
 		return nil
 	})

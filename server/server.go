@@ -2,15 +2,11 @@ package server
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net"
 	"net/http"
-	"os"
-	"os/exec"
-	"runtime"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -19,7 +15,7 @@ import (
 const (
 	metadataBind    = "169.254.169.254:80"
 	awsTimeFormat   = "2006-01-02T15:04:05Z"
-	localServerUrl  = "http://127.0.0.1:9099"
+	localServerURL  = "http://127.0.0.1:9099"
 	localServerBind = "127.0.0.1:9099"
 )
 
@@ -54,14 +50,14 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func credentialsHandler(w http.ResponseWriter, r *http.Request) {
-	resp, err := http.Get(localServerUrl)
+	resp, err := http.Get(localServerURL)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusGatewayTimeout)
 		return
 	}
 	defer resp.Body.Close()
 
-	log.Printf("Fetched credentials from %s", localServerUrl)
+	log.Printf("Fetched credentials from %s", localServerURL)
 
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
@@ -82,38 +78,6 @@ func checkServerRunning(bind string) bool {
 	return err == nil
 }
 
-func StartCredentialProxyOnWindows() error {
-	log.Printf("Starting `aws-vault server` in the background")
-	cmd := exec.Command(os.Args[0], "server")
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	if err := cmd.Start(); err != nil {
-		return err
-	}
-	time.Sleep(time.Second * 1)
-	if !checkServerRunning(metadataBind) {
-		return errors.New("The credential proxy server isn't running. Run aws-vault server as Administrator in the background and then try this command again")
-	}
-	return nil
-}
-
-func StartCredentialProxyWithSudo() error {
-	log.Printf("Starting `aws-vault server` as root in the background")
-	cmd := exec.Command("sudo", "-b", os.Args[0], "server")
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	return cmd.Run()
-}
-
-func StartCredentialProxy() error {
-	if runtime.GOOS == "windows" {
-		return StartCredentialProxyOnWindows()
-	}
-	return StartCredentialProxyWithSudo()
-}
-
 func StartCredentialsServer(creds *credentials.Credentials) error {
 	if !checkServerRunning(metadataBind) {
 		if err := StartCredentialProxy(); err != nil {
@@ -127,7 +91,13 @@ func StartCredentialsServer(creds *credentials.Credentials) error {
 	}
 
 	log.Printf("Local instance role server running on %s", l.Addr())
-	go http.Serve(l, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	go http.Serve(l, credsHandler(creds))
+
+	return nil
+}
+
+func credsHandler(creds *credentials.Credentials) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		ip, _, err := net.SplitHostPort(r.RemoteAddr)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -174,7 +144,5 @@ func StartCredentialsServer(creds *credentials.Credentials) error {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-	}))
-
-	return nil
+	}
 }

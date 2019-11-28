@@ -24,9 +24,6 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 		HintAction(awsConfigFile.ProfileNames).
 		StringVar(&input.ProfileName)
 
-	cmd.Flag("mfa-serial", "The identification number of the MFA device to use").
-		StringVar(&input.Config.MfaSerial)
-
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.Config.MfaPromptMethod = GlobalFlags.PromptDriver
 		input.Keyring = keyringImpl

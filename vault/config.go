@@ -280,14 +280,24 @@ func (c *ConfigLoader) populateFromConfigFile(config *Config, profileName string
 }
 
 func (c *ConfigLoader) populateFromEnv(profile *Config) {
+	if region := os.Getenv("AWS_REGION"); region != "" && profile.Region == "" {
+		log.Printf("Using region %q from AWS_REGION", region)
+		profile.Region = region
+	}
+
 	if region := os.Getenv("AWS_DEFAULT_REGION"); region != "" && profile.Region == "" {
 		log.Printf("Using region %q from AWS_DEFAULT_REGION", region)
 		profile.Region = region
 	}
 
-	if region := os.Getenv("AWS_REGION"); region != "" && profile.Region == "" {
-		log.Printf("Using region %q from AWS_REGION", region)
-		profile.Region = region
+	if roleARN := os.Getenv("AWS_ROLE_ARN"); roleARN != "" && profile.RoleARN == "" {
+		log.Printf("Using role_arn %q from AWS_ROLE_ARN", roleARN)
+		profile.RoleARN = roleARN
+	}
+
+	if roleSessionName := os.Getenv("AWS_ROLE_SESSION_NAME"); roleSessionName != "" && profile.RoleSessionName == "" {
+		log.Printf("Using role_session_name %q from AWS_ROLE_SESSION_NAME", roleSessionName)
+		profile.RoleSessionName = roleSessionName
 	}
 
 	if mfaSerial := os.Getenv("AWS_MFA_SERIAL"); mfaSerial != "" && profile.MfaSerial == "" {

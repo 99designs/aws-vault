@@ -41,7 +41,7 @@ $ aws-vault exec --help
 
 aws-vault uses your `~/.aws/config` to load AWS config. This should work identically to the config specified by the [aws-cli docs](https://docs.aws.amazon.com/cli/latest/topic/config-vars.html).
 
-aws-vault also recognises an extra config variable, `parent_profile`. This variable sets a profile to inherit configuration from. In the following example, the `work-admin` profile inherits `region` and `mfa_serial` from the `work` profile.
+aws-vault also recognises an extra config variable, `parent_profile`, which is not recognised by the aws-cli. This variable allows a profile to inherit configuration from another profile. In the following example, the `work-admin` profile inherits `region` and `mfa_serial` from the `work` profile.
 
 ```ini
 [profile work]
@@ -60,7 +60,6 @@ The following environment variables can be set to override the default flag
 values of `aws-vault` and its subcommands.
 
 For the `aws-vault` command:
-
 * `AWS_VAULT_BACKEND`: Secret backend to use (see the flag `--backend`)
 * `AWS_VAULT_KEYCHAIN_NAME`: Name of macOS keychain to use (see the flag `--keychain`)
 * `AWS_VAULT_PROMPT`: Prompt driver to use (see the flag `--prompt`)
@@ -68,16 +67,20 @@ For the `aws-vault` command:
 * `AWS_VAULT_PASS_CMD`: Name of the pass executable (see the flag `--pass-cmd`)
 * `AWS_VAULT_PASS_PREFIX`: Prefix to prepend to the item path stored in pass (see the flag `--pass-prefix`)
 
-For the `aws-vault exec` subcommand:
-
-* `AWS_ASSUME_ROLE_TTL`: Expiration time for aws assumed role (see the flag `--assume-role-ttl`)
+For the `exec` subcommand:
 * `AWS_SESSION_TTL`:  Expiration time for aws session (see the flag `--session-ttl`)
-* `AWS_MFA_SERIAL`: The identification number of the MFA device to use  (see the flag `--mfa-serial`)
+* `AWS_ASSUME_ROLE_TTL`: Expiration time for aws assumed role (see the flag `--assume-role-ttl`)
 
 For the `aws-vault login` subcommand:
-
 * `AWS_FEDERATION_TOKEN_TTL`: Expiration time for aws console session (see the flag `--federation-token-ttl`)
-* `AWS_MFA_SERIAL`: The identification number of the MFA device to use  (see the flag `--mfa-serial`)
+* `AWS_ASSUME_ROLE_TTL`: Expiration time for aws assumed role (see the flag `--assume-role-ttl`)
+
+For the `exec`, `login` and `rotate` subcommands:
+* `AWS_REGION`: The AWS region
+* `AWS_DEFAULT_REGION`: The AWS region, applied only if `AWS_REGION` isn't set
+* `AWS_ROLE_ARN`: Specifies the ARN of an IAM role
+* `AWS_ROLE_SESSION_NAME`: Specifies the name to attach to the role session
+* `AWS_MFA_SERIAL`: The identification number of the MFA device to use
 
 
 ## Managing Profiles
@@ -213,16 +216,7 @@ source_profile = intermediary
 role_arn = arn:aws:iam::123456789012:role/target
 ```
 
-If desired, you can set your `mfa_serial` with an environment variable `AWS_MFA_SERIAL` or by setting the `--mfa-serial` flag from `aws-vault exec`. This behavior is `aws-vault` specific and isn't supported from the `awscli`.
-
-```shell
-# Set MFA Serial with flag
-$ aws-vault exec --mfa-serial arn:aws:iam::123456789012:mfa/jonsmith my_profile ...
-
-# Set MFA Serial with environment variable
-$ export AWS_MFA_SERIAL=arn:aws:iam::123456789012:mfa/jonsmith
-$ aws-vault exec my_profile ...
-```
+You can also set the `mfa_serial` with the environment variable `AWS_MFA_SERIAL`.
 
 
 ## Removing stored sessions

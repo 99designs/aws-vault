@@ -48,9 +48,6 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 		Short('t').
 		StringVar(&input.Config.MfaToken)
 
-	cmd.Flag("mfa-serial", "The identification number of the MFA device to use").
-		StringVar(&input.Config.MfaSerial)
-
 	cmd.Flag("path", "The AWS service you would like access").
 		StringVar(&input.Path)
 

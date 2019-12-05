@@ -28,7 +28,7 @@ region=us-east-1
 [profile withmfa]
 source_profile=user2
 role_arn=arn:aws:iam::4451234513441615400570:role/aws_admin
-mfa_serial=arn:aws:iam::1234513441:mfa/blah
+mfa_Serial=arn:aws:iam::1234513441:mfa/blah
 region=us-east-1
 duration_seconds=1200
 

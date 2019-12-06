@@ -25,7 +25,7 @@ output=text
 source_profile=user2
 region=us-east-1
 
-[profile withmfa]
+[profile withMFA]
 source_profile=user2
 role_arn=arn:aws:iam::4451234513441615400570:role/aws_admin
 mfa_Serial=arn:aws:iam::1234513441:mfa/blah
@@ -57,6 +57,26 @@ func newConfigFile(t *testing.T, b []byte) string {
 		t.Fatal(err)
 	}
 	return f.Name()
+}
+
+func TestConfigCaseInsensitivity(t *testing.T) {
+	f := newConfigFile(t, exampleConfig)
+	defer os.Remove(f)
+
+	cfg, err := vault.LoadConfig(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	def, ok := cfg.ProfileSection("withmfa")
+	if !ok {
+		t.Fatalf("Expected to match profile withMFA")
+	}
+
+	expectedMfaSerial := "arn:aws:iam::1234513441:mfa/blah"
+	if def.MfaSerial != expectedMfaSerial {
+		t.Fatalf("Expected %s, got %s", expectedMfaSerial, def.MfaSerial)
+	}
 }
 
 func TestConfigParsingProfiles(t *testing.T) {

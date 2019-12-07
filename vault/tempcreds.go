@@ -154,7 +154,7 @@ func (p *TempCredentialsProvider) createSessionToken() (*sts.Credentials, error)
 	var err error
 
 	input := &sts.GetSessionTokenInput{
-		DurationSeconds: aws.Int64(int64(p.config.SessionDuration.Seconds())),
+		DurationSeconds: aws.Int64(int64(p.config.GetSessionTokenDuration.Seconds())),
 	}
 
 	if p.config.MfaSerial != "" {

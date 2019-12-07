@@ -14,13 +14,14 @@ import (
 )
 
 const (
-	MaxSessionDuration    = time.Hour * 36
-	MinSessionDuration    = time.Minute * 15
+	MinGetSessionTokenDuration = time.Minute * 15
+	MaxGetSessionTokenDuration = time.Hour * 36
+
 	MinAssumeRoleDuration = time.Minute * 15
 	MaxAssumeRoleDuration = time.Hour * 12
 
-	DefaultSessionDuration    = time.Hour * 4
-	DefaultAssumeRoleDuration = time.Minute * 15
+	DefaultSessionDuration       = time.Hour * 1
+	DefaultCachedSessionDuration = time.Hour * 8
 )
 
 func init() {
@@ -127,7 +128,7 @@ type ProfileSection struct {
 	ExternalID      string `ini:"external_id,omitempty"`
 	Region          string `ini:"region,omitempty"`
 	RoleSessionName string `ini:"role_session_name,omitempty"`
-	DurationSeconds string `ini:"duration_seconds,omitempty"`
+	DurationSeconds uint   `ini:"duration_seconds,omitempty"`
 	SourceProfile   string `ini:"source_profile,omitempty"`
 	ParentProfile   string `ini:"parent_profile,omitempty"`
 }
@@ -222,12 +223,22 @@ func (c *ConfigLoader) resetLoopDetection() {
 	c.visitedProfiles = []string{}
 }
 
+// defaultSessionDurationForConfig returns the default session duration for the given config.
+func defaultSessionDurationForConfig(config *Config) time.Duration {
+	// If a session token is being created for the purposes of caching and won't be exposed
+	// to the env, use a longer default
+	if config.IsSessionForCaching() {
+		return DefaultCachedSessionDuration
+	}
+	return DefaultSessionDuration
+}
+
 func (c *ConfigLoader) populateFromDefaults(config *Config) {
 	if config.AssumeRoleDuration == 0 {
-		config.AssumeRoleDuration = DefaultAssumeRoleDuration
+		config.AssumeRoleDuration = DefaultSessionDuration
 	}
-	if config.SessionDuration == 0 {
-		config.SessionDuration = DefaultSessionDuration
+	if config.GetSessionTokenDuration == 0 {
+		config.GetSessionTokenDuration = defaultSessionDurationForConfig(config)
 	}
 }
 
@@ -258,9 +269,7 @@ func (c *ConfigLoader) populateFromConfigFile(config *Config, profileName string
 		config.RoleSessionName = psection.RoleSessionName
 	}
 	if config.AssumeRoleDuration == 0 {
-		if d, err := time.ParseDuration(psection.DurationSeconds + "s"); err == nil {
-			config.AssumeRoleDuration = d
-		}
+		config.AssumeRoleDuration = time.Duration(psection.DurationSeconds) * time.Second
 	}
 
 	if psection.SourceProfile != "" {
@@ -304,6 +313,21 @@ func (c *ConfigLoader) populateFromEnv(profile *Config) {
 		log.Printf("Using mfa_serial %q from AWS_MFA_SERIAL", mfaSerial)
 		profile.MfaSerial = mfaSerial
 	}
+
+	var err error
+	if assumeRoleTTL := os.Getenv("AWS_ASSUME_ROLE_TTL"); assumeRoleTTL != "" && profile.AssumeRoleDuration == 0 {
+		profile.AssumeRoleDuration, err = time.ParseDuration(assumeRoleTTL)
+		if err == nil {
+			log.Printf("Using duration_seconds %q from AWS_ASSUME_ROLE_TTL", profile.AssumeRoleDuration)
+		}
+	}
+
+	if sessionTTL := os.Getenv("AWS_SESSION_TOKEN_TTL"); sessionTTL != "" && profile.AssumeRoleDuration == 0 {
+		profile.GetSessionTokenDuration, err = time.ParseDuration(sessionTTL)
+		if err == nil {
+			log.Printf("Using a session duration of %q from AWS_SESSION_TOKEN_TTL", profile.GetSessionTokenDuration)
+		}
+	}
 }
 
 func (c *ConfigLoader) LoadFromProfile(profileName string, config *Config) error {
@@ -331,26 +355,30 @@ type Config struct {
 	Region          string
 	RoleSessionName string
 
-	SessionDuration    time.Duration
-	AssumeRoleDuration time.Duration
-	MfaToken           string
-	MfaPromptMethod    string
-	NoSession          bool
+	GetSessionTokenDuration time.Duration
+	AssumeRoleDuration      time.Duration
+	MfaToken                string
+	MfaPromptMethod         string
+	NoSession               bool
 }
 
 func (c *Config) Validate() error {
-	if c.SessionDuration < MinSessionDuration {
-		return errors.New("Minimum session duration is " + MinSessionDuration.String())
+	if c.GetSessionTokenDuration < MinGetSessionTokenDuration {
+		return fmt.Errorf("Minimum session duration is %s", MinGetSessionTokenDuration)
 	}
-	if c.SessionDuration > MaxSessionDuration {
-		return errors.New("Maximum session duration is " + MaxSessionDuration.String())
+	if c.GetSessionTokenDuration > MaxGetSessionTokenDuration {
+		return fmt.Errorf("Maximum session duration is %s", MaxGetSessionTokenDuration)
 	}
 	if c.AssumeRoleDuration < MinAssumeRoleDuration {
-		return errors.New("Minimum duration for assumed roles is " + MinAssumeRoleDuration.String())
+		return fmt.Errorf("Minimum duration for assumed roles is %s", MinAssumeRoleDuration)
 	}
 	if c.AssumeRoleDuration > MaxAssumeRoleDuration {
-		return errors.New("Maximum duration for assumed roles is " + MaxAssumeRoleDuration.String())
+		return fmt.Errorf("Maximum duration for assumed roles is %s", MaxAssumeRoleDuration)
 	}
 
 	return nil
+}
+
+func (c *Config) IsSessionForCaching() bool {
+	return !c.NoSession && c.RoleARN != "" && c.MfaSerial != ""
 }

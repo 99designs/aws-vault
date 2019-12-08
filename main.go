@@ -30,6 +30,7 @@ func run(args []string, exit func(int)) {
 	cli.ConfigureListCommand(app)
 	cli.ConfigureRotateCommand(app)
 	cli.ConfigureExecCommand(app)
+	cli.ConfigureShellCommand(app)
 	cli.ConfigureRemoveCommand(app)
 	cli.ConfigureLoginCommand(app)
 	cli.ConfigureServerCommand(app)

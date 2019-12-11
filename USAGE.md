@@ -56,31 +56,27 @@ parent_profile = work
 
 ## Environment variables
 
-The following environment variables can be set to override the default flag
-values of `aws-vault` and its subcommands.
-
-For the `aws-vault` command:
+To configure the default flag values of `aws-vault` and its subcommands:
 * `AWS_VAULT_BACKEND`: Secret backend to use (see the flag `--backend`)
 * `AWS_VAULT_KEYCHAIN_NAME`: Name of macOS keychain to use (see the flag `--keychain`)
 * `AWS_VAULT_PROMPT`: Prompt driver to use (see the flag `--prompt`)
 * `AWS_VAULT_PASS_PASSWORD_STORE_DIR`: Pass password store directory (see the flag `--pass-dir`)
 * `AWS_VAULT_PASS_CMD`: Name of the pass executable (see the flag `--pass-cmd`)
 * `AWS_VAULT_PASS_PREFIX`: Prefix to prepend to the item path stored in pass (see the flag `--pass-prefix`)
+* `AWS_VAULT_FILE_PASSPHRASE`: Password for the "file" password store
+* `AWS_CONFIG_FILE`: The location of the AWS config file
 
-For the `exec` subcommand:
-* `AWS_SESSION_TTL`:  Expiration time for aws session (see the flag `--session-ttl`)
-* `AWS_ASSUME_ROLE_TTL`: Expiration time for aws assumed role (see the flag `--assume-role-ttl`)
-
-For the `aws-vault login` subcommand:
-* `AWS_FEDERATION_TOKEN_TTL`: Expiration time for aws console session (see the flag `--federation-token-ttl`)
-* `AWS_ASSUME_ROLE_TTL`: Expiration time for aws assumed role (see the flag `--assume-role-ttl`)
-
-For the `exec`, `login` and `rotate` subcommands:
+To override the AWS config file (used in the `exec`, `login` and `rotate` subcommands):
 * `AWS_REGION`: The AWS region
 * `AWS_DEFAULT_REGION`: The AWS region, applied only if `AWS_REGION` isn't set
 * `AWS_ROLE_ARN`: Specifies the ARN of an IAM role
 * `AWS_ROLE_SESSION_NAME`: Specifies the name to attach to the role session
 * `AWS_MFA_SERIAL`: The identification number of the MFA device to use
+
+To override session durations (used in `exec` and `login`):
+* `AWS_SESSION_TOKEN_TTL`: Expiration time for the `GetSessionToken` credentials. Defaults to 1h, or 8h when using `AssumeRole`
+* `AWS_ASSUME_ROLE_TTL`: Expiration time for the `AssumeRole` credentials. Defaults to 1h
+* `AWS_FEDERATION_TOKEN_TTL`: Expiration time for the `GetFederationToken` credentials. Defaults to 1h
 
 
 ## Managing Profiles

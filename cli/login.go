@@ -7,13 +7,13 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/99designs/aws-vault/vault"
 	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/skratchdot/open-golang/open"
@@ -23,70 +23,79 @@ import (
 const allowAllIAMPolicy = `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"*","Resource":"*"}]}`
 
 type LoginCommandInput struct {
-	ProfileName             string
-	Keyring                 keyring.Keyring
-	UseStdout               bool
-	FederationTokenDuration time.Duration
-	Path                    string
-	Config                  vault.Config
+	ProfileName     string
+	Keyring         keyring.Keyring
+	UseStdout       bool
+	Path            string
+	Config          vault.Config
+	SessionDuration time.Duration
 }
 
 func ConfigureLoginCommand(app *kingpin.Application) {
 	input := LoginCommandInput{}
 
 	cmd := app.Command("login", "Generate a login link for the AWS Console")
-	cmd.Flag("no-session", "Use master credentials, no session created").
-		Short('n').
-		BoolVar(&input.Config.NoSession)
 
-	cmd.Arg("profile", "Name of the profile").
-		Required().
-		HintAction(awsConfigFile.ProfileNames).
-		StringVar(&input.ProfileName)
+	cmd.Flag("duration", "Duration of the assume-role or federated session. Defaults to 1h").
+		Short('d').
+		DurationVar(&input.SessionDuration)
 
-	cmd.Flag("mfa-token", "The mfa token to use").
+	cmd.Flag("mfa-token", "The MFA token to use").
 		Short('t').
 		StringVar(&input.Config.MfaToken)
 
 	cmd.Flag("path", "The AWS service you would like access").
 		StringVar(&input.Path)
 
-	cmd.Flag("federation-token-ttl", "Expiration time for aws console session").
-		Default("12h").
-		Envar("AWS_FEDERATION_TOKEN_TTL").
-		Short('f').
-		DurationVar(&input.FederationTokenDuration)
-
-	cmd.Flag("assume-role-ttl", "Expiration time for aws assumed role").
-		Default("15m").
-		Envar("AWS_ASSUME_ROLE_TTL").
-		DurationVar(&input.Config.AssumeRoleDuration)
-
 	cmd.Flag("stdout", "Print login URL to stdout instead of opening in default browser").
 		Short('s').
 		BoolVar(&input.UseStdout)
 
+	cmd.Arg("profile", "Name of the profile").
+		Required().
+		HintAction(awsConfigFile.ProfileNames).
+		StringVar(&input.ProfileName)
+
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.Config.MfaPromptMethod = GlobalFlags.PromptDriver
+		input.Config.GetSessionTokenDuration = input.SessionDuration
+		input.Config.AssumeRoleDuration = input.SessionDuration
 		input.Keyring = keyringImpl
 		LoginCommand(app, input)
 		return nil
 	})
 }
 
-func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
-	if input.FederationTokenDuration > (time.Hour * 12) {
-		app.Fatalf("Maximum federation token duration is 12 hours")
-		return
+const DefaultFederationTokenDuration = 1 * time.Hour
+
+func getFederationTokenDuration(input LoginCommandInput) time.Duration {
+	if input.SessionDuration != 0 {
+		return input.SessionDuration
 	}
 
-	if input.Config.RoleARN == "" {
-		input.Config.NoSession = true
+	d, err := time.ParseDuration(os.Getenv("AWS_FEDERATION_TOKEN_TTL"))
+	if err == nil {
+		log.Printf("Using a session duration of %q from AWS_FEDERATION_TOKEN_TTL", d)
+		return d
 	}
+
+	return DefaultFederationTokenDuration
+}
+
+func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
+	federationTokenDuration := getFederationTokenDuration(input)
 
 	err := configLoader.LoadFromProfile(input.ProfileName, &input.Config)
 	if err != nil {
 		app.Fatalf("%v", err)
+	}
+
+	// if AssumeRole isn't used, GetFederationToken has to be used for IAM credentials
+	isFederated := (input.Config.RoleARN == "")
+
+	// Only federation tokens or assume role tokens may be used for federated login (not session tokens)
+	if isFederated {
+		input.Config.NoSession = true
 	}
 
 	creds, err := vault.NewTempCredentials(input.Keyring, &input.Config)
@@ -94,34 +103,38 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		app.Fatalf("%v", err)
 	}
 
-	val, err := creds.Get()
-	if err != nil {
-		app.Fatalf(FormatCredentialError(err, input.Config.CredentialsName))
+	type SessionData struct {
+		SessionId    string `json:"sessionId"`
+		SessionKey   string `json:"sessionKey"`
+		SessionToken string `json:"sessionToken"`
+		expiration   time.Time
 	}
 
-	isFederated := false
-
-	// if AssumeRole isn't used, GetFederationToken has to be used for IAM credentials
-	if val.SessionToken == "" {
+	sess := SessionData{}
+	if isFederated {
 		log.Printf("No session token found, calling GetFederationToken")
-		stsCreds, err := getFederationToken(creds, input.FederationTokenDuration, input.Config.Region)
+		s := session.Must(session.NewSession(aws.NewConfig().WithRegion(input.Config.Region).WithCredentials(creds)))
+		stsCreds, err := getFederationToken(s, federationTokenDuration)
 		if err != nil {
-			app.Fatalf("Failed to call GetFederationToken: %v\n"+
-				"Login for non-assumed roles depends on permission to call sts:GetFederationToken", err)
+			app.Fatalf("Failed to call GetFederationToken: %v", err)
 			return
 		}
-
-		val.AccessKeyID = *stsCreds.AccessKeyId
-		val.SecretAccessKey = *stsCreds.SecretAccessKey
-		val.SessionToken = *stsCreds.SessionToken
-		isFederated = true
+		sess.SessionId = *stsCreds.AccessKeyId
+		sess.SessionKey = *stsCreds.SecretAccessKey
+		sess.SessionToken = *stsCreds.SessionToken
+		sess.expiration = *stsCreds.Expiration
+	} else {
+		val, err := creds.Get()
+		if err != nil {
+			app.Fatalf(FormatCredentialError(err, input.Config.CredentialsName))
+		}
+		sess.SessionId = val.AccessKeyID
+		sess.SessionKey = val.SecretAccessKey
+		sess.SessionToken = val.SessionToken
+		sess.expiration, _ = creds.ExpiresAt()
 	}
 
-	jsonBytes, err := json.Marshal(map[string]string{
-		"sessionId":    val.AccessKeyID,
-		"sessionKey":   val.SecretAccessKey,
-		"sessionToken": val.SessionToken,
-	})
+	sessionDataJSON, err := json.Marshal(sess)
 	if err != nil {
 		app.Fatalf("%v", err)
 		return
@@ -135,17 +148,11 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
-	log.Printf("Creating login token, expires in %s", input.FederationTokenDuration)
+	log.Printf("Creating login token, expires in %s", time.Until(sess.expiration))
 
 	q := req.URL.Query()
 	q.Add("Action", "getSigninToken")
-	q.Add("Session", string(jsonBytes))
-
-	// not needed for federation tokens
-	if input.Config.NoSession && !isFederated {
-		q.Add("SessionDuration", fmt.Sprintf("%.f", input.FederationTokenDuration.Seconds()))
-	}
-
+	q.Add("Session", string(sessionDataJSON))
 	req.URL.RawQuery = q.Encode()
 
 	resp, err := http.DefaultClient.Do(req)
@@ -180,12 +187,8 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		return
 	}
 
-	loginURL := fmt.Sprintf(
-		"%s?Action=login&Issuer=aws-vault&Destination=%s&SigninToken=%s",
-		loginURLPrefix,
-		url.QueryEscape(destination),
-		url.QueryEscape(signinToken),
-	)
+	loginURL := fmt.Sprintf("%s?Action=login&Issuer=aws-vault&Destination=%s&SigninToken=%s",
+		loginURLPrefix, url.QueryEscape(destination), url.QueryEscape(signinToken))
 
 	if input.UseStdout {
 		fmt.Println(loginURL)
@@ -195,11 +198,10 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 	}
 }
 
-func getFederationToken(creds *credentials.Credentials, d time.Duration, region string) (*sts.Credentials, error) {
-	sess := session.Must(session.NewSession(aws.NewConfig().WithRegion(region).WithCredentials(creds)))
-	client := sts.New(sess)
+func getFederationToken(s *session.Session, federationTokenDuration time.Duration) (*sts.Credentials, error) {
+	client := sts.New(s)
 
-	currentUsername, err := vault.GetUsernameFromSession(sess)
+	currentUsername, err := vault.GetUsernameFromSession(s)
 	if err != nil {
 		return nil, err
 	}
@@ -211,7 +213,7 @@ func getFederationToken(creds *credentials.Credentials, d time.Duration, region 
 
 	params := &sts.GetFederationTokenInput{
 		Name:            aws.String(currentUsername),
-		DurationSeconds: aws.Int64(int64(d.Seconds())),
+		DurationSeconds: aws.Int64(int64(federationTokenDuration.Seconds())),
 		Policy:          aws.String(allowAllIAMPolicy),
 	}
 
@@ -238,15 +240,11 @@ func generateLoginURL(region string, path string) (string, string) {
 			destinationDomain = "console.amazonaws-us-gov.com"
 		}
 		if path != "" {
-			destination = fmt.Sprintf(
-				"https://%s.%s/%s?region=%s",
-				region, destinationDomain, path, region,
-			)
+			destination = fmt.Sprintf("https://%s.%s/%s?region=%s",
+				region, destinationDomain, path, region)
 		} else {
-			destination = fmt.Sprintf(
-				"https://%s.%s/console/home?region=%s",
-				region, destinationDomain, region,
-			)
+			destination = fmt.Sprintf("https://%s.%s/console/home?region=%s",
+				region, destinationDomain, region)
 		}
 	}
 	return loginURLPrefix, destination

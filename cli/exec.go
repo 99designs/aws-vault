@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/99designs/aws-vault/server"
 	"github.com/99designs/aws-vault/vault"
@@ -21,6 +22,7 @@ type ExecCommandInput struct {
 	StartServer      bool
 	CredentialHelper bool
 	Config           vault.Config
+	SessionDuration  time.Duration
 }
 
 // json metadata for AWS credential process. Ref: https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
@@ -36,23 +38,17 @@ func ConfigureExecCommand(app *kingpin.Application) {
 	input := ExecCommandInput{}
 
 	cmd := app.Command("exec", "Executes a command with AWS credentials in the environment")
+
+	cmd.Flag("duration", "Duration of the temporary or assume-role session. Defaults to 1h").
+		Short('d').
+		DurationVar(&input.SessionDuration)
+
 	cmd.Flag("no-session", "Use master credentials, no session created").
 		Short('n').
 		BoolVar(&input.Config.NoSession)
 
-	cmd.Flag("session-ttl", "Expiration time for aws session").
-		Default("4h").
-		Envar("AWS_SESSION_TTL").
+	cmd.Flag("mfa-token", "The MFA token to use").
 		Short('t').
-		DurationVar(&input.Config.SessionDuration)
-
-	cmd.Flag("assume-role-ttl", "Expiration time for aws assumed role").
-		Default("15m").
-		Envar("AWS_ASSUME_ROLE_TTL").
-		DurationVar(&input.Config.AssumeRoleDuration)
-
-	cmd.Flag("mfa-token", "The mfa token to use").
-		Short('m').
 		StringVar(&input.Config.MfaToken)
 
 	cmd.Flag("json", "AWS credential helper. Ref: https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes").
@@ -78,6 +74,8 @@ func ConfigureExecCommand(app *kingpin.Application) {
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.Keyring = keyringImpl
 		input.Config.MfaPromptMethod = GlobalFlags.PromptDriver
+		input.Config.GetSessionTokenDuration = input.SessionDuration
+		input.Config.AssumeRoleDuration = input.SessionDuration
 		ExecCommand(app, input)
 		return nil
 	})

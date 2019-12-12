@@ -1,9 +1,7 @@
-package vault_test
+package vault
 
 import (
 	"testing"
-
-	"github.com/99designs/aws-vault/vault"
 )
 
 func TestIsSessionKey(t *testing.T) {
@@ -19,9 +17,9 @@ func TestIsSessionKey(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		if tc.IsSession && !vault.IsSessionKey(tc.Key) {
+		if tc.IsSession && !IsSessionKey(tc.Key) {
 			t.Fatalf("%q is a session key, but wasn't detected as one", tc.Key)
-		} else if !tc.IsSession && vault.IsSessionKey(tc.Key) {
+		} else if !tc.IsSession && IsSessionKey(tc.Key) {
 			t.Fatalf("%q isn't a session key, but was detected as one", tc.Key)
 		}
 	}

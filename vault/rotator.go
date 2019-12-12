@@ -77,7 +77,6 @@ func Rotate(keyring keyring.Keyring, config *Config) error {
 	}
 
 	// expire the cached credentials
-	sessCredsProvider.ForceRefresh()
 	sessCreds.Expire()
 
 	// Use new credentials to delete old access key

@@ -1,7 +1,6 @@
 package vault
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -11,25 +10,21 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts"
 )
 
-// AssumeRoleProvider provides credentials from AssumeRole
+// AssumeRoleProvider retrieves temporary credentials using STS AssumeRole
 type AssumeRoleProvider struct {
 	credentials.Expiry
-	Mfa
+	StsClient       *sts.STS
 	Creds           *credentials.Credentials
 	RoleARN         string
 	RoleSessionName string
-	Region          string
 	ExternalID      string
 	Duration        time.Duration
+	Mfa
 }
 
-// getCredsWithRole returns credentials a session created with AssumeRole
+// Retrieve returns temporary credentials using STS AssumeRole
 func (p *AssumeRoleProvider) Retrieve() (credentials.Value, error) {
 	log.Println("Getting credentials with AssumeRole")
-
-	if p.RoleARN == "" {
-		return credentials.Value{}, errors.New("No role defined")
-	}
 
 	role, err := p.assumeRoleFromCreds(p.Creds, true)
 	if err != nil {
@@ -47,22 +42,17 @@ func (p *AssumeRoleProvider) Retrieve() (credentials.Value, error) {
 }
 
 func (p *AssumeRoleProvider) roleSessionName() string {
-	if p.RoleSessionName != "" {
-		return p.RoleSessionName
+	if p.RoleSessionName == "" {
+		// Try to work out a role name that will hopefully end up unique.
+		return fmt.Sprintf("%d", time.Now().UTC().UnixNano())
 	}
 
-	// Try to work out a role name that will hopefully end up unique.
-	return fmt.Sprintf("%d", time.Now().UTC().UnixNano())
+	return p.RoleSessionName
 }
 
 // assumeRoleFromCreds uses the master credentials to assume a role
 func (p *AssumeRoleProvider) assumeRoleFromCreds(creds *credentials.Credentials, includeMfa bool) (*sts.Credentials, error) {
 	var err error
-	sess, err := newSession(creds, p.Region)
-	if err != nil {
-		return nil, err
-	}
-	client := sts.New(sess)
 
 	input := &sts.AssumeRoleInput{
 		RoleArn:         aws.String(p.RoleARN),
@@ -84,7 +74,7 @@ func (p *AssumeRoleProvider) assumeRoleFromCreds(creds *credentials.Credentials,
 	}
 
 	log.Printf("Assuming role %s", p.RoleARN)
-	resp, err := client.AssumeRole(input)
+	resp, err := p.StsClient.AssumeRole(input)
 	if err != nil {
 		return nil, err
 	}

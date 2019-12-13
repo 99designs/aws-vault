@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/sts"
 )
 
 const DefaultExpirationWindow = 5 * time.Minute
@@ -61,27 +62,37 @@ func NewTempCredentials(k keyring.Keyring, config *Config) (*credentials.Credent
 	return credentials.NewCredentials(provider), nil
 }
 
-func NewSessionTokenProvider(creds *credentials.Credentials, k keyring.Keyring, config *Config) *SessionTokenProvider {
+func NewSessionTokenProvider(creds *credentials.Credentials, k keyring.Keyring, config *Config) (*SessionTokenProvider, error) {
+	sess, err := newSession(creds, config.Region)
+	if err != nil {
+		return nil, err
+	}
+
 	return &SessionTokenProvider{
+		StsClient:       sts.New(sess),
 		MasterCreds:     creds,
 		Sessions:        NewKeyringSessions(k),
 		CredentialsName: config.CredentialsName,
 		Duration:        config.GetSessionTokenDuration,
-		Region:          config.Region,
 		Mfa: Mfa{
 			MfaToken:        config.MfaToken,
 			MfaPromptMethod: config.MfaPromptMethod,
 			MfaSerial:       config.MfaSerial,
 		},
-	}
+	}, nil
 }
 
-func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config) *AssumeRoleProvider {
+func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config) (*AssumeRoleProvider, error) {
+	sess, err := newSession(creds, config.Region)
+	if err != nil {
+		return nil, err
+	}
+
 	return &AssumeRoleProvider{
+		StsClient:       sts.New(sess),
 		Creds:           creds,
 		RoleARN:         config.RoleARN,
 		RoleSessionName: config.RoleSessionName,
-		Region:          config.Region,
 		ExternalID:      config.ExternalID,
 		Duration:        config.AssumeRoleDuration,
 		Mfa: Mfa{
@@ -89,7 +100,7 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config) *Assu
 			MfaToken:        config.MfaToken,
 			MfaPromptMethod: config.MfaPromptMethod,
 		},
-	}
+	}, nil
 }
 
 // NewTempCredentialsProvider creates a provider for temporary credentials
@@ -106,14 +117,17 @@ func NewTempCredentialsProvider(k keyring.Keyring, config *Config) (credentials.
 	}
 
 	if config.NoSession {
-		return NewAssumeRoleProvider(credentials.NewCredentials(masterCredsProvider), config), nil
+		return NewAssumeRoleProvider(credentials.NewCredentials(masterCredsProvider), config)
 	}
 
-	sessionTokenCredsProvider := NewSessionTokenProvider(credentials.NewCredentials(masterCredsProvider), k, config)
+	sessionTokenCredsProvider, err := NewSessionTokenProvider(credentials.NewCredentials(masterCredsProvider), k, config)
+	if err != nil {
+		return nil, err
+	}
 
 	if config.RoleARN == "" {
 		return sessionTokenCredsProvider, nil
 	}
 
-	return NewAssumeRoleProvider(credentials.NewCredentials(sessionTokenCredsProvider), config), nil
+	return NewAssumeRoleProvider(credentials.NewCredentials(sessionTokenCredsProvider), config)
 }

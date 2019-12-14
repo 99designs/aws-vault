@@ -350,17 +350,19 @@ type Config struct {
 	ProfileName     string
 	CredentialsName string
 
-	MfaSerial       string
-	RoleARN         string
-	ExternalID      string
-	Region          string
-	RoleSessionName string
+	Region string
 
-	GetSessionTokenDuration time.Duration
-	AssumeRoleDuration      time.Duration
-	MfaToken                string
-	MfaPromptMethod         string
 	NoSession               bool
+	GetSessionTokenDuration time.Duration
+
+	RoleARN            string
+	RoleSessionName    string
+	ExternalID         string
+	AssumeRoleDuration time.Duration
+
+	MfaSerial       string
+	MfaToken        string
+	MfaPromptMethod string
 }
 
 func (c *Config) Validate() error {

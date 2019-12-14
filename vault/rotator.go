@@ -11,7 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/iam"
 )
 
-func getUsernameIfAssumingRole(sess *session.Session, config *Config) (*string, error) {
+func getUsernameIfAssumingRole(sess *session.Session, config Config) (*string, error) {
 	if config.RoleARN != "" {
 		n, err := GetUsernameFromSession(sess)
 		if err != nil {
@@ -23,7 +23,7 @@ func getUsernameIfAssumingRole(sess *session.Session, config *Config) (*string, 
 	return nil, nil
 }
 
-func Rotate(keyring keyring.Keyring, config *Config) error {
+func Rotate(keyring keyring.Keyring, config Config) error {
 
 	masterCredsProvider := NewMasterCredentialsProvider(keyring, config.CredentialsName)
 

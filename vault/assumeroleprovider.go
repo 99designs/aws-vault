@@ -12,28 +12,27 @@ import (
 
 // AssumeRoleProvider retrieves temporary credentials using STS AssumeRole
 type AssumeRoleProvider struct {
-	credentials.Expiry
 	StsClient       *sts.STS
-	Creds           *credentials.Credentials
 	RoleARN         string
 	RoleSessionName string
 	ExternalID      string
 	Duration        time.Duration
 	Mfa
+	credentials.Expiry
 }
 
 // Retrieve returns temporary credentials using STS AssumeRole
 func (p *AssumeRoleProvider) Retrieve() (credentials.Value, error) {
 	log.Println("Getting credentials with AssumeRole")
 
-	role, err := p.assumeRoleFromCreds(p.Creds, true)
+	role, err := p.assumeRole()
 	if err != nil {
 		return credentials.Value{}, err
 	}
 
-	p.SetExpiration(*role.Expiration, DefaultExpirationWindow)
-
 	log.Printf("Using role %s, expires in %s", formatKeyForDisplay(*role.AccessKeyId), time.Until(*role.Expiration).String())
+
+	p.SetExpiration(*role.Expiration, DefaultExpirationWindow)
 	return credentials.Value{
 		AccessKeyID:     *role.AccessKeyId,
 		SecretAccessKey: *role.SecretAccessKey,
@@ -51,7 +50,7 @@ func (p *AssumeRoleProvider) roleSessionName() string {
 }
 
 // assumeRoleFromCreds uses the master credentials to assume a role
-func (p *AssumeRoleProvider) assumeRoleFromCreds(creds *credentials.Credentials, includeMfa bool) (*sts.Credentials, error) {
+func (p *AssumeRoleProvider) assumeRole() (*sts.Credentials, error) {
 	var err error
 
 	input := &sts.AssumeRoleInput{
@@ -65,7 +64,7 @@ func (p *AssumeRoleProvider) assumeRoleFromCreds(creds *credentials.Credentials,
 	}
 
 	// if we don't have a session, we need to include MFA token in the AssumeRole call
-	if includeMfa && p.MfaSerial != "" {
+	if p.MfaSerial != "" {
 		input.SerialNumber = aws.String(p.MfaSerial)
 		input.TokenCode, err = p.GetMfaToken()
 		if err != nil {
@@ -73,7 +72,6 @@ func (p *AssumeRoleProvider) assumeRoleFromCreds(creds *credentials.Credentials,
 		}
 	}
 
-	log.Printf("Assuming role %s", p.RoleARN)
 	resp, err := p.StsClient.AssumeRole(input)
 	if err != nil {
 		return nil, err

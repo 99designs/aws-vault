@@ -44,16 +44,12 @@ func (m *Mfa) GetMfaToken() (*string, error) {
 	return nil, errors.New("No prompt found")
 }
 
-func NewMasterCredentials(k keyring.Keyring, credentialsName string) *credentials.Credentials {
-	return credentials.NewCredentials(NewMasterCredentialsProvider(k, credentialsName))
-}
-
 func NewMasterCredentialsProvider(k keyring.Keyring, credentialsName string) *KeyringProvider {
 	return &KeyringProvider{k, credentialsName}
 }
 
 // NewTempCredentials creates temporary credentials
-func NewTempCredentials(k keyring.Keyring, config *Config) (*credentials.Credentials, error) {
+func NewTempCredentials(k keyring.Keyring, config Config) (*credentials.Credentials, error) {
 	provider, err := NewTempCredentialsProvider(k, config)
 	if err != nil {
 		return nil, err
@@ -62,27 +58,28 @@ func NewTempCredentials(k keyring.Keyring, config *Config) (*credentials.Credent
 	return credentials.NewCredentials(provider), nil
 }
 
-func NewSessionTokenProvider(creds *credentials.Credentials, k keyring.Keyring, config *Config) (*SessionTokenProvider, error) {
+func NewSessionTokenProvider(creds *credentials.Credentials, k keyring.Keyring, config Config) (*CachedSessionTokenProvider, error) {
 	sess, err := newSession(creds, config.Region)
 	if err != nil {
 		return nil, err
 	}
 
-	return &SessionTokenProvider{
-		StsClient:       sts.New(sess),
-		MasterCreds:     creds,
-		Sessions:        NewKeyringSessions(k),
+	return &CachedSessionTokenProvider{
+		Keyring:         k,
 		CredentialsName: config.CredentialsName,
-		Duration:        config.GetSessionTokenDuration,
-		Mfa: Mfa{
-			MfaToken:        config.MfaToken,
-			MfaPromptMethod: config.MfaPromptMethod,
-			MfaSerial:       config.MfaSerial,
+		Provider: &SessionTokenProvider{
+			StsClient: sts.New(sess),
+			Duration:  config.GetSessionTokenDuration,
+			Mfa: Mfa{
+				MfaToken:        config.MfaToken,
+				MfaPromptMethod: config.MfaPromptMethod,
+				MfaSerial:       config.MfaSerial,
+			},
 		},
 	}, nil
 }
 
-func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config) (*AssumeRoleProvider, error) {
+func NewAssumeRoleProvider(creds *credentials.Credentials, config Config) (*AssumeRoleProvider, error) {
 	sess, err := newSession(creds, config.Region)
 	if err != nil {
 		return nil, err
@@ -90,7 +87,6 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config) (*Ass
 
 	return &AssumeRoleProvider{
 		StsClient:       sts.New(sess),
-		Creds:           creds,
 		RoleARN:         config.RoleARN,
 		RoleSessionName: config.RoleSessionName,
 		ExternalID:      config.ExternalID,
@@ -103,8 +99,9 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config) (*Ass
 	}, nil
 }
 
-// NewTempCredentialsProvider creates a provider for temporary credentials
-func NewTempCredentialsProvider(k keyring.Keyring, config *Config) (credentials.Provider, error) {
+// NewTempCredentialsProvider creates a provider for temporary credentials using the given config.
+// Credentials are generated using STS GetSessionToken and/or AssumeRole
+func NewTempCredentialsProvider(k keyring.Keyring, config Config) (credentials.Provider, error) {
 	if err := config.Validate(); err != nil {
 		return nil, err
 	}
@@ -128,6 +125,10 @@ func NewTempCredentialsProvider(k keyring.Keyring, config *Config) (credentials.
 	if config.RoleARN == "" {
 		return sessionTokenCredsProvider, nil
 	}
+
+	// If assuming a role using a SessionToken, MFA has already been used in the SessionToken
+	// and is not required for the AssumeRole call
+	config.MfaSerial = ""
 
 	return NewAssumeRoleProvider(credentials.NewCredentials(sessionTokenCredsProvider), config)
 }

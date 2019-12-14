@@ -100,7 +100,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 		return
 	}
 
-	creds, err := vault.NewTempCredentials(input.Keyring, &input.Config)
+	creds, err := vault.NewTempCredentials(input.Keyring, input.Config)
 	if err != nil {
 		app.Fatalf("%v", err)
 		return

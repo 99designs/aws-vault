@@ -50,7 +50,7 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 		fmt.Printf("Rotating credentials '%s' using profile '%s' (takes 10-20 seconds)\n", input.Config.CredentialsName, input.Config.ProfileName)
 	}
 
-	if err := vault.Rotate(input.Keyring, &input.Config); err != nil {
+	if err := vault.Rotate(input.Keyring, input.Config); err != nil {
 		app.Fatalf(err.Error())
 		return
 	}

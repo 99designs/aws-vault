@@ -11,38 +11,32 @@ import (
 
 // AssumeRoleProvider retrieves temporary credentials using STS GetSessionToken
 type SessionTokenProvider struct {
-	credentials.Expiry
-	StsClient       *sts.STS
-	Sessions        *KeyringSessions
-	MasterCreds     *credentials.Credentials
-	CredentialsName string
-	Duration        time.Duration
+	StsClient *sts.STS
+	Duration  time.Duration
 	Mfa
+	credentials.Expiry
 }
 
 // Retrieve returns temporary credentials using STS GetSessionToken
 func (p *SessionTokenProvider) Retrieve() (credentials.Value, error) {
 	log.Println("Getting credentials with GetSessionToken")
 
-	session, err := p.getSessionToken()
+	session, err := p.GetSessionToken()
 	if err != nil {
 		return credentials.Value{}, err
 	}
 
-	p.SetExpiration(*session.Expiration, DefaultExpirationWindow)
+	log.Printf("Using session token %s, expires in %s", formatKeyForDisplay(*session.AccessKeyId), time.Until(*session.Expiration).String())
 
-	value := credentials.Value{
+	p.SetExpiration(*session.Expiration, DefaultExpirationWindow)
+	return credentials.Value{
 		AccessKeyID:     *session.AccessKeyId,
 		SecretAccessKey: *session.SecretAccessKey,
 		SessionToken:    *session.SessionToken,
-	}
-
-	log.Printf("Using session token %s, expires in %s", formatKeyForDisplay(*session.AccessKeyId), time.Until(*session.Expiration).String())
-	return value, nil
+	}, nil
 }
 
-func (p *SessionTokenProvider) createSessionToken() (*sts.Credentials, error) {
-	log.Printf("Creating new session token for profile %s", p.CredentialsName)
+func (p *SessionTokenProvider) GetSessionToken() (*sts.Credentials, error) {
 	var err error
 
 	input := &sts.GetSessionTokenInput{
@@ -63,22 +57,4 @@ func (p *SessionTokenProvider) createSessionToken() (*sts.Credentials, error) {
 	}
 
 	return resp.Credentials, nil
-}
-
-func (p *SessionTokenProvider) getSessionToken() (*sts.Credentials, error) {
-	session, err := p.Sessions.Retrieve(p.CredentialsName, p.MfaSerial)
-	if err != nil {
-		// session lookup missed, we need to create a new one.
-		session, err = p.createSessionToken()
-		if err != nil {
-			return nil, err
-		}
-
-		err = p.Sessions.Store(p.CredentialsName, p.MfaSerial, session)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return session, err
 }

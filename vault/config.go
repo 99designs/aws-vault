@@ -349,22 +349,22 @@ func (c *ConfigLoader) LoadFromProfile(profileName string, config *Config) error
 type Config struct {
 	ProfileName     string
 	CredentialsName string
-
-	Region string
-
+	Region          string
+	// Mfa config
+	MfaSerial       string
+	MfaToken        string
+	MfaPromptMethod string
+	// GetSessionToken config
 	NoSession               bool
 	GetSessionTokenDuration time.Duration
-
+	// AssumeRole config
 	RoleARN            string
 	RoleSessionName    string
 	ExternalID         string
 	AssumeRoleDuration time.Duration
-
-	MfaSerial       string
-	MfaToken        string
-	MfaPromptMethod string
 }
 
+// Validate checks that the Config is valid
 func (c *Config) Validate() error {
 	if c.GetSessionTokenDuration < MinGetSessionTokenDuration {
 		return fmt.Errorf("Minimum session duration is %s", MinGetSessionTokenDuration)
@@ -382,6 +382,8 @@ func (c *Config) Validate() error {
 	return nil
 }
 
+// IsSessionForCaching returns whether GetSessionToken credentials are being created
+// in order for AssumeRole calls to avoid multiple MFA prompts
 func (c *Config) IsSessionForCaching() bool {
 	return !c.NoSession && c.RoleARN != "" && c.MfaSerial != ""
 }

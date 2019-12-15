@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts"
 )
 
-// AssumeRoleProvider retrieves temporary credentials from STS using GetSessionToken
+// SessionTokenProvider retrieves temporary credentials from STS using GetSessionToken
 type SessionTokenProvider struct {
 	StsClient    *sts.STS
 	Duration     time.Duration
@@ -20,14 +20,10 @@ type SessionTokenProvider struct {
 
 // Retrieve generates a new set of temporary credentials using STS GetSessionToken
 func (p *SessionTokenProvider) Retrieve() (credentials.Value, error) {
-	log.Println("Getting credentials with GetSessionToken")
-
 	session, err := p.GetSessionToken()
 	if err != nil {
 		return credentials.Value{}, err
 	}
-
-	log.Printf("Using session token %s, expires in %s", formatKeyForDisplay(*session.AccessKeyId), time.Until(*session.Expiration).String())
 
 	p.SetExpiration(*session.Expiration, p.ExpiryWindow)
 	return credentials.Value{
@@ -37,6 +33,7 @@ func (p *SessionTokenProvider) Retrieve() (credentials.Value, error) {
 	}, nil
 }
 
+// GetSessionToken generates a new set of temporary credentials using STS GetSessionToken
 func (p *SessionTokenProvider) GetSessionToken() (*sts.Credentials, error) {
 	var err error
 
@@ -56,6 +53,8 @@ func (p *SessionTokenProvider) GetSessionToken() (*sts.Credentials, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	log.Printf("Generated credentials %s using GetSessionToken, expires in %s", formatKeyForDisplay(*resp.Credentials.AccessKeyId), time.Until(*resp.Credentials.Expiration).String())
 
 	return resp.Credentials, nil
 }

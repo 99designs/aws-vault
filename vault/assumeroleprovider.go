@@ -24,14 +24,10 @@ type AssumeRoleProvider struct {
 
 // Retrieve generates a new set of temporary credentials using STS AssumeRole
 func (p *AssumeRoleProvider) Retrieve() (credentials.Value, error) {
-	log.Println("Getting credentials with AssumeRole")
-
 	role, err := p.assumeRole()
 	if err != nil {
 		return credentials.Value{}, err
 	}
-
-	log.Printf("Using role %s, expires in %s", formatKeyForDisplay(*role.AccessKeyId), time.Until(*role.Expiration).String())
 
 	p.SetExpiration(*role.Expiration, p.ExpiryWindow)
 	return credentials.Value{
@@ -50,7 +46,6 @@ func (p *AssumeRoleProvider) roleSessionName() string {
 	return p.RoleSessionName
 }
 
-// assumeRoleFromCreds uses the master credentials to assume a role
 func (p *AssumeRoleProvider) assumeRole() (*sts.Credentials, error) {
 	var err error
 
@@ -77,6 +72,8 @@ func (p *AssumeRoleProvider) assumeRole() (*sts.Credentials, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	log.Printf("Generated credentials %s using AssumeRole, expires in %s", formatKeyForDisplay(*resp.Credentials.AccessKeyId), time.Until(*resp.Credentials.Expiration).String())
 
 	return resp.Credentials, nil
 }

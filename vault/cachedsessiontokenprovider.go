@@ -8,11 +8,12 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 )
 
-// CachedSessionTokenProvider retrieves cached credentials in the keyring, or temporary credentials using STS GetSessionToken
+// CachedSessionTokenProvider retrieves cached credentials from the keyring, or temporary credentials from STS using GetSessionToken
 type CachedSessionTokenProvider struct {
 	CredentialsName string
 	Provider        *SessionTokenProvider
 	Keyring         keyring.Keyring
+	ExpiryWindow    time.Duration
 	credentials.Expiry
 }
 
@@ -36,7 +37,7 @@ func (p *CachedSessionTokenProvider) Retrieve() (credentials.Value, error) {
 		log.Printf("Re-using cached session token %s, expires in %s", formatKeyForDisplay(*session.AccessKeyId), time.Until(*session.Expiration).String())
 	}
 
-	p.SetExpiration(*session.Expiration, DefaultExpirationWindow)
+	p.SetExpiration(*session.Expiration, p.ExpiryWindow)
 
 	return credentials.Value{
 		AccessKeyID:     *session.AccessKeyId,

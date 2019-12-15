@@ -10,18 +10,19 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts"
 )
 
-// AssumeRoleProvider retrieves temporary credentials using STS AssumeRole
+// AssumeRoleProvider retrieves temporary credentials from STS using AssumeRole
 type AssumeRoleProvider struct {
 	StsClient       *sts.STS
 	RoleARN         string
 	RoleSessionName string
 	ExternalID      string
 	Duration        time.Duration
+	ExpiryWindow    time.Duration
 	Mfa
 	credentials.Expiry
 }
 
-// Retrieve returns temporary credentials using STS AssumeRole
+// Retrieve generates a new set of temporary credentials using STS AssumeRole
 func (p *AssumeRoleProvider) Retrieve() (credentials.Value, error) {
 	log.Println("Getting credentials with AssumeRole")
 
@@ -32,7 +33,7 @@ func (p *AssumeRoleProvider) Retrieve() (credentials.Value, error) {
 
 	log.Printf("Using role %s, expires in %s", formatKeyForDisplay(*role.AccessKeyId), time.Until(*role.Expiration).String())
 
-	p.SetExpiration(*role.Expiration, DefaultExpirationWindow)
+	p.SetExpiration(*role.Expiration, p.ExpiryWindow)
 	return credentials.Value{
 		AccessKeyID:     *role.AccessKeyId,
 		SecretAccessKey: *role.SecretAccessKey,

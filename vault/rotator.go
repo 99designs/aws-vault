@@ -35,7 +35,7 @@ func Rotate(keyring keyring.Keyring, config Config) error {
 	log.Printf("Rotating access key %s", formatKeyForDisplay(oldMasterCreds.AccessKeyID))
 
 	// create a session to rotate the credentials
-	sessCredsProvider, err := NewTempCredentialsProvider(keyring, config)
+	sessCredsProvider, err := NewCredentialsProvider(keyring, config)
 	if err != nil {
 		return err
 	}

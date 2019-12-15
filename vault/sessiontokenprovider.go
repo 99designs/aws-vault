@@ -9,15 +9,16 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts"
 )
 
-// AssumeRoleProvider retrieves temporary credentials using STS GetSessionToken
+// AssumeRoleProvider retrieves temporary credentials from STS using GetSessionToken
 type SessionTokenProvider struct {
-	StsClient *sts.STS
-	Duration  time.Duration
+	StsClient    *sts.STS
+	Duration     time.Duration
+	ExpiryWindow time.Duration
 	Mfa
 	credentials.Expiry
 }
 
-// Retrieve returns temporary credentials using STS GetSessionToken
+// Retrieve generates a new set of temporary credentials using STS GetSessionToken
 func (p *SessionTokenProvider) Retrieve() (credentials.Value, error) {
 	log.Println("Getting credentials with GetSessionToken")
 
@@ -28,7 +29,7 @@ func (p *SessionTokenProvider) Retrieve() (credentials.Value, error) {
 
 	log.Printf("Using session token %s, expires in %s", formatKeyForDisplay(*session.AccessKeyId), time.Until(*session.Expiration).String())
 
-	p.SetExpiration(*session.Expiration, DefaultExpirationWindow)
+	p.SetExpiration(*session.Expiration, p.ExpiryWindow)
 	return credentials.Value{
 		AccessKeyID:     *session.AccessKeyId,
 		SecretAccessKey: *session.SecretAccessKey,

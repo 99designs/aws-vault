@@ -34,8 +34,8 @@ type ConfigFile struct {
 	iniFile *ini.File
 }
 
-// ConfigPath returns either $AWS_CONFIG_FILE or ~/.aws/config
-func ConfigPath() (string, error) {
+// configPath returns either $AWS_CONFIG_FILE or ~/.aws/config
+func configPath() (string, error) {
 	file := os.Getenv("AWS_CONFIG_FILE")
 	if file == "" {
 		home, err := homedir.Dir()
@@ -49,9 +49,9 @@ func ConfigPath() (string, error) {
 	return file, nil
 }
 
-// CreateConfig will create the config directory and file if they do not exist
-func CreateConfig() error {
-	file, err := ConfigPath()
+// createConfigFilesIfMissing will create the config directory and file if they do not exist
+func createConfigFilesIfMissing() error {
+	file, err := configPath()
 	if err != nil {
 		return err
 	}
@@ -86,7 +86,7 @@ func LoadConfig(path string) (*ConfigFile, error) {
 		}
 	} else {
 		log.Printf("Config file %s doesn't exist so lets create it", path)
-		err := CreateConfig()
+		err := createConfigFilesIfMissing()
 		if err != nil {
 			return nil, err
 		}
@@ -99,7 +99,7 @@ func LoadConfig(path string) (*ConfigFile, error) {
 
 // LoadConfigFromEnv finds the config file from the environment
 func LoadConfigFromEnv() (*ConfigFile, error) {
-	file, err := ConfigPath()
+	file, err := configPath()
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +121,7 @@ func (c *ConfigFile) parseFile() error {
 	return nil
 }
 
-// ProfileSection is a profile section of config
+// ProfileSection is a profile section of the config file
 type ProfileSection struct {
 	Name            string `ini:"-"`
 	MfaSerial       string `ini:"mfa_serial,omitempty"`

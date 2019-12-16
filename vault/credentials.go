@@ -48,7 +48,7 @@ func NewMasterCredentialsProvider(k keyring.Keyring, credentialsName string) *Ke
 	return &KeyringProvider{k, credentialsName}
 }
 
-func NewSessionTokenProvider(creds *credentials.Credentials, k keyring.Keyring, config Config) (*CachedSessionTokenProvider, error) {
+func NewCachedSessionTokenProvider(creds *credentials.Credentials, k keyring.Keyring, config Config) (*CachedSessionTokenProvider, error) {
 	sess, err := newSession(creds, config.Region)
 	if err != nil {
 		return nil, err
@@ -108,15 +108,17 @@ func NewCredentialsProvider(k keyring.Keyring, config Config) (credentials.Provi
 	masterCreds := credentials.NewCredentials(masterCredsProvider)
 
 	if config.NoSession {
+		log.Println("Using AssumeRole for credentials")
 		return NewAssumeRoleProvider(masterCreds, config)
 	}
 
-	sessionTokenCredsProvider, err := NewSessionTokenProvider(masterCreds, k, config)
+	sessionTokenCredsProvider, err := NewCachedSessionTokenProvider(masterCreds, k, config)
 	if err != nil {
 		return nil, err
 	}
 
 	if config.RoleARN == "" {
+		log.Println("Using GetSessionToken for credentials")
 		return sessionTokenCredsProvider, nil
 	}
 
@@ -124,11 +126,12 @@ func NewCredentialsProvider(k keyring.Keyring, config Config) (credentials.Provi
 	// and is not required for the AssumeRole call
 	config.MfaSerial = ""
 
+	log.Println("Using GetSessionToken + AssumeRole for credentials")
 	return NewAssumeRoleProvider(credentials.NewCredentials(sessionTokenCredsProvider), config)
 }
 
-// NewTempCredentials creates temporary credentials
-func NewTempCredentials(k keyring.Keyring, config Config) (*credentials.Credentials, error) {
+// NewCredentials returns credentials for the given config
+func NewCredentials(k keyring.Keyring, config Config) (*credentials.Credentials, error) {
 	provider, err := NewCredentialsProvider(k, config)
 	if err != nil {
 		return nil, err

@@ -14,13 +14,19 @@ import (
 )
 
 const (
+	// MinGetSessionTokenDuration is the AWS minumum duration for GetSessionToken
 	MinGetSessionTokenDuration = time.Minute * 15
+	// MaxGetSessionTokenDuration is the AWS maximum duration for GetSessionToken
 	MaxGetSessionTokenDuration = time.Hour * 36
 
+	// MinAssumeRoleDuration is the AWS minumum duration for AssumeRole
 	MinAssumeRoleDuration = time.Minute * 15
+	// MaxAssumeRoleDuration is the AWS maximum duration for AssumeRole
 	MaxAssumeRoleDuration = time.Hour * 12
 
-	DefaultSessionDuration       = time.Hour * 1
+	// DefaultSessionDuration is the default duration for GetSessionToken or AssumeRole sessions
+	DefaultSessionDuration = time.Hour * 1
+	// DefaultCachedSessionDuration is the default duration for cached GetSessionToken sessions
 	DefaultCachedSessionDuration = time.Hour * 8
 )
 
@@ -134,7 +140,7 @@ type ProfileSection struct {
 	ParentProfile   string `ini:"parent_profile,omitempty"`
 }
 
-// Profiles returns all the profile sections in the config
+// ProfileSections returns all the profile sections in the config
 func (c *ConfigFile) ProfileSections() []ProfileSection {
 	var result []ProfileSection
 
@@ -153,7 +159,7 @@ func (c *ConfigFile) ProfileSections() []ProfileSection {
 	return result
 }
 
-// Profile returns the profile section with the matching name. If there isn't any,
+// ProfileSection returns the profile section with the matching name. If there isn't any,
 // an empty profile with the provided name is returned, along with false.
 func (c *ConfigFile) ProfileSection(name string) (ProfileSection, bool) {
 	profile := ProfileSection{
@@ -333,6 +339,7 @@ func (c *ConfigLoader) populateFromEnv(profile *Config) {
 	}
 }
 
+// LoadFromProfile loads the profile from the config file and environment variables into config
 func (c *ConfigLoader) LoadFromProfile(profileName string, config *Config) error {
 	config.ProfileName = profileName
 	c.populateFromEnv(config)
@@ -348,21 +355,26 @@ func (c *ConfigLoader) LoadFromProfile(profileName string, config *Config) error
 	return config.Validate()
 }
 
+// Config is a collection of configuration options for creating temporary credentials
 type Config struct {
 	// ProfileName specifies the name of the profile config
 	ProfileName string
-	// CredentialsName is the credentials associated with the profile,
-	// typically specified via source_profile in the config file
+	// CredentialsName is the credentials associated with the profile, typically specified via source_profile in the config file
 	CredentialsName string
 	Region          string
+
 	// Mfa config
 	MfaSerial       string
 	MfaToken        string
 	MfaPromptMethod string
+
+	// GetSessionToken config
+
 	// NoSession stops GetSessionToken from being used for credentials
 	NoSession bool
 	// GetSessionTokenDuration specifies the wanted duration for credentials generated with GetSessionToken
 	GetSessionTokenDuration time.Duration
+
 	// AssumeRole config
 	RoleARN            string
 	RoleSessionName    string

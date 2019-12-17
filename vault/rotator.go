@@ -23,6 +23,7 @@ func getUsernameIfAssumingRole(sess *session.Session, config Config) (*string, e
 	return nil, nil
 }
 
+// Rotate rotates the credentials in config.CredentialsName
 func Rotate(keyring keyring.Keyring, config Config) error {
 
 	masterCredsProvider := NewMasterCredentialsProvider(keyring, config.CredentialsName)

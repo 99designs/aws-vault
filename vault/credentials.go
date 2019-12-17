@@ -24,12 +24,14 @@ func formatKeyForDisplay(k string) string {
 	return fmt.Sprintf("****************%s", k[len(k)-4:])
 }
 
+// Mfa contains options for an MFA device
 type Mfa struct {
 	MfaToken        string
 	MfaPromptMethod string
 	MfaSerial       string
 }
 
+// GetMfaToken returns the MFA token
 func (m *Mfa) GetMfaToken() (*string, error) {
 	if m.MfaToken != "" {
 		return aws.String(m.MfaToken), nil
@@ -44,6 +46,7 @@ func (m *Mfa) GetMfaToken() (*string, error) {
 	return nil, errors.New("No prompt found")
 }
 
+// NewMasterCredentialsProvider creates a provider for the master credentials
 func NewMasterCredentialsProvider(k keyring.Keyring, credentialsName string) *KeyringProvider {
 	return &KeyringProvider{k, credentialsName}
 }
@@ -71,6 +74,7 @@ func NewCachedSessionTokenProvider(creds *credentials.Credentials, k keyring.Key
 	}, nil
 }
 
+// NewAssumeRoleProvider returns a provider that generates credentials using AssumeRole
 func NewAssumeRoleProvider(creds *credentials.Credentials, config Config) (*AssumeRoleProvider, error) {
 	sess, err := newSession(creds, config.Region)
 	if err != nil {

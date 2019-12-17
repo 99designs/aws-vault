@@ -129,7 +129,7 @@ func LsCommand(app *kingpin.Application, input LsCommandInput) {
 			}
 		}
 
-		if len(sessions) > 0 {
+		if len(sessionLabels) > 0 {
 			fmt.Fprintf(w, "%s\t\n", strings.Join(sessionLabels, ", "))
 		} else {
 			fmt.Fprintf(w, "-\t\n")

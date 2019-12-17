@@ -143,7 +143,8 @@ func (c *ConfigFile) ProfileSections() []ProfileSection {
 	}
 
 	for _, section := range c.iniFile.SectionStrings() {
-		if section != "DEFAULT" {
+		// we use Insensitive:true for ini.LoadSources, so the ini.DefaultSection is lowercase
+		if section != strings.ToLower(ini.DefaultSection) {
 			profile, _ := c.ProfileSection(strings.TrimPrefix(section, "profile "))
 			result = append(result, profile)
 		}

@@ -205,6 +205,7 @@ func (c *ConfigFile) ProfileNames() []string {
 	return profileNames
 }
 
+// ConfigLoader loads config from configfile and environment variables
 type ConfigLoader struct {
 	File            *ConfigFile
 	visitedProfiles []string
@@ -347,15 +348,19 @@ func (c *ConfigLoader) LoadFromProfile(profileName string, config *Config) error
 }
 
 type Config struct {
-	ProfileName     string
+	// ProfileName specifies the name of the profile config
+	ProfileName string
+	// CredentialsName is the credentials associated with the profile,
+	// typically specified via source_profile in the config file
 	CredentialsName string
 	Region          string
 	// Mfa config
 	MfaSerial       string
 	MfaToken        string
 	MfaPromptMethod string
-	// GetSessionToken config
-	NoSession               bool
+	// NoSession stops GetSessionToken from being used for credentials
+	NoSession bool
+	// GetSessionTokenDuration specifies the wanted duration for credentials generated with GetSessionToken
 	GetSessionTokenDuration time.Duration
 	// AssumeRole config
 	RoleARN            string

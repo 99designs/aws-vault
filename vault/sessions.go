@@ -101,7 +101,7 @@ func (s *KeyringSessions) Sessions() ([]KeyringSession, error) {
 		if IsSessionKey(k) {
 			ks, err := parseSessionKey(k)
 			if err != nil || ks.IsExpired() {
-				log.Printf("Session %s is obsolete, attempting deleting", k)
+				log.Printf("Session %s is expired, deleting", k)
 				if err := s.keyring.Remove(k); err != nil {
 					log.Printf("Error deleting session: %v", err)
 				}

@@ -120,6 +120,33 @@ source_profile = jonsmith
 
 Now when you use the `prod-admin` profile `aws-vault` will prompt you for an MFA token. This assumed role's session is stored in your keychain so you will only have to enter your MFA once.
 
+### Using credential_process
+
+This allows you to switch profiles using the environment variable of `AWS_PROFILE=<profile-name>`
+
+Be sure you have `AWS_SDK_LOAD_CONFIG=true` in your environment. What's needed is an alias profile that when setting environment variable can be the parameter
+
+```ini
+# ~/.aws/config
+[profile jonsmith]
+
+[profile _source_prod_admin]
+source_profile=jonsmith
+role_arn=arn:aws:iam::111111111111:role/Administrator
+mfa_serial=arn:aws:iam::000000000000:mfa/jonsmith
+
+[profile prod_admin]
+credential_process=aws-vault exec _source_prod_admin --json
+```
+
+One can add this alias to switch profiles using `assume <profile-name>`
+
+```
+assume() {
+  export AWS_PROFILE=$1
+}
+```
+
 
 ## macOS Code Signing
 

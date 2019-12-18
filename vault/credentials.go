@@ -51,6 +51,10 @@ func NewMasterCredentialsProvider(k keyring.Keyring, credentialsName string) *Ke
 	return &KeyringProvider{k, credentialsName}
 }
 
+func NewMasterCredentials(k keyring.Keyring, credentialsName string) *credentials.Credentials {
+	return credentials.NewCredentials(NewMasterCredentialsProvider(k, credentialsName))
+}
+
 func NewCachedSessionTokenProvider(creds *credentials.Credentials, k keyring.Keyring, config Config) (*CachedSessionTokenProvider, error) {
 	sess, err := newSession(creds, config.Region)
 	if err != nil {
@@ -96,22 +100,15 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, config Config) (*Assu
 	}, nil
 }
 
-// NewCredentialsProvider creates a credential provider for the given config.
-func NewCredentialsProvider(k keyring.Keyring, config Config) (credentials.Provider, error) {
+// NewTempCredentialsProvider creates a credential provider for the given config.
+func NewTempCredentialsProvider(k keyring.Keyring, config Config) (credentials.Provider, error) {
 	if err := config.Validate(); err != nil {
 		return nil, err
 	}
 
-	masterCredsProvider := NewMasterCredentialsProvider(k, config.CredentialsName)
+	masterCreds := NewMasterCredentials(k, config.CredentialsName)
 
-	if config.NoSession && config.RoleARN == "" {
-		log.Println("Using master credentials")
-		return masterCredsProvider, nil
-	}
-
-	masterCreds := credentials.NewCredentials(masterCredsProvider)
-
-	if config.NoSession {
+	if config.RoleARN != "" && config.MfaSerial == "" {
 		log.Println("Using AssumeRole for credentials")
 		return NewAssumeRoleProvider(masterCreds, config)
 	}
@@ -134,12 +131,37 @@ func NewCredentialsProvider(k keyring.Keyring, config Config) (credentials.Provi
 	return NewAssumeRoleProvider(credentials.NewCredentials(sessionTokenCredsProvider), config)
 }
 
-// NewCredentials returns credentials for the given config
-func NewCredentials(k keyring.Keyring, config Config) (*credentials.Credentials, error) {
-	provider, err := NewCredentialsProvider(k, config)
+// NewTempCredentials returns credentials for the given config
+func NewTempCredentials(k keyring.Keyring, config Config) (*credentials.Credentials, error) {
+	provider, err := NewTempCredentialsProvider(k, config)
 	if err != nil {
 		return nil, err
 	}
 
 	return credentials.NewCredentials(provider), nil
+}
+
+func NewFederationTokenCredentials(k keyring.Keyring, config Config) (*credentials.Credentials, error) {
+	masterCreds := NewMasterCredentials(k, config.CredentialsName)
+	sess, err := newSession(masterCreds, config.Region)
+	if err != nil {
+		return nil, err
+	}
+
+	currentUsername, err := getUsernameFromSession(sess)
+	if err != nil {
+		return nil, err
+	}
+
+	// truncate the username if it's longer than 32 characters or else GetFederationToken will fail. see: https://docs.aws.amazon.com/STS/latest/APIReference/API_GetFederationToken.html
+	if len(currentUsername) > 32 {
+		currentUsername = currentUsername[0:32]
+	}
+
+	log.Printf("Using GetFederationToken for credentials")
+	return credentials.NewCredentials(&FederationTokenProvider{
+		StsClient: sts.New(sess),
+		Name:      currentUsername,
+		Duration:  config.GetFederationTokenDuration,
+	}), nil
 }

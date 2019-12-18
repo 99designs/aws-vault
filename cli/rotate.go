@@ -40,10 +40,6 @@ func RotateCommand(app *kingpin.Application, input RotateCommandInput) {
 		return
 	}
 
-	if input.Config.MfaSerial == "" || input.Config.RoleARN != "" {
-		input.Config.NoSession = true
-	}
-
 	if input.ProfileName == input.Config.CredentialsName {
 		fmt.Printf("Rotating credentials '%s' (takes 10-20 seconds)\n", input.Config.CredentialsName)
 	} else {

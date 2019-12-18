@@ -11,6 +11,7 @@ import (
 	"github.com/99designs/aws-vault/server"
 	"github.com/99designs/aws-vault/vault"
 	"github.com/99designs/keyring"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -23,6 +24,7 @@ type ExecCommandInput struct {
 	CredentialHelper bool
 	Config           vault.Config
 	SessionDuration  time.Duration
+	NoSession        bool
 }
 
 // json metadata for AWS credential process. Ref: https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
@@ -45,7 +47,7 @@ func ConfigureExecCommand(app *kingpin.Application) {
 
 	cmd.Flag("no-session", "Use master credentials, no session created").
 		Short('n').
-		BoolVar(&input.Config.NoSession)
+		BoolVar(&input.NoSession)
 
 	cmd.Flag("mfa-token", "The MFA token to use").
 		Short('t').
@@ -89,7 +91,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 
 	var setEnv = true
 
-	if input.Config.NoSession && input.StartServer {
+	if input.NoSession && input.StartServer {
 		app.Fatalf("Can't start a credential server without a session")
 		return
 	}
@@ -100,10 +102,15 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 		return
 	}
 
-	creds, err := vault.NewCredentials(input.Keyring, input.Config)
-	if err != nil {
-		app.Fatalf("%v", err)
-		return
+	var creds *credentials.Credentials
+	if input.NoSession {
+		creds = vault.NewMasterCredentials(input.Keyring, input.Config.CredentialsName)
+	} else {
+		creds, err = vault.NewTempCredentials(input.Keyring, input.Config)
+		if err != nil {
+			app.Fatalf("%v", err)
+			return
+		}
 	}
 
 	val, err := creds.Get()
@@ -128,7 +135,7 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 			SecretAccessKey: val.SecretAccessKey,
 			SessionToken:    val.SessionToken,
 		}
-		if !input.Config.NoSession {
+		if !input.NoSession {
 			credsExprest, err := creds.ExpiresAt()
 			if err != nil {
 				app.Fatalf("Error getting credential expiration: %v", err)

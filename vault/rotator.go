@@ -13,7 +13,7 @@ import (
 
 func getUsernameIfAssumingRole(sess *session.Session, config Config) (*string, error) {
 	if config.RoleARN != "" {
-		n, err := GetUsernameFromSession(sess)
+		n, err := getUsernameFromSession(sess)
 		if err != nil {
 			return nil, err
 		}
@@ -36,7 +36,7 @@ func Rotate(keyring keyring.Keyring, config Config) error {
 	log.Printf("Rotating access key %s", formatKeyForDisplay(oldMasterCreds.AccessKeyID))
 
 	// create a session to rotate the credentials
-	sessCredsProvider, err := NewCredentialsProvider(keyring, config)
+	sessCredsProvider, err := NewTempCredentialsProvider(keyring, config)
 	if err != nil {
 		return err
 	}

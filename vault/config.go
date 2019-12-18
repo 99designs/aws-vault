@@ -24,6 +24,11 @@ const (
 	// MaxAssumeRoleDuration is the AWS maximum duration for AssumeRole
 	MaxAssumeRoleDuration = time.Hour * 12
 
+	// MinGetFederationTokenDuration is the AWS minumum duration for GetFederationToke
+	MinGetFederationTokenDuration = time.Minute * 15
+	// MaxGetFederationTokenDuration is the AWS maximum duration for GetFederationToke
+	MaxGetFederationTokenDuration = time.Hour * 36
+
 	// DefaultSessionDuration is the default duration for GetSessionToken or AssumeRole sessions
 	DefaultSessionDuration = time.Hour * 1
 	// DefaultCachedSessionDuration is the default duration for cached GetSessionToken sessions
@@ -259,6 +264,9 @@ func (c *ConfigLoader) populateFromDefaults(config *Config) {
 	if config.AssumeRoleDuration == 0 {
 		config.AssumeRoleDuration = DefaultSessionDuration
 	}
+	if config.GetFederationTokenDuration == 0 {
+		config.GetFederationTokenDuration = DefaultSessionDuration
+	}
 	if config.GetSessionTokenDuration == 0 {
 		config.GetSessionTokenDuration = defaultSessionDurationForConfig(config)
 	}
@@ -350,6 +358,13 @@ func (c *ConfigLoader) populateFromEnv(profile *Config) {
 			log.Printf("Using a session duration of %q from AWS_SESSION_TOKEN_TTL", profile.GetSessionTokenDuration)
 		}
 	}
+
+	if federationTokenTTL := os.Getenv("AWS_FEDERATION_TOKEN_TTL"); federationTokenTTL != "" && profile.GetFederationTokenDuration == 0 {
+		profile.GetSessionTokenDuration, err = time.ParseDuration(federationTokenTTL)
+		if err == nil {
+			log.Printf("Using a session duration of %q from AWS_FEDERATION_TOKEN_TTL", profile.GetSessionTokenDuration)
+		}
+	}
 }
 
 // LoadFromProfile loads the profile from the config file and environment variables into config
@@ -381,33 +396,38 @@ type Config struct {
 	MfaToken        string
 	MfaPromptMethod string
 
-	// GetSessionToken config
-
-	// NoSession stops GetSessionToken from being used for credentials
-	NoSession bool
-	// GetSessionTokenDuration specifies the wanted duration for credentials generated with GetSessionToken
-	GetSessionTokenDuration time.Duration
-
 	// AssumeRole config
 	RoleARN            string
 	RoleSessionName    string
 	ExternalID         string
 	AssumeRoleDuration time.Duration
+
+	// GetSessionTokenDuration specifies the wanted duration for credentials generated with GetSessionToken
+	GetSessionTokenDuration time.Duration
+
+	// GetFederationTokenDuration specifies the wanted duration for credentials generated with GetFederationToken
+	GetFederationTokenDuration time.Duration
 }
 
 // Validate checks that the Config is valid
 func (c *Config) Validate() error {
 	if c.GetSessionTokenDuration < MinGetSessionTokenDuration {
-		return fmt.Errorf("Minimum session duration is %s", MinGetSessionTokenDuration)
+		return fmt.Errorf("Minimum GetSessionToken duration is %s", MinGetSessionTokenDuration)
 	}
 	if c.GetSessionTokenDuration > MaxGetSessionTokenDuration {
-		return fmt.Errorf("Maximum session duration is %s", MaxGetSessionTokenDuration)
+		return fmt.Errorf("Maximum GetSessionToken duration is %s", MaxGetSessionTokenDuration)
 	}
 	if c.AssumeRoleDuration < MinAssumeRoleDuration {
-		return fmt.Errorf("Minimum duration for assumed roles is %s", MinAssumeRoleDuration)
+		return fmt.Errorf("Minimum AssumeRole duration is %s", MinAssumeRoleDuration)
 	}
 	if c.AssumeRoleDuration > MaxAssumeRoleDuration {
-		return fmt.Errorf("Maximum duration for assumed roles is %s", MaxAssumeRoleDuration)
+		return fmt.Errorf("Maximum AssumeRole duration is %s", MaxAssumeRoleDuration)
+	}
+	if c.GetFederationTokenDuration < MinGetFederationTokenDuration {
+		return fmt.Errorf("Minimum GetFederationToken duration is %s", MinAssumeRoleDuration)
+	}
+	if c.GetFederationTokenDuration > MaxGetFederationTokenDuration {
+		return fmt.Errorf("Maximum GetFederationToken duration is %s", MaxAssumeRoleDuration)
 	}
 
 	return nil
@@ -416,5 +436,5 @@ func (c *Config) Validate() error {
 // IsSessionForCaching returns whether GetSessionToken credentials are being created
 // in order for AssumeRole calls to avoid multiple MFA prompts
 func (c *Config) IsSessionForCaching() bool {
-	return !c.NoSession && c.RoleARN != "" && c.MfaSerial != ""
+	return c.RoleARN != "" && c.MfaSerial != ""
 }

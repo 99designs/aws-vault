@@ -7,20 +7,15 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 
 	"github.com/99designs/aws-vault/vault"
 	"github.com/99designs/keyring"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/skratchdot/open-golang/open"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
-
-const allowAllIAMPolicy = `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"*","Resource":"*"}]}`
 
 type LoginCommandInput struct {
 	ProfileName     string
@@ -66,93 +61,45 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 	})
 }
 
-const DefaultFederationTokenDuration = 1 * time.Hour
-
-func getFederationTokenDuration(input LoginCommandInput) time.Duration {
-	if input.SessionDuration != 0 {
-		return input.SessionDuration
-	}
-
-	d, err := time.ParseDuration(os.Getenv("AWS_FEDERATION_TOKEN_TTL"))
-	if err == nil {
-		log.Printf("Using a session duration of %q from AWS_FEDERATION_TOKEN_TTL", d)
-		return d
-	}
-
-	return DefaultFederationTokenDuration
-}
-
 func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
-	federationTokenDuration := getFederationTokenDuration(input)
-
 	err := configLoader.LoadFromProfile(input.ProfileName, &input.Config)
-	if err != nil {
-		app.Fatalf("%v", err)
-	}
+	app.FatalIfError(err, "")
+
+	var creds *credentials.Credentials
 
 	// if AssumeRole isn't used, GetFederationToken has to be used for IAM credentials
-	isFederated := (input.Config.RoleARN == "")
-
-	// Only federation tokens or assume role tokens may be used for federated login (not session tokens)
-	if isFederated {
-		input.Config.NoSession = true
-	}
-
-	creds, err := vault.NewCredentials(input.Keyring, input.Config)
-	if err != nil {
-		app.Fatalf("%v", err)
-	}
-
-	type SessionData struct {
-		SessionId    string `json:"sessionId"`
-		SessionKey   string `json:"sessionKey"`
-		SessionToken string `json:"sessionToken"`
-		expiration   time.Time
-	}
-
-	sess := SessionData{}
-	if isFederated {
-		log.Printf("No session token found, calling GetFederationToken")
-		s := session.Must(session.NewSession(aws.NewConfig().WithRegion(input.Config.Region).WithCredentials(creds)))
-		stsCreds, err := getFederationToken(s, federationTokenDuration)
-		if err != nil {
-			app.Fatalf("Failed to call GetFederationToken: %v", err)
-			return
-		}
-		sess.SessionId = *stsCreds.AccessKeyId
-		sess.SessionKey = *stsCreds.SecretAccessKey
-		sess.SessionToken = *stsCreds.SessionToken
-		sess.expiration = *stsCreds.Expiration
+	if input.Config.RoleARN == "" {
+		creds, err = vault.NewFederationTokenCredentials(input.Keyring, input.Config)
+		app.FatalIfError(err, "")
 	} else {
-		val, err := creds.Get()
-		if err != nil {
-			app.Fatalf(FormatCredentialError(err, input.Config.CredentialsName))
-		}
-		sess.SessionId = val.AccessKeyID
-		sess.SessionKey = val.SecretAccessKey
-		sess.SessionToken = val.SessionToken
-		sess.expiration, _ = creds.ExpiresAt()
+		creds, err = vault.NewTempCredentials(input.Keyring, input.Config)
+		app.FatalIfError(err, "")
 	}
 
-	sessionDataJSON, err := json.Marshal(sess)
+	val, err := creds.Get()
 	if err != nil {
-		app.Fatalf("%v", err)
-		return
+		app.Fatalf(FormatCredentialError(err, input.Config.CredentialsName))
 	}
+
+	jsonBytes, err := json.Marshal(map[string]string{
+		"sessionId":    val.AccessKeyID,
+		"sessionKey":   val.SecretAccessKey,
+		"sessionToken": val.SessionToken,
+	})
+	app.FatalIfError(err, "")
 
 	loginURLPrefix, destination := generateLoginURL(input.Config.Region, input.Path)
 
 	req, err := http.NewRequest("GET", loginURLPrefix, nil)
-	if err != nil {
-		app.Fatalf("%v", err)
-		return
-	}
+	app.FatalIfError(err, "")
 
-	log.Printf("Creating login token, expires in %s", time.Until(sess.expiration))
+	if expiration, err := creds.ExpiresAt(); err != nil {
+		log.Printf("Creating login token, expires in %s", time.Until(expiration))
+	}
 
 	q := req.URL.Query()
 	q.Add("Action", "getSigninToken")
-	q.Add("Session", string(sessionDataJSON))
+	q.Add("Session", string(jsonBytes))
 	req.URL.RawQuery = q.Encode()
 
 	resp, err := http.DefaultClient.Do(req)
@@ -196,33 +143,6 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		log.Println(err)
 		fmt.Println(loginURL)
 	}
-}
-
-func getFederationToken(s *session.Session, federationTokenDuration time.Duration) (*sts.Credentials, error) {
-	client := sts.New(s)
-
-	currentUsername, err := vault.GetUsernameFromSession(s)
-	if err != nil {
-		return nil, err
-	}
-
-	// truncate the username if it's longer than 32 characters or else GetFederationToken will fail. see: https://docs.aws.amazon.com/STS/latest/APIReference/API_GetFederationToken.html
-	if len(currentUsername) > 32 {
-		currentUsername = currentUsername[0:32]
-	}
-
-	params := &sts.GetFederationTokenInput{
-		Name:            aws.String(currentUsername),
-		DurationSeconds: aws.Int64(int64(federationTokenDuration.Seconds())),
-		Policy:          aws.String(allowAllIAMPolicy),
-	}
-
-	resp, err := client.GetFederationToken(params)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp.Credentials, nil
 }
 
 func generateLoginURL(region string, path string) (string, string) {

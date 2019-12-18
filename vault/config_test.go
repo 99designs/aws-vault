@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/99designs/aws-vault/vault"
+	"github.com/google/go-cmp/cmp"
 )
 
 // see http://docs.aws.amazon.com/cli/latest/userguide/cli-multiple-profiles.html
@@ -18,7 +19,7 @@ region=us-west-2
 output=json
 
 [profile user2]
-region=us-east-1
+REGION=us-east-1
 output=text
 
 [profile withsource]
@@ -104,8 +105,8 @@ func TestConfigParsingProfiles(t *testing.T) {
 			if ok != tc.ok {
 				t.Fatalf("Expected second param to be %v, got %v", tc.ok, ok)
 			}
-			if !reflect.DeepEqual(actual, tc.expected) {
-				t.Fatalf("Expected %#v, got %#v", tc.expected, actual)
+			if diff := cmp.Diff(tc.expected, actual); diff != "" {
+				t.Errorf("ProfileSection() mismatch (-expected +actual):\n%s", diff)
 			}
 		})
 	}
@@ -165,7 +166,6 @@ func TestProfilesFromConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	profilesSections := cfg.ProfileSections()
 	expected := []vault.ProfileSection{
 		vault.ProfileSection{Name: "default", Region: "us-west-2"},
 		vault.ProfileSection{Name: "user2", Region: "us-east-1"},
@@ -174,9 +174,10 @@ func TestProfilesFromConfig(t *testing.T) {
 		vault.ProfileSection{Name: "testparentprofile1", Region: "us-east-1"},
 		vault.ProfileSection{Name: "testparentprofile2", ParentProfile: "testparentprofile1"},
 	}
+	actual := cfg.ProfileSections()
 
-	if !reflect.DeepEqual(expected, profilesSections) {
-		t.Fatalf("Expected %#v, got %#v", expected, profilesSections)
+	if diff := cmp.Diff(expected, actual); diff != "" {
+		t.Errorf("ProfileSections() mismatch (-expected +actual):\n%s", diff)
 	}
 }
 
@@ -199,11 +200,19 @@ func TestAddProfileToExistingConfig(t *testing.T) {
 		t.Fatalf("Error adding profile: %#v", err)
 	}
 
-	profilesSections := cfg.ProfileSections()
-	expected := []vault.ProfileSection{vault.ProfileSection{Name: "default", MfaSerial: "", RoleARN: "", ExternalID: "", Region: "us-west-2", RoleSessionName: "", DurationSeconds: 0, SourceProfile: "", ParentProfile: ""}, vault.ProfileSection{Name: "user2", MfaSerial: "", RoleARN: "", ExternalID: "", Region: "us-east-1", RoleSessionName: "", DurationSeconds: 0, SourceProfile: "", ParentProfile: ""}, vault.ProfileSection{Name: "withsource", MfaSerial: "", RoleARN: "", ExternalID: "", Region: "us-east-1", RoleSessionName: "", DurationSeconds: 0, SourceProfile: "user2", ParentProfile: ""}, vault.ProfileSection{Name: "withmfa", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", ExternalID: "", Region: "us-east-1", RoleSessionName: "", DurationSeconds: 1200, SourceProfile: "user2", ParentProfile: ""}, vault.ProfileSection{Name: "testparentprofile1", MfaSerial: "", RoleARN: "", ExternalID: "", Region: "us-east-1", RoleSessionName: "", DurationSeconds: 0, SourceProfile: "", ParentProfile: ""}, vault.ProfileSection{Name: "testparentprofile2", MfaSerial: "", RoleARN: "", ExternalID: "", Region: "", RoleSessionName: "", DurationSeconds: 0, SourceProfile: "", ParentProfile: "testparentprofile1"}, vault.ProfileSection{Name: "llamas", MfaSerial: "testserial", RoleARN: "", ExternalID: "", Region: "us-east-1", RoleSessionName: "", DurationSeconds: 0, SourceProfile: "default", ParentProfile: ""}}
+	expected := []vault.ProfileSection{
+		vault.ProfileSection{Name: "default", Region: "us-west-2"},
+		vault.ProfileSection{Name: "user2", Region: "us-east-1"},
+		vault.ProfileSection{Name: "withsource", Region: "us-east-1", SourceProfile: "user2"},
+		vault.ProfileSection{Name: "withmfa", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2"},
+		vault.ProfileSection{Name: "testparentprofile1", Region: "us-east-1"},
+		vault.ProfileSection{Name: "testparentprofile2", ParentProfile: "testparentprofile1"},
+		vault.ProfileSection{Name: "llamas", MfaSerial: "testserial", Region: "us-east-1", SourceProfile: "default"},
+	}
+	actual := cfg.ProfileSections()
 
-	if !reflect.DeepEqual(expected, profilesSections) {
-		t.Fatalf("Expected: %#v\nGot: %#v", expected, profilesSections)
+	if diff := cmp.Diff(expected, actual); diff != "" {
+		t.Errorf("ProfileSections() mismatch (-expected +actual):\n%s", diff)
 	}
 }
 
@@ -258,5 +267,12 @@ func TestParentProfile(t *testing.T) {
 	}
 	if config.Region != "us-east-1" {
 		t.Fatalf("Expected CredentialsName name %q, got %q", "us-east-1", config.CredentialsName)
+	}
+}
+
+func TestProfileIsEmpty(t *testing.T) {
+	p := vault.ProfileSection{Name: "foo"}
+	if !p.IsEmpty() {
+		t.Errorf("Expected p to be empty")
 	}
 }

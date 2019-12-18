@@ -140,6 +140,11 @@ type ProfileSection struct {
 	ParentProfile   string `ini:"parent_profile,omitempty"`
 }
 
+func (s ProfileSection) IsEmpty() bool {
+	s.Name = ""
+	return s == ProfileSection{}
+}
+
 // ProfileSections returns all the profile sections in the config
 func (c *ConfigFile) ProfileSections() []ProfileSection {
 	var result []ProfileSection
@@ -149,11 +154,19 @@ func (c *ConfigFile) ProfileSections() []ProfileSection {
 	}
 
 	for _, section := range c.iniFile.SectionStrings() {
-		// we use Insensitive:true for ini.LoadSources, so the ini.DefaultSection is lowercase
-		if section != strings.ToLower(ini.DefaultSection) {
-			profile, _ := c.ProfileSection(strings.TrimPrefix(section, "profile "))
-			result = append(result, profile)
+		if strings.ToLower(section) != "default" && !strings.HasPrefix(section, "profile ") {
+			log.Printf("Unrecognised ini file section: %s", section)
+			continue
 		}
+
+		profile, _ := c.ProfileSection(strings.TrimPrefix(section, "profile "))
+
+		// ignore the default profile if it's empty
+		if section == "default" && profile.IsEmpty() {
+			continue
+		}
+
+		result = append(result, profile)
 	}
 
 	return result

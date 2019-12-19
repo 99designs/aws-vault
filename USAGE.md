@@ -430,3 +430,29 @@ aws-vault exec --mfa-token $(ykman oath code --single ${YOUR_YUBIKEY_PROFILE}) $
 ```
 
 [Here](https://gist.github.com/chtorr/0ecc8fca27a4c5e186c636c262cc4757) There're some helper scripts for this.
+
+
+### An example config to switch profiles via environment variables
+
+This allows you to switch profiles using the environment variable of `AWS_PROFILE=<profile-name>`
+
+Be sure you have `AWS_SDK_LOAD_CONFIG=true` in your environment. What's needed is an alias profile that when setting environment variable can be the parameter
+
+```ini
+# ~/.aws/config
+[profile jonsmith]
+[profile _source_prod_admin]
+source_profile=jonsmith
+role_arn=arn:aws:iam::111111111111:role/Administrator
+mfa_serial=arn:aws:iam::000000000000:mfa/jonsmith
+[profile prod_admin]
+credential_process=aws-vault exec _source_prod_admin --json
+```
+
+One can add this alias to switch profiles using `assume <profile-name>`
+
+```
+assume() {
+  export AWS_PROFILE=$1
+}
+```

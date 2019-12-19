@@ -56,29 +56,33 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 		input.Config.GetSessionTokenDuration = input.SessionDuration
 		input.Config.AssumeRoleDuration = input.SessionDuration
 		input.Keyring = keyringImpl
-		LoginCommand(app, input)
+		err := LoginCommand(input)
+		app.FatalIfError(err, "Login failed")
 		return nil
 	})
 }
 
-func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
+func LoginCommand(input LoginCommandInput) error {
 	err := configLoader.LoadFromProfile(input.ProfileName, &input.Config)
-	app.FatalIfError(err, "")
+	if err != nil {
+		return err
+	}
 
 	var creds *credentials.Credentials
 
 	// if AssumeRole isn't used, GetFederationToken has to be used for IAM credentials
 	if input.Config.RoleARN == "" {
 		creds, err = vault.NewFederationTokenCredentials(input.Keyring, input.Config)
-		app.FatalIfError(err, "")
 	} else {
 		creds, err = vault.NewTempCredentials(input.Keyring, input.Config)
-		app.FatalIfError(err, "")
+	}
+	if err != nil {
+		return err
 	}
 
 	val, err := creds.Get()
 	if err != nil {
-		app.Fatalf(FormatCredentialError(err, input.Config.CredentialsName))
+		return fmt.Errorf(FormatCredentialError(err, input.Config.CredentialsName))
 	}
 
 	jsonBytes, err := json.Marshal(map[string]string{
@@ -86,12 +90,16 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		"sessionKey":   val.SecretAccessKey,
 		"sessionToken": val.SessionToken,
 	})
-	app.FatalIfError(err, "")
+	if err != nil {
+		return err
+	}
 
 	loginURLPrefix, destination := generateLoginURL(input.Config.Region, input.Path)
 
 	req, err := http.NewRequest("GET", loginURLPrefix, nil)
-	app.FatalIfError(err, "")
+	if err != nil {
+		return err
+	}
 
 	if expiration, err := creds.ExpiresAt(); err != nil {
 		log.Printf("Creating login token, expires in %s", time.Until(expiration))
@@ -104,34 +112,30 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		app.Fatalf("Failed to create federated token: %v", err)
-		return
+		return err
 	}
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		app.Fatalf("%v", err)
-		return
+		return err
 	}
 
 	if resp.StatusCode != http.StatusOK {
 		log.Printf("Response body was %s", body)
-		app.Fatalf("Call to getSigninToken failed with %v", resp.Status)
-		return
+		return fmt.Errorf("Call to getSigninToken failed with %v", resp.Status)
 	}
 
 	var respParsed map[string]string
 
-	if err = json.Unmarshal([]byte(body), &respParsed); err != nil {
-		app.Fatalf("Failed to parse response from getSigninToken: %v", err)
-		return
+	err = json.Unmarshal([]byte(body), &respParsed)
+	if err != nil {
+		return err
 	}
 
 	signinToken, ok := respParsed["SigninToken"]
 	if !ok {
-		app.Fatalf("Expected a response with SigninToken")
-		return
+		return fmt.Errorf("Expected a response with SigninToken")
 	}
 
 	loginURL := fmt.Sprintf("%s?Action=login&Issuer=aws-vault&Destination=%s&SigninToken=%s",
@@ -143,6 +147,8 @@ func LoginCommand(app *kingpin.Application, input LoginCommandInput) {
 		log.Println(err)
 		fmt.Println(loginURL)
 	}
+
+	return nil
 }
 
 func generateLoginURL(region string, path string) (string, string) {

@@ -18,8 +18,9 @@
   * [Assuming a role for more than 1h](#assuming-a-role-for-more-than-1h)
   * [Being able to perform certain STS operations](#being-able-to-perform-certain-sts-operations)
 * [Rotating Credentials](#rotating-credentials)
-* [Overriding the aws CLI to use aws-vault](#overriding-the-aws-cli-to-use-aws-vault)
-* [Using a yubikey as a virtual MFA](#using-a-yubikey-as-a-virtual-mfa)
+* [Recipes](#recipes)
+  * [Overriding the aws CLI to use aws-vault](#overriding-the-aws-cli-to-use-aws-vault)
+  * [Using a yubikey as a virtual MFA](#using-a-yubikey-as-a-virtual-mfa)
 
 ## Getting Help
 
@@ -379,8 +380,9 @@ The minimal IAM policy required to rotate your own credentials is:
 }
 ```
 
+## Recipes
 
-## Overriding the aws CLI to use aws-vault
+### Overriding the aws CLI to use aws-vault
 
 If you want the `aws` command to use aws-vault automatically, you can create an overriding script
 (make it higher precedence in your PATH) that looks like the below:
@@ -394,7 +396,7 @@ The exec helps reduce the number of processes that are hanging around. The `$@` 
 arguments from the wrapper to the original command.
 
 
-## Using a yubikey as a virtual MFA 
+### Using a yubikey as a virtual MFA 
 
 There's been attempts in the past to support yubikeys natively (#392 , #230) there's another way to go
 at this problem. [Newer](https://support.yubico.com/support/solutions/articles/15000006419-using-your-yubikey-with-authenticator-codes) 
@@ -424,7 +426,7 @@ Input both values as tokens and your device should register as a virtual MFA.
 
 7. Now if you want to run any aws-vault command you should run this: 
 ```bash 
-aws-vault exec ${YOUR_AWS_VAULT_PROFILE}  -m `ykman oath code --single ${YOUR_YUBIKEY_PROFILE}` aws s3 ls
+aws-vault exec --mfa-token $(ykman oath code --single ${YOUR_YUBIKEY_PROFILE}) ${YOUR_AWS_VAULT_PROFILE} -- aws s3 ls
 ```
 
 [Here](https://gist.github.com/chtorr/0ecc8fca27a4c5e186c636c262cc4757) There're some helper scripts for this.

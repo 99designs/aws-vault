@@ -20,10 +20,18 @@ type FederationTokenProvider struct {
 	credentials.Expiry
 }
 
+func (f *FederationTokenProvider) name() string {
+	// truncate the username if it's longer than 32 characters or else GetFederationToken will fail. see: https://docs.aws.amazon.com/STS/latest/APIReference/API_GetFederationToken.html
+	if len(f.Name) > 32 {
+		return f.Name[0:32]
+	}
+	return f.Name
+}
+
 // Retrieve generates a new set of temporary credentials using STS GetFederationToken
 func (f *FederationTokenProvider) Retrieve() (val credentials.Value, err error) {
 	resp, err := f.StsClient.GetFederationToken(&sts.GetFederationTokenInput{
-		Name:            aws.String(f.Name),
+		Name:            aws.String(f.name()),
 		DurationSeconds: aws.Int64(int64(f.Duration.Seconds())),
 		Policy:          aws.String(allowAllIAMPolicy),
 	})

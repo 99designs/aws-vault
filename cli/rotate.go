@@ -24,6 +24,10 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 		HintAction(awsConfigFile.ProfileNames).
 		StringVar(&input.ProfileName)
 
+    cmd.Flag("force-new-session", "Force a new session to be created").
+        Short('f').
+        BoolVar(&input.Config.ForceNewSession)
+
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.Config.MfaPromptMethod = GlobalFlags.PromptDriver
 		input.Keyring = keyringImpl

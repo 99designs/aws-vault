@@ -171,6 +171,11 @@ func ExecCommand(input ExecCommandInput) error {
 				log.Println("Setting subprocess env: AWS_SESSION_TOKEN, AWS_SECURITY_TOKEN")
 				env.Set("AWS_SESSION_TOKEN", val.SessionToken)
 				env.Set("AWS_SECURITY_TOKEN", val.SessionToken)
+				expiration, err := creds.ExpiresAt()
+				if err == nil {
+					log.Println("Setting subprocess env: AWS_SESSION_EXPIRATION")
+					env.Set("AWS_SESSION_EXPIRATION", expiration.Format(time.RFC3339))
+				}
 			}
 		}
 

@@ -407,6 +407,8 @@ type Config struct {
 
 	// GetFederationTokenDuration specifies the wanted duration for credentials generated with GetFederationToken
 	GetFederationTokenDuration time.Duration
+
+	ForceNewSession bool
 }
 
 // Validate checks that the Config is valid

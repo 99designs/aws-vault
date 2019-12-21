@@ -75,6 +75,7 @@ func NewCachedSessionTokenProvider(creds *credentials.Credentials, k keyring.Key
 				MfaSerial:       config.MfaSerial,
 			},
 		},
+		ForceNewSession: config.ForceNewSession,
 	}, nil
 }
 

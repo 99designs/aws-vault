@@ -49,6 +49,10 @@ func ConfigureExecCommand(app *kingpin.Application) {
 		Short('n').
 		BoolVar(&input.NoSession)
 
+	cmd.Flag("force-new-session", "Force a new session to be created").
+		Short('f').
+		BoolVar(&input.Config.ForceNewSession)
+
 	cmd.Flag("mfa-token", "The MFA token to use").
 		Short('t').
 		StringVar(&input.Config.MfaToken)

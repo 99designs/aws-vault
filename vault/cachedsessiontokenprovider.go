@@ -15,6 +15,7 @@ type CachedSessionTokenProvider struct {
 	Provider        *SessionTokenProvider
 	Keyring         keyring.Keyring
 	ExpiryWindow    time.Duration
+	ForceNewSession bool
 	credentials.Expiry
 }
 
@@ -24,7 +25,7 @@ func (p *CachedSessionTokenProvider) Retrieve() (credentials.Value, error) {
 	sessions := NewKeyringSessions(p.Keyring)
 
 	session, err := sessions.Retrieve(p.CredentialsName, p.Provider.MfaSerial)
-	if err != nil {
+	if err != nil || p.ForceNewSession {
 		// session lookup missed, we need to create a new one.
 		session, err = p.Provider.GetSessionToken()
 		if err != nil {

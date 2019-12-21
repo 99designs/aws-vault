@@ -175,12 +175,12 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 				log.Println("Setting subprocess env: AWS_SESSION_TOKEN, AWS_SECURITY_TOKEN")
 				env.Set("AWS_SESSION_TOKEN", val.SessionToken)
 				env.Set("AWS_SECURITY_TOKEN", val.SessionToken)
-                expiration, err := creds.ExpiresAt()
-                if err != nil {
-                    app.Fatalf("Error fetching session expiration")
-                    return
-                }
-                env.Set("AWS_SESSION_EXPIRATION", expiration.Format("2006-01-02T15:04:05Z"))
+				expiration, err := creds.ExpiresAt()
+				if err != nil {
+					app.Fatalf("Error fetching session expiration")
+					return
+				}
+				env.Set("AWS_SESSION_EXPIRATION", expiration.Format("2006-01-02T15:04:05Z"))
 			}
 		}
 

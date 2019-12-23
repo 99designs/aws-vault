@@ -36,6 +36,7 @@ const (
 )
 
 func init() {
+	ini.DefaultHeader = true
 	ini.PrettyFormat = false
 }
 

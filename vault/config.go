@@ -202,6 +202,10 @@ func (c *ConfigFile) ProfileSection(name string) (ProfileSection, bool) {
 	return profile, true
 }
 
+func (c *ConfigFile) Save() error {
+	return c.iniFile.SaveTo(c.Path)
+}
+
 // Add the profile to the configuration file
 func (c *ConfigFile) Add(profile ProfileSection) error {
 	if c.iniFile == nil {
@@ -219,7 +223,7 @@ func (c *ConfigFile) Add(profile ProfileSection) error {
 	if err = section.ReflectFrom(&profile); err != nil {
 		return fmt.Errorf("Error mapping profile to ini file: %v", err)
 	}
-	return c.iniFile.SaveTo(c.Path)
+	return c.Save()
 }
 
 // ProfileNames returns a slice of profile names from the AWS config

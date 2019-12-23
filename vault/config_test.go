@@ -51,6 +51,12 @@ s3=
   max_queue_size=1000
 `)
 
+var onlyDefaultsConfig = []byte(`[default]
+region=us-west-2
+output=json
+
+`)
+
 func newConfigFile(t *testing.T, b []byte) string {
 	f, err := ioutil.TempFile("", "aws-config")
 	if err != nil {
@@ -277,4 +283,28 @@ func TestProfileIsEmpty(t *testing.T) {
 	if !p.IsEmpty() {
 		t.Errorf("Expected p to be empty")
 	}
+}
+
+func TestIniOutputHasDefaultHeader(t *testing.T) {
+	f := newConfigFile(t, onlyDefaultsConfig)
+	defer os.Remove(f)
+
+	cfg, err := vault.LoadConfig(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = cfg.Save()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := onlyDefaultsConfig
+
+	b, _ := ioutil.ReadFile(f)
+
+	if !bytes.Equal(expected, b) {
+		t.Fatalf("Expected:\n%q\nGot:\n%q", expected, b)
+	}
+
 }

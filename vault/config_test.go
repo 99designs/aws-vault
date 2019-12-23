@@ -40,7 +40,9 @@ region=us-east-1
 parent_profile=testparentprofile1
 `)
 
-var nestedConfig = []byte(`[profile testing]
+var nestedConfig = []byte(`[default]
+
+[profile testing]
 aws_access_key_id=foo
 aws_secret_access_key=bar
 region=us-west-2

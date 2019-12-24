@@ -315,25 +315,24 @@ func TestIniWithHeaderSavesWithHeader(t *testing.T) {
 }
 
 func TestIniWithoutHeaderSavesWithHeader(t *testing.T) {
-    f := newConfigFile(t, defaultsOnlyConfigWithoutHeader)
-    defer os.Remove(f)
+	f := newConfigFile(t, defaultsOnlyConfigWithoutHeader)
+	defer os.Remove(f)
 
-    cfg, err := vault.LoadConfig(f)
-    if err != nil {
-        t.Fatal(err)
-    }
+	cfg, err := vault.LoadConfig(f)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-    err = cfg.Save()
-    if err != nil {
-        t.Fatal(err)
-    }
+	err = cfg.Save()
+	if err != nil {
+		t.Fatal(err)
+	}
 
-    expected := defaultsOnlyConfigWithHeader
+	expected := defaultsOnlyConfigWithHeader
 
-    b, _ := ioutil.ReadFile(f)
+	b, _ := ioutil.ReadFile(f)
 
-    if !bytes.Equal(expected, b) {
-        t.Fatalf("Expected:\n%q\nGot:\n%q", expected, b)
-    }
-
+	if !bytes.Equal(expected, b) {
+		t.Fatalf("Expected:\n%q\nGot:\n%q", expected, b)
+	}
 }

@@ -40,13 +40,26 @@ region=us-east-1
 parent_profile=testparentprofile1
 `)
 
-var nestedConfig = []byte(`[profile testing]
+var nestedConfig = []byte(`[default]
+
+[profile testing]
 aws_access_key_id=foo
 aws_secret_access_key=bar
 region=us-west-2
 s3=
   max_concurrent_requests=10
   max_queue_size=1000
+`)
+
+var defaultsOnlyConfigWithHeader = []byte(`[default]
+region=us-west-2
+output=json
+
+`)
+
+var defaultsOnlyConfigWithoutHeader = []byte(`region=us-west-2
+output=json
+
 `)
 
 func newConfigFile(t *testing.T, b []byte) string {
@@ -274,5 +287,52 @@ func TestProfileIsEmpty(t *testing.T) {
 	p := vault.ProfileSection{Name: "foo"}
 	if !p.IsEmpty() {
 		t.Errorf("Expected p to be empty")
+	}
+}
+
+func TestIniWithHeaderSavesWithHeader(t *testing.T) {
+	f := newConfigFile(t, defaultsOnlyConfigWithHeader)
+	defer os.Remove(f)
+
+	cfg, err := vault.LoadConfig(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = cfg.Save()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := defaultsOnlyConfigWithHeader
+
+	b, _ := ioutil.ReadFile(f)
+
+	if !bytes.Equal(expected, b) {
+		t.Fatalf("Expected:\n%q\nGot:\n%q", expected, b)
+	}
+
+}
+
+func TestIniWithoutHeaderSavesWithHeader(t *testing.T) {
+	f := newConfigFile(t, defaultsOnlyConfigWithoutHeader)
+	defer os.Remove(f)
+
+	cfg, err := vault.LoadConfig(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = cfg.Save()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := defaultsOnlyConfigWithHeader
+
+	b, _ := ioutil.ReadFile(f)
+
+	if !bytes.Equal(expected, b) {
+		t.Fatalf("Expected:\n%q\nGot:\n%q", expected, b)
 	}
 }

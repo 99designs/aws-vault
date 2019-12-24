@@ -51,8 +51,13 @@ s3=
   max_queue_size=1000
 `)
 
-var onlyDefaultsConfig = []byte(`[default]
+var defaultsOnlyConfigWithHeader = []byte(`[default]
 region=us-west-2
+output=json
+
+`)
+
+var defaultsOnlyConfigWithoutHeader = []byte(`region=us-west-2
 output=json
 
 `)
@@ -285,8 +290,8 @@ func TestProfileIsEmpty(t *testing.T) {
 	}
 }
 
-func TestIniOutputHasDefaultHeader(t *testing.T) {
-	f := newConfigFile(t, onlyDefaultsConfig)
+func TestIniWithHeaderSavesWithHeader(t *testing.T) {
+	f := newConfigFile(t, defaultsOnlyConfigWithHeader)
 	defer os.Remove(f)
 
 	cfg, err := vault.LoadConfig(f)
@@ -299,12 +304,36 @@ func TestIniOutputHasDefaultHeader(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := onlyDefaultsConfig
+	expected := defaultsOnlyConfigWithHeader
 
 	b, _ := ioutil.ReadFile(f)
 
 	if !bytes.Equal(expected, b) {
 		t.Fatalf("Expected:\n%q\nGot:\n%q", expected, b)
 	}
+
+}
+
+func TestIniWithoutHeaderSavesWithHeader(t *testing.T) {
+    f := newConfigFile(t, defaultsOnlyConfigWithoutHeader)
+    defer os.Remove(f)
+
+    cfg, err := vault.LoadConfig(f)
+    if err != nil {
+        t.Fatal(err)
+    }
+
+    err = cfg.Save()
+    if err != nil {
+        t.Fatal(err)
+    }
+
+    expected := defaultsOnlyConfigWithHeader
+
+    b, _ := ioutil.ReadFile(f)
+
+    if !bytes.Equal(expected, b) {
+        t.Fatalf("Expected:\n%q\nGot:\n%q", expected, b)
+    }
 
 }

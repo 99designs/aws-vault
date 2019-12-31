@@ -144,6 +144,7 @@ type ProfileSection struct {
 	DurationSeconds uint   `ini:"duration_seconds,omitempty"`
 	SourceProfile   string `ini:"source_profile,omitempty"`
 	ParentProfile   string `ini:"parent_profile,omitempty"`
+	Output          string `ini:"output,omitempty"`
 }
 
 func (s ProfileSection) IsEmpty() bool {
@@ -303,6 +304,9 @@ func (c *ConfigLoader) populateFromConfigFile(config *Config, profileName string
 	if config.RoleSessionName == "" {
 		config.RoleSessionName = psection.RoleSessionName
 	}
+	if config.Output == "" {
+		config.Output = psection.Output
+	}
 	if config.AssumeRoleDuration == 0 {
 		config.AssumeRoleDuration = time.Duration(psection.DurationSeconds) * time.Second
 	}
@@ -347,6 +351,11 @@ func (c *ConfigLoader) populateFromEnv(profile *Config) {
 	if mfaSerial := os.Getenv("AWS_MFA_SERIAL"); mfaSerial != "" && profile.MfaSerial == "" {
 		log.Printf("Using mfa_serial %q from AWS_MFA_SERIAL", mfaSerial)
 		profile.MfaSerial = mfaSerial
+	}
+
+	if output := os.Getenv("AWS_DEFAULT_OUTPUT"); output != "" && profile.Output == "" {
+		log.Printf("Using output %q from AWS_DEFAULT_OUTPUT", output)
+		profile.Output = output
 	}
 
 	var err error
@@ -412,6 +421,9 @@ type Config struct {
 
 	// GetFederationTokenDuration specifies the wanted duration for credentials generated with GetFederationToken
 	GetFederationTokenDuration time.Duration
+
+	// Output specifies the default output format for commands requested using this profile. You can specify any of the following values json, yaml, text, table
+	Output string
 }
 
 // Validate checks that the Config is valid

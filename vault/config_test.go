@@ -106,7 +106,7 @@ func TestConfigParsingProfiles(t *testing.T) {
 		expected vault.ProfileSection
 		ok       bool
 	}{
-		{vault.ProfileSection{Name: "user2", Region: "us-east-1"}, true},
+		{vault.ProfileSection{Name: "user2", Region: "us-east-1", Output: "text"}, true},
 		{vault.ProfileSection{Name: "withsource", SourceProfile: "user2", Region: "us-east-1"}, true},
 		{vault.ProfileSection{Name: "withmfa", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2"}, true},
 		{vault.ProfileSection{Name: "nopenotthere"}, false},
@@ -142,6 +142,7 @@ func TestConfigParsingDefault(t *testing.T) {
 	expected := vault.ProfileSection{
 		Name:   "default",
 		Region: "us-west-2",
+		Output: "json",
 	}
 
 	if !reflect.DeepEqual(def, expected) {

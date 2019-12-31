@@ -180,8 +180,8 @@ func TestProfilesFromConfig(t *testing.T) {
 	}
 
 	expected := []vault.ProfileSection{
-		vault.ProfileSection{Name: "default", Region: "us-west-2"},
-		vault.ProfileSection{Name: "user2", Region: "us-east-1"},
+		vault.ProfileSection{Name: "default", Region: "us-west-2", Output: "json"},
+		vault.ProfileSection{Name: "user2", Region: "us-east-1", Output: "text"},
 		vault.ProfileSection{Name: "withsource", Region: "us-east-1", SourceProfile: "user2"},
 		vault.ProfileSection{Name: "withmfa", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2"},
 		vault.ProfileSection{Name: "testparentprofile1", Region: "us-east-1"},
@@ -214,8 +214,8 @@ func TestAddProfileToExistingConfig(t *testing.T) {
 	}
 
 	expected := []vault.ProfileSection{
-		vault.ProfileSection{Name: "default", Region: "us-west-2"},
-		vault.ProfileSection{Name: "user2", Region: "us-east-1"},
+		vault.ProfileSection{Name: "default", Region: "us-west-2", Output: "json"},
+		vault.ProfileSection{Name: "user2", Region: "us-east-1", Output: "text"},
 		vault.ProfileSection{Name: "withsource", Region: "us-east-1", SourceProfile: "user2"},
 		vault.ProfileSection{Name: "withmfa", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2"},
 		vault.ProfileSection{Name: "testparentprofile1", Region: "us-east-1"},

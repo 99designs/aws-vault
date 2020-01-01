@@ -159,7 +159,7 @@ func (c *CredentialLoader) ProviderWithChainedMfa(profileName string, isChained 
 
 		if isChained {
 			if chainedMfaSerial == "" {
-				log.Println("MFA is not required by a chained profile, ignoring MFA")
+				log.Printf("profile %s: MFA is not present in the chained profile, getting session without MFA", profileName)
 				config.MfaSerial = ""
 			}
 
@@ -171,7 +171,7 @@ func (c *CredentialLoader) ProviderWithChainedMfa(profileName string, isChained 
 	}
 
 	if useChainedMfa {
-		log.Println("MFA already used in source credentials, ignoring MFA")
+		log.Printf("profile %s: MFA already used in source profile, assuming role without MFA", profileName)
 		config.MfaSerial = ""
 	}
 

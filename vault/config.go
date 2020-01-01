@@ -271,8 +271,8 @@ func (cl *ConfigLoader) populateFromDefaults(config *Config) {
 	if config.GetSessionTokenDuration == 0 {
 		config.GetSessionTokenDuration = DefaultSessionDuration
 	}
-	if config.GetChainedSessionTokenDuration == 0 {
-		config.GetChainedSessionTokenDuration = DefaultChainedSessionDuration
+	if config.ChainedGetSessionTokenDuration == 0 {
+		config.ChainedGetSessionTokenDuration = DefaultChainedSessionDuration
 	}
 }
 
@@ -350,10 +350,10 @@ func (cl *ConfigLoader) populateFromEnv(profile *Config) {
 		}
 	}
 
-	if sessionTTL := os.Getenv("AWS_CHAINED_SESSION_TOKEN_TTL"); sessionTTL != "" && profile.GetChainedSessionTokenDuration == 0 {
-		profile.GetChainedSessionTokenDuration, err = time.ParseDuration(sessionTTL)
+	if sessionTTL := os.Getenv("AWS_CHAINED_SESSION_TOKEN_TTL"); sessionTTL != "" && profile.ChainedGetSessionTokenDuration == 0 {
+		profile.ChainedGetSessionTokenDuration, err = time.ParseDuration(sessionTTL)
 		if err == nil {
-			log.Printf("Using a cached MFA session duration of %q from AWS_CACHED_SESSION_TOKEN_TTL", profile.GetChainedSessionTokenDuration)
+			log.Printf("Using a cached MFA session duration of %q from AWS_CACHED_SESSION_TOKEN_TTL", profile.ChainedGetSessionTokenDuration)
 		}
 	}
 
@@ -427,8 +427,8 @@ type Config struct {
 	// GetSessionTokenDuration specifies the wanted duration for credentials generated with GetSessionToken
 	GetSessionTokenDuration time.Duration
 
-	// GetChainedSessionTokenDuration specifies the wanted duration for credentials generated with GetSessionToken when chaining
-	GetChainedSessionTokenDuration time.Duration
+	// ChainedGetSessionTokenDuration specifies the wanted duration for credentials generated with GetSessionToken when chaining
+	ChainedGetSessionTokenDuration time.Duration
 
 	// GetFederationTokenDuration specifies the wanted duration for credentials generated with GetFederationToken
 	GetFederationTokenDuration time.Duration

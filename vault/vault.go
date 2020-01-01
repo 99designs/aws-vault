@@ -163,7 +163,7 @@ func (c *CredentialLoader) ProviderWithChainedMfa(profileName string, isChained 
 				config.MfaSerial = ""
 			}
 
-			config.GetSessionTokenDuration = config.GetChainedSessionTokenDuration
+			config.GetSessionTokenDuration = config.ChainedGetSessionTokenDuration
 		}
 
 		log.Printf("profile %s: using GetSessionToken", profileName)

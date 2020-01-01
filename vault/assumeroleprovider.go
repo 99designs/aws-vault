@@ -59,7 +59,6 @@ func (p *AssumeRoleProvider) assumeRole() (*sts.Credentials, error) {
 		input.ExternalId = aws.String(p.ExternalID)
 	}
 
-	// if we don't have a session, we need to include MFA token in the AssumeRole call
 	if p.MfaSerial != "" {
 		input.SerialNumber = aws.String(p.MfaSerial)
 		input.TokenCode, err = p.GetMfaToken()
@@ -73,7 +72,7 @@ func (p *AssumeRoleProvider) assumeRole() (*sts.Credentials, error) {
 		return nil, err
 	}
 
-	log.Printf("Generated credentials %s using AssumeRole, expires in %s", formatKeyForDisplay(*resp.Credentials.AccessKeyId), time.Until(*resp.Credentials.Expiration).String())
+	log.Printf("Generated credentials %s using AssumeRole, expires in %s", FormatKeyForDisplay(*resp.Credentials.AccessKeyId), time.Until(*resp.Credentials.Expiration).String())
 
 	return resp.Credentials, nil
 }

@@ -31,8 +31,9 @@ const (
 
 	// DefaultSessionDuration is the default duration for GetSessionToken or AssumeRole sessions
 	DefaultSessionDuration = time.Hour * 1
-	// DefaultCachedSessionDuration is the default duration for cached GetSessionToken sessions
-	DefaultCachedSessionDuration = time.Hour * 8
+
+	// DefaultChainedSessionDuration is the default duration for GetSessionToken sessions when chaining
+	DefaultChainedSessionDuration = time.Hour * 8
 )
 
 func init() {
@@ -237,35 +238,30 @@ func (c *ConfigFile) ProfileNames() []string {
 
 // ConfigLoader loads config from configfile and environment variables
 type ConfigLoader struct {
-	File            *ConfigFile
+	BaseConfig Config
+	File       *ConfigFile
+
+	// profile env should be applied to
+	ProfileNameForEnv string
+
 	visitedProfiles []string
 }
 
-func (c *ConfigLoader) visitProfile(name string) bool {
-	for _, p := range c.visitedProfiles {
+func (cl *ConfigLoader) visitProfile(name string) bool {
+	for _, p := range cl.visitedProfiles {
 		if p == name {
 			return false
 		}
 	}
-	c.visitedProfiles = append(c.visitedProfiles, name)
+	cl.visitedProfiles = append(cl.visitedProfiles, name)
 	return true
 }
 
-func (c *ConfigLoader) resetLoopDetection() {
-	c.visitedProfiles = []string{}
+func (cl *ConfigLoader) resetLoopDetection() {
+	cl.visitedProfiles = []string{}
 }
 
-// defaultSessionDurationForConfig returns the default session duration for the given config.
-func defaultSessionDurationForConfig(config *Config) time.Duration {
-	// If a session token is being created for the purposes of caching and won't be exposed
-	// to the env, use a longer default
-	if config.IsSessionForCaching() {
-		return DefaultCachedSessionDuration
-	}
-	return DefaultSessionDuration
-}
-
-func (c *ConfigLoader) populateFromDefaults(config *Config) {
+func (cl *ConfigLoader) populateFromDefaults(config *Config) {
 	if config.AssumeRoleDuration == 0 {
 		config.AssumeRoleDuration = DefaultSessionDuration
 	}
@@ -273,16 +269,19 @@ func (c *ConfigLoader) populateFromDefaults(config *Config) {
 		config.GetFederationTokenDuration = DefaultSessionDuration
 	}
 	if config.GetSessionTokenDuration == 0 {
-		config.GetSessionTokenDuration = defaultSessionDurationForConfig(config)
+		config.GetSessionTokenDuration = DefaultSessionDuration
+	}
+	if config.GetChainedSessionTokenDuration == 0 {
+		config.GetChainedSessionTokenDuration = DefaultChainedSessionDuration
 	}
 }
 
-func (c *ConfigLoader) populateFromConfigFile(config *Config, profileName string) error {
-	if !c.visitProfile(profileName) {
+func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName string) error {
+	if !cl.visitProfile(profileName) {
 		return fmt.Errorf("Loop detected in config file for profile '%s'", profileName)
 	}
 
-	psection, ok := c.File.ProfileSection(profileName)
+	psection, ok := cl.File.ProfileSection(profileName)
 	if !ok {
 		// ignore missing profiles
 		log.Printf("Profile '%s' missing in config file", profileName)
@@ -306,15 +305,12 @@ func (c *ConfigLoader) populateFromConfigFile(config *Config, profileName string
 	if config.AssumeRoleDuration == 0 {
 		config.AssumeRoleDuration = time.Duration(psection.DurationSeconds) * time.Second
 	}
-
-	if psection.SourceProfile != "" {
-		config.CredentialsName = psection.SourceProfile
-	} else {
-		config.CredentialsName = profileName
+	if config.SourceProfile == "" {
+		config.SourceProfile = psection.SourceProfile
 	}
 
 	if psection.ParentProfile != "" {
-		err := c.populateFromConfigFile(config, psection.ParentProfile)
+		err := cl.populateFromConfigFile(config, psection.ParentProfile)
 		if err != nil {
 			return err
 		}
@@ -323,7 +319,7 @@ func (c *ConfigLoader) populateFromConfigFile(config *Config, profileName string
 	return nil
 }
 
-func (c *ConfigLoader) populateFromEnv(profile *Config) {
+func (cl *ConfigLoader) populateFromEnv(profile *Config) {
 	if region := os.Getenv("AWS_REGION"); region != "" && profile.Region == "" {
 		log.Printf("Using region %q from AWS_REGION", region)
 		profile.Region = region
@@ -332,16 +328,6 @@ func (c *ConfigLoader) populateFromEnv(profile *Config) {
 	if region := os.Getenv("AWS_DEFAULT_REGION"); region != "" && profile.Region == "" {
 		log.Printf("Using region %q from AWS_DEFAULT_REGION", region)
 		profile.Region = region
-	}
-
-	if roleARN := os.Getenv("AWS_ROLE_ARN"); roleARN != "" && profile.RoleARN == "" {
-		log.Printf("Using role_arn %q from AWS_ROLE_ARN", roleARN)
-		profile.RoleARN = roleARN
-	}
-
-	if roleSessionName := os.Getenv("AWS_ROLE_SESSION_NAME"); roleSessionName != "" && profile.RoleSessionName == "" {
-		log.Printf("Using role_session_name %q from AWS_ROLE_SESSION_NAME", roleSessionName)
-		profile.RoleSessionName = roleSessionName
 	}
 
 	if mfaSerial := os.Getenv("AWS_MFA_SERIAL"); mfaSerial != "" && profile.MfaSerial == "" {
@@ -357,10 +343,17 @@ func (c *ConfigLoader) populateFromEnv(profile *Config) {
 		}
 	}
 
-	if sessionTTL := os.Getenv("AWS_SESSION_TOKEN_TTL"); sessionTTL != "" && profile.AssumeRoleDuration == 0 {
+	if sessionTTL := os.Getenv("AWS_SESSION_TOKEN_TTL"); sessionTTL != "" && profile.GetSessionTokenDuration == 0 {
 		profile.GetSessionTokenDuration, err = time.ParseDuration(sessionTTL)
 		if err == nil {
 			log.Printf("Using a session duration of %q from AWS_SESSION_TOKEN_TTL", profile.GetSessionTokenDuration)
+		}
+	}
+
+	if sessionTTL := os.Getenv("AWS_CHAINED_SESSION_TOKEN_TTL"); sessionTTL != "" && profile.GetChainedSessionTokenDuration == 0 {
+		profile.GetChainedSessionTokenDuration, err = time.ParseDuration(sessionTTL)
+		if err == nil {
+			log.Printf("Using a cached MFA session duration of %q from AWS_CACHED_SESSION_TOKEN_TTL", profile.GetChainedSessionTokenDuration)
 		}
 	}
 
@@ -370,31 +363,53 @@ func (c *ConfigLoader) populateFromEnv(profile *Config) {
 			log.Printf("Using a session duration of %q from AWS_FEDERATION_TOKEN_TTL", profile.GetSessionTokenDuration)
 		}
 	}
+
+	// AWS_ROLE_ARN and AWS_ROLE_SESSION_NAME only apply to the target profile
+	if profile.ProfileName == cl.ProfileNameForEnv {
+		if roleARN := os.Getenv("AWS_ROLE_ARN"); roleARN != "" && profile.RoleARN == "" {
+			log.Printf("Using role_arn %q from AWS_ROLE_ARN", roleARN)
+			profile.RoleARN = roleARN
+		}
+
+		if roleSessionName := os.Getenv("AWS_ROLE_SESSION_NAME"); roleSessionName != "" && profile.RoleSessionName == "" {
+			log.Printf("Using role_session_name %q from AWS_ROLE_SESSION_NAME", roleSessionName)
+			profile.RoleSessionName = roleSessionName
+		}
+	}
 }
 
 // LoadFromProfile loads the profile from the config file and environment variables into config
-func (c *ConfigLoader) LoadFromProfile(profileName string, config *Config) error {
+func (cl *ConfigLoader) LoadFromProfile(profileName string) (Config, error) {
+	config := cl.BaseConfig
 	config.ProfileName = profileName
-	c.populateFromEnv(config)
+	cl.populateFromEnv(&config)
 
-	c.resetLoopDetection()
-	err := c.populateFromConfigFile(config, profileName)
+	cl.resetLoopDetection()
+	err := cl.populateFromConfigFile(&config, profileName)
 	if err != nil {
-		return err
+		return Config{}, err
 	}
 
-	c.populateFromDefaults(config)
+	cl.populateFromDefaults(&config)
 
-	return config.Validate()
+	err = config.Validate()
+	if err != nil {
+		return Config{}, err
+	}
+
+	return config, nil
 }
 
 // Config is a collection of configuration options for creating temporary credentials
 type Config struct {
 	// ProfileName specifies the name of the profile config
 	ProfileName string
-	// CredentialsName is the credentials associated with the profile, typically specified via source_profile in the config file
-	CredentialsName string
-	Region          string
+
+	// SourceProfile is the profile where credentials come from
+	SourceProfile string
+
+	// Region is the AWS region
+	Region string
 
 	// Mfa config
 	MfaSerial       string
@@ -402,44 +417,43 @@ type Config struct {
 	MfaPromptMethod string
 
 	// AssumeRole config
-	RoleARN            string
-	RoleSessionName    string
-	ExternalID         string
+	RoleARN         string
+	RoleSessionName string
+	ExternalID      string
+
+	// GetSessionTokenDuration specifies the wanted duration for credentials generated with AssumeRole
 	AssumeRoleDuration time.Duration
 
 	// GetSessionTokenDuration specifies the wanted duration for credentials generated with GetSessionToken
 	GetSessionTokenDuration time.Duration
+
+	// GetChainedSessionTokenDuration specifies the wanted duration for credentials generated with GetSessionToken when chaining
+	GetChainedSessionTokenDuration time.Duration
 
 	// GetFederationTokenDuration specifies the wanted duration for credentials generated with GetFederationToken
 	GetFederationTokenDuration time.Duration
 }
 
 // Validate checks that the Config is valid
-func (c *Config) Validate() error {
-	if c.GetSessionTokenDuration < MinGetSessionTokenDuration {
+func (cl *Config) Validate() error {
+	if cl.GetSessionTokenDuration < MinGetSessionTokenDuration {
 		return fmt.Errorf("Minimum GetSessionToken duration is %s", MinGetSessionTokenDuration)
 	}
-	if c.GetSessionTokenDuration > MaxGetSessionTokenDuration {
+	if cl.GetSessionTokenDuration > MaxGetSessionTokenDuration {
 		return fmt.Errorf("Maximum GetSessionToken duration is %s", MaxGetSessionTokenDuration)
 	}
-	if c.AssumeRoleDuration < MinAssumeRoleDuration {
+	if cl.AssumeRoleDuration < MinAssumeRoleDuration {
 		return fmt.Errorf("Minimum AssumeRole duration is %s", MinAssumeRoleDuration)
 	}
-	if c.AssumeRoleDuration > MaxAssumeRoleDuration {
+	if cl.AssumeRoleDuration > MaxAssumeRoleDuration {
 		return fmt.Errorf("Maximum AssumeRole duration is %s", MaxAssumeRoleDuration)
 	}
-	if c.GetFederationTokenDuration < MinGetFederationTokenDuration {
+	if cl.GetFederationTokenDuration < MinGetFederationTokenDuration {
 		return fmt.Errorf("Minimum GetFederationToken duration is %s", MinAssumeRoleDuration)
 	}
-	if c.GetFederationTokenDuration > MaxGetFederationTokenDuration {
+	if cl.GetFederationTokenDuration > MaxGetFederationTokenDuration {
 		return fmt.Errorf("Maximum GetFederationToken duration is %s", MaxAssumeRoleDuration)
 	}
 
 	return nil
-}
-
-// IsSessionForCaching returns whether GetSessionToken credentials are being created
-// in order for AssumeRole calls to avoid multiple MFA prompts
-func (c *Config) IsSessionForCaching() bool {
-	return c.RoleARN != "" && c.MfaSerial != ""
 }

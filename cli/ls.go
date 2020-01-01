@@ -7,12 +7,11 @@ import (
 	"text/tabwriter"
 
 	"github.com/99designs/aws-vault/vault"
-	"github.com/99designs/keyring"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 type LsCommandInput struct {
-	Keyring         keyring.Keyring
+	Keyring         *vault.CredentialKeyring
 	OnlyProfiles    bool
 	OnlySessions    bool
 	OnlyCredentials bool
@@ -30,72 +29,62 @@ func ConfigureListCommand(app *kingpin.Application) {
 	cmd.Flag("sessions", "Show only the session names").
 		BoolVar(&input.OnlySessions)
 
-	cmd.Flag("credentials", "Show only the credential names").
+	cmd.Flag("credentials", "Show only the profiles with stored credential").
 		BoolVar(&input.OnlyCredentials)
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
-		input.Keyring = keyringImpl
-		LsCommand(app, input)
+		input.Keyring = &vault.CredentialKeyring{Keyring: keyringImpl}
+		app.FatalIfError(LsCommand(input), "")
 		return nil
 	})
 }
 
-func contains(aa []string, b string) bool {
-	for _, a := range aa {
-		if a == b {
-			return true
-		}
-	}
-	return false
-}
+func LsCommand(input LsCommandInput) error {
+	krs := input.Keyring.Sessions()
 
-func LsCommand(app *kingpin.Application, input LsCommandInput) {
-	krs := vault.NewKeyringSessions(input.Keyring)
-
-	keys, err := input.Keyring.Keys()
+	credentialsNames, err := input.Keyring.CredentialsKeys()
 	if err != nil {
-		app.Fatalf(err.Error())
-		return
+		return err
 	}
 
-	credentialsNames := []string{}
-	sessionNames := []string{}
-	for _, c := range keys {
-		if vault.IsSessionKey(c) {
-			sessionNames = append(sessionNames, c)
-		} else {
-			credentialsNames = append(credentialsNames, c)
+	sessions, err := krs.Sessions()
+	if err != nil {
+		return err
+	}
+
+	var sessionNames []string
+	for _, sess := range sessions {
+		label := fmt.Sprintf("%d", sess.Expiration.Unix())
+		if sess.MfaSerial != "" {
+			label += " (mfa)"
 		}
+		sessionNames = append(sessionNames, label)
+
 	}
 
 	if input.OnlyCredentials {
 		for _, c := range credentialsNames {
 			fmt.Printf("%s\n", c)
 		}
-		return
+		return nil
 	}
 
 	if input.OnlyProfiles {
 		for _, profileName := range awsConfigFile.ProfileNames() {
 			fmt.Printf("%s\n", profileName)
 		}
-		return
+		return nil
 	}
 
 	if input.OnlySessions {
 		for _, c := range sessionNames {
 			fmt.Printf("%s\n", c)
 		}
-		return
-	}
-
-	sessions, err := krs.Sessions()
-	if err != nil {
-		app.Fatalf(err.Error())
-		return
+		return nil
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 25, 4, 2, ' ', 0)
+
 	fmt.Fprintln(w, "Profile\tCredentials\tSessions\t")
 	fmt.Fprintln(w, "=======\t===========\t========\t")
 
@@ -103,17 +92,13 @@ func LsCommand(app *kingpin.Application, input LsCommandInput) {
 	for _, profileName := range awsConfigFile.ProfileNames() {
 		fmt.Fprintf(w, "%s\t", profileName)
 
-		config := vault.Config{}
-		err := configLoader.LoadFromProfile(profileName, &config)
+		hasCred, err := input.Keyring.Has(profileName)
 		if err != nil {
-			app.Fatalf(err.Error())
-			return
+			return err
 		}
 
-		if contains(credentialsNames, config.CredentialsName) {
-			fmt.Fprintf(w, "%s\t", config.CredentialsName)
-		} else if config.CredentialsName != "" {
-			fmt.Fprintf(w, "%s (missing)\t", config.CredentialsName)
+		if hasCred {
+			fmt.Fprintf(w, "%s\t", profileName)
 		} else {
 			fmt.Fprintf(w, "-\t")
 		}
@@ -145,12 +130,8 @@ func LsCommand(app *kingpin.Application, input LsCommandInput) {
 	}
 
 	if err = w.Flush(); err != nil {
-		app.Fatalf("%v", err)
-		return
+		return err
 	}
 
-	if len(keys) == 0 {
-		app.Fatalf("No credentials found")
-		return
-	}
+	return nil
 }

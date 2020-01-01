@@ -120,8 +120,3 @@ func fileKeyringPassphrasePrompt(prompt string) (string, error) {
 	fmt.Println()
 	return string(b), nil
 }
-
-// FormatCredentialError formats errors with some user friendly context
-func FormatCredentialError(err error, credentialsName string) string {
-	return fmt.Sprintf("Failed to get credentials for %s: %v", credentialsName, err)
-}

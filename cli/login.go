@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/99designs/aws-vault/vault"
-	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/skratchdot/open-golang/open"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -19,7 +18,7 @@ import (
 
 type LoginCommandInput struct {
 	ProfileName     string
-	Keyring         keyring.Keyring
+	Keyring         *vault.CredentialKeyring
 	UseStdout       bool
 	Path            string
 	Config          vault.Config
@@ -55,7 +54,8 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 		input.Config.MfaPromptMethod = GlobalFlags.PromptDriver
 		input.Config.GetSessionTokenDuration = input.SessionDuration
 		input.Config.AssumeRoleDuration = input.SessionDuration
-		input.Keyring = keyringImpl
+		input.Config.GetFederationTokenDuration = input.SessionDuration
+		input.Keyring = &vault.CredentialKeyring{Keyring: keyringImpl}
 		err := LoginCommand(input)
 		app.FatalIfError(err, "Login failed")
 		return nil
@@ -63,7 +63,9 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 }
 
 func LoginCommand(input LoginCommandInput) error {
-	err := configLoader.LoadFromProfile(input.ProfileName, &input.Config)
+	configLoader.BaseConfig = input.Config
+	configLoader.ProfileNameForEnv = input.ProfileName
+	config, err := configLoader.LoadFromProfile(input.ProfileName)
 	if err != nil {
 		return err
 	}
@@ -71,10 +73,10 @@ func LoginCommand(input LoginCommandInput) error {
 	var creds *credentials.Credentials
 
 	// if AssumeRole isn't used, GetFederationToken has to be used for IAM credentials
-	if input.Config.RoleARN == "" {
-		creds, err = vault.NewFederationTokenCredentials(input.Keyring, input.Config)
+	if config.RoleARN == "" {
+		creds, err = vault.NewFederationTokenCredentials(input.ProfileName, input.Keyring, configLoader)
 	} else {
-		creds, err = vault.NewTempCredentials(input.Keyring, input.Config)
+		creds, err = vault.NewTempCredentials(input.ProfileName, input.Keyring, configLoader)
 	}
 	if err != nil {
 		return err
@@ -82,7 +84,7 @@ func LoginCommand(input LoginCommandInput) error {
 
 	val, err := creds.Get()
 	if err != nil {
-		return fmt.Errorf(FormatCredentialError(err, input.Config.CredentialsName))
+		return fmt.Errorf("Failed to get credentials for %s: %w", config.ProfileName, err)
 	}
 
 	jsonBytes, err := json.Marshal(map[string]string{
@@ -94,7 +96,7 @@ func LoginCommand(input LoginCommandInput) error {
 		return err
 	}
 
-	loginURLPrefix, destination := generateLoginURL(input.Config.Region, input.Path)
+	loginURLPrefix, destination := generateLoginURL(config.Region, input.Path)
 
 	req, err := http.NewRequest("GET", loginURLPrefix, nil)
 	if err != nil {

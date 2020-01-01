@@ -84,10 +84,6 @@ type KeyringSessions struct {
 	keyring keyring.Keyring
 }
 
-func NewKeyringSessions(k keyring.Keyring) *KeyringSessions {
-	return &KeyringSessions{keyring: k}
-}
-
 func (s *KeyringSessions) Sessions() ([]KeyringSession, error) {
 	log.Printf("Looking up all keys in keyring")
 	keys, err := s.keyring.Keys()
@@ -151,6 +147,10 @@ func (s *KeyringSessions) Retrieve(profileName string, mfaSerial string) (creds 
 
 // Store stores a sessions for a specific profile, expects the profile to be provided, not the source
 func (s *KeyringSessions) Store(profileName string, mfaSerial string, session *sts.Credentials) error {
+	if profileName == "" {
+		return fmt.Errorf("Profile name not provided")
+	}
+
 	bytes, err := json.Marshal(session)
 	if err != nil {
 		return err

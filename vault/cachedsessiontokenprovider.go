@@ -4,7 +4,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 )
 
@@ -13,7 +12,7 @@ import (
 type CachedSessionTokenProvider struct {
 	CredentialsName string
 	Provider        *SessionTokenProvider
-	Keyring         keyring.Keyring
+	Keyring         *CredentialKeyring
 	ExpiryWindow    time.Duration
 	credentials.Expiry
 }
@@ -21,7 +20,7 @@ type CachedSessionTokenProvider struct {
 // Retrieve returns cached credentials from the keyring, or if no credentials are cached
 // generates a new set of temporary credentials using STS GetSessionToken
 func (p *CachedSessionTokenProvider) Retrieve() (credentials.Value, error) {
-	sessions := NewKeyringSessions(p.Keyring)
+	sessions := p.Keyring.Sessions()
 
 	session, err := sessions.Retrieve(p.CredentialsName, p.Provider.MfaSerial)
 	if err != nil {
@@ -36,7 +35,7 @@ func (p *CachedSessionTokenProvider) Retrieve() (credentials.Value, error) {
 			return credentials.Value{}, err
 		}
 	} else {
-		log.Printf("Re-using cached credentials %s generated from GetSessionToken, expires in %s", formatKeyForDisplay(*session.AccessKeyId), time.Until(*session.Expiration).String())
+		log.Printf("Re-using cached credentials %s generated from GetSessionToken, expires in %s", FormatKeyForDisplay(*session.AccessKeyId), time.Until(*session.Expiration).String())
 	}
 
 	p.SetExpiration(*session.Expiration, p.ExpiryWindow)

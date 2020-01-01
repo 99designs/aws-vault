@@ -7,14 +7,13 @@ import (
 
 	"github.com/99designs/aws-vault/prompt"
 	"github.com/99designs/aws-vault/vault"
-	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 type AddCommandInput struct {
 	ProfileName string
-	Keyring     keyring.Keyring
+	Keyring     *vault.CredentialKeyring
 	FromEnv     bool
 	AddConfig   bool
 }
@@ -35,7 +34,7 @@ func ConfigureAddCommand(app *kingpin.Application) {
 		BoolVar(&input.AddConfig)
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
-		input.Keyring = keyringImpl
+		input.Keyring = &vault.CredentialKeyring{Keyring: keyringImpl}
 		AddCommand(app, input)
 		return nil
 	})
@@ -78,16 +77,15 @@ func AddCommand(app *kingpin.Application, input AddCommandInput) {
 	}
 
 	creds := credentials.Value{AccessKeyID: accessKeyId, SecretAccessKey: secretKey}
-	masterCredsProvider := vault.NewMasterCredentialsProvider(input.Keyring, input.ProfileName)
 
-	if err := masterCredsProvider.Store(creds); err != nil {
+	if err := input.Keyring.Set(input.ProfileName, creds); err != nil {
 		app.Fatalf(err.Error())
 		return
 	}
 
 	fmt.Printf("Added credentials to profile %q in vault\n", input.ProfileName)
 
-	sessions := vault.NewKeyringSessions(input.Keyring)
+	sessions := input.Keyring.Sessions()
 
 	if n, _ := sessions.Delete(input.ProfileName); n > 0 {
 		fmt.Printf("Deleted %d existing sessions.\n", n)

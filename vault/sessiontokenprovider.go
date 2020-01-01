@@ -54,7 +54,7 @@ func (p *SessionTokenProvider) GetSessionToken() (*sts.Credentials, error) {
 		return nil, err
 	}
 
-	log.Printf("Generated credentials %s using GetSessionToken, expires in %s", formatKeyForDisplay(*resp.Credentials.AccessKeyId), time.Until(*resp.Credentials.Expiration).String())
+	log.Printf("Generated credentials %s using GetSessionToken, expires in %s", FormatKeyForDisplay(*resp.Credentials.AccessKeyId), time.Until(*resp.Credentials.Expiration).String())
 
 	return resp.Credentials, nil
 }

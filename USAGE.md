@@ -70,12 +70,13 @@ To configure the default flag values of `aws-vault` and its subcommands:
 To override the AWS config file (used in the `exec`, `login` and `rotate` subcommands):
 * `AWS_REGION`: The AWS region
 * `AWS_DEFAULT_REGION`: The AWS region, applied only if `AWS_REGION` isn't set
-* `AWS_ROLE_ARN`: Specifies the ARN of an IAM role
-* `AWS_ROLE_SESSION_NAME`: Specifies the name to attach to the role session
 * `AWS_MFA_SERIAL`: The identification number of the MFA device to use
+* `AWS_ROLE_ARN`: Specifies the ARN of an IAM role in the active profile
+* `AWS_ROLE_SESSION_NAME`: Specifies the name to attach to the role session in the active profile
 
 To override session durations (used in `exec` and `login`):
-* `AWS_SESSION_TOKEN_TTL`: Expiration time for the `GetSessionToken` credentials. Defaults to 1h, or 8h when using `AssumeRole`
+* `AWS_SESSION_TOKEN_TTL`: Expiration time for the `GetSessionToken` credentials. Defaults to 1h
+* `AWS_CHAINED_SESSION_TOKEN_TTL`: Expiration time for the `GetSessionToken` credentials when chaining profiles. Defaults to 8h
 * `AWS_ASSUME_ROLE_TTL`: Expiration time for the `AssumeRole` credentials. Defaults to 1h
 * `AWS_FEDERATION_TOKEN_TTL`: Expiration time for the `GetFederationToken` credentials. Defaults to 1h
 

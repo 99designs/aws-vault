@@ -30,32 +30,32 @@ You can install aws-vault:
 ## Basic Usage
 
 ```bash
-# Store AWS credentials for the "home" profile
-$ aws-vault add home
+# Store AWS credentials for the "jonsmith" profile
+$ aws-vault add jonsmith
 Enter Access Key Id: ABDCDEFDASDASF
 Enter Secret Key: %%%
 
 # Execute a command (using temporary credentials)
-$ aws-vault exec home -- aws s3 ls
+$ aws-vault exec jonsmith -- aws s3 ls
 bucket_1
 bucket_2
 
 # open a browser window and login to the AWS Console
-$ aws-vault login home
+$ aws-vault login jonsmith
 
 # List credentials
 $ aws-vault list
 Profile                  Credentials              Sessions
 =======                  ===========              ========
-home                     home                     -
+jonsmith                 jonsmith                 -
 ```
 See the [USAGE](./USAGE.md) document for more help and tips.
 
 
 ## Security
 ```bash
-$ aws-vault exec home -- env | grep AWS
-AWS_VAULT=home
+$ aws-vault exec jonsmith -- env | grep AWS
+AWS_VAULT=jonsmith
 AWS_REGION=us-east-1
 AWS_ACCESS_KEY_ID=%%%
 AWS_SECRET_ACCESS_KEY=%%%
@@ -73,52 +73,37 @@ The credentials are exposed to the subprocess in one of two ways:
 
 The default is to use environment variables, but you can opt-in to the local instance metadata server with the `--server` flag on the `exec` command.
 
-### Assuming Roles
+## Roles and MFA
 
-[Best-practice](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#delegate-using-roles) is to [create Roles to delegate permissions](https://docs.aws.amazon.com/cli/latest/userguide/cli-roles.html).
+[Best-practice](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#delegate-using-roles) is to [create Roles to delegate permissions](https://docs.aws.amazon.com/cli/latest/userguide/cli-roles.html). For security, you should also require that users provide a one-time key generated from a multi-factor authentication (MFA) device.
 
-First you'll need to create the users and roles in IAM. Next, edit your `~/.aws/config` to add profiles with a `role_arn`. For example:
+First you'll need to create the users and roles in IAM, as well as [setup an MFA device](https://docs.aws.amazon.com/IAM/latest/UserGuide/GenerateMFAConfigAccount.html). You can then [set up IAM roles to enforce MFA](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html#cli-configure-role-mfa).
+
+Here's an example configuration using roles and MFA:
 
 ```ini
 [default]
 region = us-east-1
 
 [profile jonsmith]
-
-[profile prod-readonly]
-role_arn = arn:aws:iam::111111111111:role/ReadOnly
-source_profile = jonsmith
-
-[profile prod-admin]
-role_arn = arn:aws:iam::111111111111:role/Administrator
-source_profile = jonsmith
-```
-
-Now when you use the `prod-admin` profile, `aws-vault` will look in the `jonsmith` profile's keychain for credentials and then use those credentials to assume the `Administrator` role.
-
-### Using MFA
-
-For security, you should also require that users provide a one-time key generated from a multi-factor authentication (MFA) device.
-
-First you'll need to [setup an MFA device](https://docs.aws.amazon.com/IAM/latest/UserGuide/GenerateMFAConfigAccount.html). You can then [set up IAM roles to enforce MFA](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html#cli-configure-role-mfa). Next, add a line to the role profile that specifies the ARN of the user's MFA device. For example:
-
-```ini
-[profile jonsmith]
-region = us-east-1
-
-[profile prod-readonly]
-region=us-east-1
-role_arn = arn:aws:iam::111111111111:role/ReadOnly
-source_profile = jonsmith
-
-[profile prod-admin]
-region=us-east-1
-role_arn = arn:aws:iam::111111111111:role/Administrator
 mfa_serial = arn:aws:iam::111111111111:mfa/jonsmith
+
+[profile readonly]
+role_arn = arn:aws:iam::22222222222:role/ReadOnly
 source_profile = jonsmith
+
+[profile admin]
+role_arn = arn:aws:iam::22222222222:role/Administrator
+source_profile = jonsmith
+mfa_serial = arn:aws:iam::111111111111:mfa/jonsmith
+
+[profile otheraccount]
+role_arn = arn:aws:iam::333333333333:role/Administrator
+source_profile = jonsmith
+mfa_serial = arn:aws:iam::111111111111:mfa/jonsmith
 ```
 
-Now when you use the `prod-admin` profile `aws-vault` will prompt you for an MFA token. This assumed role's session is stored in your keychain so you will only have to enter your MFA once.
+When you use the `readonly` profile, aws-vault will use the credentials found in the source_profile `jonsmith`, and  generate temporary credentials for the `ReadOnly` role using STS AssumeRole. When you use the `prod-admin` profile, aws-vault will first use `GetSessionToken` to establish an MFA session before an AssumeRole for `Administrator`. This MFA session is stored in your keychain so you only have to enter your MFA once, and using `otheraccount` will not cause another MFA prompt.
 
 
 ## macOS Code Signing

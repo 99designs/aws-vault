@@ -34,6 +34,8 @@ const (
 
 	// DefaultChainedSessionDuration is the default duration for GetSessionToken sessions when chaining
 	DefaultChainedSessionDuration = time.Hour * 8
+
+	defaultSectionName = "default"
 )
 
 func init() {
@@ -161,7 +163,7 @@ func (c *ConfigFile) ProfileSections() []ProfileSection {
 	}
 
 	for _, section := range c.iniFile.SectionStrings() {
-		if strings.ToLower(section) != "default" && !strings.HasPrefix(section, "profile ") {
+		if strings.ToLower(section) != defaultSectionName && !strings.HasPrefix(section, "profile ") {
 			log.Printf("Unrecognised ini file section: %s", section)
 			continue
 		}
@@ -169,7 +171,7 @@ func (c *ConfigFile) ProfileSections() []ProfileSection {
 		profile, _ := c.ProfileSection(strings.TrimPrefix(section, "profile "))
 
 		// ignore the default profile if it's empty
-		if section == "default" && profile.IsEmpty() {
+		if section == defaultSectionName && profile.IsEmpty() {
 			continue
 		}
 
@@ -190,8 +192,8 @@ func (c *ConfigFile) ProfileSection(name string) (ProfileSection, bool) {
 	}
 	// default profile name has a slightly different section format
 	sectionName := "profile " + name
-	if name == "default" {
-		sectionName = "default"
+	if name == defaultSectionName {
+		sectionName = defaultSectionName
 	}
 	section, err := c.iniFile.GetSection(sectionName)
 	if err != nil {
@@ -214,8 +216,8 @@ func (c *ConfigFile) Add(profile ProfileSection) error {
 	}
 	// default profile name has a slightly different section format
 	sectionName := "profile " + profile.Name
-	if profile.Name == "default" {
-		sectionName = "default"
+	if profile.Name == defaultSectionName {
+		sectionName = defaultSectionName
 	}
 	section, err := c.iniFile.NewSection(sectionName)
 	if err != nil {
@@ -311,6 +313,13 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 
 	if psection.ParentProfile != "" {
 		err := cl.populateFromConfigFile(config, psection.ParentProfile)
+		if err != nil {
+			return err
+		}
+	}
+
+	if profileName != defaultSectionName {
+		err := cl.populateFromConfigFile(config, defaultSectionName)
 		if err != nil {
 			return err
 		}

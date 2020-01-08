@@ -42,16 +42,22 @@ $ aws-vault exec --help
 
 aws-vault uses your `~/.aws/config` to load AWS config. This should work identically to the config specified by the [aws-cli docs](https://docs.aws.amazon.com/cli/latest/topic/config-vars.html).
 
-aws-vault also recognises an extra config variable, `parent_profile`, which is not recognised by the aws-cli. This variable allows a profile to inherit configuration from another profile. In the following example, the `work-admin` profile inherits `region` and `mfa_serial` from the `work` profile.
+aws-vault also recognises an extra config variable, `parent_profile`, which is not recognised by the aws-cli. This variable allows a profile to load configuration horizontally from another profile. In the following example, the `account1` profile inherits `region` from the `default` section, `mfa_serial` and `duration_seconds` from the `parent` profile and uses the source credentials in `master`.
 
 ```ini
-[profile work]
-region = eu-west-1
-mfa_serial = arn:aws:iam::111111111111:mfa/work-account
+[default]
+region = us-west-1
 
-[profile work-admin]
-role_arn = arn:aws:iam::111111111111:role/Administrator
-parent_profile = work
+[profile master]
+
+[profile parent]
+mfa_serial = arn:aws:iam::111111111111:mfa/user.name
+duration_seconds = 120
+
+[profile account1]
+parent_profile = parent
+source_profile = master
+role_arn = arn:aws:iam::22222222222:role/Administrator
 ```
 
 
@@ -117,17 +123,17 @@ Here is an example ~/.aws/config file, to help show the configuration. It define
 become either profile.
 
 ```ini
-[profile home]
+[default]
 region = us-east-1
+
+[profile home]
 mfa_serial = arn:aws:iam::111111111111:mfa/home-account
 
 [profile work]
-region = eu-west-1
 mfa_serial = arn:aws:iam::111111111111:mfa/work-account
 role_arn = arn:aws:iam::111111111111:role/ReadOnly
 
 [profile work-admin]
-region = us-east-1
 role_arn = arn:aws:iam::111111111111:role/Administrator
 source_profile = work
 ```

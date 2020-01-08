@@ -80,16 +80,16 @@ The default is to use environment variables, but you can opt-in to the local ins
 First you'll need to create the users and roles in IAM. Next, edit your `~/.aws/config` to add profiles with a `role_arn`. For example:
 
 ```ini
-[profile jonsmith]
+[default]
 region = us-east-1
 
+[profile jonsmith]
+
 [profile prod-readonly]
-region=us-east-1
 role_arn = arn:aws:iam::111111111111:role/ReadOnly
 source_profile = jonsmith
 
 [profile prod-admin]
-region=us-east-1
 role_arn = arn:aws:iam::111111111111:role/Administrator
 source_profile = jonsmith
 ```

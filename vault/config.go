@@ -316,9 +316,7 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 		if err != nil {
 			return err
 		}
-	}
-
-	if profileName != defaultSectionName {
+	} else if profileName != defaultSectionName {
 		err := cl.populateFromConfigFile(config, defaultSectionName)
 		if err != nil {
 			return err

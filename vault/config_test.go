@@ -250,7 +250,7 @@ func TestParentProfile(t *testing.T) {
 	configLoader := &vault.ConfigLoader{File: configFile}
 	config, err := configLoader.LoadFromProfile("testparentprofile2")
 	if err != nil {
-		t.Fatalf("Should have found a profile")
+		t.Fatalf("Should have found a profile: %v", err)
 	}
 
 	if config.Region != "us-east-1" {

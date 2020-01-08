@@ -147,7 +147,7 @@ func (c *CredentialLoader) ProviderWithChainedMfa(profileName string, isChained 
 		sourceCredProvider = NewMasterCredentialsProvider(c.Keyring, config.ProfileName)
 	} else if config.SourceProfile != "" {
 		sourceCredProvider, err = c.ProviderWithChainedMfa(config.SourceProfile, true, config.MfaSerial)
-		if err == nil {
+		if err == nil && config.MfaSerial != "" {
 			skipMfaBecauseSourceProfileHasItCovered = true
 			config.MfaSerial = ""
 		}

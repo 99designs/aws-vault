@@ -6,16 +6,19 @@ SRC=$(shell find . -name '*.go')
 
 .PHONY: all clean release install
 
-all: aws-vault-linux-amd64 aws-vault-darwin-amd64 aws-vault-windows-386.exe aws-vault-freebsd-amd64
+all: aws-vault-linux-amd64 aws-vault-linux-arm64 aws-vault-darwin-amd64 aws-vault-windows-386.exe aws-vault-freebsd-amd64
 
 clean:
-	rm -f aws-vault aws-vault-linux-amd64 aws-vault-darwin-amd64 aws-vault-darwin-amd64.dmg aws-vault-windows-386.exe aws-vault-freebsd-amd64
+	rm -f aws-vault aws-vault-linux-amd64 aws-vault-linux-arm64 aws-vault-darwin-amd64 aws-vault-darwin-amd64.dmg aws-vault-windows-386.exe aws-vault-freebsd-amd64
 
 release: all aws-vault-darwin-amd64.dmg
 	@echo "\nTo update homebrew-cask run\n\n    cask-repair -v $(shell echo $(VERSION) | sed 's/v\(.*\)/\1/') aws-vault\n"
 
 aws-vault-linux-amd64: $(SRC)
 	GOOS=linux GOARCH=amd64 go build $(BUILD_FLAGS) -o $@ .
+
+aws-vault-linux-arm64: $(SRC)
+	GOOS=linux GOARCH=arm64 go build $(BUILD_FLAGS) -o $@ .
 
 aws-vault-darwin-amd64: $(SRC)
 	GOOS=darwin GOARCH=amd64 go build $(BUILD_FLAGS) -o $@ .

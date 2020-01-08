@@ -5,13 +5,12 @@ import (
 
 	"github.com/99designs/aws-vault/prompt"
 	"github.com/99designs/aws-vault/vault"
-	"github.com/99designs/keyring"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 type RemoveCommandInput struct {
 	ProfileName  string
-	Keyring      keyring.Keyring
+	Keyring      *vault.CredentialKeyring
 	SessionsOnly bool
 }
 
@@ -31,7 +30,7 @@ func ConfigureRemoveCommand(app *kingpin.Application) {
 		BoolVar(&input.SessionsOnly)
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
-		input.Keyring = keyringImpl
+		input.Keyring = &vault.CredentialKeyring{Keyring: keyringImpl}
 		RemoveCommand(app, input)
 		return nil
 	})
@@ -39,7 +38,6 @@ func ConfigureRemoveCommand(app *kingpin.Application) {
 
 func RemoveCommand(app *kingpin.Application, input RemoveCommandInput) {
 	if !input.SessionsOnly {
-		masterCredsProvider := vault.NewMasterCredentialsProvider(input.Keyring, input.ProfileName)
 		r, err := prompt.TerminalPrompt(fmt.Sprintf("Delete credentials for profile %q? (Y|n)", input.ProfileName))
 		if err != nil {
 			app.Fatalf(err.Error())
@@ -48,14 +46,14 @@ func RemoveCommand(app *kingpin.Application, input RemoveCommandInput) {
 			return
 		}
 
-		if err := masterCredsProvider.Delete(); err != nil {
+		if err := input.Keyring.Remove(input.ProfileName); err != nil {
 			app.Fatalf(err.Error())
 			return
 		}
 		fmt.Printf("Deleted credentials.\n")
 	}
 
-	sessions := vault.NewKeyringSessions(input.Keyring)
+	sessions := input.Keyring.Sessions()
 
 	n, err := sessions.Delete(input.ProfileName)
 	if err != nil {

@@ -39,7 +39,7 @@ func (f *FederationTokenProvider) Retrieve() (val credentials.Value, err error) 
 		return val, err
 	}
 
-	log.Printf("Generated credentials %s using GetFederationToken, expires in %s", formatKeyForDisplay(*resp.Credentials.AccessKeyId), time.Until(*resp.Credentials.Expiration).String())
+	log.Printf("Generated credentials %s using GetFederationToken, expires in %s", FormatKeyForDisplay(*resp.Credentials.AccessKeyId), time.Until(*resp.Credentials.Expiration).String())
 
 	f.SetExpiration(*resp.Credentials.Expiration, f.ExpiryWindow)
 	return credentials.Value{

@@ -27,7 +27,8 @@ type ExecCommandInput struct {
 	NoSession        bool
 }
 
-// json metadata for AWS credential process. Ref: https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
+// AwsCredentialHelperData is metadata for AWS CLI credential process
+// See https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
 type AwsCredentialHelperData struct {
 	Version         int    `json:"Version"`
 	AccessKeyID     string `json:"AccessKeyId"`
@@ -78,51 +79,48 @@ func ConfigureExecCommand(app *kingpin.Application) {
 		input.Config.MfaPromptMethod = GlobalFlags.PromptDriver
 		input.Config.GetSessionTokenDuration = input.SessionDuration
 		input.Config.AssumeRoleDuration = input.SessionDuration
-		ExecCommand(app, input)
+		app.FatalIfError(ExecCommand(input), "exec")
 		return nil
 	})
 }
 
-func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
+func ExecCommand(input ExecCommandInput) error {
 	if os.Getenv("AWS_VAULT") != "" {
-		app.Fatalf("aws-vault sessions should be nested with care, unset $AWS_VAULT to force")
-		return
+		return fmt.Errorf("aws-vault sessions should be nested with care, unset $AWS_VAULT to force")
 	}
 
 	var setEnv = true
 
 	if input.NoSession && input.StartServer {
-		app.Fatalf("Can't start a credential server without a session")
-		return
+		return fmt.Errorf("Can't start a credential server without a session")
 	}
 
-	err := configLoader.LoadFromProfile(input.ProfileName, &input.Config)
+	configLoader.BaseConfig = input.Config
+	configLoader.ProfileNameForEnv = input.ProfileName
+	config, err := configLoader.LoadFromProfile(input.ProfileName)
 	if err != nil {
-		app.Fatalf("%v", err)
-		return
+		return err
 	}
 
+	credKeyring := &vault.CredentialKeyring{Keyring: input.Keyring}
 	var creds *credentials.Credentials
 	if input.NoSession {
-		creds = vault.NewMasterCredentials(input.Keyring, input.Config.CredentialsName)
+		creds = vault.NewMasterCredentials(credKeyring, config.ProfileName)
 	} else {
-		creds, err = vault.NewTempCredentials(input.Keyring, input.Config)
+		creds, err = vault.NewTempCredentials(input.ProfileName, credKeyring, configLoader)
 		if err != nil {
-			app.Fatalf("%v", err)
-			return
+			return fmt.Errorf("Error getting temporary credentials: %w", err)
 		}
 	}
 
 	val, err := creds.Get()
 	if err != nil {
-		app.Fatalf(FormatCredentialError(err, input.Config.CredentialsName))
-		return
+		return fmt.Errorf("Failed to get credentials for %s: %w", input.ProfileName, err)
 	}
 
 	if input.StartServer {
 		if err := server.StartCredentialsServer(creds); err != nil {
-			app.Fatalf("Failed to start credential server: %v", err)
-			return
+			return fmt.Errorf("Failed to start credential server: %w", err)
 		} else {
 			setEnv = false
 		}
@@ -138,15 +136,13 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 		if !input.NoSession {
 			credsExprest, err := creds.ExpiresAt()
 			if err != nil {
-				app.Fatalf("Error getting credential expiration: %v", err)
-				return
+				return fmt.Errorf("Error getting credential expiration: %w", err)
 			}
 			credentialData.Expiration = credsExprest.Format("2006-01-02T15:04:05Z")
 		}
 		json, err := json.Marshal(&credentialData)
 		if err != nil {
-			app.Fatalf("Error creating credential json")
-			return
+			return fmt.Errorf("Error creating credential json: %w", err)
 		}
 		fmt.Print(string(json))
 	} else {
@@ -160,10 +156,10 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 		env.Unset("AWS_DEFAULT_PROFILE")
 		env.Unset("AWS_PROFILE")
 
-		if input.Config.Region != "" {
-			log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s", input.Config.Region, input.Config.Region)
-			env.Set("AWS_DEFAULT_REGION", input.Config.Region)
-			env.Set("AWS_REGION", input.Config.Region)
+		if config.Region != "" {
+			log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s", config.Region, config.Region)
+			env.Set("AWS_DEFAULT_REGION", config.Region)
+			env.Set("AWS_REGION", config.Region)
 		}
 
 		if setEnv {
@@ -180,10 +176,11 @@ func ExecCommand(app *kingpin.Application, input ExecCommandInput) {
 
 		err = exec(input.Command, input.Args, env)
 		if err != nil {
-			app.Fatalf("%v", err)
-			return
+			return fmt.Errorf("Error execing process: %w", err)
 		}
 	}
+
+	return nil
 }
 
 // environ is a slice of strings representing the environment, in the form "key=value".

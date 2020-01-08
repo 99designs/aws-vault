@@ -149,27 +149,6 @@ func TestConfigParsingDefault(t *testing.T) {
 	}
 }
 
-func TestCredentialsNameFromConfig(t *testing.T) {
-	f := newConfigFile(t, exampleConfig)
-	defer os.Remove(f)
-
-	configFile, err := vault.LoadConfig(f)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	configLoader := &vault.ConfigLoader{File: configFile}
-	config := vault.Config{}
-	err = configLoader.LoadFromProfile("withmfa", &config)
-	if err != nil {
-		t.Fatalf("Should have found a profile")
-	}
-
-	if config.CredentialsName != "user2" {
-		t.Fatalf("Expected CredentialsName name %q, got %q", "user2", config.CredentialsName)
-	}
-}
-
 func TestProfilesFromConfig(t *testing.T) {
 	f := newConfigFile(t, exampleConfig)
 	defer os.Remove(f)
@@ -269,17 +248,13 @@ func TestParentProfile(t *testing.T) {
 	}
 
 	configLoader := &vault.ConfigLoader{File: configFile}
-	config := vault.Config{}
-	err = configLoader.LoadFromProfile("testparentprofile2", &config)
+	config, err := configLoader.LoadFromProfile("testparentprofile2")
 	if err != nil {
 		t.Fatalf("Should have found a profile")
 	}
 
-	if config.CredentialsName != "testparentprofile1" {
-		t.Fatalf("Expected CredentialsName name %q, got %q", "testparentprofile1", config.CredentialsName)
-	}
 	if config.Region != "us-east-1" {
-		t.Fatalf("Expected CredentialsName name %q, got %q", "us-east-1", config.CredentialsName)
+		t.Fatalf("Expected region %q, got %q", "us-east-1", config.Region)
 	}
 }
 

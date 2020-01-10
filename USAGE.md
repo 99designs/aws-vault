@@ -305,10 +305,9 @@ security of the setup. You can execute the same test as before to see it for you
 
 If you try to assume a role from an opened (temporary) session, AWS considers that as *role
 chaining* and it limits your ability to assume the target role to only **1h**. Trying to use
-`--assume-role-ttl` with a value bigger than **1h** will result in an error:
+`--duration` with a value bigger than **1h** will result in an error:
 ```
-aws-vault: error: Failed to get credentials for default (source profile for pix4d): ValidationError:
-The requested DurationSeconds exceeds the 1 hour session limit for roles assumed by role chaining.
+aws-vault: error: Failed to get credentials for default (source profile for pix4d): ValidationError: The requested DurationSeconds exceeds the MaxSessionDuration set for this role.
         status code: 400, request id: aa58fa50-4a5e-11e9-9566-293ea5c350ee
 ```
 There are reasons though where you'd like to assume a role for a longer period. For example, when
@@ -319,7 +318,7 @@ There are 2 solutions:
 
 1. Call aws-vault with `--no-session`. This means that the `AssumeRole` API
 will be called by using directly the IAM user credentials and not opening a session. This is not a
-*role chaining* and therefore you can request a role for up to 12 hours (`--assume-role-ttl=12h`),
+*role chaining* and therefore you can request a role for up to 12 hours (`--duration=12h`),
 so long as you have setup your role to allow such a thing (AWS role are created by *default* with a
 max TTL of 1h). The drawback of this method is related to **MFA**. Since you are not using the AWS
 session, which is cached by `aws-vault`, if you use **MFA** (and you should), you'll have to enter
@@ -331,7 +330,7 @@ endpoint](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metad
 would have on an EC2 instance. When your application will want to connect to AWS and fail to find
 credentials (typically in env variables), it will instead contact this server that will issue a new
 set of temporary credentials (using the same profile as the one the server was started with). This
-server will work only for the duration of the session (`--session-ttl`).  
+server will work only for the duration of the session ([AWS_SESSION_TOKEN_TTL](#environment-variables)).
 
 Note that this approach has the **major drawback** that while this `aws-vault` server runs, any
 application wanting to **connect** to AWS will be able to do so **implicitely**, with the profile the

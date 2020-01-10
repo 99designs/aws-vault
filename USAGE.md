@@ -303,8 +303,8 @@ security of the setup. You can execute the same test as before to see it for you
 
 ### Assuming a role for more than 1h
 
-If you try to assume a role from an opened (temporary) session, AWS considers that as *role
-chaining* and it limits your ability to assume the target role to only **1h**. Trying to use
+If you try to [assume a role](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html) from an opened (temporary) session, AWS considers that as [role
+chaining](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_terms-and-concepts.html#iam-term-role-chaining) and it limits your ability to assume the target role to only **1h**. Trying to use
 `--duration` with a value bigger than **1h** will result in an error:
 ```
 aws-vault: error: Failed to get credentials for default (source profile for pix4d): ValidationError: The requested DurationSeconds exceeds the MaxSessionDuration set for this role.

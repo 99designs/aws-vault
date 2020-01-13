@@ -85,13 +85,10 @@ func StartCredentialsServer(creds *credentials.Credentials) error {
 		}
 	}
 
-	l, err := net.Listen("tcp", localServerBind)
-	if err != nil {
-		return err
-	}
-
-	log.Printf("Local instance role server running on %s", l.Addr())
-	go http.Serve(l, credsHandler(creds))
+	log.Printf("Starting local instance role server on %s", localServerBind)
+	go func() {
+		log.Fatalln(http.ListenAndServe(localServerBind, credsHandler(creds)))
+	}()
 
 	return nil
 }

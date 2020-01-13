@@ -5,7 +5,11 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
+	"os/signal"
+	"runtime"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/99designs/aws-vault/server"
@@ -179,7 +183,12 @@ func ExecCommand(input ExecCommandInput) error {
 			}
 		}
 
-		err = exec(input.Command, input.Args, env)
+		if input.StartServer {
+			err = execCmd(input.Command, input.Args, env)
+		} else {
+			err = execSyscall(input.Command, input.Args, env)
+		}
+
 		if err != nil {
 			return fmt.Errorf("Error execing process: %w", err)
 		}
@@ -206,4 +215,56 @@ func (e *environ) Unset(key string) {
 func (e *environ) Set(key, val string) {
 	e.Unset(key)
 	*e = append(*e, key+"="+val)
+}
+
+func execCmd(command string, args []string, env []string) error {
+	cmd := exec.Command(command, args...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Env = env
+
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan)
+
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("Failed to start command: %v", err)
+	}
+
+	go func() {
+		for {
+			sig := <-sigChan
+			cmd.Process.Signal(sig)
+		}
+	}()
+
+	if err := cmd.Wait(); err != nil {
+		cmd.Process.Signal(os.Kill)
+		return fmt.Errorf("Failed to wait for command termination: %v", err)
+	}
+
+	waitStatus := cmd.ProcessState.Sys().(syscall.WaitStatus)
+	os.Exit(waitStatus.ExitStatus())
+	return nil
+}
+
+func supportsExecSyscall() bool {
+	return runtime.GOOS == "linux" || runtime.GOOS == "darwin" || runtime.GOOS == "freebsd"
+}
+
+func execSyscall(command string, args []string, env []string) error {
+	if !supportsExecSyscall() {
+		return execCmd(command, args, env)
+	}
+
+	argv0, err := exec.LookPath(command)
+	if err != nil {
+		return err
+	}
+
+	argv := make([]string, 0, 1+len(args))
+	argv = append(argv, command)
+	argv = append(argv, args...)
+
+	return syscall.Exec(argv0, argv, env)
 }

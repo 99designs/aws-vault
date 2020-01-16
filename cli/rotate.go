@@ -24,7 +24,7 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 
 	cmd := app.Command("rotate", "Rotates credentials")
 
-	cmd.Flag("no-session", "Use master credentials, no session created").
+	cmd.Flag("no-session", "Use master credentials, no session or role used").
 		Short('n').
 		BoolVar(&input.NoSession)
 
@@ -42,6 +42,7 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 }
 
 func RotateCommand(input RotateCommandInput) error {
+	vault.UseSession = !input.NoSession
 	vault.UseSessionCache = false
 
 	configLoader.BaseConfig = input.Config

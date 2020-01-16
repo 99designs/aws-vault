@@ -15,7 +15,6 @@ import (
 	"github.com/99designs/aws-vault/server"
 	"github.com/99designs/aws-vault/vault"
 	"github.com/99designs/keyring"
-	"github.com/aws/aws-sdk-go/aws/credentials"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -50,7 +49,7 @@ func ConfigureExecCommand(app *kingpin.Application) {
 		Short('d').
 		DurationVar(&input.SessionDuration)
 
-	cmd.Flag("no-session", "Use master credentials, no session created").
+	cmd.Flag("no-session", "Don't create a session with GetSessionToken").
 		Short('n').
 		BoolVar(&input.NoSession)
 
@@ -93,11 +92,8 @@ func ExecCommand(input ExecCommandInput) error {
 		return fmt.Errorf("aws-vault sessions should be nested with care, unset $AWS_VAULT to force")
 	}
 
-	var setEnv = true
-
-	if input.NoSession && input.StartServer {
-		return fmt.Errorf("Can't start a credential server without a session")
-	}
+	vault.UseSession = !input.NoSession
+	setEnv := true
 
 	configLoader.BaseConfig = input.Config
 	configLoader.ActiveProfile = input.ProfileName
@@ -107,14 +103,9 @@ func ExecCommand(input ExecCommandInput) error {
 	}
 
 	credKeyring := &vault.CredentialKeyring{Keyring: input.Keyring}
-	var creds *credentials.Credentials
-	if input.NoSession {
-		creds = vault.NewMasterCredentials(credKeyring, config.ProfileName)
-	} else {
-		creds, err = vault.NewTempCredentials(input.ProfileName, credKeyring, config)
-		if err != nil {
-			return fmt.Errorf("Error getting temporary credentials: %w", err)
-		}
+	creds, err := vault.NewTempCredentials(input.ProfileName, credKeyring, config)
+	if err != nil {
+		return fmt.Errorf("Error getting temporary credentials: %w", err)
 	}
 
 	val, err := creds.Get()
@@ -125,9 +116,8 @@ func ExecCommand(input ExecCommandInput) error {
 	if input.StartServer {
 		if err := server.StartCredentialsServer(creds); err != nil {
 			return fmt.Errorf("Failed to start credential server: %w", err)
-		} else {
-			setEnv = false
 		}
+		setEnv = false
 	}
 
 	if input.CredentialHelper {

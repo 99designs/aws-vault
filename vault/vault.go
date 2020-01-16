@@ -156,7 +156,8 @@ func (c *CredentialLoader) ProviderWithChainedMfa(config *Config) (credentials.P
 
 	if config.RoleARN == "" {
 		if !UseSession {
-			log.Printf("profile %s: GetSessionToken disabled", config.ProfileName)
+			// log.Printf("profile %s: GetSessionToken disabled", config.ProfileName)
+			config.MfaSerial = ""
 			return sourceCredProvider, nil
 		}
 

@@ -14,21 +14,6 @@ import (
 )
 
 const (
-	// MinGetSessionTokenDuration is the AWS minumum duration for GetSessionToken
-	MinGetSessionTokenDuration = time.Minute * 15
-	// MaxGetSessionTokenDuration is the AWS maximum duration for GetSessionToken
-	MaxGetSessionTokenDuration = time.Hour * 36
-
-	// MinAssumeRoleDuration is the AWS minumum duration for AssumeRole
-	MinAssumeRoleDuration = time.Minute * 15
-	// MaxAssumeRoleDuration is the AWS maximum duration for AssumeRole
-	MaxAssumeRoleDuration = time.Hour * 12
-
-	// MinGetFederationTokenDuration is the AWS minumum duration for GetFederationToke
-	MinGetFederationTokenDuration = time.Minute * 15
-	// MaxGetFederationTokenDuration is the AWS maximum duration for GetFederationToke
-	MaxGetFederationTokenDuration = time.Hour * 36
-
 	// DefaultSessionDuration is the default duration for GetSessionToken or AssumeRole sessions
 	DefaultSessionDuration = time.Hour * 1
 
@@ -413,11 +398,6 @@ func (cl *ConfigLoader) LoadFromProfile(profileName string) (*Config, error) {
 		return nil, err
 	}
 
-	err = config.Validate()
-	if err != nil {
-		return nil, err
-	}
-
 	return &config, nil
 }
 
@@ -477,28 +457,4 @@ func (c *Config) MfaAlreadyUsedInSourceProfile() bool {
 	return c.HasSourceProfile() &&
 		c.MfaSerial != "" &&
 		c.SourceProfile.MfaSerial == c.MfaSerial
-}
-
-// Validate checks that the Config is valid
-func (cl *Config) Validate() error {
-	if cl.GetSessionTokenDuration < MinGetSessionTokenDuration {
-		return fmt.Errorf("Minimum GetSessionToken duration is %s", MinGetSessionTokenDuration)
-	}
-	if cl.GetSessionTokenDuration > MaxGetSessionTokenDuration {
-		return fmt.Errorf("Maximum GetSessionToken duration is %s", MaxGetSessionTokenDuration)
-	}
-	if cl.AssumeRoleDuration < MinAssumeRoleDuration {
-		return fmt.Errorf("Minimum AssumeRole duration is %s", MinAssumeRoleDuration)
-	}
-	if cl.AssumeRoleDuration > MaxAssumeRoleDuration {
-		return fmt.Errorf("Maximum AssumeRole duration is %s", MaxAssumeRoleDuration)
-	}
-	if cl.GetFederationTokenDuration < MinGetFederationTokenDuration {
-		return fmt.Errorf("Minimum GetFederationToken duration is %s", MinAssumeRoleDuration)
-	}
-	if cl.GetFederationTokenDuration > MaxGetFederationTokenDuration {
-		return fmt.Errorf("Maximum GetFederationToken duration is %s", MaxAssumeRoleDuration)
-	}
-
-	return nil
 }

@@ -15,6 +15,7 @@ import (
 
 const defaultExpirationWindow = 5 * time.Minute
 
+var UseSession = true
 var UseSessionCache = true
 
 func NewSession(creds *credentials.Credentials, region string) (*session.Session, error) {
@@ -154,22 +155,28 @@ func (c *CredentialLoader) ProviderWithChainedMfa(config *Config) (credentials.P
 	sourceCreds := credentials.NewCredentials(sourceCredProvider)
 
 	if config.RoleARN == "" {
-		if config.IsChained() {
-			if config.ChainedFromProfile.HasMfaSerial() {
-				if config.ChainedFromProfile.MfaSerial == config.MfaSerial {
-					config.GetSessionTokenDuration = config.ChainedGetSessionTokenDuration
-					log.Printf("profile %s: using GetSessionToken %s", config.ProfileName, mfaDetails(false, config))
-					return NewSessionTokenProvider(sourceCreds, c.Keyring, config)
-				} else {
-					log.Printf("profile %s: not using GetSessionToken because MFA serial doesn't match with profile '%s'", config.ProfileName, config.ChainedFromProfile.ProfileName)
-				}
-			} else {
-				log.Printf("profile %s: not using GetSessionToken because profile '%s' has no MFA serial defined", config.ProfileName, config.ChainedFromProfile.ProfileName)
-			}
-		} else {
-			log.Printf("profile %s: using GetSessionToken %s", config.ProfileName, mfaDetails(false, config))
-			return NewSessionTokenProvider(sourceCreds, c.Keyring, config)
+		if !UseSession {
+			log.Printf("profile %s: GetSessionToken disabled", config.ProfileName)
+			return sourceCredProvider, nil
 		}
+
+		if config.IsChained() {
+			if !config.ChainedFromProfile.HasMfaSerial() {
+				log.Printf("profile %s: not using GetSessionToken because profile '%s' has no MFA serial defined", config.ProfileName, config.ChainedFromProfile.ProfileName)
+				return sourceCredProvider, nil
+			}
+
+			if config.ChainedFromProfile.MfaSerial != config.MfaSerial {
+				log.Printf("profile %s: not using GetSessionToken because MFA serial doesn't match with profile '%s'", config.ProfileName, config.ChainedFromProfile.ProfileName)
+				return sourceCredProvider, nil
+			}
+
+			config.GetSessionTokenDuration = config.ChainedGetSessionTokenDuration
+		}
+
+		log.Printf("profile %s: using GetSessionToken %s", config.ProfileName, mfaDetails(false, config))
+		return NewSessionTokenProvider(sourceCreds, c.Keyring, config)
+
 	} else {
 		log.Printf("profile %s: using AssumeRole %s", config.ProfileName, mfaDetails(mfaChained, config))
 		return NewAssumeRoleProvider(sourceCreds, config, mfaChained)

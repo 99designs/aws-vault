@@ -113,37 +113,20 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config, noMfa
 	}, nil
 }
 
-type CredentialLoader struct {
-	Keyring *CredentialKeyring
-	Config  *Config
-}
-
-// Provider creates a credential provider for the given config
-func (c *CredentialLoader) Provider() (credentials.Provider, error) {
-	return c.ProviderWithChainedMfa(c.Config)
-}
-
-func logSourceDetails(config *Config) string {
-	if config.SourceProfile != nil {
-		return "(ignoring source_profile)"
-	}
-	return ""
-}
-
 // Provider creates a credential provider for the given config. To chain the MFA serial with a source credential, pass the MFA serial in chainMfaSerial
-func (c *CredentialLoader) ProviderWithChainedMfa(config *Config) (credentials.Provider, error) {
+func NewTempCredentialsProvider(config *Config, keyring *CredentialKeyring) (credentials.Provider, error) {
 	var sourceCredProvider credentials.Provider
 
-	hasCredentialsForThisProfile, err := c.Keyring.Has(config.ProfileName)
+	hasStoredCredentials, err := keyring.Has(config.ProfileName)
 	if err != nil {
 		return nil, err
 	}
 
-	if hasCredentialsForThisProfile {
+	if hasStoredCredentials {
 		log.Printf("profile %s: using stored credentials %s", config.ProfileName, logSourceDetails(config))
-		sourceCredProvider = NewMasterCredentialsProvider(c.Keyring, config.ProfileName)
+		sourceCredProvider = NewMasterCredentialsProvider(keyring, config.ProfileName)
 	} else if config.HasSourceProfile() {
-		sourceCredProvider, err = c.ProviderWithChainedMfa(config.SourceProfile)
+		sourceCredProvider, err = NewTempCredentialsProvider(config.SourceProfile, keyring)
 		if err != nil {
 			return nil, err
 		}
@@ -176,14 +159,19 @@ func (c *CredentialLoader) ProviderWithChainedMfa(config *Config) (credentials.P
 		}
 
 		log.Printf("profile %s: using GetSessionToken %s", config.ProfileName, mfaDetails(false, config))
-		return NewSessionTokenProvider(sourceCreds, c.Keyring, config)
+		return NewSessionTokenProvider(sourceCreds, keyring, config)
 
 	} else {
 		log.Printf("profile %s: using AssumeRole %s", config.ProfileName, mfaDetails(mfaChained, config))
 		return NewAssumeRoleProvider(sourceCreds, config, mfaChained)
 	}
+}
 
-	return sourceCredProvider, nil
+func logSourceDetails(config *Config) string {
+	if config.SourceProfile != nil {
+		return "(ignoring source_profile)"
+	}
+	return ""
 }
 
 func mfaDetails(mfaChained bool, config *Config) string {
@@ -196,18 +184,9 @@ func mfaDetails(mfaChained bool, config *Config) string {
 	return ""
 }
 
-func NewTempCredentialsProvider(profileName string, k *CredentialKeyring, config *Config) (credentials.Provider, error) {
-	cl := CredentialLoader{
-		Keyring: k,
-		Config:  config,
-	}
-
-	return cl.Provider()
-}
-
 // NewTempCredentials returns credentials for the given config
-func NewTempCredentials(profileName string, k *CredentialKeyring, config *Config) (*credentials.Credentials, error) {
-	provider, err := NewTempCredentialsProvider(profileName, k, config)
+func NewTempCredentials(config *Config, k *CredentialKeyring) (*credentials.Credentials, error) {
+	provider, err := NewTempCredentialsProvider(config, k)
 	if err != nil {
 		return nil, err
 	}

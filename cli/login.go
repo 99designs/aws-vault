@@ -76,7 +76,7 @@ func LoginCommand(input LoginCommandInput) error {
 	if config.RoleARN == "" {
 		creds, err = vault.NewFederationTokenCredentials(input.ProfileName, input.Keyring, config)
 	} else {
-		creds, err = vault.NewTempCredentials(input.ProfileName, input.Keyring, config)
+		creds, err = vault.NewTempCredentials(config, input.Keyring)
 	}
 	if err != nil {
 		return err

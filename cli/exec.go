@@ -103,7 +103,7 @@ func ExecCommand(input ExecCommandInput) error {
 	}
 
 	credKeyring := &vault.CredentialKeyring{Keyring: input.Keyring}
-	creds, err := vault.NewTempCredentials(input.ProfileName, credKeyring, config)
+	creds, err := vault.NewTempCredentials(config, credKeyring)
 	if err != nil {
 		return fmt.Errorf("Error getting temporary credentials: %w", err)
 	}

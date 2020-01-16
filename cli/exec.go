@@ -100,7 +100,7 @@ func ExecCommand(input ExecCommandInput) error {
 	}
 
 	configLoader.BaseConfig = input.Config
-	configLoader.ProfileNameForEnv = input.ProfileName
+	configLoader.ActiveProfile = input.ProfileName
 	config, err := configLoader.LoadFromProfile(input.ProfileName)
 	if err != nil {
 		return err
@@ -111,7 +111,7 @@ func ExecCommand(input ExecCommandInput) error {
 	if input.NoSession {
 		creds = vault.NewMasterCredentials(credKeyring, config.ProfileName)
 	} else {
-		creds, err = vault.NewTempCredentials(input.ProfileName, credKeyring, configLoader)
+		creds, err = vault.NewTempCredentials(input.ProfileName, credKeyring, config)
 		if err != nil {
 			return fmt.Errorf("Error getting temporary credentials: %w", err)
 		}

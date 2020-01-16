@@ -56,7 +56,7 @@ func NewMasterCredentials(k *CredentialKeyring, credentialsName string) *credent
 	return credentials.NewCredentials(NewMasterCredentialsProvider(k, credentialsName))
 }
 
-func NewSessionTokenProvider(creds *credentials.Credentials, k *CredentialKeyring, config Config) (credentials.Provider, error) {
+func NewSessionTokenProvider(creds *credentials.Credentials, k *CredentialKeyring, config *Config) (credentials.Provider, error) {
 	sess, err := NewSession(creds, config.Region)
 	if err != nil {
 		return nil, err
@@ -86,7 +86,7 @@ func NewSessionTokenProvider(creds *credentials.Credentials, k *CredentialKeyrin
 }
 
 // NewAssumeRoleProvider returns a provider that generates credentials using AssumeRole
-func NewAssumeRoleProvider(creds *credentials.Credentials, config Config) (*AssumeRoleProvider, error) {
+func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config) (*AssumeRoleProvider, error) {
 	sess, err := NewSession(creds, config.Region)
 	if err != nil {
 		return nil, err
@@ -108,24 +108,19 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, config Config) (*Assu
 }
 
 type CredentialLoader struct {
-	Keyring      *CredentialKeyring
-	ConfigLoader *ConfigLoader
+	Keyring *CredentialKeyring
+	Config  *Config
 }
 
 // Provider creates a credential provider for the given config
-func (c *CredentialLoader) Provider(profileName string) (credentials.Provider, error) {
-	return c.ProviderWithChainedMfa(profileName, false, "")
+func (c *CredentialLoader) Provider() (credentials.Provider, error) {
+	return c.ProviderWithChainedMfa(c.Config, false, "")
 }
 
 var errChainedMfaNotMatched = errors.New("Chained MFA serial didn't match")
 
 // Provider creates a credential provider for the given config. To chain the MFA serial with a source credential, pass the MFA serial in chainMfaSerial
-func (c *CredentialLoader) ProviderWithChainedMfa(profileName string, isChained bool, chainedMfaSerial string) (credentials.Provider, error) {
-	config, err := c.ConfigLoader.LoadFromProfile(profileName)
-	if err != nil {
-		return nil, err
-	}
-
+func (c *CredentialLoader) ProviderWithChainedMfa(config *Config, isChained bool, chainedMfaSerial string) (credentials.Provider, error) {
 	if chainedMfaSerial != "" && config.MfaSerial != "" && chainedMfaSerial != config.MfaSerial {
 		return nil, errChainedMfaNotMatched
 	}
@@ -139,13 +134,13 @@ func (c *CredentialLoader) ProviderWithChainedMfa(profileName string, isChained 
 	}
 
 	if hasMasterCredentials {
-		if config.SourceProfile != "" {
-			log.Printf("profile %s: using stored credentials (ignoring source_profile)", profileName)
+		if config.SourceProfile != nil {
+			log.Printf("profile %s: using stored credentials (ignoring source_profile)", config.ProfileName)
 		} else {
-			log.Printf("profile %s: using stored credentials", profileName)
+			log.Printf("profile %s: using stored credentials", config.ProfileName)
 		}
 		sourceCredProvider = NewMasterCredentialsProvider(c.Keyring, config.ProfileName)
-	} else if config.SourceProfile != "" {
+	} else if config.SourceProfile != nil {
 		sourceCredProvider, err = c.ProviderWithChainedMfa(config.SourceProfile, true, config.MfaSerial)
 		if err == nil && config.MfaSerial != "" {
 			skipMfaBecauseSourceProfileHasItCovered = true
@@ -158,7 +153,7 @@ func (c *CredentialLoader) ProviderWithChainedMfa(profileName string, isChained 
 			return nil, err
 		}
 	} else {
-		return nil, fmt.Errorf("profile %s: credentials missing", profileName)
+		return nil, fmt.Errorf("profile %s: credentials missing", config.ProfileName)
 	}
 
 	if config.RoleARN == "" && isChained && chainedMfaSerial == "" {
@@ -170,15 +165,15 @@ func (c *CredentialLoader) ProviderWithChainedMfa(profileName string, isChained 
 			config.GetSessionTokenDuration = config.ChainedGetSessionTokenDuration
 		}
 
-		log.Printf("profile %s: using GetSessionToken %s", profileName, mfaDetails(skipMfaBecauseSourceProfileHasItCovered, config))
+		log.Printf("profile %s: using GetSessionToken %s", config.ProfileName, mfaDetails(skipMfaBecauseSourceProfileHasItCovered, config))
 		return NewSessionTokenProvider(credentials.NewCredentials(sourceCredProvider), c.Keyring, config)
 	}
 
-	log.Printf("profile %s: using AssumeRole %s", profileName, mfaDetails(skipMfaBecauseSourceProfileHasItCovered, config))
+	log.Printf("profile %s: using AssumeRole %s", config.ProfileName, mfaDetails(skipMfaBecauseSourceProfileHasItCovered, config))
 	return NewAssumeRoleProvider(credentials.NewCredentials(sourceCredProvider), config)
 }
 
-func mfaDetails(skipMfaBecauseSourceProfileHasItCovered bool, config Config) string {
+func mfaDetails(skipMfaBecauseSourceProfileHasItCovered bool, config *Config) string {
 	if skipMfaBecauseSourceProfileHasItCovered {
 		return "(chained MFA)"
 	}
@@ -188,18 +183,18 @@ func mfaDetails(skipMfaBecauseSourceProfileHasItCovered bool, config Config) str
 	return ""
 }
 
-func NewTempCredentialsProvider(profileName string, k *CredentialKeyring, configLoader *ConfigLoader) (credentials.Provider, error) {
+func NewTempCredentialsProvider(profileName string, k *CredentialKeyring, config *Config) (credentials.Provider, error) {
 	cl := CredentialLoader{
-		Keyring:      k,
-		ConfigLoader: configLoader,
+		Keyring: k,
+		Config:  config,
 	}
 
-	return cl.Provider(profileName)
+	return cl.Provider()
 }
 
 // NewTempCredentials returns credentials for the given config
-func NewTempCredentials(profileName string, k *CredentialKeyring, cl *ConfigLoader) (*credentials.Credentials, error) {
-	provider, err := NewTempCredentialsProvider(profileName, k, cl)
+func NewTempCredentials(profileName string, k *CredentialKeyring, config *Config) (*credentials.Credentials, error) {
+	provider, err := NewTempCredentialsProvider(profileName, k, config)
 	if err != nil {
 		return nil, err
 	}
@@ -207,13 +202,8 @@ func NewTempCredentials(profileName string, k *CredentialKeyring, cl *ConfigLoad
 	return credentials.NewCredentials(provider), nil
 }
 
-func NewFederationTokenCredentials(profileName string, k *CredentialKeyring, configLoader *ConfigLoader) (*credentials.Credentials, error) {
-	config, err := configLoader.LoadFromProfile(profileName)
-	if err != nil {
-		return nil, err
-	}
-
-	credentialsName, err := MasterCredentialsFor(profileName, k, configLoader)
+func NewFederationTokenCredentials(profileName string, k *CredentialKeyring, config *Config) (*credentials.Credentials, error) {
+	credentialsName, err := MasterCredentialsFor(profileName, k, config)
 	if err != nil {
 		return nil, err
 	}
@@ -236,7 +226,7 @@ func NewFederationTokenCredentials(profileName string, k *CredentialKeyring, con
 	}), nil
 }
 
-func MasterCredentialsFor(profileName string, keyring *CredentialKeyring, configLoader *ConfigLoader) (string, error) {
+func MasterCredentialsFor(profileName string, keyring *CredentialKeyring, config *Config) (string, error) {
 	hasMasterCreds, err := keyring.Has(profileName)
 	if err != nil {
 		return "", err
@@ -246,10 +236,5 @@ func MasterCredentialsFor(profileName string, keyring *CredentialKeyring, config
 		return profileName, nil
 	}
 
-	config, err := configLoader.LoadFromProfile(profileName)
-	if err != nil {
-		return "", err
-	}
-
-	return MasterCredentialsFor(config.SourceProfile, keyring, configLoader)
+	return MasterCredentialsFor(config.SourceProfileName, keyring, config)
 }

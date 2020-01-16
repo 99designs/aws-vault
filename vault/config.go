@@ -240,12 +240,9 @@ func (c *ConfigFile) ProfileNames() []string {
 
 // ConfigLoader loads config from configfile and environment variables
 type ConfigLoader struct {
-	BaseConfig Config
-	File       *ConfigFile
-
-	// profile env should be applied to
-	ProfileNameForEnv string
-
+	BaseConfig      Config
+	File            *ConfigFile
+	ActiveProfile   string
 	visitedProfiles []string
 }
 
@@ -307,8 +304,8 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 	if config.AssumeRoleDuration == 0 {
 		config.AssumeRoleDuration = time.Duration(psection.DurationSeconds) * time.Second
 	}
-	if config.SourceProfile == "" {
-		config.SourceProfile = psection.SourceProfile
+	if config.SourceProfileName == "" {
+		config.SourceProfileName = psection.SourceProfile
 	}
 
 	if psection.ParentProfile != "" {
@@ -372,7 +369,7 @@ func (cl *ConfigLoader) populateFromEnv(profile *Config) {
 	}
 
 	// AWS_ROLE_ARN and AWS_ROLE_SESSION_NAME only apply to the target profile
-	if profile.ProfileName == cl.ProfileNameForEnv {
+	if profile.ProfileName == cl.ActiveProfile {
 		if roleARN := os.Getenv("AWS_ROLE_ARN"); roleARN != "" && profile.RoleARN == "" {
 			log.Printf("Using role_arn %q from AWS_ROLE_ARN", roleARN)
 			profile.RoleARN = roleARN
@@ -385,8 +382,20 @@ func (cl *ConfigLoader) populateFromEnv(profile *Config) {
 	}
 }
 
+func (cl *ConfigLoader) hydrateSourceConfig(config *Config) error {
+	if config.SourceProfileName != "" {
+		sc, err := cl.LoadFromProfile(config.SourceProfileName)
+		if err != nil {
+			return err
+		}
+		sc.ChainedFromProfile = config
+		config.SourceProfile = sc
+	}
+	return nil
+}
+
 // LoadFromProfile loads the profile from the config file and environment variables into config
-func (cl *ConfigLoader) LoadFromProfile(profileName string) (Config, error) {
+func (cl *ConfigLoader) LoadFromProfile(profileName string) (*Config, error) {
 	config := cl.BaseConfig
 	config.ProfileName = profileName
 	cl.populateFromEnv(&config)
@@ -394,17 +403,22 @@ func (cl *ConfigLoader) LoadFromProfile(profileName string) (Config, error) {
 	cl.resetLoopDetection()
 	err := cl.populateFromConfigFile(&config, profileName)
 	if err != nil {
-		return Config{}, err
+		return nil, err
 	}
 
 	cl.populateFromDefaults(&config)
 
-	err = config.Validate()
+	err = cl.hydrateSourceConfig(&config)
 	if err != nil {
-		return Config{}, err
+		return nil, err
 	}
 
-	return config, nil
+	err = config.Validate()
+	if err != nil {
+		return nil, err
+	}
+
+	return &config, nil
 }
 
 // Config is a collection of configuration options for creating temporary credentials
@@ -413,7 +427,13 @@ type Config struct {
 	ProfileName string
 
 	// SourceProfile is the profile where credentials come from
-	SourceProfile string
+	SourceProfileName string
+
+	// SourceProfile is the profile where credentials come from
+	SourceProfile *Config
+
+	// ChainedFromProfile is the profile that used this profile as it's source profile
+	ChainedFromProfile *Config
 
 	// Region is the AWS region
 	Region string

@@ -86,10 +86,15 @@ func NewSessionTokenProvider(creds *credentials.Credentials, k *CredentialKeyrin
 }
 
 // NewAssumeRoleProvider returns a provider that generates credentials using AssumeRole
-func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config) (*AssumeRoleProvider, error) {
+func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config, noMfa bool) (*AssumeRoleProvider, error) {
 	sess, err := NewSession(creds, config.Region)
 	if err != nil {
 		return nil, err
+	}
+
+	mfa := config.MfaSerial
+	if noMfa {
+		mfa = ""
 	}
 
 	return &AssumeRoleProvider{
@@ -100,7 +105,7 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config) (*Ass
 		Duration:        config.AssumeRoleDuration,
 		ExpiryWindow:    defaultExpirationWindow,
 		Mfa: Mfa{
-			MfaSerial:       config.MfaSerial,
+			MfaSerial:       mfa,
 			MfaToken:        config.MfaToken,
 			MfaPromptMethod: config.MfaPromptMethod,
 		},
@@ -114,41 +119,30 @@ type CredentialLoader struct {
 
 // Provider creates a credential provider for the given config
 func (c *CredentialLoader) Provider() (credentials.Provider, error) {
-	return c.ProviderWithChainedMfa(c.Config, "")
+	return c.ProviderWithChainedMfa(c.Config)
 }
 
-var errChainedMfaNotMatched = errors.New("Chained MFA serial didn't match")
+func logSourceDetails(config *Config) string {
+	if config.SourceProfile != nil {
+		return "(ignoring source_profile)"
+	}
+	return ""
+}
 
 // Provider creates a credential provider for the given config. To chain the MFA serial with a source credential, pass the MFA serial in chainMfaSerial
-func (c *CredentialLoader) ProviderWithChainedMfa(config *Config, chainedMfaSerial string) (credentials.Provider, error) {
-	if chainedMfaSerial != "" && config.MfaSerial != "" && chainedMfaSerial != config.MfaSerial {
-		return nil, errChainedMfaNotMatched
-	}
-
-	var skipMfaBecauseSourceProfileHasItCovered = false
+func (c *CredentialLoader) ProviderWithChainedMfa(config *Config) (credentials.Provider, error) {
 	var sourceCredProvider credentials.Provider
 
-	hasMasterCredentials, err := c.Keyring.Has(config.ProfileName)
+	hasCredentialsForThisProfile, err := c.Keyring.Has(config.ProfileName)
 	if err != nil {
 		return nil, err
 	}
 
-	if hasMasterCredentials {
-		if config.SourceProfile != nil {
-			log.Printf("profile %s: using stored credentials (ignoring source_profile)", config.ProfileName)
-		} else {
-			log.Printf("profile %s: using stored credentials", config.ProfileName)
-		}
+	if hasCredentialsForThisProfile {
+		log.Printf("profile %s: using stored credentials %s", config.ProfileName, logSourceDetails(config))
 		sourceCredProvider = NewMasterCredentialsProvider(c.Keyring, config.ProfileName)
-	} else if config.SourceProfile != nil {
-		sourceCredProvider, err = c.ProviderWithChainedMfa(config.SourceProfile, config.MfaSerial)
-		if err == nil && config.MfaSerial != "" {
-			skipMfaBecauseSourceProfileHasItCovered = true
-			config.MfaSerial = ""
-		}
-		if err == errChainedMfaNotMatched {
-			sourceCredProvider, err = c.ProviderWithChainedMfa(config.SourceProfile, "")
-		}
+	} else if config.HasSourceProfile() {
+		sourceCredProvider, err = c.ProviderWithChainedMfa(config.SourceProfile)
 		if err != nil {
 			return nil, err
 		}
@@ -156,28 +150,39 @@ func (c *CredentialLoader) ProviderWithChainedMfa(config *Config, chainedMfaSeri
 		return nil, fmt.Errorf("profile %s: credentials missing", config.ProfileName)
 	}
 
-	if config.RoleARN == "" && config.IsChained() && chainedMfaSerial == "" {
-		return sourceCredProvider, nil
-	}
+	mfaChained := config.MfaAlreadyUsedInSourceProfile()
+	sourceCreds := credentials.NewCredentials(sourceCredProvider)
 
 	if config.RoleARN == "" {
 		if config.IsChained() {
-			config.GetSessionTokenDuration = config.ChainedGetSessionTokenDuration
+			if config.ChainedFromProfile.HasMfaSerial() {
+				if config.ChainedFromProfile.MfaSerial == config.MfaSerial {
+					config.GetSessionTokenDuration = config.ChainedGetSessionTokenDuration
+					log.Printf("profile %s: using GetSessionToken %s", config.ProfileName, mfaDetails(false, config))
+					return NewSessionTokenProvider(sourceCreds, c.Keyring, config)
+				} else {
+					log.Printf("profile %s: not using GetSessionToken because MFA serial doesn't match with profile '%s'", config.ProfileName, config.ChainedFromProfile.ProfileName)
+				}
+			} else {
+				log.Printf("profile %s: not using GetSessionToken because profile '%s' has no MFA serial defined", config.ProfileName, config.ChainedFromProfile.ProfileName)
+			}
+		} else {
+			log.Printf("profile %s: using GetSessionToken %s", config.ProfileName, mfaDetails(false, config))
+			return NewSessionTokenProvider(sourceCreds, c.Keyring, config)
 		}
-
-		log.Printf("profile %s: using GetSessionToken %s", config.ProfileName, mfaDetails(skipMfaBecauseSourceProfileHasItCovered, config))
-		return NewSessionTokenProvider(credentials.NewCredentials(sourceCredProvider), c.Keyring, config)
+	} else {
+		log.Printf("profile %s: using AssumeRole %s", config.ProfileName, mfaDetails(mfaChained, config))
+		return NewAssumeRoleProvider(sourceCreds, config, mfaChained)
 	}
 
-	log.Printf("profile %s: using AssumeRole %s", config.ProfileName, mfaDetails(skipMfaBecauseSourceProfileHasItCovered, config))
-	return NewAssumeRoleProvider(credentials.NewCredentials(sourceCredProvider), config)
+	return sourceCredProvider, nil
 }
 
-func mfaDetails(skipMfaBecauseSourceProfileHasItCovered bool, config *Config) string {
-	if skipMfaBecauseSourceProfileHasItCovered {
+func mfaDetails(mfaChained bool, config *Config) string {
+	if mfaChained {
 		return "(chained MFA)"
 	}
-	if config.MfaSerial != "" {
+	if config.HasMfaSerial() {
 		return "(using MFA)"
 	}
 	return ""

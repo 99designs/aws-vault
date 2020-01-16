@@ -465,6 +465,20 @@ func (c *Config) IsChained() bool {
 	return c.ChainedFromProfile != nil
 }
 
+func (c *Config) HasSourceProfile() bool {
+	return c.SourceProfile != nil
+}
+
+func (c *Config) HasMfaSerial() bool {
+	return c.MfaSerial != ""
+}
+
+func (c *Config) MfaAlreadyUsedInSourceProfile() bool {
+	return c.HasSourceProfile() &&
+		c.MfaSerial != "" &&
+		c.SourceProfile.MfaSerial == c.MfaSerial
+}
+
 // Validate checks that the Config is valid
 func (cl *Config) Validate() error {
 	if cl.GetSessionTokenDuration < MinGetSessionTokenDuration {

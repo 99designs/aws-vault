@@ -64,7 +64,7 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 
 func LoginCommand(input LoginCommandInput) error {
 	configLoader.BaseConfig = input.Config
-	configLoader.ProfileNameForEnv = input.ProfileName
+	configLoader.ActiveProfile = input.ProfileName
 	config, err := configLoader.LoadFromProfile(input.ProfileName)
 	if err != nil {
 		return err
@@ -74,9 +74,9 @@ func LoginCommand(input LoginCommandInput) error {
 
 	// if AssumeRole isn't used, GetFederationToken has to be used for IAM credentials
 	if config.RoleARN == "" {
-		creds, err = vault.NewFederationTokenCredentials(input.ProfileName, input.Keyring, configLoader)
+		creds, err = vault.NewFederationTokenCredentials(input.ProfileName, input.Keyring, config)
 	} else {
-		creds, err = vault.NewTempCredentials(input.ProfileName, input.Keyring, configLoader)
+		creds, err = vault.NewTempCredentials(config, input.Keyring)
 	}
 	if err != nil {
 		return err

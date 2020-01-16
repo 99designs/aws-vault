@@ -24,7 +24,7 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 
 	cmd := app.Command("rotate", "Rotates credentials")
 
-	cmd.Flag("no-session", "Use master credentials, no session created").
+	cmd.Flag("no-session", "Use master credentials, no session or role used").
 		Short('n').
 		BoolVar(&input.NoSession)
 
@@ -42,16 +42,17 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 }
 
 func RotateCommand(input RotateCommandInput) error {
+	vault.UseSession = !input.NoSession
 	vault.UseSessionCache = false
 
 	configLoader.BaseConfig = input.Config
-	configLoader.ProfileNameForEnv = input.ProfileName
+	configLoader.ActiveProfile = input.ProfileName
 	config, err := configLoader.LoadFromProfile(input.ProfileName)
 	if err != nil {
 		return err
 	}
 
-	masterCredentialsName, err := vault.MasterCredentialsFor(input.ProfileName, input.Keyring, configLoader)
+	masterCredentialsName, err := vault.MasterCredentialsFor(input.ProfileName, input.Keyring, config)
 	if err != nil {
 		return err
 	}
@@ -77,7 +78,7 @@ func RotateCommand(input RotateCommandInput) error {
 	if input.NoSession {
 		sessCreds = vault.NewMasterCredentials(input.Keyring, config.ProfileName)
 	} else {
-		sessCreds, err = vault.NewTempCredentials(input.ProfileName, input.Keyring, configLoader)
+		sessCreds, err = vault.NewTempCredentials(config, input.Keyring)
 		if err != nil {
 			return fmt.Errorf("Error getting temporary credentials: %w", err)
 		}
@@ -165,7 +166,7 @@ func retry(maxTime time.Duration, sleep time.Duration, f func() error) (err erro
 	}
 }
 
-func getUsernameIfAssumingRole(sess *session.Session, config vault.Config) (*string, error) {
+func getUsernameIfAssumingRole(sess *session.Session, config *vault.Config) (*string, error) {
 	if config.RoleARN != "" {
 		n, err := vault.GetUsernameFromSession(sess)
 		if err != nil {
@@ -185,8 +186,8 @@ func getProfilesInChain(profileName string, configLoader *vault.ConfigLoader) (p
 		return profileNames, err
 	}
 
-	if config.SourceProfile != "" {
-		newProfileNames, err := getProfilesInChain(config.SourceProfile, configLoader)
+	if config.SourceProfile != nil {
+		newProfileNames, err := getProfilesInChain(config.SourceProfileName, configLoader)
 		if err != nil {
 			return profileNames, err
 		}

@@ -461,6 +461,10 @@ type Config struct {
 	GetFederationTokenDuration time.Duration
 }
 
+func (c *Config) IsChained() bool {
+	return c.ChainedFromProfile != nil
+}
+
 // Validate checks that the Config is valid
 func (cl *Config) Validate() error {
 	if cl.GetSessionTokenDuration < MinGetSessionTokenDuration {

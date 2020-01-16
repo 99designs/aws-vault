@@ -114,13 +114,13 @@ type CredentialLoader struct {
 
 // Provider creates a credential provider for the given config
 func (c *CredentialLoader) Provider() (credentials.Provider, error) {
-	return c.ProviderWithChainedMfa(c.Config, false, "")
+	return c.ProviderWithChainedMfa(c.Config, "")
 }
 
 var errChainedMfaNotMatched = errors.New("Chained MFA serial didn't match")
 
 // Provider creates a credential provider for the given config. To chain the MFA serial with a source credential, pass the MFA serial in chainMfaSerial
-func (c *CredentialLoader) ProviderWithChainedMfa(config *Config, isChained bool, chainedMfaSerial string) (credentials.Provider, error) {
+func (c *CredentialLoader) ProviderWithChainedMfa(config *Config, chainedMfaSerial string) (credentials.Provider, error) {
 	if chainedMfaSerial != "" && config.MfaSerial != "" && chainedMfaSerial != config.MfaSerial {
 		return nil, errChainedMfaNotMatched
 	}
@@ -141,13 +141,13 @@ func (c *CredentialLoader) ProviderWithChainedMfa(config *Config, isChained bool
 		}
 		sourceCredProvider = NewMasterCredentialsProvider(c.Keyring, config.ProfileName)
 	} else if config.SourceProfile != nil {
-		sourceCredProvider, err = c.ProviderWithChainedMfa(config.SourceProfile, true, config.MfaSerial)
+		sourceCredProvider, err = c.ProviderWithChainedMfa(config.SourceProfile, config.MfaSerial)
 		if err == nil && config.MfaSerial != "" {
 			skipMfaBecauseSourceProfileHasItCovered = true
 			config.MfaSerial = ""
 		}
 		if err == errChainedMfaNotMatched {
-			sourceCredProvider, err = c.ProviderWithChainedMfa(config.SourceProfile, true, "")
+			sourceCredProvider, err = c.ProviderWithChainedMfa(config.SourceProfile, "")
 		}
 		if err != nil {
 			return nil, err
@@ -156,12 +156,12 @@ func (c *CredentialLoader) ProviderWithChainedMfa(config *Config, isChained bool
 		return nil, fmt.Errorf("profile %s: credentials missing", config.ProfileName)
 	}
 
-	if config.RoleARN == "" && isChained && chainedMfaSerial == "" {
+	if config.RoleARN == "" && config.IsChained() && chainedMfaSerial == "" {
 		return sourceCredProvider, nil
 	}
 
 	if config.RoleARN == "" {
-		if isChained {
+		if config.IsChained() {
 			config.GetSessionTokenDuration = config.ChainedGetSessionTokenDuration
 		}
 

@@ -42,6 +42,7 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 }
 
 func RotateCommand(input RotateCommandInput) error {
+	// Can't disable sessions completely, might need to use session for MFA-Protected API Access
 	vault.UseSession = !input.NoSession
 	vault.UseSessionCache = false
 

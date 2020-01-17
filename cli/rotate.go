@@ -42,7 +42,7 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 }
 
 func RotateCommand(input RotateCommandInput) error {
-	vault.UseSession = false
+	vault.UseSession = !input.NoSession
 	vault.UseSessionCache = false
 
 	configLoader.BaseConfig = input.Config

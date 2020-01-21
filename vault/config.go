@@ -461,36 +461,40 @@ func (c *Config) HasRole() bool {
 	return c.RoleARN != ""
 }
 
-func (c *Config) MfaAlreadyUsedInSourceProfile() bool {
-	return c.HasSourceProfile() &&
-		c.MfaSerial != "" &&
-		c.SourceProfile.MfaSerial == c.MfaSerial
+func (c *Config) MfaAlreadyUsedInSourceProfile(mfaSerial string) bool {
+
+	if !c.HasSourceProfile() || mfaSerial == "" {
+		return false
+	}
+	if c.SourceProfile.MfaSerial == mfaSerial {
+		return true
+	}
+
+	return c.SourceProfile.MfaAlreadyUsedInSourceProfile(mfaSerial)
 }
 
 // CanUseGetSessionToken determines if GetSessionToken should be used, and if not returns a reason
 func (c *Config) CanUseGetSessionToken() (bool, string) {
-	if c.HasRole() {
-		return false, "profile has a role defined"
-	}
-
-	if !c.IsChained() {
-		return false, "profile is not chained"
-	}
-
 	if !UseSession {
-		return false, "GetSessionToken disabled"
+		return false, "disabled"
 	}
 
-	if !c.ChainedFromProfile.HasMfaSerial() {
-		return false, fmt.Sprintf("profile '%s' has no MFA serial defined", c.ChainedFromProfile.ProfileName)
-	}
+	if c.HasRole() {
+		if c.AssumeRoleDuration > roleChainingMaximumDuration {
+			return false, fmt.Sprintf("duration %s is greater than the AWS maximum %s for chaining MFA", c.AssumeRoleDuration, roleChainingMaximumDuration)
+		}
+	} else if c.IsChained() {
+		if !c.ChainedFromProfile.HasMfaSerial() {
+			return false, fmt.Sprintf("profile '%s' has no MFA serial defined", c.ChainedFromProfile.ProfileName)
+		}
 
-	if c.ChainedFromProfile.MfaSerial != c.MfaSerial {
-		return false, fmt.Sprintf("MFA serial doesn't match profile '%s'", c.ChainedFromProfile.ProfileName)
-	}
+		if c.ChainedFromProfile.MfaSerial != c.MfaSerial {
+			return false, fmt.Sprintf("MFA serial doesn't match profile '%s'", c.ChainedFromProfile.ProfileName)
+		}
 
-	if c.ChainedFromProfile.AssumeRoleDuration > roleChainingMaximumDuration {
-		return false, fmt.Sprintf("profile '%s' has a duration %s, greater than the AWS maximum %s for chaining MFA", c.ChainedFromProfile.ProfileName, c.ChainedFromProfile.AssumeRoleDuration, roleChainingMaximumDuration)
+		if c.ChainedFromProfile.AssumeRoleDuration > roleChainingMaximumDuration {
+			return false, fmt.Sprintf("duration %s in profile '%s' is greater than the AWS maximum %s for chaining MFA", c.ChainedFromProfile.AssumeRoleDuration, c.ChainedFromProfile.ProfileName, roleChainingMaximumDuration)
+		}
 	}
 
 	return true, ""

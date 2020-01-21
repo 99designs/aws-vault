@@ -80,7 +80,7 @@ func ConfigureExecCommand(app *kingpin.Application) {
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.Keyring = keyringImpl
 		input.Config.MfaPromptMethod = GlobalFlags.PromptDriver
-		input.Config.GetSessionTokenDuration = input.SessionDuration
+		input.Config.NonChainedGetSessionTokenDuration = input.SessionDuration
 		input.Config.AssumeRoleDuration = input.SessionDuration
 		app.FatalIfError(ExecCommand(input), "exec")
 		return nil

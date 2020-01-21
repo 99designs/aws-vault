@@ -15,7 +15,6 @@ import (
 
 const defaultExpirationWindow = 5 * time.Minute
 
-var UseSession = true
 var UseSessionCache = true
 
 func NewSession(creds *credentials.Credentials, region string) (*session.Session, error) {
@@ -65,7 +64,7 @@ func NewSessionTokenProvider(creds *credentials.Credentials, k *CredentialKeyrin
 
 	sessionTokenProvider := &SessionTokenProvider{
 		StsClient:    sts.New(sess),
-		Duration:     config.GetSessionTokenDuration,
+		Duration:     config.GetSessionTokenDuration(),
 		ExpiryWindow: defaultExpirationWindow,
 		Mfa: Mfa{
 			MfaToken:        config.MfaToken,
@@ -87,15 +86,10 @@ func NewSessionTokenProvider(creds *credentials.Credentials, k *CredentialKeyrin
 }
 
 // NewAssumeRoleProvider returns a provider that generates credentials using AssumeRole
-func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config, noMfa bool) (*AssumeRoleProvider, error) {
+func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config) (*AssumeRoleProvider, error) {
 	sess, err := NewSession(creds, config.Region)
 	if err != nil {
 		return nil, err
-	}
-
-	mfa := config.MfaSerial
-	if noMfa {
-		mfa = ""
 	}
 
 	return &AssumeRoleProvider{
@@ -106,14 +100,14 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config, noMfa
 		Duration:        config.AssumeRoleDuration,
 		ExpiryWindow:    defaultExpirationWindow,
 		Mfa: Mfa{
-			MfaSerial:       mfa,
+			MfaSerial:       config.MfaSerial,
 			MfaToken:        config.MfaToken,
 			MfaPromptMethod: config.MfaPromptMethod,
 		},
 	}, nil
 }
 
-// Provider creates a credential provider for the given config. To chain the MFA serial with a source credential, pass the MFA serial in chainMfaSerial
+// NewTempCredentialsProvider creates a credential provider for the given config
 func NewTempCredentialsProvider(config *Config, keyring *CredentialKeyring) (credentials.Provider, error) {
 	var sourceCredProvider credentials.Provider
 
@@ -134,36 +128,27 @@ func NewTempCredentialsProvider(config *Config, keyring *CredentialKeyring) (cre
 		return nil, fmt.Errorf("profile %s: credentials missing", config.ProfileName)
 	}
 
-	mfaChained := config.MfaAlreadyUsedInSourceProfile()
 	sourceCreds := credentials.NewCredentials(sourceCredProvider)
 
-	if config.RoleARN == "" {
-		if !UseSession {
-			// log.Printf("profile %s: GetSessionToken disabled", config.ProfileName)
+	if !config.HasRole() {
+		if canUseGetSessionToken, reason := config.CanUseGetSessionToken(); !canUseGetSessionToken {
 			config.MfaSerial = ""
+			log.Printf("profile %s: not using GetSessionToken because %s", config.ProfileName, reason)
 			return sourceCredProvider, nil
-		}
-
-		if config.IsChained() {
-			if !config.ChainedFromProfile.HasMfaSerial() {
-				log.Printf("profile %s: not using GetSessionToken because profile '%s' has no MFA serial defined", config.ProfileName, config.ChainedFromProfile.ProfileName)
-				return sourceCredProvider, nil
-			}
-
-			if config.ChainedFromProfile.MfaSerial != config.MfaSerial {
-				log.Printf("profile %s: not using GetSessionToken because MFA serial doesn't match with profile '%s'", config.ProfileName, config.ChainedFromProfile.ProfileName)
-				return sourceCredProvider, nil
-			}
-
-			config.GetSessionTokenDuration = config.ChainedGetSessionTokenDuration
 		}
 
 		log.Printf("profile %s: using GetSessionToken %s", config.ProfileName, mfaDetails(false, config))
 		return NewSessionTokenProvider(sourceCreds, keyring, config)
 
 	} else {
-		log.Printf("profile %s: using AssumeRole %s", config.ProfileName, mfaDetails(mfaChained, config))
-		return NewAssumeRoleProvider(sourceCreds, config, mfaChained)
+		isMfaChained := config.MfaAlreadyUsedInSourceProfile()
+		if isMfaChained {
+			config.MfaSerial = ""
+		}
+
+		log.Printf("profile %s: using AssumeRole %s", config.ProfileName, mfaDetails(isMfaChained, config))
+		return NewAssumeRoleProvider(sourceCreds, config)
+
 	}
 }
 
@@ -179,7 +164,7 @@ func mfaDetails(mfaChained bool, config *Config) string {
 		return "(chained MFA)"
 	}
 	if config.HasMfaSerial() {
-		return "(using MFA)"
+		return "(with MFA)"
 	}
 	return ""
 }

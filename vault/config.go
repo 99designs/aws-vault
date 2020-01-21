@@ -20,8 +20,12 @@ const (
 	// DefaultChainedSessionDuration is the default duration for GetSessionToken sessions when chaining
 	DefaultChainedSessionDuration = time.Hour * 8
 
-	defaultSectionName = "default"
+	defaultSectionName          = "default"
+	roleChainingMaximumDuration = 1 * time.Hour
 )
+
+// UseSession will disable the use of GetSessionToken when set to false
+var UseSession = true
 
 func init() {
 	ini.DefaultHeader = true
@@ -252,8 +256,8 @@ func (cl *ConfigLoader) populateFromDefaults(config *Config) {
 	if config.GetFederationTokenDuration == 0 {
 		config.GetFederationTokenDuration = DefaultSessionDuration
 	}
-	if config.GetSessionTokenDuration == 0 {
-		config.GetSessionTokenDuration = DefaultSessionDuration
+	if config.NonChainedGetSessionTokenDuration == 0 {
+		config.NonChainedGetSessionTokenDuration = DefaultSessionDuration
 	}
 	if config.ChainedGetSessionTokenDuration == 0 {
 		config.ChainedGetSessionTokenDuration = DefaultChainedSessionDuration
@@ -332,10 +336,10 @@ func (cl *ConfigLoader) populateFromEnv(profile *Config) {
 		}
 	}
 
-	if sessionTTL := os.Getenv("AWS_SESSION_TOKEN_TTL"); sessionTTL != "" && profile.GetSessionTokenDuration == 0 {
-		profile.GetSessionTokenDuration, err = time.ParseDuration(sessionTTL)
+	if sessionTTL := os.Getenv("AWS_SESSION_TOKEN_TTL"); sessionTTL != "" && profile.NonChainedGetSessionTokenDuration == 0 {
+		profile.NonChainedGetSessionTokenDuration, err = time.ParseDuration(sessionTTL)
 		if err == nil {
-			log.Printf("Using a session duration of %q from AWS_SESSION_TOKEN_TTL", profile.GetSessionTokenDuration)
+			log.Printf("Using a session duration of %q from AWS_SESSION_TOKEN_TTL", profile.NonChainedGetSessionTokenDuration)
 		}
 	}
 
@@ -347,9 +351,9 @@ func (cl *ConfigLoader) populateFromEnv(profile *Config) {
 	}
 
 	if federationTokenTTL := os.Getenv("AWS_FEDERATION_TOKEN_TTL"); federationTokenTTL != "" && profile.GetFederationTokenDuration == 0 {
-		profile.GetSessionTokenDuration, err = time.ParseDuration(federationTokenTTL)
+		profile.NonChainedGetSessionTokenDuration, err = time.ParseDuration(federationTokenTTL)
 		if err == nil {
-			log.Printf("Using a session duration of %q from AWS_FEDERATION_TOKEN_TTL", profile.GetSessionTokenDuration)
+			log.Printf("Using a session duration of %q from AWS_FEDERATION_TOKEN_TTL", profile.NonChainedGetSessionTokenDuration)
 		}
 	}
 
@@ -431,8 +435,8 @@ type Config struct {
 	// GetSessionTokenDuration specifies the wanted duration for credentials generated with AssumeRole
 	AssumeRoleDuration time.Duration
 
-	// GetSessionTokenDuration specifies the wanted duration for credentials generated with GetSessionToken
-	GetSessionTokenDuration time.Duration
+	// NonChainedGetSessionTokenDuration specifies the wanted duration for credentials generated with GetSessionToken
+	NonChainedGetSessionTokenDuration time.Duration
 
 	// ChainedGetSessionTokenDuration specifies the wanted duration for credentials generated with GetSessionToken when chaining
 	ChainedGetSessionTokenDuration time.Duration
@@ -453,8 +457,49 @@ func (c *Config) HasMfaSerial() bool {
 	return c.MfaSerial != ""
 }
 
+func (c *Config) HasRole() bool {
+	return c.RoleARN != ""
+}
+
 func (c *Config) MfaAlreadyUsedInSourceProfile() bool {
 	return c.HasSourceProfile() &&
 		c.MfaSerial != "" &&
 		c.SourceProfile.MfaSerial == c.MfaSerial
+}
+
+// CanUseGetSessionToken determines if GetSessionToken should be used, and if not returns a reason
+func (c *Config) CanUseGetSessionToken() (bool, string) {
+	if c.HasRole() {
+		return false, "profile has a role defined"
+	}
+
+	if !c.IsChained() {
+		return false, "profile is not chained"
+	}
+
+	if !UseSession {
+		return false, "GetSessionToken disabled"
+	}
+
+	if !c.ChainedFromProfile.HasMfaSerial() {
+		return false, fmt.Sprintf("profile '%s' has no MFA serial defined", c.ChainedFromProfile.ProfileName)
+	}
+
+	if c.ChainedFromProfile.MfaSerial != c.MfaSerial {
+		return false, fmt.Sprintf("MFA serial doesn't match profile '%s'", c.ChainedFromProfile.ProfileName)
+	}
+
+	if c.ChainedFromProfile.AssumeRoleDuration > roleChainingMaximumDuration {
+		return false, fmt.Sprintf("profile '%s' has a duration %s, greater than the AWS maximum %s for chaining MFA", c.ChainedFromProfile.ProfileName, c.ChainedFromProfile.AssumeRoleDuration, roleChainingMaximumDuration)
+	}
+
+	return true, ""
+}
+
+func (c *Config) GetSessionTokenDuration() time.Duration {
+	if c.IsChained() {
+		return c.ChainedGetSessionTokenDuration
+	} else {
+		return c.NonChainedGetSessionTokenDuration
+	}
 }

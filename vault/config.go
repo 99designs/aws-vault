@@ -461,18 +461,6 @@ func (c *Config) HasRole() bool {
 	return c.RoleARN != ""
 }
 
-func (c *Config) MfaAlreadyUsedInSourceProfile(mfaSerial string) bool {
-
-	if !c.HasSourceProfile() || mfaSerial == "" {
-		return false
-	}
-	if c.SourceProfile.MfaSerial == mfaSerial {
-		return true
-	}
-
-	return c.SourceProfile.MfaAlreadyUsedInSourceProfile(mfaSerial)
-}
-
 // CanUseGetSessionToken determines if GetSessionToken should be used, and if not returns a reason
 func (c *Config) CanUseGetSessionToken() (bool, string) {
 	if !UseSession {

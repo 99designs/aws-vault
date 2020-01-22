@@ -107,11 +107,15 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config) (*Ass
 	}, nil
 }
 
-// NewTempCredentialsProvider creates a credential provider for the given config
-func NewTempCredentialsProvider(config *Config, keyring *CredentialKeyring) (credentials.Provider, error) {
+type tempCredsCreator struct {
+	keyring    *CredentialKeyring
+	chainedMfa string
+}
+
+func (t *tempCredsCreator) provider(config *Config) (credentials.Provider, error) {
 	var sourceCredProvider credentials.Provider
 
-	hasStoredCredentials, err := keyring.Has(config.ProfileName)
+	hasStoredCredentials, err := t.keyring.Has(config.ProfileName)
 	if err != nil {
 		return nil, err
 	}
@@ -120,9 +124,9 @@ func NewTempCredentialsProvider(config *Config, keyring *CredentialKeyring) (cre
 		return nil, fmt.Errorf("profile %s: have stored credentials but source_profile is defined", config.ProfileName)
 	} else if hasStoredCredentials {
 		log.Printf("profile %s: using stored credentials", config.ProfileName)
-		sourceCredProvider = NewMasterCredentialsProvider(keyring, config.ProfileName)
+		sourceCredProvider = NewMasterCredentialsProvider(t.keyring, config.ProfileName)
 	} else if config.HasSourceProfile() {
-		sourceCredProvider, err = NewTempCredentialsProvider(config.SourceProfile, keyring)
+		sourceCredProvider, err = t.provider(config.SourceProfile)
 		if err != nil {
 			return nil, err
 		}
@@ -130,30 +134,23 @@ func NewTempCredentialsProvider(config *Config, keyring *CredentialKeyring) (cre
 		return nil, fmt.Errorf("profile %s: credentials missing", config.ProfileName)
 	}
 
-	if !config.HasRole() {
-		if canUseGetSessionToken, reason := config.CanUseGetSessionToken(); !canUseGetSessionToken {
-			config.MfaSerial = ""
-			log.Printf("profile %s: skipping GetSessionToken because %s", config.ProfileName, reason)
-			return sourceCredProvider, nil
-		}
-
-		log.Printf("profile %s: using GetSessionToken %s", config.ProfileName, mfaDetails(false, config))
-		return NewSessionTokenProvider(credentials.NewCredentials(sourceCredProvider), keyring, config)
-	}
-
-	if hasStoredCredentials {
+	if hasStoredCredentials || !config.HasRole() {
 		if canUseGetSessionToken, reason := config.CanUseGetSessionToken(); !canUseGetSessionToken {
 			log.Printf("profile %s: skipping GetSessionToken because %s", config.ProfileName, reason)
-		} else {
-			log.Printf("profile %s: using GetSessionToken %s", config.ProfileName, mfaDetails(false, config))
-			sourceCredProvider, err = NewSessionTokenProvider(credentials.NewCredentials(sourceCredProvider), keyring, config)
-			if err != nil {
-				return nil, err
+			if !config.HasRole() {
+				return sourceCredProvider, nil
 			}
 		}
+
+		t.chainedMfa = config.MfaSerial
+		log.Printf("profile %s: using GetSessionToken %s", config.ProfileName, mfaDetails(false, config))
+		sourceCredProvider, err = NewSessionTokenProvider(credentials.NewCredentials(sourceCredProvider), t.keyring, config)
+		if !config.HasRole() || err != nil {
+			return sourceCredProvider, err
+		}
 	}
 
-	isMfaChained := config.MfaAlreadyUsedInSourceProfile(config.MfaSerial)
+	isMfaChained := config.MfaSerial != "" && config.MfaSerial == t.chainedMfa
 	if isMfaChained {
 		config.MfaSerial = ""
 	}
@@ -170,6 +167,14 @@ func mfaDetails(mfaChained bool, config *Config) string {
 		return "(with MFA)"
 	}
 	return ""
+}
+
+// NewTempCredentialsProvider creates a credential provider for the given config
+func NewTempCredentialsProvider(config *Config, keyring *CredentialKeyring) (credentials.Provider, error) {
+	t := tempCredsCreator{
+		keyring: keyring,
+	}
+	return t.provider(config)
 }
 
 // NewTempCredentials returns credentials for the given config

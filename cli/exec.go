@@ -49,7 +49,7 @@ func ConfigureExecCommand(app *kingpin.Application) {
 		Short('d').
 		DurationVar(&input.SessionDuration)
 
-	cmd.Flag("no-session", "Don't create a session with GetSessionToken").
+	cmd.Flag("no-session", "Skip creating STS session with GetSessionToken").
 		Short('n').
 		BoolVar(&input.NoSession)
 

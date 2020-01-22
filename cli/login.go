@@ -23,6 +23,7 @@ type LoginCommandInput struct {
 	Path            string
 	Config          vault.Config
 	SessionDuration time.Duration
+	NoSession       bool
 }
 
 func ConfigureLoginCommand(app *kingpin.Application) {
@@ -33,6 +34,10 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 	cmd.Flag("duration", "Duration of the assume-role or federated session. Defaults to 1h").
 		Short('d').
 		DurationVar(&input.SessionDuration)
+
+	cmd.Flag("no-session", "Skip creating STS session with GetSessionToken").
+		Short('n').
+		BoolVar(&input.NoSession)
 
 	cmd.Flag("mfa-token", "The MFA token to use").
 		Short('t').
@@ -63,6 +68,8 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 }
 
 func LoginCommand(input LoginCommandInput) error {
+	vault.UseSession = !input.NoSession
+
 	configLoader.BaseConfig = input.Config
 	configLoader.ActiveProfile = input.ProfileName
 	config, err := configLoader.LoadFromProfile(input.ProfileName)

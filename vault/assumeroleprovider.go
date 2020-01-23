@@ -18,7 +18,7 @@ type AssumeRoleProvider struct {
 	ExternalID      string
 	Duration        time.Duration
 	ExpiryWindow    time.Duration
-	Mfa
+	Mfa             Mfa
 	credentials.Expiry
 }
 
@@ -59,9 +59,9 @@ func (p *AssumeRoleProvider) assumeRole() (*sts.Credentials, error) {
 		input.ExternalId = aws.String(p.ExternalID)
 	}
 
-	if p.MfaSerial != "" {
-		input.SerialNumber = aws.String(p.MfaSerial)
-		input.TokenCode, err = p.GetMfaToken()
+	if p.Mfa.Serial != "" {
+		input.SerialNumber = aws.String(p.Mfa.Serial)
+		input.TokenCode, err = p.Mfa.GetMfaToken()
 		if err != nil {
 			return nil, err
 		}

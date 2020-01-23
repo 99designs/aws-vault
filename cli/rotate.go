@@ -34,7 +34,7 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 		StringVar(&input.ProfileName)
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
-		input.Config.MfaPromptMethod = GlobalFlags.PromptDriver
+		input.Config.MfaTokenProvider = GlobalFlags.MfaTokenProvider
 		input.Keyring = &vault.CredentialKeyring{Keyring: keyringImpl}
 		app.FatalIfError(RotateCommand(input), "rotate")
 		return nil

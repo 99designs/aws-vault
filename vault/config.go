@@ -11,6 +11,8 @@ import (
 
 	"github.com/mitchellh/go-homedir"
 	ini "gopkg.in/ini.v1"
+
+	"github.com/99designs/aws-vault/mfa"
 )
 
 const (
@@ -428,9 +430,9 @@ type Config struct {
 	Region string
 
 	// Mfa config
-	MfaSerial       string
-	MfaToken        string
-	MfaPromptMethod string
+	MfaSerial        string
+	MfaToken         string
+	MfaTokenProvider string
 
 	// AssumeRole config
 	RoleARN         string
@@ -499,4 +501,13 @@ func (c *Config) GetSessionTokenDuration() time.Duration {
 	} else {
 		return c.NonChainedGetSessionTokenDuration
 	}
+}
+
+func (c *Config) GetMfaTokenProvider() mfa.TokenProvider {
+	var tokenProvider mfa.TokenProvider
+	tokenProvider = mfa.GetTokenProvider(c.MfaTokenProvider)
+	if c.MfaToken != "" {
+		tokenProvider = mfa.KnownToken{Token: c.MfaToken}
+	}
+	return tokenProvider
 }

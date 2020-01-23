@@ -79,7 +79,7 @@ The default is to use environment variables, but you can opt-in to the local ins
 
 [Best-practice](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#delegate-using-roles) is to [create Roles to delegate permissions](https://docs.aws.amazon.com/cli/latest/userguide/cli-roles.html). For security, you should also require that users provide a one-time key generated from a multi-factor authentication (MFA) device.
 
-First you'll need to create the users and roles in IAM, as well as [setup an MFA device](https://docs.aws.amazon.com/IAM/latest/UserGuide/GenerateMFAConfigAccount.html). You can then [set up IAM roles to enforce MFA](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html#cli-configure-role-mfa).
+First you'll need to create the users and roles in IAM, as well as [setup an MFA device via the AWS console](https://docs.aws.amazon.com/IAM/latest/UserGuide/GenerateMFAConfigAccount.html) (or alternatively [use `aws-vault` to setup a MFA device](./USAGE.md#mfa)) . You can then [set up IAM roles to enforce MFA](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html#cli-configure-role-mfa).
 
 Here's an example configuration using roles and MFA:
 
@@ -146,3 +146,4 @@ If you are developing or compiling the aws-vault binary yourself, you can [gener
  * https://github.com/realestate-com-au/credulous
  * https://github.com/dump247/aws-mock-metadata
  * https://boto.readthedocs.org/en/latest/boto_config_tut.html
+ * https://github.com/kreuzwerker/awsu

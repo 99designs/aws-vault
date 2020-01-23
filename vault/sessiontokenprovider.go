@@ -14,7 +14,7 @@ type SessionTokenProvider struct {
 	StsClient    *sts.STS
 	Duration     time.Duration
 	ExpiryWindow time.Duration
-	Mfa
+	Mfa          Mfa
 	credentials.Expiry
 }
 
@@ -41,9 +41,9 @@ func (p *SessionTokenProvider) GetSessionToken() (*sts.Credentials, error) {
 		DurationSeconds: aws.Int64(int64(p.Duration.Seconds())),
 	}
 
-	if p.MfaSerial != "" {
-		input.SerialNumber = aws.String(p.MfaSerial)
-		input.TokenCode, err = p.GetMfaToken()
+	if p.Mfa.Serial != "" {
+		input.SerialNumber = aws.String(p.Mfa.Serial)
+		input.TokenCode, err = p.Mfa.GetMfaToken()
 		if err != nil {
 			return nil, err
 		}

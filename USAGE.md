@@ -10,6 +10,8 @@
   * [Removing profiles](#removing-profiles)
 * [Backends](#backends)
 * [MFA](#mfa)
+  * [Add/remove mfa device](#addremove-mfa-device)
+  * [Yubikey support](#yubikey-support)
 * [Removing stored sessions](#removing-stored-sessions)
 * [Logging into AWS console](#logging-into-aws-console)
 * [Using credential helper](#using-credential-helper)
@@ -20,7 +22,6 @@
 * [Rotating Credentials](#rotating-credentials)
 * [Recipes](#recipes)
   * [Overriding the aws CLI to use aws-vault](#overriding-the-aws-cli-to-use-aws-vault)
-  * [Using a yubikey as a virtual MFA](#using-a-yubikey-as-a-virtual-mfa)
 
 ## Getting Help
 
@@ -66,7 +67,7 @@ role_arn = arn:aws:iam::22222222222:role/Administrator
 To configure the default flag values of `aws-vault` and its subcommands:
 * `AWS_VAULT_BACKEND`: Secret backend to use (see the flag `--backend`)
 * `AWS_VAULT_KEYCHAIN_NAME`: Name of macOS keychain to use (see the flag `--keychain`)
-* `AWS_VAULT_PROMPT`: Prompt driver to use (see the flag `--prompt`)
+* `AWS_VAULT_MFA_TOKEN_PROVIDER`: MFA token provider to use (see the flag `--mfa-token-provider`)
 * `AWS_VAULT_PASS_PASSWORD_STORE_DIR`: Pass password store directory (see the flag `--pass-dir`)
 * `AWS_VAULT_PASS_CMD`: Name of the pass executable (see the flag `--pass-cmd`)
 * `AWS_VAULT_PASS_PREFIX`: Prefix to prepend to the item path stored in pass (see the flag `--pass-prefix`)
@@ -222,6 +223,55 @@ role_arn = arn:aws:iam::123456789012:role/target
 
 You can also set the `mfa_serial` with the environment variable `AWS_MFA_SERIAL`.
 
+### Add/remove MFA device
+
+For convenience `aws-vault` can also be used to add/remove an MFA device for an IAM user.
+
+```ini
+[profile mfa]
+mfa_serial = arn:aws:iam::111111111111:mfa/home-account
+
+[profile some-role]
+source_profile = mfa
+parent_profile = mfa
+role_arn = arn:aws:iam::123456789012:role/some-role
+```
+
+```bash
+$ aws-vault add-mfa-device <username> mfa
+...
+$ aws-vault remove-mfa-device <username> mfa
+```
+
+
+### Yubikey support
+
+Yubikey is supported, natively on Mac and via [ykman](https://developers.yubico.com/yubikey-manager/) on other platforms
+(as TOTP, not U2F, as AWS does not support U2F for api access). The easiest way to add one is to add it as 
+an MFA device (previous section), use the QR code or uri provided to ensure it's named correctly so that `aws-vault` 
+can find it. To add via `ykman`
+
+```bash
+$ ykman oath uri <uri>
+```
+
+IMPORTANT: Use the QR code output additionally with a virtual MFA app, such as Google Authenticator, to provide a way to 
+get an OTP should your Yubikey be unavailable for any reason.
+
+#### Yubikey usage
+
+On a Mac
+```bash
+$ aws-vault --mfa-token-provider yubikey exec some-profile
+```
+
+Other platforms (install `ykman` first)
+```bash
+$ aws-vault --mfa-token-provider ykman exec some-profile
+```
+ 
+Or better is to set the env var `AWS_VAULT_MFA_TOKEN_PROVIDER=yubikey/ykman` to avoid typing `--mfa-token-provider ...`
+for each command.
 
 ## Removing stored sessions
 
@@ -249,12 +299,12 @@ This allows you to use credentials of multiple profiles at the same time.
 credential_process = aws-vault exec home --json
 ```
 
-if `mfa_serial` is set, please define the prompt driver (for example `osascript` for macOS), else the prompt will not show up.
+if `mfa_serial` is set, please define the mfa token provider (for example `osascript` for macOS), else the prompt will not show up.
 
 ```ini
 [profile work]
 mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
-credential_process = aws-vault exec work --json --prompt=osascript
+credential_process = aws-vault exec work --json --mfa-token-provider=osascript
 ```
 
 ## Not using session credentials
@@ -400,42 +450,6 @@ exec aws-vault exec "${AWS_DEFAULT_PROFILE:-work}" -- /usr/local/bin/aws "$@"
 
 The exec helps reduce the number of processes that are hanging around. The `$@` passes on the
 arguments from the wrapper to the original command.
-
-
-### Using a yubikey as a virtual MFA 
-
-There's been attempts in the past to support yubikeys natively (#392 , #230) there's another way to go
-at this problem. [Newer](https://support.yubico.com/support/solutions/articles/15000006419-using-your-yubikey-with-authenticator-codes) 
-yubikeys support generating TOTP tokens.
-
-In this [blog](https://hackernoon.com/use-a-yubikey-as-a-mfa-device-to-replace-google-authenticator-b4f4c0215f2) you can 
-find information about this process but it boils down to this.
-
-1. Go to AWS and click on add a MFA
-2. Choose a virtual device
-3. Instead of scanning the code you can get it as text (keep it safe).
-4. Install [ykman](https://support.yubico.com/support/solutions/articles/15000012643-yubikey-manager-cli-ykman-user-manual#Introductionmrzmm1)
-5. Run this: 
-
-```bash 
-ykman oath add YOUR_YUBIKEY_PROFILE -t
-```
-It will ask you for a base32 text. Here you can input the text you got in 3.
-
-6. Run this command twice (wait 30 secs in between):
-```bash 
-ykman oath code --single YOUR_YUBIKEY_PROFILE
-```
-
-Input both values as tokens and your device should register as a virtual MFA.
-
-
-7. Now if you want to run any aws-vault command you should run this: 
-```bash 
-aws-vault exec --mfa-token $(ykman oath code --single ${YOUR_YUBIKEY_PROFILE}) ${YOUR_AWS_VAULT_PROFILE} -- aws s3 ls
-```
-
-[Here](https://gist.github.com/chtorr/0ecc8fca27a4c5e186c636c262cc4757) There're some helper scripts for this.
 
 
 ### An example config to switch profiles via environment variables

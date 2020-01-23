@@ -1,16 +1,16 @@
 package vault
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/99designs/aws-vault/prompt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
+
+	"github.com/99designs/aws-vault/mfa"
 )
 
 const defaultExpirationWindow = 5 * time.Minute
@@ -33,24 +33,14 @@ func FormatKeyForDisplay(k string) string {
 
 // Mfa contains options for an MFA device
 type Mfa struct {
-	MfaToken        string
-	MfaPromptMethod string
-	MfaSerial       string
+	TokenProvider mfa.TokenProvider
+	Serial        string
 }
 
 // GetMfaToken returns the MFA token
 func (m *Mfa) GetMfaToken() (*string, error) {
-	if m.MfaToken != "" {
-		return aws.String(m.MfaToken), nil
-	}
-
-	if m.MfaPromptMethod != "" {
-		promptFunc := prompt.Method(m.MfaPromptMethod)
-		token, err := promptFunc(fmt.Sprintf("Enter token for %s: ", m.MfaSerial))
-		return aws.String(token), err
-	}
-
-	return nil, errors.New("No prompt found")
+	token, err := m.TokenProvider.Retrieve(m.Serial)
+	return aws.String(token), err
 }
 
 // NewMasterCredentialsProvider creates a provider for the master credentials
@@ -68,14 +58,20 @@ func NewSessionTokenProvider(creds *credentials.Credentials, k *CredentialKeyrin
 		return nil, err
 	}
 
+	var tokenProvider mfa.TokenProvider
+	if config.MfaToken != "" {
+		tokenProvider = mfa.KnownToken{Token: config.MfaToken}
+	} else {
+		tokenProvider = mfa.GetTokenProvider(config.MfaTokenProvider)
+	}
+
 	sessionTokenProvider := &SessionTokenProvider{
 		StsClient:    sts.New(sess),
 		Duration:     config.GetSessionTokenDuration(),
 		ExpiryWindow: defaultExpirationWindow,
 		Mfa: Mfa{
-			MfaToken:        config.MfaToken,
-			MfaPromptMethod: config.MfaPromptMethod,
-			MfaSerial:       config.MfaSerial,
+			TokenProvider: tokenProvider,
+			Serial:        config.MfaSerial,
 		},
 	}
 
@@ -98,6 +94,13 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config) (*Ass
 		return nil, err
 	}
 
+	var tokenProvider mfa.TokenProvider
+	if config.MfaToken != "" {
+		tokenProvider = mfa.KnownToken{Token: config.MfaToken}
+	} else {
+		tokenProvider = mfa.GetTokenProvider(config.MfaTokenProvider)
+	}
+
 	return &AssumeRoleProvider{
 		StsClient:       sts.New(sess),
 		RoleARN:         config.RoleARN,
@@ -106,9 +109,8 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config) (*Ass
 		Duration:        config.AssumeRoleDuration,
 		ExpiryWindow:    defaultExpirationWindow,
 		Mfa: Mfa{
-			MfaSerial:       config.MfaSerial,
-			MfaToken:        config.MfaToken,
-			MfaPromptMethod: config.MfaPromptMethod,
+			Serial:        config.MfaSerial,
+			TokenProvider: tokenProvider,
 		},
 	}, nil
 }

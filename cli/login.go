@@ -56,7 +56,7 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 		StringVar(&input.ProfileName)
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
-		input.Config.MfaPromptMethod = GlobalFlags.PromptDriver
+		input.Config.MfaTokenProvider = GlobalFlags.MfaTokenProvider
 		input.Config.NonChainedGetSessionTokenDuration = input.SessionDuration
 		input.Config.AssumeRoleDuration = input.SessionDuration
 		input.Config.GetFederationTokenDuration = input.SessionDuration

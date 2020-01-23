@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/99designs/aws-vault/prompt"
+	"github.com/99designs/aws-vault/mfa"
 	"github.com/99designs/aws-vault/vault"
 	"github.com/99designs/keyring"
 	"golang.org/x/crypto/ssh/terminal"
@@ -18,20 +18,20 @@ const (
 )
 
 var (
-	keyringImpl      keyring.Keyring
-	awsConfigFile    *vault.ConfigFile
-	configLoader     *vault.ConfigLoader
-	promptsAvailable = prompt.Available()
+	keyringImpl                keyring.Keyring
+	awsConfigFile              *vault.ConfigFile
+	configLoader               *vault.ConfigLoader
+	mfaTokenProvidersAvailable = mfa.TokenProvidersAvailable()
 )
 
 var GlobalFlags struct {
-	Debug        bool
-	Backend      string
-	PromptDriver string
-	KeychainName string
-	PassDir      string
-	PassCmd      string
-	PassPrefix   string
+	Debug            bool
+	Backend          string
+	MfaTokenProvider string
+	KeychainName     string
+	PassDir          string
+	PassCmd          string
+	PassPrefix       string
 }
 
 func ConfigureGlobals(app *kingpin.Application) {
@@ -47,10 +47,10 @@ func ConfigureGlobals(app *kingpin.Application) {
 		Envar("AWS_VAULT_BACKEND").
 		EnumVar(&GlobalFlags.Backend, backendsAvailable...)
 
-	app.Flag("prompt", fmt.Sprintf("Prompt driver to use %v", promptsAvailable)).
+	app.Flag("mfa-token-provider", fmt.Sprintf("Mfa token provider to use %v", mfaTokenProvidersAvailable)).
 		Default("terminal").
-		Envar("AWS_VAULT_PROMPT").
-		EnumVar(&GlobalFlags.PromptDriver, promptsAvailable...)
+		Envar("AWS_VAULT_MFA_TOKEN_PROVIDER").
+		EnumVar(&GlobalFlags.MfaTokenProvider, mfaTokenProvidersAvailable...)
 
 	app.Flag("keychain", "Name of macOS keychain to use, if it doesn't exist it will be created").
 		Default("aws-vault").

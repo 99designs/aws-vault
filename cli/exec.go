@@ -19,15 +19,16 @@ import (
 )
 
 type ExecCommandInput struct {
-	ProfileName      string
-	Command          string
-	Args             []string
-	Keyring          keyring.Keyring
-	StartServer      bool
-	CredentialHelper bool
-	Config           vault.Config
-	SessionDuration  time.Duration
-	NoSession        bool
+	ProfileName             string
+	Command                 string
+	Args                    []string
+	Keyring                 keyring.Keyring
+	StartServer             bool
+	CredentialHelper        bool
+	Config                  vault.Config
+	SessionDuration         time.Duration
+	NoSession               bool
+	UseLegacyAWSSecureToken bool
 }
 
 // AwsCredentialHelperData is metadata for AWS CLI credential process
@@ -44,6 +45,9 @@ func ConfigureExecCommand(app *kingpin.Application) {
 	input := ExecCommandInput{}
 
 	cmd := app.Command("exec", "Executes a command with AWS credentials in the environment")
+
+	cmd.Flag("use-legacy-aws-secure-token", "Export also the deprecated AWS_SECURE_TOKEN alongside the standard, AWS_SESSION_TOKEN").
+		BoolVar(&input.UseLegacyAWSSecureToken)
 
 	cmd.Flag("duration", "Duration of the temporary or assume-role session. Defaults to 1h").
 		Short('d').
@@ -162,9 +166,12 @@ func ExecCommand(input ExecCommandInput) error {
 			env.Set("AWS_SECRET_ACCESS_KEY", val.SecretAccessKey)
 
 			if val.SessionToken != "" {
-				log.Println("Setting subprocess env: AWS_SESSION_TOKEN, AWS_SECURITY_TOKEN")
+				log.Println("Setting subprocess env: AWS_SESSION_TOKEN ")
 				env.Set("AWS_SESSION_TOKEN", val.SessionToken)
-				env.Set("AWS_SECURITY_TOKEN", val.SessionToken)
+				if input.UseLegacyAWSSecureToken {
+					log.Println("Setting subprocess env: AWS_SECURITY_TOKEN")
+					env.Set("AWS_SECURITY_TOKEN", val.SessionToken)
+				}
 				expiration, err := creds.ExpiresAt()
 				if err == nil {
 					log.Println("Setting subprocess env: AWS_SESSION_EXPIRATION")

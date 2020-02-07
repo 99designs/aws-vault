@@ -52,7 +52,7 @@ region = us-west-1
 
 [profile parent]
 mfa_serial = arn:aws:iam::111111111111:mfa/user.name
-duration_seconds = 120
+duration_seconds = 900
 
 [profile account1]
 parent_profile = parent

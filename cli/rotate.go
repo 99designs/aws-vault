@@ -30,7 +30,7 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 
 	cmd.Arg("profile", "Name of the profile").
 		Required().
-		HintAction(awsConfigFile.ProfileNames).
+		HintAction(getProfileNames).
 		StringVar(&input.ProfileName)
 
 	cmd.Action(func(c *kingpin.ParseContext) error {

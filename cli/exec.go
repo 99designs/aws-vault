@@ -67,7 +67,7 @@ func ConfigureExecCommand(app *kingpin.Application) {
 
 	cmd.Arg("profile", "Name of the profile").
 		Required().
-		HintAction(awsConfigFile.ProfileNames).
+		HintAction(getProfileNames).
 		StringVar(&input.ProfileName)
 
 	cmd.Arg("cmd", "Command to execute, defaults to $SHELL").

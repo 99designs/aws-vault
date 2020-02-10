@@ -99,10 +99,10 @@ func ConfigureGlobals(app *kingpin.Application) {
 				return err
 			}
 		}
-		if awsConfigFile == nil {
-			awsConfigFile, err = vault.LoadConfigFromEnv()
-		}
+
+		awsConfigFile, err = vault.LoadConfigFromEnv()
 		configLoader = &vault.ConfigLoader{File: awsConfigFile}
+
 		return err
 	})
 }
@@ -119,4 +119,8 @@ func fileKeyringPassphrasePrompt(prompt string) (string, error) {
 	}
 	fmt.Println()
 	return string(b), nil
+}
+
+func getProfileNames() []string {
+	return awsConfigFile.ProfileNames()
 }

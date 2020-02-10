@@ -9,8 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/sts"
-
-	"github.com/99designs/aws-vault/mfa"
 )
 
 const defaultExpirationWindow = 5 * time.Minute
@@ -31,18 +29,6 @@ func FormatKeyForDisplay(k string) string {
 	return fmt.Sprintf("****************%s", k[len(k)-4:])
 }
 
-// Mfa contains options for an MFA device
-type Mfa struct {
-	TokenProvider mfa.TokenProvider
-	Serial        string
-}
-
-// GetMfaToken returns the MFA token
-func (m *Mfa) GetMfaToken() (*string, error) {
-	token, err := m.TokenProvider.Retrieve(m.Serial)
-	return aws.String(token), err
-}
-
 // NewMasterCredentialsProvider creates a provider for the master credentials
 func NewMasterCredentialsProvider(k *CredentialKeyring, credentialsName string) *KeyringProvider {
 	return &KeyringProvider{k, credentialsName}
@@ -58,21 +44,11 @@ func NewSessionTokenProvider(creds *credentials.Credentials, k *CredentialKeyrin
 		return nil, err
 	}
 
-	var tokenProvider mfa.TokenProvider
-	if config.MfaToken != "" {
-		tokenProvider = mfa.KnownToken{Token: config.MfaToken}
-	} else {
-		tokenProvider = mfa.GetTokenProvider(config.MfaTokenProvider)
-	}
-
 	sessionTokenProvider := &SessionTokenProvider{
-		StsClient:    sts.New(sess),
-		Duration:     config.GetSessionTokenDuration(),
-		ExpiryWindow: defaultExpirationWindow,
-		Mfa: Mfa{
-			TokenProvider: tokenProvider,
-			Serial:        config.MfaSerial,
-		},
+		StsClient:        sts.New(sess),
+		Duration:         config.GetSessionTokenDuration(),
+		ExpiryWindow:     defaultExpirationWindow,
+		GetTokenProvider: config.GetMfaTokenProvider,
 	}
 
 	if UseSessionCache {
@@ -94,24 +70,15 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config) (*Ass
 		return nil, err
 	}
 
-	var tokenProvider mfa.TokenProvider
-	if config.MfaToken != "" {
-		tokenProvider = mfa.KnownToken{Token: config.MfaToken}
-	} else {
-		tokenProvider = mfa.GetTokenProvider(config.MfaTokenProvider)
-	}
-
 	return &AssumeRoleProvider{
-		StsClient:       sts.New(sess),
-		RoleARN:         config.RoleARN,
-		RoleSessionName: config.RoleSessionName,
-		ExternalID:      config.ExternalID,
-		Duration:        config.AssumeRoleDuration,
-		ExpiryWindow:    defaultExpirationWindow,
-		Mfa: Mfa{
-			Serial:        config.MfaSerial,
-			TokenProvider: tokenProvider,
-		},
+		StsClient:        sts.New(sess),
+		RoleARN:          config.RoleARN,
+		RoleSessionName:  config.RoleSessionName,
+		ExternalID:       config.ExternalID,
+		Duration:         config.AssumeRoleDuration,
+		ExpiryWindow:     defaultExpirationWindow,
+		MfaSerial:        config.MfaSerial,
+		GetTokenProvider: config.GetMfaTokenProvider,
 	}, nil
 }
 

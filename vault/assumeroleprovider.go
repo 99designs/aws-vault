@@ -8,17 +8,20 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/sts"
+
+	"github.com/99designs/aws-vault/mfa"
 )
 
 // AssumeRoleProvider retrieves temporary credentials from STS using AssumeRole
 type AssumeRoleProvider struct {
-	StsClient       *sts.STS
-	RoleARN         string
-	RoleSessionName string
-	ExternalID      string
-	Duration        time.Duration
-	ExpiryWindow    time.Duration
-	Mfa             Mfa
+	StsClient        *sts.STS
+	RoleARN          string
+	RoleSessionName  string
+	ExternalID       string
+	Duration         time.Duration
+	ExpiryWindow     time.Duration
+	MfaSerial        string
+	GetTokenProvider func() mfa.TokenProvider
 	credentials.Expiry
 }
 
@@ -59,12 +62,13 @@ func (p *AssumeRoleProvider) assumeRole() (*sts.Credentials, error) {
 		input.ExternalId = aws.String(p.ExternalID)
 	}
 
-	if p.Mfa.Serial != "" {
-		input.SerialNumber = aws.String(p.Mfa.Serial)
-		input.TokenCode, err = p.Mfa.GetMfaToken()
+	if p.MfaSerial != "" {
+		input.SerialNumber = aws.String(p.MfaSerial)
+		tokenCode, err := p.GetTokenProvider().Retrieve(p.MfaSerial)
 		if err != nil {
 			return nil, err
 		}
+		input.TokenCode = aws.String(tokenCode)
 	}
 
 	resp, err := p.StsClient.AssumeRole(input)

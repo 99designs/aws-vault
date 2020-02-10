@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-// TokenProvider is an interface to provide an mfa token. It's intended that provided do whatever is necessary to get
+// TokenProvider is an interface to provide an mfa token. It's intended that providers do whatever is necessary to get
 // a token, eg prompt the use via the terminal or fetch it from a yubikey.
 type TokenProvider interface {
 	Retrieve(mfaSerial string) (string, error)

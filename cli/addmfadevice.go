@@ -24,14 +24,14 @@ func ConfigureAddMfaCommand(app *kingpin.Application) {
 	input := AddMfaDeviceCommandInput{}
 
 	cmd := app.Command("add-mfa-device", "Adds a MFA device to the IAM user")
-	cmd.Arg("username", "Name of the user to add the MFA as device for").
-		Required().
-		StringVar(&input.Username)
-
 	cmd.Arg("profile", "Name of the profile").
 		Required().
 		HintAction(awsConfigFile.ProfileNames).
 		StringVar(&input.ProfileName)
+
+	cmd.Arg("username", "Name of the user to add the MFA as device for").
+		Required().
+		StringVar(&input.Username)
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		input.Keyring = keyringImpl

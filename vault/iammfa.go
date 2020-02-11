@@ -81,7 +81,14 @@ func (m IAMMfa) enable(username string, secret []byte) error {
 		base32.StdEncoding.EncodeToString(secret),
 	)
 
-	qrterminal.Generate(uri, qrterminal.L, os.Stderr)
+	config := qrterminal.Config{
+		Level:     qrterminal.L,
+		Writer:    os.Stdout,
+		BlackChar: qrterminal.BLACK,
+		WhiteChar: qrterminal.WHITE,
+		QuietZone: 1,
+	}
+	qrterminal.GenerateWithConfig(uri, config)
 
 	fmt.Printf("issuer: %s\nname: %s\nsecret: %s\nuri: %s\n\n", "AWS", serial, base32.StdEncoding.EncodeToString(secret), uri)
 

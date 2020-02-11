@@ -19,6 +19,7 @@ const (
 
 var (
 	keyringImpl      keyring.Keyring
+	credKeyring      *vault.CredentialKeyring
 	awsConfigFile    *vault.ConfigFile
 	configLoader     *vault.ConfigLoader
 	promptsAvailable = prompt.Available()
@@ -100,6 +101,7 @@ func ConfigureGlobals(app *kingpin.Application) {
 			}
 		}
 
+		credKeyring = &vault.CredentialKeyring{Keyring: keyringImpl}
 		awsConfigFile, err = vault.LoadConfigFromEnv()
 		configLoader = &vault.ConfigLoader{File: awsConfigFile}
 
@@ -123,4 +125,9 @@ func fileKeyringPassphrasePrompt(prompt string) (string, error) {
 
 func getProfileNames() []string {
 	return awsConfigFile.ProfileNames()
+}
+
+func getCredentialProfileNames() []string {
+	credentialsNames, _ := credKeyring.CredentialsKeys()
+	return credentialsNames
 }

@@ -30,7 +30,7 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 
 	cmd.Arg("profile", "Name of the profile").
 		Required().
-		HintAction(getProfileNames).
+		HintAction(getCredentialProfileNames).
 		StringVar(&input.ProfileName)
 
 	cmd.Action(func(c *kingpin.ParseContext) error {

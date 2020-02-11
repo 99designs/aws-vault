@@ -27,15 +27,15 @@ func run(args []string, exit func(int)) {
 	app.Terminate(exit)
 
 	cli.ConfigureGlobals(app)
-	cli.ConfigureExecCommand(app)
-	cli.ConfigureLoginCommand(app)
 	cli.ConfigureAddCommand(app)
-	cli.ConfigureRemoveCommand(app)
 	cli.ConfigureListCommand(app)
+	cli.ConfigureRotateCommand(app)
+	cli.ConfigureExecCommand(app)
+	cli.ConfigureRemoveCommand(app)
+	cli.ConfigureLoginCommand(app)
+	cli.ConfigureServerCommand(app)
 	cli.ConfigureAddMfaCommand(app)
 	cli.ConfigureRemoveMfaCommand(app)
-	cli.ConfigureRotateCommand(app)
-	cli.ConfigureServerCommand(app)
 
 	kingpin.MustParse(app.Parse(args))
 }

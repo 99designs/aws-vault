@@ -14,11 +14,10 @@ import (
 )
 
 type AddMfaDeviceCommandInput struct {
-	ProfileName  string
-	Keyring      keyring.Keyring
-	Config       vault.Config
-	Username     string
-	RequireTouch bool
+	ProfileName string
+	Keyring     keyring.Keyring
+	Config      vault.Config
+	Username    string
 }
 
 func ConfigureAddMfaCommand(app *kingpin.Application) {

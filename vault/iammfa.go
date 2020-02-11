@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/arn"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -36,12 +37,13 @@ func NewIAMMfa(sess *session.Session, tp mfa.TokenProvider) IAMMfa {
 // Add adds a virtual mfa device for the IAM user
 func (m IAMMfa) Add(username, profileName string) error {
 	serial, secret, err := m.create(username)
+	m.TokenProvider.SetSerial(*serial)
 
 	if err != nil {
 		return err
 	}
 
-	if err := m.enable(username, serial, secret); err != nil {
+	if err := m.enable(username, secret); err != nil {
 		fmt.Printf("error enabling virtual mfa device: %s\n", err.Error())
 		fmt.Println("attempting to roll back changes...")
 		return m.Delete(username)
@@ -72,15 +74,16 @@ func (m IAMMfa) create(username string) (*string, []byte, error) {
 	return res.VirtualMFADevice.SerialNumber, secret, nil
 }
 
-func (m IAMMfa) enable(username string, serial *string, secret []byte) error {
+func (m IAMMfa) enable(username string, secret []byte) error {
+	serial := m.TokenProvider.GetSerial()
 	uri := fmt.Sprintf("otpauth://totp/AWS:%s?secret=%s&issuer=AWS&algorithm=SHA1&digits=6&period=30",
-		*serial,
+		serial,
 		base32.StdEncoding.EncodeToString(secret),
 	)
 
 	qrterminal.Generate(uri, qrterminal.L, os.Stderr)
 
-	fmt.Printf("issuer: %s\nname: %s\nsecret: %s\nuri: %s\n\n", "AWS", *serial, base32.StdEncoding.EncodeToString(secret), uri)
+	fmt.Printf("issuer: %s\nname: %s\nsecret: %s\nuri: %s\n\n", "AWS", serial, base32.StdEncoding.EncodeToString(secret), uri)
 
 	fmt.Println("Add the details to your OTP generator... then we need 2 codes")
 
@@ -89,13 +92,13 @@ func (m IAMMfa) enable(username string, serial *string, secret []byte) error {
 		var err error
 		tries += 1
 
-		otp1, err := m.TokenProvider.Retrieve(*serial)
+		otp1, err := m.TokenProvider.GetToken()
 		if err != nil {
 			return fmt.Errorf("error getting first otp: %w", err)
 		}
 
 		fmt.Println("now a second token")
-		otp2, err := m.TokenProvider.Retrieve(*serial)
+		otp2, err := m.TokenProvider.GetToken()
 		if err != nil {
 			return fmt.Errorf("error getting second otp: %w", err)
 		}
@@ -103,8 +106,8 @@ func (m IAMMfa) enable(username string, serial *string, secret []byte) error {
 		_, err = m.IAM.EnableMFADevice(&iam.EnableMFADeviceInput{
 			AuthenticationCode1: &otp1,
 			AuthenticationCode2: &otp2,
-			SerialNumber:        serial,
-			UserName:            &username,
+			SerialNumber:        aws.String(serial),
+			UserName:            aws.String(username),
 		})
 		if err != nil {
 			awsErr, ok := err.(awserr.Error)
@@ -114,7 +117,7 @@ func (m IAMMfa) enable(username string, serial *string, secret []byte) error {
 				continue
 			}
 
-			return fmt.Errorf("failed to enable virtual mfa device with serial %q: %w", *serial, err)
+			return fmt.Errorf("failed to enable virtual mfa device with serial %q: %w", serial, err)
 		}
 
 		fmt.Printf("Virtual mfa device enabled with codes %s and %s\n", otp1, otp2)

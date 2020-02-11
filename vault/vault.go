@@ -44,11 +44,12 @@ func NewSessionTokenProvider(creds *credentials.Credentials, k *CredentialKeyrin
 		return nil, err
 	}
 
+	tp := config.GetMfaTokenProvider()
 	sessionTokenProvider := &SessionTokenProvider{
-		StsClient:        sts.New(sess),
-		Duration:         config.GetSessionTokenDuration(),
-		ExpiryWindow:     defaultExpirationWindow,
-		GetTokenProvider: config.GetMfaTokenProvider,
+		StsClient:     sts.New(sess),
+		Duration:      config.GetSessionTokenDuration(),
+		ExpiryWindow:  defaultExpirationWindow,
+		TokenProvider: tp,
 	}
 
 	if UseSessionCache {
@@ -71,14 +72,13 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config) (*Ass
 	}
 
 	return &AssumeRoleProvider{
-		StsClient:        sts.New(sess),
-		RoleARN:          config.RoleARN,
-		RoleSessionName:  config.RoleSessionName,
-		ExternalID:       config.ExternalID,
-		Duration:         config.AssumeRoleDuration,
-		ExpiryWindow:     defaultExpirationWindow,
-		MfaSerial:        config.MfaSerial,
-		GetTokenProvider: config.GetMfaTokenProvider,
+		StsClient:       sts.New(sess),
+		RoleARN:         config.RoleARN,
+		RoleSessionName: config.RoleSessionName,
+		ExternalID:      config.ExternalID,
+		Duration:        config.AssumeRoleDuration,
+		ExpiryWindow:    defaultExpirationWindow,
+		TokenProvider:   config.GetMfaTokenProvider(),
 	}, nil
 }
 

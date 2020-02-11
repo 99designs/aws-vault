@@ -13,11 +13,10 @@ import (
 
 // SessionTokenProvider retrieves temporary credentials from STS using GetSessionToken
 type SessionTokenProvider struct {
-	StsClient        *sts.STS
-	Duration         time.Duration
-	ExpiryWindow     time.Duration
-	MfaSerial        string
-	GetTokenProvider func() mfa.TokenProvider
+	StsClient     *sts.STS
+	Duration      time.Duration
+	ExpiryWindow  time.Duration
+	TokenProvider mfa.TokenProvider
 	credentials.Expiry
 }
 
@@ -44,9 +43,10 @@ func (p *SessionTokenProvider) GetSessionToken() (*sts.Credentials, error) {
 		DurationSeconds: aws.Int64(int64(p.Duration.Seconds())),
 	}
 
-	if p.MfaSerial != "" {
-		input.SerialNumber = aws.String(p.MfaSerial)
-		tokenCode, err := p.GetTokenProvider().Retrieve(p.MfaSerial)
+	mfaSerial := p.TokenProvider.GetSerial()
+	if mfaSerial != "" {
+		input.SerialNumber = aws.String(mfaSerial)
+		tokenCode, err := p.TokenProvider.GetToken()
 		if err != nil {
 			return nil, err
 		}

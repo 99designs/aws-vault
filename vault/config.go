@@ -507,7 +507,10 @@ func (c *Config) GetMfaTokenProvider() mfa.TokenProvider {
 	var tokenProvider mfa.TokenProvider
 	tokenProvider = mfa.GetTokenProvider(c.MfaTokenProvider)
 	if c.MfaToken != "" {
-		tokenProvider = mfa.KnownToken{Token: c.MfaToken}
+		tokenProvider = &mfa.KnownToken{Token: c.MfaToken}
+	}
+	if c.MfaSerial != "" {
+		tokenProvider.SetSerial(c.MfaSerial)
 	}
 	return tokenProvider
 }

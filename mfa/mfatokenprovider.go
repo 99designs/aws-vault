@@ -7,7 +7,9 @@ import (
 // TokenProvider is an interface to provide an mfa token. It's intended that providers do whatever is necessary to get
 // a token, eg prompt the use via the terminal or fetch it from a yubikey.
 type TokenProvider interface {
-	Retrieve(mfaSerial string) (string, error)
+	GetToken() (string, error)
+	GetSerial() string
+	SetSerial(mfaSerial string)
 }
 
 func defaultPrompt(mfaSerial string) string {
@@ -15,7 +17,7 @@ func defaultPrompt(mfaSerial string) string {
 }
 
 var TokenProviders = map[string]TokenProvider{
-	"terminal": Terminal{},
+	"terminal": &Terminal{},
 }
 
 func TokenProvidersAvailable() []string {

@@ -14,14 +14,13 @@ import (
 
 // AssumeRoleProvider retrieves temporary credentials from STS using AssumeRole
 type AssumeRoleProvider struct {
-	StsClient        *sts.STS
-	RoleARN          string
-	RoleSessionName  string
-	ExternalID       string
-	Duration         time.Duration
-	ExpiryWindow     time.Duration
-	MfaSerial        string
-	GetTokenProvider func() mfa.TokenProvider
+	StsClient       *sts.STS
+	RoleARN         string
+	RoleSessionName string
+	ExternalID      string
+	Duration        time.Duration
+	ExpiryWindow    time.Duration
+	TokenProvider   mfa.TokenProvider
 	credentials.Expiry
 }
 
@@ -62,9 +61,10 @@ func (p *AssumeRoleProvider) assumeRole() (*sts.Credentials, error) {
 		input.ExternalId = aws.String(p.ExternalID)
 	}
 
-	if p.MfaSerial != "" {
-		input.SerialNumber = aws.String(p.MfaSerial)
-		tokenCode, err := p.GetTokenProvider().Retrieve(p.MfaSerial)
+	mfaSerial := p.TokenProvider.GetSerial()
+	if mfaSerial != "" {
+		input.SerialNumber = aws.String(mfaSerial)
+		tokenCode, err := p.TokenProvider.GetToken()
 		if err != nil {
 			return nil, err
 		}

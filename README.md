@@ -1,5 +1,8 @@
 # AWS Vault
 
+[![Downloads](https://img.shields.io/github/downloads/99designs/aws-vault/total.svg)](https://github.com/99designs/aws-vault/releases)
+[![Go Report Card](https://goreportcard.com/badge/github.com/99designs/aws-vault)](https://goreportcard.com/report/github.com/99designs/aws-vault)
+
 AWS Vault is a tool to securely store and access AWS credentials in a development environment.
 
 AWS Vault stores IAM credentials in your operating system's secure keystore and then generates temporary credentials from those to expose to your shell and applications. It's designed to be complementary to the AWS CLI tools, and is aware of your [profiles and configuration in `~/.aws/config`](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html#cli-config-files).
@@ -14,7 +17,6 @@ The supported backends are:
 * Encrypted file
 
 Check out the [announcement blog post](https://99designs.com.au/tech-blog/blog/2015/10/26/aws-vault/) for more details.
-
 
 ## Installing
 

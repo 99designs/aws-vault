@@ -1,4 +1,4 @@
-package vault
+package mfa
 
 import (
 	"encoding/base32"
@@ -14,19 +14,17 @@ import (
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/aws/aws-sdk-go/service/sts"
 	"github.com/mdp/qrterminal"
-
-	"github.com/99designs/aws-vault/mfa"
 )
 
 // IAMMfa combines IAM config with a mfa device
 type IAMMfa struct {
 	IAM           *iam.IAM
-	TokenProvider mfa.TokenProvider
+	TokenProvider TokenProvider
 	STS           *sts.STS
 }
 
 // NewIAMMfa initializes a AWS virtual mfa device as target
-func NewIAMMfa(sess *session.Session, tp mfa.TokenProvider) IAMMfa {
+func NewIAMMfa(sess *session.Session, tp TokenProvider) IAMMfa {
 	return IAMMfa{
 		IAM:           iam.New(sess),
 		STS:           sts.New(sess),

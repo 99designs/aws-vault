@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"gopkg.in/alecthomas/kingpin.v2"
 
+	"github.com/99designs/aws-vault/mfa"
 	"github.com/99designs/aws-vault/vault"
 )
 
@@ -69,7 +70,7 @@ func RemoveMFADeviceCommand(app *kingpin.Application, input RemoveMfaDeviceComma
 
 	tokenProvider := input.Config.GetMfaTokenProvider()
 
-	im := vault.NewIAMMfa(sess, tokenProvider)
+	im := mfa.NewIAMMfa(sess, tokenProvider)
 
 	fmt.Printf("Removing MFA device for user %s using profile %s\n", input.Username, p.Name)
 

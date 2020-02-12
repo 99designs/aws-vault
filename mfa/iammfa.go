@@ -91,6 +91,7 @@ func (m IAMMfa) enable(username string, secret []byte) error {
 	fmt.Printf("issuer: %s\nname: %s\nsecret: %s\nuri: %s\n\n", "AWS", serial, base32.StdEncoding.EncodeToString(secret), uri)
 
 	fmt.Println("Add the details to your OTP generator... then we need 2 codes")
+	fmt.Printf("!!! reduce your font size temporarily to reduce the size of the qr code !!!\n\n")
 
 	var tries int
 	for {

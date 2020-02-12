@@ -23,13 +23,13 @@ type AddMfaDeviceCommandInput struct {
 func ConfigureAddMfaCommand(app *kingpin.Application) {
 	input := AddMfaDeviceCommandInput{}
 
-	cmd := app.Command("add-mfa-device", "Adds a MFA device to the IAM user")
+	cmd := app.Command("add-mfa-device", "Adds a MFA device for the IAM user")
 	cmd.Arg("profile", "Name of the profile").
 		Required().
 		HintAction(awsConfigFile.ProfileNames).
 		StringVar(&input.ProfileName)
 
-	cmd.Arg("username", "Name of the user to add the MFA as device for").
+	cmd.Arg("username", "Name of the user to add the MFA device for").
 		Required().
 		StringVar(&input.Username)
 

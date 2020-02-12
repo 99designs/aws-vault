@@ -36,6 +36,7 @@ func run(args []string, exit func(int)) {
 	cli.ConfigureServerCommand(app)
 	cli.ConfigureAddMfaCommand(app)
 	cli.ConfigureRemoveMfaCommand(app)
+	cli.ConfigureListMfaDevicesCommand(app)
 
 	kingpin.MustParse(app.Parse(args))
 }

@@ -311,3 +311,37 @@ func TestIniWithoutHeaderSavesWithHeader(t *testing.T) {
 		t.Fatalf("Expected:\n%q\nGot:\n%q", expected, b)
 	}
 }
+
+func TestLoadedProfileDoesntReferToItself(t *testing.T) {
+	f := newConfigFile(t, []byte(`
+[profile foo]
+source_profile=foo
+`))
+	defer os.Remove(f)
+
+	configFile, err := vault.LoadConfig(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	def, ok := configFile.ProfileSection("foo")
+	if !ok {
+		t.Fatalf("Couldn't load profile foo")
+	}
+
+	expectedSourceProfile := "foo"
+	if def.SourceProfile != expectedSourceProfile {
+		t.Fatalf("Expected '%s', got '%s'", expectedSourceProfile, def.SourceProfile)
+	}
+
+	configLoader := &vault.ConfigLoader{File: configFile}
+	config, err := configLoader.LoadFromProfile("foo")
+	if err != nil {
+		t.Fatalf("Should have found a profile: %v", err)
+	}
+
+	expectedSourceProfileName := ""
+	if config.SourceProfileName != expectedSourceProfileName {
+		t.Fatalf("Expected '%s', got '%s'", expectedSourceProfileName, config.SourceProfileName)
+	}
+}

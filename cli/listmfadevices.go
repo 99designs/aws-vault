@@ -56,17 +56,14 @@ func ListMFADevicesCommand(app *kingpin.Application, input ListMfaDevicesCommand
 			CredentialsName: p.Name,
 		}
 
-		creds, err := provider.Retrieve()
+		val, err := provider.Retrieve()
 		if err != nil {
 			app.Fatalf("unable to retrieve creds for profile %s", p.Name)
 		}
 
-		sess, err = session.NewSessionWithOptions(session.Options{
-			Config: aws.Config{
-				Region:      aws.String(p.Region),
-				Credentials: credentials.NewCredentials(&credentials.StaticProvider{Value: creds}),
-			},
-		})
+		creds := credentials.NewCredentials(&credentials.StaticProvider{Value: val})
+		sess, err = vault.NewSession(creds, p.Region)
+
 	} else {
 		sess, err = session.NewSession(&aws.Config{})
 

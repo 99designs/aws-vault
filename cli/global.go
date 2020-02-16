@@ -75,6 +75,7 @@ func ConfigureGlobals(app *kingpin.Application) {
 		} else {
 			keyring.Debug = true
 		}
+		log.Printf("aws-vault %s", app.Model().Version)
 		if keyringImpl == nil {
 			var allowedBackends []keyring.BackendType
 			if GlobalFlags.Backend != "" {

@@ -18,7 +18,13 @@ const defaultExpirationWindow = 5 * time.Minute
 var UseSessionCache = true
 
 func NewSession(creds *credentials.Credentials, region string) (*session.Session, error) {
-	return session.NewSession(aws.NewConfig().WithRegion(region).WithCredentials(creds))
+	return session.NewSessionWithOptions(session.Options{
+		Config: aws.Config{
+			Region:      aws.String(region),
+			Credentials: creds,
+		},
+		SharedConfigState: session.SharedConfigDisable,
+	})
 }
 
 func FormatKeyForDisplay(k string) string {

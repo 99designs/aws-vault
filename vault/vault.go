@@ -44,12 +44,11 @@ func NewSessionTokenProvider(creds *credentials.Credentials, k *CredentialKeyrin
 		return nil, err
 	}
 
-	tp := config.GetMfaTokenProvider()
 	sessionTokenProvider := &SessionTokenProvider{
 		StsClient:     sts.New(sess),
 		Duration:      config.GetSessionTokenDuration(),
 		ExpiryWindow:  defaultExpirationWindow,
-		TokenProvider: tp,
+		TokenProvider: config.GetMfaTokenProvider(),
 	}
 
 	if UseSessionCache {

@@ -43,9 +43,8 @@ func (p *SessionTokenProvider) GetSessionToken() (*sts.Credentials, error) {
 		DurationSeconds: aws.Int64(int64(p.Duration.Seconds())),
 	}
 
-	mfaSerial := p.TokenProvider.GetSerial()
-	if mfaSerial != "" {
-		input.SerialNumber = aws.String(mfaSerial)
+	if p.TokenProvider != nil {
+		input.SerialNumber = aws.String(p.TokenProvider.GetSerial())
 		tokenCode, err := p.TokenProvider.GetToken()
 		if err != nil {
 			return nil, err

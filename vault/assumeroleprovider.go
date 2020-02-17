@@ -61,9 +61,8 @@ func (p *AssumeRoleProvider) assumeRole() (*sts.Credentials, error) {
 		input.ExternalId = aws.String(p.ExternalID)
 	}
 
-	mfaSerial := p.TokenProvider.GetSerial()
-	if mfaSerial != "" {
-		input.SerialNumber = aws.String(mfaSerial)
+	if p.TokenProvider != nil {
+		input.SerialNumber = aws.String(p.TokenProvider.GetSerial())
 		tokenCode, err := p.TokenProvider.GetToken()
 		if err != nil {
 			return nil, err

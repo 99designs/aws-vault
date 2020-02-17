@@ -504,13 +504,14 @@ func (c *Config) GetSessionTokenDuration() time.Duration {
 }
 
 func (c *Config) GetMfaTokenProvider() mfa.TokenProvider {
+	if c.MfaSerial == "" {
+		return nil
+	}
 	var tokenProvider mfa.TokenProvider
 	tokenProvider = mfa.GetTokenProvider(c.MfaTokenProvider)
 	if c.MfaToken != "" {
 		tokenProvider = &mfa.KnownToken{Token: c.MfaToken}
 	}
-	if c.MfaSerial != "" {
-		tokenProvider.SetSerial(c.MfaSerial)
-	}
+	tokenProvider.SetSerial(c.MfaSerial)
 	return tokenProvider
 }

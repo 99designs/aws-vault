@@ -476,7 +476,7 @@ func (c *Config) CanUseGetSessionToken() (bool, string) {
 		if c.AssumeRoleDuration > roleChainingMaximumDuration {
 			return false, fmt.Sprintf("duration %s is greater than the AWS maximum %s for chaining MFA", c.AssumeRoleDuration, roleChainingMaximumDuration)
 		}
-	} else if c.IsChained() {
+	} else if c.IsChained() && !c.HasMfaSerial() {
 		if !c.ChainedFromProfile.HasMfaSerial() {
 			return false, fmt.Sprintf("profile '%s' has no MFA serial defined", c.ChainedFromProfile.ProfileName)
 		}

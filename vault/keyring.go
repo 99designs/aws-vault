@@ -3,6 +3,7 @@ package vault
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -35,7 +36,7 @@ func (ck *CredentialKeyring) Has(credentialsName string) (bool, error) {
 		return false, err
 	}
 	for _, keyName := range allKeys {
-		if keyName == credentialsName {
+		if strings.Contains(keyName, credentialsName) {
 			return true, nil
 		}
 	}

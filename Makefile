@@ -3,6 +3,8 @@ BUILD_FLAGS=-ldflags="-X main.Version=$(VERSION) -s -w" -trimpath
 CERT_ID ?= Developer ID Application: 99designs Inc (NRM9HVJ62Z)
 SRC=$(shell find . -name '*.go')
 
+export CGO_ENABLED=0
+
 .PHONY: binaries clean release install
 
 binaries: aws-vault-linux-amd64 aws-vault-linux-arm64 aws-vault-darwin-amd64 aws-vault-windows-386.exe aws-vault-freebsd-amd64

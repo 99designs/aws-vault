@@ -33,4 +33,4 @@ jobs:
       run: go vet ./...
 
     - name: Check go fmt
-      run: diff -u <(echo -n) <(gofmt -d $(git ls-files '*.go'))
+      run: diff -u <(echo -n) <(gofmt -s -d .)

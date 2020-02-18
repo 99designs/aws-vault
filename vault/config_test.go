@@ -159,12 +159,12 @@ func TestProfilesFromConfig(t *testing.T) {
 	}
 
 	expected := []vault.ProfileSection{
-		vault.ProfileSection{Name: "default", Region: "us-west-2"},
-		vault.ProfileSection{Name: "user2", Region: "us-east-1"},
-		vault.ProfileSection{Name: "withsource", Region: "us-east-1", SourceProfile: "user2"},
-		vault.ProfileSection{Name: "withmfa", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2"},
-		vault.ProfileSection{Name: "testparentprofile1", Region: "us-east-1"},
-		vault.ProfileSection{Name: "testparentprofile2", ParentProfile: "testparentprofile1"},
+		{Name: "default", Region: "us-west-2"},
+		{Name: "user2", Region: "us-east-1"},
+		{Name: "withsource", Region: "us-east-1", SourceProfile: "user2"},
+		{Name: "withmfa", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2"},
+		{Name: "testparentprofile1", Region: "us-east-1"},
+		{Name: "testparentprofile2", ParentProfile: "testparentprofile1"},
 	}
 	actual := cfg.ProfileSections()
 
@@ -193,13 +193,13 @@ func TestAddProfileToExistingConfig(t *testing.T) {
 	}
 
 	expected := []vault.ProfileSection{
-		vault.ProfileSection{Name: "default", Region: "us-west-2"},
-		vault.ProfileSection{Name: "user2", Region: "us-east-1"},
-		vault.ProfileSection{Name: "withsource", Region: "us-east-1", SourceProfile: "user2"},
-		vault.ProfileSection{Name: "withmfa", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2"},
-		vault.ProfileSection{Name: "testparentprofile1", Region: "us-east-1"},
-		vault.ProfileSection{Name: "testparentprofile2", ParentProfile: "testparentprofile1"},
-		vault.ProfileSection{Name: "llamas", MfaSerial: "testserial", Region: "us-east-1", SourceProfile: "default"},
+		{Name: "default", Region: "us-west-2"},
+		{Name: "user2", Region: "us-east-1"},
+		{Name: "withsource", Region: "us-east-1", SourceProfile: "user2"},
+		{Name: "withmfa", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2"},
+		{Name: "testparentprofile1", Region: "us-east-1"},
+		{Name: "testparentprofile2", ParentProfile: "testparentprofile1"},
+		{Name: "llamas", MfaSerial: "testserial", Region: "us-east-1", SourceProfile: "default"},
 	}
 	actual := cfg.ProfileSections()
 

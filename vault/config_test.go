@@ -345,3 +345,40 @@ source_profile=foo
 		t.Fatalf("Expected '%s', got '%s'", expectedSourceProfileName, config.SourceProfileName)
 	}
 }
+
+func TestSourceProfileCanReferToParent(t *testing.T) {
+	f := newConfigFile(t, []byte(`
+[profile root]
+
+[profile foo]
+parent_profile=root
+source_profile=root
+`))
+	defer os.Remove(f)
+
+	configFile, err := vault.LoadConfig(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	def, ok := configFile.ProfileSection("foo")
+	if !ok {
+		t.Fatalf("Couldn't load profile foo")
+	}
+
+	expectedSourceProfile := "root"
+	if def.SourceProfile != expectedSourceProfile {
+		t.Fatalf("Expected '%s', got '%s'", expectedSourceProfile, def.SourceProfile)
+	}
+
+	configLoader := &vault.ConfigLoader{File: configFile}
+	config, err := configLoader.LoadFromProfile("foo")
+	if err != nil {
+		t.Fatalf("Should have found a profile: %v", err)
+	}
+
+	expectedSourceProfileName := "root"
+	if config.SourceProfileName != expectedSourceProfileName {
+		t.Fatalf("Expected '%s', got '%s'", expectedSourceProfileName, config.SourceProfileName)
+	}
+}

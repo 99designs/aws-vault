@@ -310,7 +310,7 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 	}
 
 	// Ignore source_profile if it recursively refers to the profile
-	if config.SourceProfileName == profileName {
+	if config.SourceProfileName == config.ProfileName {
 		config.SourceProfileName = ""
 	}
 

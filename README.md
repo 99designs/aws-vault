@@ -113,15 +113,16 @@ mfa_serial = arn:aws:iam::111111111111:mfa/jonsmith
 
 Here's what you can expect from aws-vault 
 
-| Command                                | Credentials                  | Cached        | MFA   |
-| -------------------------------------- | -----------------------------| ------------- | ----- |
-| `exec --no-session jonsmith`           | Long-term credentials        | No            | No    |
-| `exec jonsmith`                        | session-token                | session-token | Yes   |
-| `exec readonly`                        | role                         | No            | No    |
-| `exec admin`                           | session-token + role         | session-token | Yes   |
-| `exec otheraccount-role1`              | session-token + role         | session-token | Yes   |
-| `exec otheraccount-role2`              | session-token + role + role  | session-token | Yes   |
-| `exec --no-session otheraccount-role2` | role + role                  | No            | Yes   |
+| Command                                 | Credentials                  | Cached        | MFA   |
+| --------------------------------------- | -----------------------------| ------------- | ----- |
+| `exec --no-session jonsmith`            | Long-term credentials        | No            | No    |
+| `exec jonsmith`                         | session-token                | session-token | Yes   |
+| `exec readonly`                         | role                         | No            | No    |
+| `exec admin`                            | session-token + role         | session-token | Yes   |
+| `exec otheraccount-role1`               | session-token + role         | session-token | Yes   |
+| `exec --duration=2h otheraccount-role1` | role                         | No            | Yes   |
+| `exec otheraccount-role2`               | session-token + role + role  | session-token | Yes   |
+| `exec --no-session otheraccount-role2`  | role + role                  | No            | Yes   |
 
 
 ## Development

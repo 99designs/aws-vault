@@ -13,11 +13,10 @@ Check out the [announcement blog post](https://99designs.com.au/tech-blog/blog/2
 
 You can install aws-vault:
 - by downloading the [latest release](https://github.com/99designs/aws-vault/releases)
-- on macOS via [Homebrew Cask](https://github.com/caskroom/homebrew-cask) with `brew cask install aws-vault`
-- on Linux via [Homebrew on Linux](https://docs.brew.sh/Homebrew-on-Linux) with `brew install aws-vault`
-- on Windows via [choco](https://chocolatey.org/packages/aws-vault) with `choco install aws-vault`
-- on Archlinux via the [AUR](https://aur.archlinux.org/packages/aws-vault/)
-- by compiling with `go get github.com/99designs/aws-vault`
+- on macOS with [Homebrew Cask](https://github.com/caskroom/homebrew-cask): `brew cask install aws-vault`
+- on Linux with [Homebrew on Linux](https://docs.brew.sh/Homebrew-on-Linux): `brew install aws-vault`
+- on Windows with [choco](https://chocolatey.org/packages/aws-vault): `choco install aws-vault`
+- on Archlinux with [AUR](https://aur.archlinux.org/packages/aws-vault/): `yay -S aur/aws-vault`
 
 ## Vaulting Backends
 

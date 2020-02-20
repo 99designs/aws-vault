@@ -92,8 +92,8 @@ region = us-east-1
 mfa_serial = arn:aws:iam::111111111111:mfa/jonsmith
 
 [profile readonly]
-role_arn = arn:aws:iam::22222222222:role/ReadOnly
 source_profile = jonsmith
+role_arn = arn:aws:iam::22222222222:role/ReadOnly
 
 [profile admin]
 source_profile = jonsmith
@@ -124,7 +124,7 @@ Here's what you can expect from aws-vault
 | `exec --no-session otheraccount-role2` | role + role                  | No            | Yes   |
 
 
-## macOS Code Signing
+## Development
 
 The [macOS release builds](https://github.com/99designs/aws-vault/releases) are code-signed to avoid extra prompts in Keychain. You can verify this with:
 

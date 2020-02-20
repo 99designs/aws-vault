@@ -11,12 +11,12 @@ Check out the [announcement blog post](https://99designs.com.au/tech-blog/blog/2
 
 ## Installing
 
-You can install aws-vault:
+You can install AWS Vault:
 - by downloading the [latest release](https://github.com/99designs/aws-vault/releases)
 - on macOS with [Homebrew Cask](https://github.com/caskroom/homebrew-cask): `brew cask install aws-vault`
+- on Windows with [Chocolatey](https://chocolatey.org/packages/aws-vault): `choco install aws-vault`
 - on Linux with [Homebrew on Linux](https://docs.brew.sh/Homebrew-on-Linux): `brew install aws-vault`
-- on Windows with [choco](https://chocolatey.org/packages/aws-vault): `choco install aws-vault`
-- on Archlinux with [AUR](https://aur.archlinux.org/packages/aws-vault/): `yay -S aur/aws-vault`
+- on Arch Linux with the [AUR](https://aur.archlinux.org/packages/aws-vault/): `yay -S aws-vault`
 
 ## Vaulting Backends
 
@@ -87,24 +87,24 @@ Here's an example configuration using roles and MFA:
 [default]
 region = us-east-1
 
-[profile jonsmith]
+[profile foo]
 mfa_serial = arn:aws:iam::111111111111:mfa/jonsmith
 
-[profile readonly]
+[profile foo-readonly]
 source_profile = jonsmith
 role_arn = arn:aws:iam::22222222222:role/ReadOnly
 
-[profile admin]
+[profile foo-admin]
 source_profile = jonsmith
 role_arn = arn:aws:iam::22222222222:role/Administrator
 mfa_serial = arn:aws:iam::111111111111:mfa/jonsmith
 
-[profile otheraccount-role1]
+[profile bar-role1]
 source_profile = jonsmith
 role_arn = arn:aws:iam::333333333333:role/Role1
 mfa_serial = arn:aws:iam::111111111111:mfa/jonsmith
 
-[profile otheraccount-role2]
+[profile bar-role2]
 source_profile = otheraccount
 role_arn = arn:aws:iam::333333333333:role/Role2
 mfa_serial = arn:aws:iam::111111111111:mfa/jonsmith
@@ -112,16 +112,16 @@ mfa_serial = arn:aws:iam::111111111111:mfa/jonsmith
 
 Here's what you can expect from aws-vault 
 
-| Command                                 | Credentials                  | Cached        | MFA   |
-| --------------------------------------- | -----------------------------| ------------- | ----- |
-| `exec --no-session jonsmith`            | Long-term credentials        | No            | No    |
-| `exec jonsmith`                         | session-token                | session-token | Yes   |
-| `exec readonly`                         | role                         | No            | No    |
-| `exec admin`                            | session-token + role         | session-token | Yes   |
-| `exec otheraccount-role1`               | session-token + role         | session-token | Yes   |
-| `exec --duration=2h otheraccount-role1` | role                         | No            | Yes   |
-| `exec otheraccount-role2`               | session-token + role + role  | session-token | Yes   |
-| `exec --no-session otheraccount-role2`  | role + role                  | No            | Yes   |
+| Command                                  | Credentials                  | Cached        | MFA   |
+| ---------------------------------------- | -----------------------------| ------------- | ----- |
+| `aws-vault exec jonsmith --no-session`   | Long-term credentials        | No            | No    |
+| `aws-vault exec jonsmith`                | session-token                | session-token | Yes   |
+| `aws-vault exec foo-readonly`            | role                         | No            | No    |
+| `aws-vault exec foo-admin`               | session-token + role         | session-token | Yes   |
+| `aws-vault exec bar-role1`               | session-token + role         | session-token | Yes   |
+| `aws-vault exec bar-role1 --duration=2h` | role                         | No            | Yes   |
+| `aws-vault exec bar-role2`               | session-token + role + role  | session-token | Yes   |
+| `aws-vault exec bar-role2 --no-session`  | role + role                  | No            | Yes   |
 
 
 ## Development

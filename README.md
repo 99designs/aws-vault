@@ -106,7 +106,7 @@ role_arn = arn:aws:iam::333333333333:role/Role1
 mfa_serial = arn:aws:iam::111111111111:mfa/jonsmith
 
 [profile bar-role2]
-source_profile = otheraccount
+source_profile = bar-role1
 role_arn = arn:aws:iam::333333333333:role/Role2
 mfa_serial = arn:aws:iam::111111111111:mfa/jonsmith
 ```
@@ -119,8 +119,7 @@ Here's what you can expect from aws-vault
 | `aws-vault exec jonsmith`                | session-token                | session-token | Yes   |
 | `aws-vault exec foo-readonly`            | role                         | No            | No    |
 | `aws-vault exec foo-admin`               | session-token + role         | session-token | Yes   |
-| `aws-vault exec bar-role1`               | session-token + role         | session-token | Yes   |
-| `aws-vault exec bar-role1 --duration=2h` | role                         | No            | Yes   |
+| `aws-vault exec foo-admin --duration=2h` | role                         | No            | Yes   |
 | `aws-vault exec bar-role2`               | session-token + role + role  | session-token | Yes   |
 | `aws-vault exec bar-role2 --no-session`  | role + role                  | No            | Yes   |
 

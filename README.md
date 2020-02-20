@@ -17,6 +17,7 @@ You can install AWS Vault:
 - on Windows with [Chocolatey](https://chocolatey.org/packages/aws-vault): `choco install aws-vault`
 - on Linux with [Homebrew on Linux](https://formulae.brew.sh/formula-linux/aws-vault): `brew install aws-vault`
 - on Arch Linux with the [AUR](https://aur.archlinux.org/packages/aws-vault/): `yay -S aws-vault`
+- on [FreeBSD](https://www.freshports.org/security/aws-vault/) with `pkg install aws-vault`
 - with [Nix](https://nixos.org/nixos/packages.html?attr=aws-vault): `nix-env -i aws-vault`
 
 ## Vaulting Backends

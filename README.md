@@ -88,7 +88,7 @@ Here's an example configuration using roles and MFA:
 [default]
 region = us-east-1
 
-[profile foo]
+[profile jonsmith]
 mfa_serial = arn:aws:iam::111111111111:mfa/jonsmith
 
 [profile foo-readonly]

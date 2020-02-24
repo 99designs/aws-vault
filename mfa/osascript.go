@@ -1,4 +1,4 @@
-package prompt
+package mfa
 
 import (
 	"fmt"
@@ -6,12 +6,20 @@ import (
 	"strings"
 )
 
-func OSAScriptPrompt(prompt string) (string, error) {
+func init() {
+	TokenProviders["osascript"] = &OsaScript{}
+}
+
+type OsaScript struct {
+	Serial string
+}
+
+func (o *OsaScript) GetToken() (string, error) {
 	cmd := exec.Command("osascript", "-e", fmt.Sprintf(`
 		display dialog "%s" default answer "" buttons {"OK", "Cancel"} default button 1
         text returned of the result
         return result`,
-		prompt))
+		defaultPrompt(o.Serial)))
 
 	out, err := cmd.Output()
 	if err != nil {
@@ -21,6 +29,10 @@ func OSAScriptPrompt(prompt string) (string, error) {
 	return strings.TrimSpace(string(out)), nil
 }
 
-func init() {
-	Methods["osascript"] = OSAScriptPrompt
+func (o *OsaScript) SetSerial(mfaSerial string) {
+	o.Serial = mfaSerial
+}
+
+func (o *OsaScript) GetSerial() string {
+	return o.Serial
 }

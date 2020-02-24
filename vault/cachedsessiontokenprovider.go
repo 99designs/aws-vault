@@ -22,7 +22,7 @@ type CachedSessionTokenProvider struct {
 func (p *CachedSessionTokenProvider) Retrieve() (credentials.Value, error) {
 	sessions := p.Keyring.Sessions()
 
-	session, err := sessions.Retrieve(p.CredentialsName, p.Provider.MfaSerial)
+	session, err := sessions.Retrieve(p.CredentialsName, p.Provider.TokenProvider.GetSerial())
 	if err != nil {
 		// session lookup missed, we need to create a new one.
 		session, err = p.Provider.GetSessionToken()
@@ -30,7 +30,7 @@ func (p *CachedSessionTokenProvider) Retrieve() (credentials.Value, error) {
 			return credentials.Value{}, err
 		}
 
-		err = sessions.Store(p.CredentialsName, p.Provider.MfaSerial, session)
+		err = sessions.Store(p.CredentialsName, p.Provider.TokenProvider.GetSerial(), session)
 		if err != nil {
 			return credentials.Value{}, err
 		}

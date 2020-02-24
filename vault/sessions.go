@@ -81,12 +81,12 @@ func (ks KeyringSession) IsExpired() bool {
 }
 
 type KeyringSessions struct {
-	keyring keyring.Keyring
+	Keyring keyring.Keyring
 }
 
 func (s *KeyringSessions) Sessions() ([]KeyringSession, error) {
 	log.Printf("Looking up all keys in keyring")
-	keys, err := s.keyring.Keys()
+	keys, err := s.Keyring.Keys()
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (s *KeyringSessions) Sessions() ([]KeyringSession, error) {
 			ks, err := parseSessionKey(k)
 			if err != nil || ks.IsExpired() {
 				log.Printf("Session %s is expired, deleting", k)
-				if err := s.keyring.Remove(k); err != nil {
+				if err := s.Keyring.Remove(k); err != nil {
 					log.Printf("Error deleting session: %v", err)
 				}
 				continue
@@ -121,7 +121,7 @@ func (s *KeyringSessions) Retrieve(profileName string, mfaSerial string) (creds 
 
 	for _, session := range sessions {
 		if session.ProfileName == profileName && session.MfaSerial == mfaSerial {
-			item, err := s.keyring.Get(session.Key)
+			item, err := s.Keyring.Get(session.Key)
 			if err != nil {
 				return creds, err
 			}
@@ -133,7 +133,7 @@ func (s *KeyringSessions) Retrieve(profileName string, mfaSerial string) (creds 
 			// double check the actual expiry time
 			if creds.Expiration.Before(time.Now()) {
 				log.Printf("Session %q is expired, deleting", session.Key)
-				if err = s.keyring.Remove(session.ProfileName); err != nil {
+				if err = s.Keyring.Remove(session.ProfileName); err != nil {
 					return creds, err
 				}
 			}
@@ -159,7 +159,7 @@ func (s *KeyringSessions) Store(profileName string, mfaSerial string, session *s
 	key := formatSessionKey(profileName, mfaSerial, session.Expiration)
 	log.Printf("Writing session for %s to keyring: %q", profileName, key)
 
-	return s.keyring.Set(keyring.Item{
+	return s.Keyring.Set(keyring.Item{
 		Key:         key,
 		Label:       "aws-vault session for " + profileName,
 		Description: "aws-vault session for " + profileName,
@@ -181,7 +181,7 @@ func (s *KeyringSessions) Delete(profileName string) (n int, err error) {
 	for _, session := range sessions {
 		if session.ProfileName == profileName {
 			log.Printf("Session %q matches profile %q", session.Key, profileName)
-			if err = s.keyring.Remove(session.Key); err != nil {
+			if err = s.Keyring.Remove(session.Key); err != nil {
 				return n, err
 			}
 			n++

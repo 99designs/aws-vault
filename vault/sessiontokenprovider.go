@@ -7,14 +7,16 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/service/sts"
+
+	"github.com/99designs/aws-vault/mfa"
 )
 
 // SessionTokenProvider retrieves temporary credentials from STS using GetSessionToken
 type SessionTokenProvider struct {
-	StsClient    *sts.STS
-	Duration     time.Duration
-	ExpiryWindow time.Duration
-	Mfa
+	StsClient     *sts.STS
+	Duration      time.Duration
+	ExpiryWindow  time.Duration
+	TokenProvider mfa.TokenProvider
 	credentials.Expiry
 }
 
@@ -41,12 +43,13 @@ func (p *SessionTokenProvider) GetSessionToken() (*sts.Credentials, error) {
 		DurationSeconds: aws.Int64(int64(p.Duration.Seconds())),
 	}
 
-	if p.MfaSerial != "" {
-		input.SerialNumber = aws.String(p.MfaSerial)
-		input.TokenCode, err = p.GetMfaToken()
+	if p.TokenProvider != nil {
+		input.SerialNumber = aws.String(p.TokenProvider.GetSerial())
+		tokenCode, err := p.TokenProvider.GetToken()
 		if err != nil {
 			return nil, err
 		}
+		input.TokenCode = aws.String(tokenCode)
 	}
 
 	resp, err := p.StsClient.GetSessionToken(input)

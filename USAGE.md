@@ -66,7 +66,7 @@ role_arn = arn:aws:iam::22222222222:role/Administrator
 To configure the default flag values of `aws-vault` and its subcommands:
 * `AWS_VAULT_BACKEND`: Secret backend to use (see the flag `--backend`)
 * `AWS_VAULT_KEYCHAIN_NAME`: Name of macOS keychain to use (see the flag `--keychain`)
-* `AWS_VAULT_PROMPT`: Prompt driver to use (see the flag `--prompt`)
+* `AWS_VAULT_MFA_TOKEN_PROVIDER`: MFA token provider to use (see the flag `--mfa-token-provider`)
 * `AWS_VAULT_PASS_PASSWORD_STORE_DIR`: Pass password store directory (see the flag `--pass-dir`)
 * `AWS_VAULT_PASS_CMD`: Name of the pass executable (see the flag `--pass-cmd`)
 * `AWS_VAULT_PASS_PREFIX`: Prefix to prepend to the item path stored in pass (see the flag `--pass-prefix`)
@@ -249,12 +249,12 @@ This allows you to use credentials of multiple profiles at the same time.
 credential_process = aws-vault exec home --json
 ```
 
-if `mfa_serial` is set, please define the prompt driver (for example `osascript` for macOS), else the prompt will not show up.
+if `mfa_serial` is set, please define the mfa token provider (for example `osascript` for macOS), else the prompt will not show up.
 
 ```ini
 [profile work]
 mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
-credential_process = aws-vault exec work --json --prompt=osascript
+credential_process = aws-vault exec work --json --mfa-token-provider=osascript
 ```
 
 ## Not using session credentials
@@ -418,24 +418,24 @@ find information about this process but it boils down to this.
 5. Run this: 
 
 ```bash 
-ykman oath add YOUR_YUBIKEY_PROFILE -t
+ykman oath add 'AWS:{YOUR_MFA_ARN}' -t  # eg AWS:arn:aws:iam::123456789:mfa/johnsmith
 ```
 It will ask you for a base32 text. Here you can input the text you got in 3.
 
 6. Run this command twice (wait 30 secs in between):
 ```bash 
-ykman oath code --single YOUR_YUBIKEY_PROFILE
+ykman oath code --single AWS:{YOUR_MFA_ARN}
 ```
 
 Input both values as tokens and your device should register as a virtual MFA.
 
-
 7. Now if you want to run any aws-vault command you should run this: 
 ```bash 
-aws-vault exec --mfa-token $(ykman oath code --single ${YOUR_YUBIKEY_PROFILE}) ${YOUR_AWS_VAULT_PROFILE} -- aws s3 ls
+aws-vault exec --mfa-token-provider ykman  ${YOUR_AWS_VAULT_PROFILE} -- aws s3 ls
 ```
 
-[Here](https://gist.github.com/chtorr/0ecc8fca27a4c5e186c636c262cc4757) There're some helper scripts for this.
+(See [`AWS_VAULT_MFA_TOKEN_PROVIDER` env var](#environment-variables)).
+
 
 
 ### An example config to switch profiles via environment variables

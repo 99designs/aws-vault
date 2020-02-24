@@ -3,8 +3,9 @@ package main
 import (
 	"os"
 
-	"github.com/99designs/aws-vault/cli"
 	"gopkg.in/alecthomas/kingpin.v2"
+
+	"github.com/99designs/aws-vault/cli"
 )
 
 // Version is provided at compile time

@@ -26,7 +26,7 @@ func (ck *CredentialKeyring) CredentialsKeys() (credentialsNames []string, err e
 }
 
 func (ck *CredentialKeyring) Sessions() *KeyringSessions {
-	return &KeyringSessions{keyring: ck.Keyring}
+	return &KeyringSessions{Keyring: ck.Keyring}
 }
 
 func (ck *CredentialKeyring) Has(credentialsName string) (bool, error) {

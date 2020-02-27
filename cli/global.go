@@ -27,7 +27,7 @@ var (
 var GlobalFlags struct {
 	Debug            bool
 	Backend          string
-	MfaTokenProvider string
+	MFATokenProvider string
 	Prompt           string
 	KeychainName     string
 	PassDir          string
@@ -51,7 +51,7 @@ func ConfigureGlobals(app *kingpin.Application) {
 	app.Flag("mfa-token-provider", fmt.Sprintf("MFA token provider to use (%v)", mfaTokenProvidersAvailable)).
 		Default("terminal").
 		Envar("AWS_VAULT_MFA_TOKEN_PROVIDER").
-		EnumVar(&GlobalFlags.MfaTokenProvider, mfaTokenProvidersAvailable...)
+		EnumVar(&GlobalFlags.MFATokenProvider, mfaTokenProvidersAvailable...)
 
 	app.Flag("prompt", fmt.Sprintf("Mfa token provider to use %v", mfaTokenProvidersAvailable)).
 		Hidden().
@@ -83,11 +83,11 @@ func ConfigureGlobals(app *kingpin.Application) {
 		}
 		log.Printf("aws-vault %s", app.Model().Version)
 
-		if GlobalFlags.Prompt != "" && GlobalFlags.MfaTokenProvider == "terminal" {
+		if GlobalFlags.Prompt != "" && GlobalFlags.MFATokenProvider == "terminal" {
 			// --prompt is hidden but available for backwards compatibility, if we try to use --prompt to set
 			// GlobalFlags.MfaTokenProvider directly there's a race between --prompt and --mfa-token-provider so we set
 			// a different var then copy the value over
-			GlobalFlags.MfaTokenProvider = GlobalFlags.Prompt
+			GlobalFlags.MFATokenProvider = GlobalFlags.Prompt
 		}
 		if keyringImpl == nil {
 			var allowedBackends []keyring.BackendType

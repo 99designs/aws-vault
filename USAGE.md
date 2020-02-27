@@ -431,7 +431,7 @@ Input both values as tokens and your device should register as a virtual MFA.
 
 7. Now if you want to run any aws-vault command you should run this: 
 ```bash 
-aws-vault exec --mfa-token-provider ykman  ${YOUR_AWS_VAULT_PROFILE} -- aws s3 ls
+aws-vault exec --mfa-token-provider ykman ${YOUR_AWS_VAULT_PROFILE} -- aws s3 ls
 ```
 
 (See [`AWS_VAULT_MFA_TOKEN_PROVIDER` env var](#environment-variables)).

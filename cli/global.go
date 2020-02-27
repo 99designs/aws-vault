@@ -48,7 +48,7 @@ func ConfigureGlobals(app *kingpin.Application) {
 		Envar("AWS_VAULT_BACKEND").
 		EnumVar(&GlobalFlags.Backend, backendsAvailable...)
 
-	app.Flag("mfa-token-provider", fmt.Sprintf("Mfa token provider to use %v", mfaTokenProvidersAvailable)).
+	app.Flag("mfa-token-provider", fmt.Sprintf("MFA token provider to use (%v)", mfaTokenProvidersAvailable)).
 		Default("terminal").
 		Envar("AWS_VAULT_MFA_TOKEN_PROVIDER").
 		EnumVar(&GlobalFlags.MfaTokenProvider, mfaTokenProvidersAvailable...)

@@ -249,7 +249,7 @@ This allows you to use credentials of multiple profiles at the same time.
 credential_process = aws-vault exec home --json
 ```
 
-if `mfa_serial` is set, please define the mfa token provider (for example `osascript` for macOS), else the prompt will not show up.
+if `mfa_serial` is set, please define the MFA token provider (for example `osascript` for macOS), else the prompt will not show up.
 
 ```ini
 [profile work]

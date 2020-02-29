@@ -25,13 +25,14 @@ var (
 )
 
 var GlobalFlags struct {
-	Debug        bool
-	Backend      string
-	PromptDriver string
-	KeychainName string
-	PassDir      string
-	PassCmd      string
-	PassPrefix   string
+	Debug                   bool
+	Backend                 string
+	PromptDriver            string
+	KeychainName            string
+	LibSecretCollectionName string
+	PassDir                 string
+	PassCmd                 string
+	PassPrefix              string
 }
 
 func ConfigureGlobals(app *kingpin.Application) {
@@ -56,6 +57,11 @@ func ConfigureGlobals(app *kingpin.Application) {
 		Default("aws-vault").
 		Envar("AWS_VAULT_KEYCHAIN_NAME").
 		StringVar(&GlobalFlags.KeychainName)
+
+	app.Flag("libsecret-collection", "Name of libsecret collection to use, if it doesn't exist it will be created").
+		Default("awsvault").
+		Envar("AWS_VAULT_LIBSECRET_COLLECTION_NAME").
+		StringVar(&GlobalFlags.LibSecretCollectionName)
 
 	app.Flag("pass-dir", "Pass password store directory").
 		Envar("AWS_VAULT_PASS_PASSWORD_STORE_DIR").
@@ -90,7 +96,7 @@ func ConfigureGlobals(app *kingpin.Application) {
 				PassDir:                  GlobalFlags.PassDir,
 				PassCmd:                  GlobalFlags.PassCmd,
 				PassPrefix:               GlobalFlags.PassPrefix,
-				LibSecretCollectionName:  "awsvault",
+				LibSecretCollectionName:  GlobalFlags.LibSecretCollectionName,
 				KWalletAppID:             "aws-vault",
 				KWalletFolder:            "aws-vault",
 				KeychainTrustApplication: true,

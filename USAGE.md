@@ -3,6 +3,7 @@
 * [Getting Help](#getting-help)
 * [Config](#config)
 * [Environment variables](#environment-variables)
+* [Configuring Keychain Password Prompting Time](#configuring-keychain-password-prompting-time)
 * [Managing Profiles](#managing-profiles)
   * [Using multiple profiles](#using-multiple-profiles)
   * [Example ~/.aws/config](#example---aws-config)
@@ -85,6 +86,18 @@ To override session durations (used in `exec` and `login`):
 * `AWS_CHAINED_SESSION_TOKEN_TTL`: Expiration time for the `GetSessionToken` credentials when chaining profiles. Defaults to 8h
 * `AWS_ASSUME_ROLE_TTL`: Expiration time for the `AssumeRole` credentials. Defaults to 1h
 * `AWS_FEDERATION_TOKEN_TTL`: Expiration time for the `GetFederationToken` credentials. Defaults to 1h
+
+## Configuring Keychain Password Prompting Time
+
+If you're looking to configure the amount of time between having to enter your Keychain password for each usage of a particular profile, you can do so through Keychain: 
+
+1. Open "Keychain Access"
+1. Open the aws-vault keychain
+1. Right click on aws-vault keychain, and select "Change Settings for Keychain 'aws-vault"
+1. Update "Lock after X minutes of inactivity" to your desired value. 
+1. Hit save.
+
+![keychain-image](https://imgur.com/ARkr5Ba.png)
 
 
 ## Managing Profiles

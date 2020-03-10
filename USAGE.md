@@ -93,6 +93,7 @@ If you're looking to configure the amount of time between having to enter your K
 
 1. Open "Keychain Access"
 1. Open the aws-vault keychain
+    1. If you do not have "aws-vault" in the sidebar of the Keychain app, then you can do "File -> Add Keychain" and select the `aws-vault.keychain-db`. This is typically created in `Users/{USER}/Library/Keychains`. 
 1. Right click on aws-vault keychain, and select "Change Settings for Keychain 'aws-vault"
 1. Update "Lock after X minutes of inactivity" to your desired value. 
 1. Hit save.

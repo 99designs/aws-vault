@@ -117,6 +117,9 @@ func ExecCommand(input ExecCommandInput) error {
 		if err := server.StartCredentialsServer(creds); err != nil {
 			return fmt.Errorf("Failed to start credential server: %w", err)
 		}
+		if err := server.StartIdentityDocumentServer(config); err != nil {
+			return fmt.Errorf("Failed to start identity document server: %w", err)
+		}
 		setEnv = false
 	}
 

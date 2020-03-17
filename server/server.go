@@ -9,14 +9,17 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/99designs/aws-vault/vault"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 )
 
 const (
-	metadataBind    = "169.254.169.254:80"
-	awsTimeFormat   = "2006-01-02T15:04:05Z"
-	localServerURL  = "http://127.0.0.1:9099"
-	localServerBind = "127.0.0.1:9099"
+	metadataBind               = "169.254.169.254:80"
+	awsTimeFormat              = "2006-01-02T15:04:05Z"
+	identityDocumentServerURL  = "http://127.0.0.1:9098"
+	identityDocumentServerBind = "127.0.0.1:9098"
+	credentialServerURL        = "http://127.0.0.1:9099"
+	credentialServerBind       = "127.0.0.1:9099"
 )
 
 func StartMetadataServer() error {
@@ -27,6 +30,7 @@ func StartMetadataServer() error {
 	router := http.NewServeMux()
 	router.HandleFunc("/latest/meta-data/iam/security-credentials/", indexHandler)
 	router.HandleFunc("/latest/meta-data/iam/security-credentials/local-credentials", credentialsHandler)
+	router.HandleFunc("/latest/meta-data/dynamic/instance-identity/document", identityDocumentHandler)
 	// The AWS Go SDK checks the instance-id endpoint to validate the existence of EC2 Metadata
 	router.HandleFunc("/latest/meta-data/instance-id/", instanceIdHandler)
 	// The AWS .NET SDK checks this endpoint during obtaining credentials/refreshing them
@@ -49,15 +53,35 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "local-credentials")
 }
 
-func credentialsHandler(w http.ResponseWriter, r *http.Request) {
-	resp, err := http.Get(localServerURL)
+func identityDocumentHandler(w http.ResponseWriter, r *http.Request) {
+	resp, err := http.Get(identityDocumentServerURL)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusGatewayTimeout)
 		return
 	}
 	defer resp.Body.Close()
 
-	log.Printf("Fetched credentials from %s", localServerURL)
+	log.Printf("Fetched identity document from %s", identityDocumentServerURL)
+
+	w.Header().Set("Content-Type", "text/plain")
+	w.WriteHeader(http.StatusOK)
+
+	_, err = io.Copy(w, resp.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+func credentialsHandler(w http.ResponseWriter, r *http.Request) {
+	resp, err := http.Get(credentialServerURL)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusGatewayTimeout)
+		return
+	}
+	defer resp.Body.Close()
+
+	log.Printf("Fetched credentials from %s", credentialServerURL)
 
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
@@ -78,6 +102,33 @@ func checkServerRunning(bind string) bool {
 	return err == nil
 }
 
+func StartIdentityDocumentServer(config *vault.Config) error {
+	if !checkServerRunning(metadataBind) {
+		if err := StartCredentialProxy(); err != nil {
+			return err
+		}
+	}
+
+	log.Printf("Starting local instance document server on %s", identityDocumentServerBind)
+	go func() {
+		log.Fatalln(http.ListenAndServe(identityDocumentServerBind, identityDocHandler(config)))
+	}()
+
+	return nil
+}
+
+func identityDocHandler(config *vault.Config) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		err := json.NewEncoder(w).Encode(map[string]interface{}{
+			"region":          config.Region,
+		})
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
 func StartCredentialsServer(creds *credentials.Credentials) error {
 	if !checkServerRunning(metadataBind) {
 		if err := StartCredentialProxy(); err != nil {
@@ -85,9 +136,9 @@ func StartCredentialsServer(creds *credentials.Credentials) error {
 		}
 	}
 
-	log.Printf("Starting local instance role server on %s", localServerBind)
+	log.Printf("Starting local instance role server on %s", credentialServerBind)
 	go func() {
-		log.Fatalln(http.ListenAndServe(localServerBind, credsHandler(creds)))
+		log.Fatalln(http.ListenAndServe(credentialServerBind, credsHandler(creds)))
 	}()
 
 	return nil

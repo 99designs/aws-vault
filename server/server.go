@@ -120,7 +120,7 @@ func StartIdentityDocumentServer(config *vault.Config) error {
 func identityDocHandler(config *vault.Config) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		err := json.NewEncoder(w).Encode(map[string]interface{}{
-			"region":          config.Region,
+			"region": config.Region,
 		})
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

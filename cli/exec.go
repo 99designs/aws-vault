@@ -74,7 +74,16 @@ func ConfigureExecCommand(app *kingpin.Application) {
 		Default(os.Getenv("SHELL")).
 		StringVar(&input.Command)
 
+	// bash, sh, csh, zsh, fish etc all support login shells
+	// we are starting an interactive session so people probably want to use a login shell
+	cmdArgsDefault := "-l"
+	if runtime.GOOS == "windows" {
+		// windows $SHELL defaults to cmd.exe, it does not have the concept of a login shell
+		cmdArgsDefault = ""
+	}
+
 	cmd.Arg("args", "Command arguments").
+		Default(cmdArgsDefault).
 		StringsVar(&input.Args)
 
 	cmd.Action(func(c *kingpin.ParseContext) error {

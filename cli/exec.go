@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"syscall"
@@ -71,7 +72,6 @@ func ConfigureExecCommand(app *kingpin.Application) {
 		StringVar(&input.ProfileName)
 
 	cmd.Arg("cmd", "Command to execute, defaults to $SHELL").
-		Default(os.Getenv("SHELL")).
 		StringVar(&input.Command)
 
 	cmd.Arg("args", "Command arguments").
@@ -82,9 +82,31 @@ func ConfigureExecCommand(app *kingpin.Application) {
 		input.Config.MfaPromptMethod = GlobalFlags.PromptDriver
 		input.Config.NonChainedGetSessionTokenDuration = input.SessionDuration
 		input.Config.AssumeRoleDuration = input.SessionDuration
+		if input.Command == "" {
+			input.Command, input.Args = getDefaultShellCmd()
+		}
 		app.FatalIfError(ExecCommand(input), "exec")
 		return nil
 	})
+}
+
+func getDefaultShellCmd() (string, []string) {
+	shellCmd := os.Getenv("SHELL")
+	s := strings.ToLower(shellCmd)
+	s = strings.TrimSuffix(s, ".exe")
+	s = filepath.Base(s)
+
+	// for shells that support it start an interactive login shell
+	shellArgs := []string{}
+	if s == "sh" ||
+		s == "bash" ||
+		s == "zsh" ||
+		s == "csh" ||
+		s == "fish" {
+		shellArgs = []string{"-l"}
+	}
+
+	return shellCmd, shellArgs
 }
 
 func ExecCommand(input ExecCommandInput) error {

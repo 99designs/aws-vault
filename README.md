@@ -20,6 +20,14 @@ You can install AWS Vault:
 - on [FreeBSD](https://www.freshports.org/security/aws-vault/) with `pkg install aws-vault`
 - with [Nix](https://nixos.org/nixos/packages.html?attr=aws-vault): `nix-env -i aws-vault`
 
+### With Go
+
+If you have Go installed:
+
+```
+go get github.com/99designs/aws-vault
+```
+
 ## Vaulting Backends
 
 The supported vaulting backends are:

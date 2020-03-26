@@ -114,16 +114,33 @@ mfa_serial = arn:aws:iam::111111111111:mfa/jonsmith
 
 Here's what you can expect from aws-vault 
 
-| Command                                  | Credentials                  | Cached        | MFA   |
-| ---------------------------------------- | -----------------------------| ------------- | ----- |
-| `aws-vault exec jonsmith --no-session`   | Long-term credentials        | No            | No    |
-| `aws-vault exec jonsmith`                | session-token                | session-token | Yes   |
-| `aws-vault exec foo-readonly`            | role                         | No            | No    |
-| `aws-vault exec foo-admin`               | session-token + role         | session-token | Yes   |
-| `aws-vault exec foo-admin --duration=2h` | role                         | No            | Yes   |
-| `aws-vault exec bar-role2`               | session-token + role + role  | session-token | Yes   |
-| `aws-vault exec bar-role2 --no-session`  | role + role                  | No            | Yes   |
+| Command                                  | Credentials                 | Cached        | MFA |
+|------------------------------------------|-----------------------------|---------------|-----|
+| `aws-vault exec jonsmith --no-session`   | Long-term credentials       | No            | No  |
+| `aws-vault exec jonsmith`                | session-token               | session-token | Yes |
+| `aws-vault exec foo-readonly`            | role                        | No            | No  |
+| `aws-vault exec foo-admin`               | session-token + role        | session-token | Yes |
+| `aws-vault exec foo-admin --duration=2h` | role                        | No            | Yes |
+| `aws-vault exec bar-role2`               | session-token + role + role | session-token | Yes |
+| `aws-vault exec bar-role2 --no-session`  | role + role                 | No            | Yes |
 
+## AWS SSO integration
+
+If your organization uses AWS Single Sign-On ([AWS SSO](https://aws.amazon.com/single-sign-on/)), AWS Vault provides a method for using the credential information defined by [AWS SSO CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html). The integration supports caching of the temporary credentials for each profile, and will automatically refresh the credentials using an SSO Access Token (with a life-time that is specific to your integration).  For more information about AWS SSO, please see this [blog post](https://aws.amazon.com/blogs/aws/the-next-evolution-in-aws-single-sign-on/) from AWS.
+
+The AWS CLI v2 provides a wizard to generate the required profile configuration, but it's also possible to directly input this information in your `~/.aws/config` file.
+
+Here's an example configuration using AWS SSO:
+
+```ini
+[profile Administrator-123456789012]
+sso_start_url=https://aws-sso-portal.awsapps.com/start
+sso_region=eu-west-1
+sso_account_id=123456789012
+sso_role_name=Administrator
+```
+
+This profile should work expected with AWS Vault commands, e.g. `exec` and `login`. See [Basic Usage](#basic-usage) for more information.
 
 ## Development
 

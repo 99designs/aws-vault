@@ -222,6 +222,25 @@ role_arn = arn:aws:iam::123456789012:role/target
 
 You can also set the `mfa_serial` with the environment variable `AWS_MFA_SERIAL`.
 
+## AWS Single Sign-On (AWS SSO)
+
+The AWS CLI can [generate the SSO profile configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html), but it's also possible to directly input this information in your `~/.aws/config` file. The configuration options are as follows:
+* `sso_start_url` The URL that points to the organization's AWS SSO user portal.
+* `sso_region` The AWS Region that contains the AWS SSO portal host. This is separate from, and can be a different region than the default CLI region parameter.
+* `sso_account_id` The AWS account ID that contains the IAM role that you want to use with this profile.
+* `sso_role_name` The name of the IAM role that defines the user's permissions when using this profile.
+
+### Example ~/.aws/config
+
+Here is an example `~/.aws/config` file, to help show the configuration for use with AWS SSO.
+
+```ini
+[profile Administrator-123456789012]
+sso_start_url=https://aws-sso-portal.awsapps.com/start
+sso_region=eu-west-1
+sso_account_id=123456789012
+sso_role_name=Administrator
+```
 
 ## Removing stored sessions
 

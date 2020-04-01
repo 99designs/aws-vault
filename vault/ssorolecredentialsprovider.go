@@ -227,15 +227,21 @@ func (p *SSOOIDCProvider) createClientToken(creds *SSOClientCredentials) (*SSOAc
 	}
 
 	fmt.Printf(authorizationTemplate, aws.StringValue(auth.VerificationUriComplete))
-
 	if err := open.Run(aws.StringValue(auth.VerificationUriComplete)); err != nil {
 		log.Printf("failed to open browser: %s", err)
 	}
 
-	for {
-		// Sleep to allow the user to complete the login flow
-		time.Sleep(3 * time.Second)
+	var (
+		// These are the default values defined in the following RFC:
+		// https://tools.ietf.org/html/draft-ietf-oauth-device-flow-15#section-3.5
+		slowDownDelay = 5 * time.Second
+		retryInterval = 5 * time.Second
+	)
+	if i := aws.Int64Value(auth.Interval); i > 0 {
+		retryInterval = time.Duration(i) * time.Second
+	}
 
+	for {
 		t, err := p.OIDCClient.CreateToken(&ssooidc.CreateTokenInput{
 			ClientId:     aws.String(creds.ID),
 			ClientSecret: aws.String(creds.Secret),
@@ -244,10 +250,19 @@ func (p *SSOOIDCProvider) createClientToken(creds *SSOClientCredentials) (*SSOAc
 		})
 		if err != nil {
 			e, ok := err.(awserr.Error)
-			if !ok || e.Code() != ssooidc.ErrCodeAuthorizationPendingException {
+			if !ok {
 				return nil, err
 			}
-			continue
+			switch e.Code() {
+			case ssooidc.ErrCodeSlowDownException:
+				retryInterval += slowDownDelay
+				fallthrough
+			case ssooidc.ErrCodeAuthorizationPendingException:
+				time.Sleep(retryInterval)
+				continue
+			default:
+				return nil, err
+			}
 		}
 		return &SSOAccessToken{
 			Token:      aws.StringValue(t.AccessToken),

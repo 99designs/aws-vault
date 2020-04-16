@@ -356,9 +356,9 @@ func (cl *ConfigLoader) populateFromEnv(profile *Config) {
 	}
 
 	if federationTokenTTL := os.Getenv("AWS_FEDERATION_TOKEN_TTL"); federationTokenTTL != "" && profile.GetFederationTokenDuration == 0 {
-		profile.NonChainedGetSessionTokenDuration, err = time.ParseDuration(federationTokenTTL)
+		profile.GetFederationTokenDuration, err = time.ParseDuration(federationTokenTTL)
 		if err == nil {
-			log.Printf("Using a session duration of %q from AWS_FEDERATION_TOKEN_TTL", profile.NonChainedGetSessionTokenDuration)
+			log.Printf("Using a session duration of %q from AWS_FEDERATION_TOKEN_TTL", profile.GetFederationTokenDuration)
 		}
 	}
 

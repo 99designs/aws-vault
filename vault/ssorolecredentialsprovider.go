@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/99designs/keyring"
@@ -225,8 +226,7 @@ func (p *SSOOIDCProvider) createClientToken(creds *SSOClientCredentials) (*SSOAc
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Printf(authorizationTemplate, aws.StringValue(auth.VerificationUriComplete))
+	fmt.Fprintf(os.Stderr, authorizationTemplate, aws.StringValue(auth.VerificationUriComplete))
 	if err := open.Run(aws.StringValue(auth.VerificationUriComplete)); err != nil {
 		log.Printf("failed to open browser: %s", err)
 	}

@@ -198,7 +198,7 @@ func execEc2Server(input ExecCommandInput, config *vault.Config, creds *credenti
 }
 
 func execEcsServer(input ExecCommandInput, config *vault.Config, creds *credentials.Credentials) error {
-	ecsServer, err := server.StartEcsCredentialServer(creds)
+	uri, token, err := server.StartEcsCredentialServer(creds)
 	if err != nil {
 		return fmt.Errorf("Failed to start credential server: %w", err)
 	}
@@ -208,8 +208,8 @@ func execEcsServer(input ExecCommandInput, config *vault.Config, creds *credenti
 	unsetAwsEnvVars(env)
 
 	log.Println("Setting subprocess env AWS_CONTAINER_CREDENTIALS_FULL_URI, AWS_CONTAINER_AUTHORIZATION_TOKEN")
-	env.Set("AWS_CONTAINER_CREDENTIALS_FULL_URI", ecsServer.Url)
-	env.Set("AWS_CONTAINER_AUTHORIZATION_TOKEN", ecsServer.Authorization)
+	env.Set("AWS_CONTAINER_CREDENTIALS_FULL_URI", uri)
+	env.Set("AWS_CONTAINER_AUTHORIZATION_TOKEN", token)
 
 	return execCmd(input.Command, input.Args, env)
 }

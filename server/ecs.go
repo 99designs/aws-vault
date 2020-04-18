@@ -12,99 +12,76 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 )
 
-type EcsCredentialServer struct {
-	Url           string
-	Authorization string
+func writeErrorMessage(w http.ResponseWriter, msg string, status int) {
+	err := json.NewEncoder(w).Encode(map[string]string{"Message": msg})
+	if err != nil {
+		http.Error(w, err.Error(), status)
+	}
 }
 
-type EcsCredentialData struct {
-	AccessKeyID     string `json:"AccessKeyId"`
-	SecretAccessKey string `json:"SecretAccessKey"`
-	SessionToken    string `json:"Token"`
-	Expiration      string `json:"Expiration"`
+func withAuthorizationCheck(token string, next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Authorization") != token {
+			writeErrorMessage(w, "invalid Authorization token", http.StatusForbidden)
+			return
+		}
+		next.ServeHTTP(w, r)
+	}
 }
 
-type EcsCredentialError struct {
-	Message string `json:"message"`
-}
-
-func StartEcsCredentialServer(creds *credentials.Credentials) (*EcsCredentialServer, error) {
+func StartEcsCredentialServer(creds *credentials.Credentials) (string, string, error) {
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
-		return nil, err
+		return "", "", err
 	}
-	token, err := GenerateToken(16)
+	token, err := generateRandomString()
 	if err != nil {
-		return nil, err
+		return "", "", err
 	}
-	srv := &http.Server{Addr: listener.Addr().String()}
-
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if r.Header.Get("Authorization") == token {
-			body, err := getResponse(creds)
-			if err != nil {
-				body, err = json.Marshal(&EcsCredentialError{Message: err.Error()})
-				if err != nil {
-					log.Fatalf("Failed to serialize err: %s", err)
-				}
-			}
-			w.Write(body)
-		} else {
-			w.WriteHeader(http.StatusForbidden)
-			body, err := json.Marshal(&EcsCredentialError{Message: "invalid Authorization token"})
-			if err != nil {
-				log.Fatalf("Failed to serialize err: %s", err)
-			}
-			w.Write(body)
-		}
-	})
 
 	go func() {
+		err := http.Serve(listener, withAuthorizationCheck(token, ecsCredsHandler(creds)))
 		// returns ErrServerClosed on graceful close
-		if err := srv.Serve(listener); err != http.ErrServerClosed {
+		if err != http.ErrServerClosed {
 			log.Fatalf("Serve(): %s", err)
 		}
 	}()
 
-	return &EcsCredentialServer{
-		Authorization: token,
-		Url:           fmt.Sprintf("http://%s", listener.Addr().String()),
-	}, nil
+	uri := fmt.Sprintf("http://%s", listener.Addr().String())
+	return uri, token, nil
 }
 
-func getResponse(creds *credentials.Credentials) ([]byte, error) {
-	val, err := creds.Get()
-	if err != nil {
-		return nil, err
-	}
+func ecsCredsHandler(creds *credentials.Credentials) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		val, err := creds.Get()
+		if err != nil {
+			writeErrorMessage(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-	credsExpiresAt, err := creds.ExpiresAt()
-	if err != nil {
-		return nil, err
-	}
+		credsExpiresAt, err := creds.ExpiresAt()
+		if err != nil {
+			writeErrorMessage(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
-	ecsCredential := &EcsCredentialData{
-		AccessKeyID:     val.AccessKeyID,
-		SecretAccessKey: val.SecretAccessKey,
-		SessionToken:    val.SessionToken,
-		Expiration:      credsExpiresAt.Format("2006-01-02T15:04:05Z"),
+		err = json.NewEncoder(w).Encode(map[string]string{
+			"AccessKeyId":     val.AccessKeyID,
+			"SecretAccessKey": val.SecretAccessKey,
+			"Token":           val.SessionToken,
+			"Expiration":      credsExpiresAt.Format("2006-01-02T15:04:05Z"),
+		})
+		if err != nil {
+			writeErrorMessage(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
-	serialized, err := json.Marshal(&ecsCredential)
-	if err != nil {
-		return nil, err
-	}
-	return serialized, nil
 }
 
-func GenerateToken(bytes int) (string, error) {
-	b, err := GenerateRandomBytes(bytes)
-	return base64.RawURLEncoding.EncodeToString(b), err
-}
-
-func GenerateRandomBytes(n int) ([]byte, error) {
-	b := make([]byte, n)
+func generateRandomString() (string, error) {
+	b := make([]byte, 30)
 	if _, err := rand.Read(b); err != nil {
-		return nil, err
+		return "", err
 	}
-	return b, nil
+	return base64.RawURLEncoding.EncodeToString(b), nil
 }

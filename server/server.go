@@ -45,7 +45,7 @@ func isServerRunning(bind string) bool {
 }
 
 // StartLocalServer starts a http server to service the EC2 Instance Metadata endpoint
-func StartLocalServer(creds *credentials.Credentials) error {
+func StartLocalServer(creds *credentials.Credentials, region string) error {
 	if !isServerRunning(ec2ServerBind) {
 		if err := StartProxyServerProcess(); err != nil {
 			return err
@@ -68,6 +68,11 @@ func StartLocalServer(creds *credentials.Credentials) error {
 		// The AWS .NET SDK checks this endpoint during obtaining credentials/refreshing them
 		router.HandleFunc("/latest/meta-data/iam/info/", func(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, `{"Code" : "Success"}`)
+		})
+
+		// used by AWS SDK to determine region
+		router.HandleFunc("/latest/meta-data/dynamic/instance-identity/document", func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprintf(w, `{"region": "`+region+`"}`)
 		})
 
 		router.HandleFunc("/latest/meta-data/iam/security-credentials/local-credentials", credsHandler(creds))

@@ -151,7 +151,7 @@ func ExecCommand(input ExecCommandInput) error {
 }
 
 func execServer(input ExecCommandInput, config *vault.Config, creds *credentials.Credentials) error {
-	if err := server.StartLocalServer(creds); err != nil {
+	if err := server.StartLocalServer(creds, config.Region); err != nil {
 		return fmt.Errorf("Failed to start credential server: %w", err)
 	}
 

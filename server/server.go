@@ -3,97 +3,91 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 )
 
 const (
-	metadataBind    = "169.254.169.254:80"
 	awsTimeFormat   = "2006-01-02T15:04:05Z"
-	localServerURL  = "http://127.0.0.1:9099"
+	ec2ServerBind   = "169.254.169.254:80"
 	localServerBind = "127.0.0.1:9099"
 )
 
-func StartMetadataServer() error {
+// StartEc2MetadataProxyServer starts a proxy server on the standard Ec2 Instance Metadata address
+func StartEc2MetadataProxyServer() error {
+	var localServerURL, err = url.Parse(fmt.Sprintf("http://%s/", localServerBind))
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	if _, err := installNetworkAlias(); err != nil {
 		return err
 	}
 
-	router := http.NewServeMux()
-	router.HandleFunc("/latest/meta-data/iam/security-credentials/", indexHandler)
-	router.HandleFunc("/latest/meta-data/iam/security-credentials/local-credentials", credentialsHandler)
-	// The AWS Go SDK checks the instance-id endpoint to validate the existence of EC2 Metadata
-	router.HandleFunc("/latest/meta-data/instance-id/", instanceIdHandler)
-	// The AWS .NET SDK checks this endpoint during obtaining credentials/refreshing them
-	router.HandleFunc("/latest/meta-data/iam/info/", infoHandlerStub)
-
-	l, err := net.Listen("tcp", metadataBind)
+	l, err := net.Listen("tcp", ec2ServerBind)
 	if err != nil {
 		return err
 	}
 
-	log.Printf("Local instance role server running on %s", l.Addr())
-	return http.Serve(l, router)
+	log.Printf("EC2 Instance Metadata server running on %s", l.Addr())
+	return http.Serve(l, httputil.NewSingleHostReverseProxy(localServerURL))
 }
 
-func infoHandlerStub(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, `{"Code" : "Success"}`)
-}
-
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "local-credentials")
-}
-
-func credentialsHandler(w http.ResponseWriter, r *http.Request) {
-	resp, err := http.Get(localServerURL)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusGatewayTimeout)
-		return
-	}
-	defer resp.Body.Close()
-
-	log.Printf("Fetched credentials from %s", localServerURL)
-
-	w.Header().Set("Content-Type", "text/plain")
-	w.WriteHeader(http.StatusOK)
-
-	_, err = io.Copy(w, resp.Body)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-}
-
-func instanceIdHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "aws-vault")
-}
-
-func checkServerRunning(bind string) bool {
+func isServerRunning(bind string) bool {
 	_, err := net.DialTimeout("tcp", bind, time.Millisecond*10)
 	return err == nil
 }
 
-func StartCredentialsServer(creds *credentials.Credentials) error {
-	if !checkServerRunning(metadataBind) {
-		if err := StartCredentialProxy(); err != nil {
+// StartLocalServer starts a http server to service the EC2 Instance Metadata endpoint
+func StartLocalServer(creds *credentials.Credentials, region string) error {
+	if !isServerRunning(ec2ServerBind) {
+		if err := StartProxyServerProcess(); err != nil {
 			return err
 		}
 	}
 
-	log.Printf("Starting local instance role server on %s", localServerBind)
+	log.Printf("Starting local credentials server on %s", localServerBind)
 	go func() {
-		log.Fatalln(http.ListenAndServe(localServerBind, credsHandler(creds)))
+		router := http.NewServeMux()
+
+		router.HandleFunc("/latest/meta-data/iam/security-credentials/", func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprintf(w, "local-credentials")
+		})
+
+		// The AWS Go SDK checks the instance-id endpoint to validate the existence of EC2 Metadata
+		router.HandleFunc("/latest/meta-data/instance-id/", func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprintf(w, "aws-vault")
+		})
+
+		// The AWS .NET SDK checks this endpoint during obtaining credentials/refreshing them
+		router.HandleFunc("/latest/meta-data/iam/info/", func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprintf(w, `{"Code" : "Success"}`)
+		})
+
+		// used by AWS SDK to determine region
+		router.HandleFunc("/latest/meta-data/dynamic/instance-identity/document", func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprintf(w, `{"region": "`+region+`"}`)
+		})
+
+		router.HandleFunc("/latest/meta-data/iam/security-credentials/local-credentials", credsHandler(creds))
+
+		log.Fatalln(http.ListenAndServe(localServerBind, withLoopbackSecurityCheck(router)))
 	}()
 
 	return nil
 }
 
-func credsHandler(creds *credentials.Credentials) http.HandlerFunc {
+// withLoopbackSecurityCheck is middleware to check that the request comes from the loopback device
+// We must make sure the remote ip is from the loopback, otherwise clients on the same network segment could
+// potentially route traffic via 169.254.169.254:80
+// See https://developer.apple.com/library/content/qa/qa1357/_index.html
+func withLoopbackSecurityCheck(next *http.ServeMux) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		ip, _, err := net.SplitHostPort(r.RemoteAddr)
 		if err != nil {
@@ -101,15 +95,19 @@ func credsHandler(creds *credentials.Credentials) http.HandlerFunc {
 			return
 		}
 
-		// Must make sure the remote ip is from the loopback, otherwise clients on the same network segment could
-		// potentially route traffic via 169.254.169.254:80
-		// See https://developer.apple.com/library/content/qa/qa1357/_index.html
 		if !net.ParseIP(ip).IsLoopback() {
 			http.Error(w, "Access denied from non-localhost address", http.StatusUnauthorized)
 			return
 		}
 
 		log.Printf("RemoteAddr = %v", r.RemoteAddr)
+
+		next.ServeHTTP(w, r)
+	}
+}
+
+func credsHandler(creds *credentials.Credentials) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Credentials.IsExpired() = %#v", creds.IsExpired())
 
 		val, err := creds.Get()

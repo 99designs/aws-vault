@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
+	osexec "os/exec"
 	"os/signal"
 	"path/filepath"
 	"runtime"
@@ -16,6 +16,7 @@ import (
 	"github.com/99designs/aws-vault/server"
 	"github.com/99designs/aws-vault/vault"
 	"github.com/99designs/keyring"
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -37,7 +38,7 @@ type AwsCredentialHelperData struct {
 	Version         int    `json:"Version"`
 	AccessKeyID     string `json:"AccessKeyId"`
 	SecretAccessKey string `json:"SecretAccessKey"`
-	SessionToken    string `json:"SessionToken"`
+	SessionToken    string `json:"SessionToken,omitempty"`
 	Expiration      string `json:"Expiration,omitempty"`
 }
 
@@ -88,7 +89,7 @@ func ConfigureExecCommand(app *kingpin.Application) {
 		if input.Command == "" {
 			app.Fatalf("Argument 'cmd' not provided, and SHELL not present, try --help")
 		}
-		app.FatalIfError(ExecCommand(input), "exec")
+		app.FatalIfError(ExecCommand(input), "")
 		return nil
 	})
 }
@@ -117,8 +118,14 @@ func ExecCommand(input ExecCommandInput) error {
 		return fmt.Errorf("aws-vault sessions should be nested with care, unset $AWS_VAULT to force")
 	}
 
+	if input.StartServer && input.CredentialHelper {
+		return fmt.Errorf("Can't use --server with --json")
+	}
+	if input.StartServer && input.NoSession {
+		return fmt.Errorf("Can't use --server with --no-session")
+	}
+
 	vault.UseSession = !input.NoSession
-	setEnv := true
 
 	configLoader.BaseConfig = input.Config
 	configLoader.ActiveProfile = input.ProfileName
@@ -133,83 +140,107 @@ func ExecCommand(input ExecCommandInput) error {
 		return fmt.Errorf("Error getting temporary credentials: %w", err)
 	}
 
+	if input.StartServer {
+		return execServer(input, config, creds)
+	}
+	if input.CredentialHelper {
+		return execCredentialHelper(input, config, creds)
+	}
+
+	return execEnvironment(input, config, creds)
+}
+
+func execServer(input ExecCommandInput, config *vault.Config, creds *credentials.Credentials) error {
+	if err := server.StartLocalServer(creds, config.Region); err != nil {
+		return fmt.Errorf("Failed to start credential server: %w", err)
+	}
+
+	env := environ(os.Environ())
+	env.Set("AWS_VAULT", input.ProfileName)
+	env.Unset("AWS_ACCESS_KEY_ID")
+	env.Unset("AWS_SECRET_ACCESS_KEY")
+	env.Unset("AWS_SESSION_TOKEN")
+	env.Unset("AWS_SECURITY_TOKEN")
+	env.Unset("AWS_CREDENTIAL_FILE")
+	env.Unset("AWS_DEFAULT_PROFILE")
+	env.Unset("AWS_PROFILE")
+	env.Unset("AWS_DEFAULT_REGION")
+	env.Unset("AWS_REGION")
+
+	return execCmd(input.Command, input.Args, env)
+}
+
+func execCredentialHelper(input ExecCommandInput, config *vault.Config, creds *credentials.Credentials) error {
 	val, err := creds.Get()
 	if err != nil {
 		return fmt.Errorf("Failed to get credentials for %s: %w", input.ProfileName, err)
 	}
 
-	if input.StartServer {
-		if err := server.StartCredentialsServer(creds); err != nil {
-			return fmt.Errorf("Failed to start credential server: %w", err)
-		}
-		setEnv = false
+	credentialData := AwsCredentialHelperData{
+		Version:         1,
+		AccessKeyID:     val.AccessKeyID,
+		SecretAccessKey: val.SecretAccessKey,
+	}
+	if val.SessionToken != "" {
+		credentialData.SessionToken = val.SessionToken
+	}
+	if credsExpiresAt, err := creds.ExpiresAt(); err == nil {
+		credentialData.Expiration = credsExpiresAt.Format("2006-01-02T15:04:05Z")
 	}
 
-	if input.CredentialHelper {
-		credentialData := AwsCredentialHelperData{
-			Version:         1,
-			AccessKeyID:     val.AccessKeyID,
-			SecretAccessKey: val.SecretAccessKey,
-			SessionToken:    val.SessionToken,
-		}
-		if !input.NoSession {
-			credsExprest, err := creds.ExpiresAt()
-			if err != nil {
-				return fmt.Errorf("Error getting credential expiration: %w", err)
-			}
-			credentialData.Expiration = credsExprest.Format("2006-01-02T15:04:05Z")
-		}
-		json, err := json.Marshal(&credentialData)
-		if err != nil {
-			return fmt.Errorf("Error creating credential json: %w", err)
-		}
-		fmt.Print(string(json))
-	} else {
-
-		env := environ(os.Environ())
-		env.Set("AWS_VAULT", input.ProfileName)
-
-		env.Unset("AWS_ACCESS_KEY_ID")
-		env.Unset("AWS_SECRET_ACCESS_KEY")
-		env.Unset("AWS_CREDENTIAL_FILE")
-		env.Unset("AWS_DEFAULT_PROFILE")
-		env.Unset("AWS_PROFILE")
-
-		if config.Region != "" {
-			log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s", config.Region, config.Region)
-			env.Set("AWS_DEFAULT_REGION", config.Region)
-			env.Set("AWS_REGION", config.Region)
-		}
-
-		if setEnv {
-			log.Println("Setting subprocess env: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY")
-			env.Set("AWS_ACCESS_KEY_ID", val.AccessKeyID)
-			env.Set("AWS_SECRET_ACCESS_KEY", val.SecretAccessKey)
-
-			if val.SessionToken != "" {
-				log.Println("Setting subprocess env: AWS_SESSION_TOKEN, AWS_SECURITY_TOKEN")
-				env.Set("AWS_SESSION_TOKEN", val.SessionToken)
-				env.Set("AWS_SECURITY_TOKEN", val.SessionToken)
-				expiration, err := creds.ExpiresAt()
-				if err == nil {
-					log.Println("Setting subprocess env: AWS_SESSION_EXPIRATION")
-					env.Set("AWS_SESSION_EXPIRATION", expiration.Format(time.RFC3339))
-				}
-			}
-		}
-
-		if input.StartServer {
-			err = execCmd(input.Command, input.Args, env)
-		} else {
-			err = execSyscall(input.Command, input.Args, env)
-		}
-
-		if err != nil {
-			return fmt.Errorf("Error execing process: %w", err)
-		}
+	json, err := json.Marshal(&credentialData)
+	if err != nil {
+		return fmt.Errorf("Error creating credential json: %w", err)
 	}
+
+	fmt.Print(string(json))
 
 	return nil
+}
+
+func execEnvironment(input ExecCommandInput, config *vault.Config, creds *credentials.Credentials) error {
+	val, err := creds.Get()
+	if err != nil {
+		return fmt.Errorf("Failed to get credentials for %s: %w", input.ProfileName, err)
+	}
+
+	env := environ(os.Environ())
+	env.Set("AWS_VAULT", input.ProfileName)
+
+	env.Unset("AWS_ACCESS_KEY_ID")
+	env.Unset("AWS_SECRET_ACCESS_KEY")
+	env.Unset("AWS_SESSION_TOKEN")
+	env.Unset("AWS_SECURITY_TOKEN")
+	env.Unset("AWS_CREDENTIAL_FILE")
+	env.Unset("AWS_DEFAULT_PROFILE")
+	env.Unset("AWS_PROFILE")
+	env.Unset("AWS_SESSION_EXPIRATION")
+
+	if config.Region != "" {
+		log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s", config.Region, config.Region)
+		env.Set("AWS_DEFAULT_REGION", config.Region)
+		env.Set("AWS_REGION", config.Region)
+	}
+
+	log.Println("Setting subprocess env: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY")
+	env.Set("AWS_ACCESS_KEY_ID", val.AccessKeyID)
+	env.Set("AWS_SECRET_ACCESS_KEY", val.SecretAccessKey)
+
+	if val.SessionToken != "" {
+		log.Println("Setting subprocess env: AWS_SESSION_TOKEN, AWS_SECURITY_TOKEN")
+		env.Set("AWS_SESSION_TOKEN", val.SessionToken)
+		env.Set("AWS_SECURITY_TOKEN", val.SessionToken)
+	}
+	if expiration, err := creds.ExpiresAt(); err == nil {
+		log.Println("Setting subprocess env: AWS_SESSION_EXPIRATION")
+		env.Set("AWS_SESSION_EXPIRATION", expiration.Format(time.RFC3339))
+	}
+
+	if !supportsExecSyscall() {
+		return execCmd(input.Command, input.Args, env)
+	}
+
+	return execSyscall(input.Command, input.Args, env)
 }
 
 // environ is a slice of strings representing the environment, in the form "key=value".
@@ -233,7 +264,9 @@ func (e *environ) Set(key, val string) {
 }
 
 func execCmd(command string, args []string, env []string) error {
-	cmd := exec.Command(command, args...)
+	log.Printf("Starting child process: %s %s", command, strings.Join(args, " "))
+
+	cmd := osexec.Command(command, args...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -243,7 +276,7 @@ func execCmd(command string, args []string, env []string) error {
 	signal.Notify(sigChan)
 
 	if err := cmd.Start(); err != nil {
-		return fmt.Errorf("Failed to start command: %v", err)
+		return err
 	}
 
 	go func() {
@@ -268,11 +301,9 @@ func supportsExecSyscall() bool {
 }
 
 func execSyscall(command string, args []string, env []string) error {
-	if !supportsExecSyscall() {
-		return execCmd(command, args, env)
-	}
+	log.Printf("Exec command %s %s", command, strings.Join(args, " "))
 
-	argv0, err := exec.LookPath(command)
+	argv0, err := osexec.LookPath(command)
 	if err != nil {
 		return err
 	}

@@ -139,7 +139,7 @@ func ExecCommand(input ExecCommandInput) error {
 	}
 
 	if input.StartServer {
-		if err := server.StartCredentialsServer(creds); err != nil {
+		if err := server.StartLocalServer(creds); err != nil {
 			return fmt.Errorf("Failed to start credential server: %w", err)
 		}
 		setEnv = false

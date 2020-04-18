@@ -85,6 +85,9 @@ func ConfigureExecCommand(app *kingpin.Application) {
 		if input.Command == "" {
 			input.Command, input.Args = getDefaultShellCmd()
 		}
+		if input.Command == "" {
+			app.Fatalf("Argument 'cmd' not provided, and SHELL not present, try --help")
+		}
 		app.FatalIfError(ExecCommand(input), "exec")
 		return nil
 	})

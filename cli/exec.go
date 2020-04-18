@@ -25,7 +25,7 @@ type ExecCommandInput struct {
 	Command          string
 	Args             []string
 	Keyring          keyring.Keyring
-	StartServer      bool
+	StartEc2Server   bool
 	CredentialHelper bool
 	Config           vault.Config
 	SessionDuration  time.Duration
@@ -63,9 +63,9 @@ func ConfigureExecCommand(app *kingpin.Application) {
 		Short('j').
 		BoolVar(&input.CredentialHelper)
 
-	cmd.Flag("server", "Run the server in the background for credentials").
+	cmd.Flag("server", "Run a server in the background for credentials").
 		Short('s').
-		BoolVar(&input.StartServer)
+		BoolVar(&input.StartEc2Server)
 
 	cmd.Arg("profile", "Name of the profile").
 		Required().
@@ -118,10 +118,10 @@ func ExecCommand(input ExecCommandInput) error {
 		return fmt.Errorf("aws-vault sessions should be nested with care, unset $AWS_VAULT to force")
 	}
 
-	if input.StartServer && input.CredentialHelper {
+	if input.StartEc2Server && input.CredentialHelper {
 		return fmt.Errorf("Can't use --server with --json")
 	}
-	if input.StartServer && input.NoSession {
+	if input.StartEc2Server && input.NoSession {
 		return fmt.Errorf("Can't use --server with --no-session")
 	}
 
@@ -140,9 +140,10 @@ func ExecCommand(input ExecCommandInput) error {
 		return fmt.Errorf("Error getting temporary credentials: %w", err)
 	}
 
-	if input.StartServer {
-		return execServer(input, config, creds)
+	if input.StartEc2Server {
+		return execEc2Server(input, config, creds)
 	}
+
 	if input.CredentialHelper {
 		return execCredentialHelper(input, config, creds)
 	}
@@ -150,13 +151,7 @@ func ExecCommand(input ExecCommandInput) error {
 	return execEnvironment(input, config, creds)
 }
 
-func execServer(input ExecCommandInput, config *vault.Config, creds *credentials.Credentials) error {
-	if err := server.StartLocalServer(creds, config.Region); err != nil {
-		return fmt.Errorf("Failed to start credential server: %w", err)
-	}
-
-	env := environ(os.Environ())
-	env.Set("AWS_VAULT", input.ProfileName)
+func unsetAwsEnvVars(env environ) {
 	env.Unset("AWS_ACCESS_KEY_ID")
 	env.Unset("AWS_SECRET_ACCESS_KEY")
 	env.Unset("AWS_SESSION_TOKEN")
@@ -166,6 +161,16 @@ func execServer(input ExecCommandInput, config *vault.Config, creds *credentials
 	env.Unset("AWS_PROFILE")
 	env.Unset("AWS_DEFAULT_REGION")
 	env.Unset("AWS_REGION")
+}
+
+func execEc2Server(input ExecCommandInput, config *vault.Config, creds *credentials.Credentials) error {
+	if err := server.StartLocalEc2Server(creds, config.Region); err != nil {
+		return fmt.Errorf("Failed to start credential server: %w", err)
+	}
+
+	env := environ(os.Environ())
+	env.Set("AWS_VAULT", input.ProfileName)
+	unsetAwsEnvVars(env)
 
 	return execCmd(input.Command, input.Args, env)
 }
@@ -206,21 +211,11 @@ func execEnvironment(input ExecCommandInput, config *vault.Config, creds *creden
 
 	env := environ(os.Environ())
 	env.Set("AWS_VAULT", input.ProfileName)
+	unsetAwsEnvVars(env)
 
-	env.Unset("AWS_ACCESS_KEY_ID")
-	env.Unset("AWS_SECRET_ACCESS_KEY")
-	env.Unset("AWS_SESSION_TOKEN")
-	env.Unset("AWS_SECURITY_TOKEN")
-	env.Unset("AWS_CREDENTIAL_FILE")
-	env.Unset("AWS_DEFAULT_PROFILE")
-	env.Unset("AWS_PROFILE")
-	env.Unset("AWS_SESSION_EXPIRATION")
-
-	if config.Region != "" {
-		log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s", config.Region, config.Region)
-		env.Set("AWS_DEFAULT_REGION", config.Region)
-		env.Set("AWS_REGION", config.Region)
-	}
+	log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s", config.Region, config.Region)
+	env.Set("AWS_DEFAULT_REGION", config.Region)
+	env.Set("AWS_REGION", config.Region)
 
 	log.Println("Setting subprocess env: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY")
 	env.Set("AWS_ACCESS_KEY_ID", val.AccessKeyID)

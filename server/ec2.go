@@ -44,8 +44,8 @@ func isServerRunning(bind string) bool {
 	return err == nil
 }
 
-// StartLocalServer starts a http server to service the EC2 Instance Metadata endpoint
-func StartLocalServer(creds *credentials.Credentials, region string) error {
+// StartLocalEc2Server starts a http server to service the EC2 Instance Metadata endpoint
+func StartLocalEc2Server(creds *credentials.Credentials, region string) error {
 	if !isServerRunning(ec2ServerBind) {
 		if err := StartProxyServerProcess(); err != nil {
 			return err

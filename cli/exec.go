@@ -173,7 +173,7 @@ func ExecCommand(input ExecCommandInput) error {
 	return execEnvironment(input, config, creds)
 }
 
-func unsetAwsEnvVars(env environ) {
+func updateEnvForAwsVault(env environ, region string, profileName string) {
 	env.Unset("AWS_ACCESS_KEY_ID")
 	env.Unset("AWS_SECRET_ACCESS_KEY")
 	env.Unset("AWS_SESSION_TOKEN")
@@ -181,8 +181,13 @@ func unsetAwsEnvVars(env environ) {
 	env.Unset("AWS_CREDENTIAL_FILE")
 	env.Unset("AWS_DEFAULT_PROFILE")
 	env.Unset("AWS_PROFILE")
-	env.Unset("AWS_DEFAULT_REGION")
-	env.Unset("AWS_REGION")
+	env.Unset("AWS_SDK_LOAD_CONFIG")
+
+	env.Set("AWS_VAULT", profileName)
+
+	log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s", region, region)
+	env.Set("AWS_DEFAULT_REGION", region)
+	env.Set("AWS_REGION", region)
 }
 
 func execEc2Server(input ExecCommandInput, config *vault.Config, creds *credentials.Credentials) error {
@@ -191,8 +196,7 @@ func execEc2Server(input ExecCommandInput, config *vault.Config, creds *credenti
 	}
 
 	env := environ(os.Environ())
-	env.Set("AWS_VAULT", input.ProfileName)
-	unsetAwsEnvVars(env)
+	updateEnvForAwsVault(env, input.ProfileName, config.Region)
 
 	return execCmd(input.Command, input.Args, env)
 }
@@ -204,8 +208,7 @@ func execEcsServer(input ExecCommandInput, config *vault.Config, creds *credenti
 	}
 
 	env := environ(os.Environ())
-	env.Set("AWS_VAULT", input.ProfileName)
-	unsetAwsEnvVars(env)
+	updateEnvForAwsVault(env, input.ProfileName, config.Region)
 
 	log.Println("Setting subprocess env AWS_CONTAINER_CREDENTIALS_FULL_URI, AWS_CONTAINER_AUTHORIZATION_TOKEN")
 	env.Set("AWS_CONTAINER_CREDENTIALS_FULL_URI", uri)
@@ -249,8 +252,7 @@ func execEnvironment(input ExecCommandInput, config *vault.Config, creds *creden
 	}
 
 	env := environ(os.Environ())
-	env.Set("AWS_VAULT", input.ProfileName)
-	unsetAwsEnvVars(env)
+	updateEnvForAwsVault(env, input.ProfileName, config.Region)
 
 	log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s", config.Region, config.Region)
 	env.Set("AWS_DEFAULT_REGION", config.Region)

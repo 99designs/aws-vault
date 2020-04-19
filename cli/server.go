@@ -21,7 +21,7 @@ func ConfigureServerCommand(app *kingpin.Application) {
 }
 
 func ServerCommand(app *kingpin.Application, input ServerCommandInput) {
-	if err := server.StartEc2MetadataProxyServer(); err != nil {
+	if err := server.StartEc2MetadataEndpointProxy(); err != nil {
 		app.Fatalf("Server failed: %v", err)
 	}
 }

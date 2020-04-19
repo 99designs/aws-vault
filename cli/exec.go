@@ -193,7 +193,7 @@ func updateEnvForAwsVault(env environ, profileName string, region string) enviro
 }
 
 func execEc2Server(input ExecCommandInput, config *vault.Config, creds *credentials.Credentials) error {
-	if err := server.StartLocalEc2Server(creds, config.Region); err != nil {
+	if err := server.StartEc2CredentialsServer(creds, config.Region); err != nil {
 		return fmt.Errorf("Failed to start credential server: %w", err)
 	}
 

@@ -29,6 +29,7 @@ func withAuthorizationCheck(token string, next http.HandlerFunc) http.HandlerFun
 	}
 }
 
+// StartEcsCredentialServer starts an ECS credential server on a random port
 func StartEcsCredentialServer(creds *credentials.Credentials) (string, string, error) {
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
@@ -40,10 +41,10 @@ func StartEcsCredentialServer(creds *credentials.Credentials) (string, string, e
 	}
 
 	go func() {
-		err := http.Serve(listener, withAuthorizationCheck(token, ecsCredsHandler(creds)))
+		err := http.Serve(listener, logRequest(withAuthorizationCheck(token, ecsCredsHandler(creds))))
 		// returns ErrServerClosed on graceful close
 		if err != http.ErrServerClosed {
-			log.Fatalf("Serve(): %s", err)
+			log.Fatalf("ecs server: %s", err.Error())
 		}
 	}()
 

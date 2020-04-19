@@ -46,6 +46,9 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 	cmd.Flag("path", "The AWS service you would like access").
 		StringVar(&input.Path)
 
+	cmd.Flag("region", "The AWS region").
+		StringVar(&input.Config.Region)
+
 	cmd.Flag("stdout", "Print login URL to stdout instead of opening in default browser").
 		Short('s').
 		BoolVar(&input.UseStdout)

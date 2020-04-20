@@ -56,6 +56,9 @@ func ConfigureExecCommand(app *kingpin.Application) {
 		Short('n').
 		BoolVar(&input.NoSession)
 
+	cmd.Flag("region", "The AWS region").
+		StringVar(&input.Config.Region)
+
 	cmd.Flag("mfa-token", "The MFA token to use").
 		Short('t').
 		StringVar(&input.Config.MfaToken)

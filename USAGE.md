@@ -6,7 +6,7 @@
 * [Configuring Keychain Password Prompting Time](#configuring-keychain-password-prompting-time)
 * [Managing Profiles](#managing-profiles)
   * [Using multiple profiles](#using-multiple-profiles)
-  * [Example ~/.aws/config](#example---aws-config)
+  * [Example ~/.aws/config](#example-awsconfig)
   * [Listing profiles](#listing-profiles)
   * [Removing profiles](#removing-profiles)
 * [Backends](#backends)
@@ -22,6 +22,8 @@
 * [Recipes](#recipes)
   * [Overriding the aws CLI to use aws-vault](#overriding-the-aws-cli-to-use-aws-vault)
   * [Using a yubikey as a virtual MFA](#using-a-yubikey-as-a-virtual-mfa)
+  * [An example config to switch profiles via environment variables](#an-example-config-to-switch-profiles-via-environment-variables)
+
 
 ## Getting Help
 

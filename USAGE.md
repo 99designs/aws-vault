@@ -19,9 +19,12 @@
   * [Assuming a role for more than 1h](#assuming-a-role-for-more-than-1h)
   * [Being able to perform certain STS operations](#being-able-to-perform-certain-sts-operations)
 * [Rotating Credentials](#rotating-credentials)
+* [Using a Yubikey](#using-a-yubikey)
+  * [Prerequisites](#prerequisites)
+  * [Setup](#setup)
+  * [Usage](#usage)
 * [Recipes](#recipes)
   * [Overriding the aws CLI to use aws-vault](#overriding-the-aws-cli-to-use-aws-vault)
-  * [Using a yubikey as a virtual MFA](#using-a-yubikey-as-a-virtual-mfa)
   * [An example config to switch profiles via environment variables](#an-example-config-to-switch-profiles-via-environment-variables)
 
 
@@ -402,6 +405,36 @@ The minimal IAM policy required to rotate your own credentials is:
 }
 ```
 
+
+## Using a Yubikey
+
+Yubikeys can be used with AWS Vault via Yubikey's OATH-TOTP support. TOTP is necessary because FIDO-U2F is unsupported on the AWS API.
+
+### Prerequisites
+ 1. [A Yubikey that supports OATH-TOTP](https://support.yubico.com/support/solutions/articles/15000006419-using-your-yubikey-with-authenticator-codes)
+ 2. `ykman`, the [YubiKey Manager CLI](https://github.com/Yubico/yubikey-manager) tool
+
+You can verify these prerequisites by running `ykman info` and checking `OATH` is enabled.
+
+### Setup
+ 1. Log into the AWS web console with your IAM user credentials, and navigate to  _My Security Credentials_
+ 2. Under _Multi-factor authentivation (MFA)_, click `Manage MFA device` and add a Virtual MFA device
+ 3. Instead of showing the QR code, click on `Show secret key` and copy the key.
+ 4. On a command line, run:
+    ```bash
+    ykman oath add -t arn:aws:iam::${ACCOUNT_ID}:mfa/${IAM_USERNAME}
+    ```
+    replacing `${ACCOUNT_ID}` with your AWS account ID and `${IAM_USERNAME}` with your IAM username. It will prompt you for a base32 text and you can input the key from step 3. Notice the above command uses `-t` which requires you to touch your YubiKey to generate authentication codes.
+ 5. Now you have to enter two consecutive MFA codes into the AWS website to assign your key to your AWS login. Just run `ykman oath code arn:aws:iam::${ACCOUNT_ID}:mfa/${IAM_USERNAME}` to get an authentication code. The codes are re-generated every 30 seconds, so you have to run this command twice with about 30 seconds in between to get two distinct codes. Enter the two codes in the AWS form and click `Assign MFA`
+
+### Usage
+Using the `ykman` prompt driver, aws-vault will execute `ykman` to generate tokens for any profile in your `.aws/config` using an `mfa_device`.
+```bash 
+aws-vault exec --prompt ykman ${AWS_VAULT_PROFILE_USING_MFA} -- aws s3 ls
+```
+You can also set the `AWS_VAULT_PROMPT` environment variable to avoid specifying `--prompt` each time.
+
+
 ## Recipes
 
 ### Overriding the aws CLI to use aws-vault
@@ -416,42 +449,6 @@ exec aws-vault exec "${AWS_DEFAULT_PROFILE:-work}" -- /usr/local/bin/aws "$@"
 
 The exec helps reduce the number of processes that are hanging around. The `$@` passes on the
 arguments from the wrapper to the original command.
-
-
-### Using a yubikey as a virtual MFA 
-
-There's been attempts in the past to support yubikeys natively (#392 , #230) there's another way to go
-at this problem. [Newer](https://support.yubico.com/support/solutions/articles/15000006419-using-your-yubikey-with-authenticator-codes) 
-yubikeys support generating TOTP tokens.
-
-In this [blog](https://hackernoon.com/use-a-yubikey-as-a-mfa-device-to-replace-google-authenticator-b4f4c0215f2) you can 
-find information about this process but it boils down to this.
-
-1. Go to AWS and click on add a MFA
-2. Choose a virtual device
-3. Instead of scanning the code you can get it as text (keep it safe).
-4. Install [ykman](https://support.yubico.com/support/solutions/articles/15000012643-yubikey-manager-cli-ykman-user-manual#Introductionmrzmm1)
-5. Run this: 
-
-```bash 
-ykman oath add YOUR_YUBIKEY_PROFILE -t
-```
-It will ask you for a base32 text. Here you can input the text you got in 3.
-
-6. Run this command twice (wait 30 secs in between):
-```bash 
-ykman oath code --single YOUR_YUBIKEY_PROFILE
-```
-
-Input both values as tokens and your device should register as a virtual MFA.
-
-
-7. Now if you want to run any aws-vault command you should run this: 
-```bash 
-aws-vault exec --mfa-token $(ykman oath code --single ${YOUR_YUBIKEY_PROFILE}) ${YOUR_AWS_VAULT_PROFILE} -- aws s3 ls
-```
-
-[Here](https://gist.github.com/chtorr/0ecc8fca27a4c5e186c636c262cc4757) There're some helper scripts for this.
 
 
 ### An example config to switch profiles via environment variables

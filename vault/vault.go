@@ -46,7 +46,7 @@ func (m *Mfa) GetMfaToken() (*string, error) {
 
 	if m.MfaPromptMethod != "" {
 		promptFunc := prompt.Method(m.MfaPromptMethod)
-		token, err := promptFunc(fmt.Sprintf("Enter token for %s: ", m.MfaSerial))
+		token, err := promptFunc(m.MfaSerial)
 		return aws.String(token), err
 	}
 

@@ -188,9 +188,11 @@ func updateEnvForAwsVault(env environ, profileName string, region string) enviro
 
 	env.Set("AWS_VAULT", profileName)
 
-	log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s", region, region)
-	env.Set("AWS_DEFAULT_REGION", region)
-	env.Set("AWS_REGION", region)
+	if region != "" {
+		log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s", region, region)
+		env.Set("AWS_DEFAULT_REGION", region)
+		env.Set("AWS_REGION", region)
+	}
 
 	return env
 }
@@ -258,10 +260,6 @@ func execEnvironment(input ExecCommandInput, config *vault.Config, creds *creden
 
 	env := environ(os.Environ())
 	env = updateEnvForAwsVault(env, input.ProfileName, config.Region)
-
-	log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s", config.Region, config.Region)
-	env.Set("AWS_DEFAULT_REGION", config.Region)
-	env.Set("AWS_REGION", config.Region)
 
 	log.Println("Setting subprocess env: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY")
 	env.Set("AWS_ACCESS_KEY_ID", val.AccessKeyID)

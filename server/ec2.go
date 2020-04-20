@@ -86,7 +86,7 @@ func startEc2CredentialsServer(creds *credentials.Credentials, region string) {
 
 	router.HandleFunc("/latest/meta-data/iam/security-credentials/local-credentials", credsHandler(creds))
 
-	log.Fatalln(http.ListenAndServe(ec2CredentialsServerAddr, logRequest(withLoopbackSecurityCheck(router))))
+	log.Fatalln(http.ListenAndServe(ec2CredentialsServerAddr, withLogging(withLoopbackSecurityCheck(router))))
 }
 
 // withLoopbackSecurityCheck is middleware to check that the request comes from the loopback device

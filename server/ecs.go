@@ -12,10 +12,11 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 )
 
-func writeErrorMessage(w http.ResponseWriter, msg string, status int) {
-	err := json.NewEncoder(w).Encode(map[string]string{"Message": msg})
-	if err != nil {
-		http.Error(w, err.Error(), status)
+func writeErrorMessage(w http.ResponseWriter, msg string, statusCode int) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(statusCode)
+	if err := json.NewEncoder(w).Encode(map[string]string{"Message": msg}); err != nil {
+		log.Println(err.Error())
 	}
 }
 
@@ -41,7 +42,7 @@ func StartEcsCredentialServer(creds *credentials.Credentials) (string, string, e
 	}
 
 	go func() {
-		err := http.Serve(listener, logRequest(withAuthorizationCheck(token, ecsCredsHandler(creds))))
+		err := http.Serve(listener, withLogging(withAuthorizationCheck(token, ecsCredsHandler(creds))))
 		// returns ErrServerClosed on graceful close
 		if err != http.ErrServerClosed {
 			log.Fatalf("ecs server: %s", err.Error())

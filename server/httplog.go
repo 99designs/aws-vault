@@ -16,7 +16,7 @@ func (w *loggingMiddlewareResponseWriter) WriteHeader(statusCode int) {
 	w.ResponseWriter.WriteHeader(statusCode)
 }
 
-func logRequest(handler http.Handler) http.Handler {
+func withLogging(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		requestStart := time.Now()
 		w2 := &loggingMiddlewareResponseWriter{w, http.StatusOK}

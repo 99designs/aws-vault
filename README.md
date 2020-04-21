@@ -15,6 +15,7 @@ You can install AWS Vault:
 - by downloading the [latest release](https://github.com/99designs/aws-vault/releases/latest)
 - on macOS with [Homebrew Cask](https://formulae.brew.sh/cask/aws-vault): `brew cask install aws-vault`
 - on Windows with [Chocolatey](https://chocolatey.org/packages/aws-vault): `choco install aws-vault`
+- on Windows with [Scoop](https://scoop.sh/): `scoop install aws-vault`
 - on Linux with [Homebrew on Linux](https://formulae.brew.sh/formula-linux/aws-vault): `brew install aws-vault`
 - on Arch Linux with the [AUR](https://aur.archlinux.org/packages/aws-vault/): `yay -S aws-vault`
 - on [FreeBSD](https://www.freshports.org/security/aws-vault/) with `pkg install aws-vault`

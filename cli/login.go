@@ -82,11 +82,11 @@ func LoginCommand(input LoginCommandInput) error {
 
 	var creds *credentials.Credentials
 
-	// if AssumeRole isn't used, GetFederationToken has to be used for IAM credentials
-	if config.RoleARN == "" {
-		creds, err = vault.NewFederationTokenCredentials(input.ProfileName, input.Keyring, config)
-	} else {
+	// If AssumeRole or sso.GetRoleCredentials isn't used, GetFederationToken has to be used for IAM credentials
+	if config.HasRole() || config.HasSSOStartURL() {
 		creds, err = vault.NewTempCredentials(config, input.Keyring)
+	} else {
+		creds, err = vault.NewFederationTokenCredentials(input.ProfileName, input.Keyring, config)
 	}
 	if err != nil {
 		return err

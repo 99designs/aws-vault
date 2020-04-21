@@ -136,6 +136,10 @@ type ProfileSection struct {
 	DurationSeconds uint   `ini:"duration_seconds,omitempty"`
 	SourceProfile   string `ini:"source_profile,omitempty"`
 	ParentProfile   string `ini:"parent_profile,omitempty"`
+	SSOStartURL     string `ini:"sso_start_url,omitempty"`
+	SSORegion       string `ini:"sso_region,omitempty"`
+	SSOAccountID    string `ini:"sso_account_id,omitempty"`
+	SSORoleName     string `ini:"sso_role_name,omitempty"`
 }
 
 func (s ProfileSection) IsEmpty() bool {
@@ -296,6 +300,18 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 	if config.SourceProfileName == "" {
 		config.SourceProfileName = psection.SourceProfile
 	}
+	if config.SSOStartURL == "" {
+		config.SSOStartURL = psection.SSOStartURL
+	}
+	if config.SSORegion == "" {
+		config.SSORegion = psection.SSORegion
+	}
+	if config.SSOAccountID == "" {
+		config.SSOAccountID = psection.SSOAccountID
+	}
+	if config.SSORoleName == "" {
+		config.SSORoleName = psection.SSORoleName
+	}
 
 	if psection.ParentProfile != "" {
 		err := cl.populateFromConfigFile(config, psection.ParentProfile)
@@ -448,6 +464,18 @@ type Config struct {
 
 	// GetFederationTokenDuration specifies the wanted duration for credentials generated with GetFederationToken
 	GetFederationTokenDuration time.Duration
+
+	// SSOStartURL specifies the URL for the AWS SSO user portal.
+	SSOStartURL string
+
+	// SSORegion specifies the region for the AWS SSO user portal.
+	SSORegion string
+
+	// SSOAccountID specifies the AWS account ID for the profile.
+	SSOAccountID string
+
+	// SSORoleName specifies the AWS SSO Role name to target.
+	SSORoleName string
 }
 
 func (c *Config) IsChained() bool {
@@ -464,6 +492,10 @@ func (c *Config) HasMfaSerial() bool {
 
 func (c *Config) HasRole() bool {
 	return c.RoleARN != ""
+}
+
+func (c *Config) HasSSOStartURL() bool {
+	return c.SSOStartURL != ""
 }
 
 // CanUseGetSessionToken determines if GetSessionToken should be used, and if not returns a reason

@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-func KDialogPrompt(prompt string) (string, error) {
-	cmd := exec.Command("kdialog", "--inputbox", prompt, "--title", "aws-vault")
+func KDialogPrompt(mfaSerial string) (string, error) {
+	cmd := exec.Command("kdialog", "--inputbox", mfaPromptMessage(mfaSerial), "--title", "aws-vault")
 
 	out, err := cmd.Output()
 	if err != nil {

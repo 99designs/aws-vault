@@ -16,14 +16,11 @@ func YkmanProvider(mfaSerial string) (string, error) {
 	}
 
 	cmd := exec.Command("ykman", "oath", "code", "--single", yubikeyOathCredName)
+	cmd.Stderr = os.Stderr
 
 	out, err := cmd.Output()
 	if err != nil {
-		stderr := ""
-		if ee, ok := err.(*exec.ExitError); ok && len(ee.Stderr) > 0 {
-			stderr = ":\n" + string(ee.Stderr)
-		}
-		return "", fmt.Errorf("ykman: %w%s", err, stderr)
+		return "", fmt.Errorf("ykman: %w", err)
 	}
 
 	return strings.TrimSpace(string(out)), nil

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"time"
 
@@ -146,7 +147,13 @@ func (p *SSOOIDCProvider) GetAccessToken() (*SSOAccessToken, error) {
 		credsUpdated bool
 	)
 
-	item, err := p.Keyring.Keyring.Get(p.StartURL)
+	parsedUrl, err := url.Parse(p.StartURL)
+	if err != nil {
+		return nil, err
+	}
+	startUrlHost := parsedUrl.Host
+
+	item, err := p.Keyring.Keyring.Get(startUrlHost)
 	if err != nil && err != keyring.ErrKeyNotFound {
 		return nil, err
 	}
@@ -181,8 +188,8 @@ func (p *SSOOIDCProvider) GetAccessToken() (*SSOAccessToken, error) {
 			return nil, err
 		}
 		err = p.Keyring.Keyring.Set(keyring.Item{
-			Key:                         p.StartURL,
-			Label:                       fmt.Sprintf("aws-vault (%s)", p.StartURL),
+			Key:                         startUrlHost,
+			Label:                       fmt.Sprintf("aws-vault (%s)", startUrlHost),
 			Data:                        bytes,
 			KeychainNotTrustApplication: true,
 		})

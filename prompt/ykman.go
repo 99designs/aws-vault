@@ -2,6 +2,7 @@ package prompt
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -15,6 +16,7 @@ func YkmanProvider(mfaSerial string) (string, error) {
 		yubikeyOathCredName = mfaSerial
 	}
 
+	log.Printf("Fetching MFA code using `ykman oath code --single %s`", yubikeyOathCredName)
 	cmd := exec.Command("ykman", "oath", "code", "--single", yubikeyOathCredName)
 	cmd.Stderr = os.Stderr
 

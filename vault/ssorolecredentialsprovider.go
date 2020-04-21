@@ -21,15 +21,7 @@ const (
 	ssoClientName         = "aws-vault"
 	ssoClientType         = "public"
 	oAuthTokenGrantType   = "urn:ietf:params:oauth:grant-type:device_code"
-	authorizationTemplate = `
-Attempting to automatically open the SSO authorization page in your default
-browser. If the browser does not open or you wish to use a different device to
-authorize this request, open the following URL:
-
-%s
-(Use Ctrl-C to abort)
-
-`
+	authorizationTemplate = "Opening the SSO authorization page in your default browser (use Ctrl-C to abort)\n%s\n"
 )
 
 // CachedSSORoleCredentialsProvider uses the keyring to cache SSO Role sessions.

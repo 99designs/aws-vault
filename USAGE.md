@@ -11,6 +11,8 @@
   * [Removing profiles](#removing-profiles)
 * [Backends](#backends)
 * [MFA](#mfa)
+* [AWS Single Sign-On (AWS SSO)](#aws-single-sign-on-aws-sso)
+  * [Example ~/.aws/config](#example-awsconfig-1)
 * [Removing stored sessions](#removing-stored-sessions)
 * [Logging into AWS console](#logging-into-aws-console)
 * [Using credential helper](#using-credential-helper)

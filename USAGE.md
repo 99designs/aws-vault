@@ -432,7 +432,9 @@ Using the `ykman` prompt driver, aws-vault will execute `ykman` to generate toke
 ```bash 
 aws-vault exec --prompt ykman ${AWS_VAULT_PROFILE_USING_MFA} -- aws s3 ls
 ```
-You can also set the `AWS_VAULT_PROMPT` environment variable to avoid specifying `--prompt` each time.
+Further config:
+ - `AWS_VAULT_PROMPT=ykman`: to avoid specifying `--prompt` each time
+ - `YKMAN_OATH_CREDENTIAL_NAME`: to use an alternative ykman credential
 
 
 ## Recipes

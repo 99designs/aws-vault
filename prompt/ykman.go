@@ -2,6 +2,7 @@ package prompt
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -9,7 +10,12 @@ import (
 // YkmanProvider runs ykman to generate a OATH-TOTP token from the Yubikey device
 // To set up ykman, first run `ykman oath add`
 func YkmanProvider(mfaSerial string) (string, error) {
-	cmd := exec.Command("ykman", "oath", "code", "-s", mfaSerial)
+	yubikeyOathCredName := os.Getenv("YKMAN_OATH_CREDENTIAL_NAME")
+	if yubikeyOathCredName == "" {
+		yubikeyOathCredName = mfaSerial
+	}
+
+	cmd := exec.Command("ykman", "oath", "code", "--single", yubikeyOathCredName)
 
 	out, err := cmd.Output()
 	if err != nil {

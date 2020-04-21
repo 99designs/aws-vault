@@ -256,9 +256,11 @@ func (p *SSOOIDCProvider) createClientToken(creds *SSOClientCredentials) (*SSOAc
 				return nil, err
 			}
 		}
+		expiresInSecs := time.Duration(aws.Int64Value(t.ExpiresIn)) * time.Second
+
 		return &SSOAccessToken{
 			Token:      aws.StringValue(t.AccessToken),
-			Expiration: time.Now().Add(time.Duration(aws.Int64Value(t.ExpiresIn)) * time.Second),
+			Expiration: time.Now().Add(expiresInSecs),
 		}, nil
 	}
 }

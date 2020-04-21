@@ -33,11 +33,11 @@ mfa_Serial=arn:aws:iam::1234513441:mfa/blah
 region=us-east-1
 duration_seconds=1200
 
-[profile testparentprofile1]
+[profile testincludeprofile1]
 region=us-east-1
 
-[profile testparentprofile2]
-parent_profile=testparentprofile1
+[profile testincludeprofile2]
+include_profile=testincludeprofile1
 `)
 
 var nestedConfig = []byte(`[default]
@@ -163,8 +163,8 @@ func TestProfilesFromConfig(t *testing.T) {
 		{Name: "user2", Region: "us-east-1"},
 		{Name: "withsource", Region: "us-east-1", SourceProfile: "user2"},
 		{Name: "withmfa", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2"},
-		{Name: "testparentprofile1", Region: "us-east-1"},
-		{Name: "testparentprofile2", ParentProfile: "testparentprofile1"},
+		{Name: "testincludeprofile1", Region: "us-east-1"},
+		{Name: "testincludeprofile2", IncludeProfile: "testincludeprofile1"},
 	}
 	actual := cfg.ProfileSections()
 
@@ -197,8 +197,8 @@ func TestAddProfileToExistingConfig(t *testing.T) {
 		{Name: "user2", Region: "us-east-1"},
 		{Name: "withsource", Region: "us-east-1", SourceProfile: "user2"},
 		{Name: "withmfa", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2"},
-		{Name: "testparentprofile1", Region: "us-east-1"},
-		{Name: "testparentprofile2", ParentProfile: "testparentprofile1"},
+		{Name: "testincludeprofile1", Region: "us-east-1"},
+		{Name: "testincludeprofile2", IncludeProfile: "testincludeprofile1"},
 		{Name: "llamas", MfaSerial: "testserial", Region: "us-east-1", SourceProfile: "default"},
 	}
 	actual := cfg.ProfileSections()
@@ -238,7 +238,7 @@ func TestAddProfileToExistingNestedConfig(t *testing.T) {
 
 }
 
-func TestParentProfile(t *testing.T) {
+func TestIncludeProfile(t *testing.T) {
 	f := newConfigFile(t, exampleConfig)
 	defer os.Remove(f)
 
@@ -248,7 +248,7 @@ func TestParentProfile(t *testing.T) {
 	}
 
 	configLoader := &vault.ConfigLoader{File: configFile}
-	config, err := configLoader.LoadFromProfile("testparentprofile2")
+	config, err := configLoader.LoadFromProfile("testincludeprofile2")
 	if err != nil {
 		t.Fatalf("Should have found a profile: %v", err)
 	}
@@ -351,7 +351,7 @@ func TestSourceProfileCanReferToParent(t *testing.T) {
 [profile root]
 
 [profile foo]
-parent_profile=root
+include_profile=root
 source_profile=root
 `))
 	defer os.Remove(f)

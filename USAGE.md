@@ -2,6 +2,7 @@
 
 * [Getting Help](#getting-help)
 * [Config](#config)
+  * [`include_profile`](#include_profile)
 * [Environment variables](#environment-variables)
 * [Configuring Keychain Password Prompting Time](#configuring-keychain-password-prompting-time)
 * [Managing Profiles](#managing-profiles)
@@ -50,22 +51,46 @@ $ aws-vault exec --help
 
 aws-vault uses your `~/.aws/config` to load AWS config. This should work identically to the config specified by the [aws-cli docs](https://docs.aws.amazon.com/cli/latest/topic/config-vars.html).
 
-aws-vault also recognises an extra config variable, `parent_profile`, which is not recognised by the aws-cli. This variable allows a profile to load configuration horizontally from another profile. In the following example, the `account1` profile inherits `region` from the `default` section, `mfa_serial` and `duration_seconds` from the `parent` profile and uses the source credentials in `master`.
+### `include_profile`
+
+AWS Vault also recognises an extra config variable, `include_profile`, which is not recognised by the aws-cli. This variable allows a profile to load configuration horizontally from another profile.
+
+This is a flexible mechanism for more complex configurations.
+
+For example you can use it in "mixin" style where you import a common fragment. In this example, the `root`, `order-dev` and `order-staging-admin` profiles include the `region`, `mfa_serial` and `source_profile` configuration from `common`.
 
 ```ini
-[default]
-region = us-west-1
+[profile common]
+region=eu-west-1
+mfa_serial=arn:aws:iam::123456789:mfa/johnsmith
+source_profile = root
 
-[profile master]
+[profile root]
+include_profile = common
 
-[profile parent]
-mfa_serial = arn:aws:iam::111111111111:mfa/user.name
-duration_seconds = 900
+[profile order-dev]
+include_profile = common
+role_arn=arn:aws:iam::123456789:role/developers
 
-[profile account1]
-parent_profile = parent
-source_profile = master
-role_arn = arn:aws:iam::22222222222:role/Administrator
+[profile order-staging-admin]
+include_profile = common
+role_arn=arn:aws:iam::123456789:role/administrators
+```
+
+Or you could use it in "parent" style where you conflate the fragment with the profile. In this example the `order-dev` and `order-staging-admin` profiles include the `region`, `mfa_serial` and `source_profile` configuration from `root`, while also using the credentials stored against the `root` profile as the source credentials `source_profile = root`
+```ini
+[profile root]
+region=eu-west-1
+mfa_serial=arn:aws:iam::123456789:mfa/johnsmith
+source_profile = root
+
+[profile order-dev]
+include_profile = root
+role_arn=arn:aws:iam::123456789:role/developers
+
+[profile order-staging-admin]
+include_profile = root
+role_arn=arn:aws:iam::123456789:role/administrators
 ```
 
 

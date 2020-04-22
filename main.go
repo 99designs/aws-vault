@@ -20,8 +20,7 @@ func run(args []string, exit func(int)) {
 		`A vault for securely storing and accessing AWS credentials in development environments.`,
 	)
 
-	app.ErrorWriter(os.Stderr)
-	app.Writer(os.Stdout)
+	app.UsageWriter(os.Stdout)
 	app.Version(Version)
 	app.Terminate(exit)
 

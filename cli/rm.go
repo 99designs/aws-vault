@@ -10,11 +10,10 @@ import (
 
 type RemoveCommandInput struct {
 	ProfileName  string
-	Keyring      *vault.CredentialKeyring
 	SessionsOnly bool
 }
 
-func ConfigureRemoveCommand(app *kingpin.Application) {
+func ConfigureRemoveCommand(app *kingpin.Application, a *AwsVault) {
 	input := RemoveCommandInput{}
 
 	cmd := app.Command("remove", "Removes credentials, including sessions")
@@ -22,43 +21,46 @@ func ConfigureRemoveCommand(app *kingpin.Application) {
 
 	cmd.Arg("profile", "Name of the profile").
 		Required().
-		HintAction(getProfileNames).
+		HintAction(a.MustGetProfileNames).
 		StringVar(&input.ProfileName)
 
 	cmd.Flag("sessions-only", "Only remove sessions, leave credentials intact").
 		Short('s').
 		BoolVar(&input.SessionsOnly)
 
-	cmd.Action(func(c *kingpin.ParseContext) error {
-		input.Keyring = &vault.CredentialKeyring{Keyring: keyringImpl}
-		RemoveCommand(app, input)
+	cmd.Action(func(c *kingpin.ParseContext) (err error) {
+		ckr, err := a.NewCredentialKeyring()
+		if err != nil {
+			return err
+		}
+		err = RemoveCommand(input, ckr)
+		app.FatalIfError(err, "remove")
 		return nil
 	})
 }
 
-func RemoveCommand(app *kingpin.Application, input RemoveCommandInput) {
+func RemoveCommand(input RemoveCommandInput, ckr *vault.CredentialKeyring) error {
 	if !input.SessionsOnly {
 		r, err := prompt.TerminalPrompt(fmt.Sprintf("Delete credentials for profile %q? (Y|n)", input.ProfileName))
 		if err != nil {
-			app.Fatalf(err.Error())
-			return
+			return err
 		} else if r == "N" || r == "n" {
-			return
+			return nil
 		}
 
-		if err := input.Keyring.Remove(input.ProfileName); err != nil {
-			app.Fatalf(err.Error())
-			return
+		if err := ckr.Remove(input.ProfileName); err != nil {
+			return err
 		}
 		fmt.Printf("Deleted credentials.\n")
 	}
 
-	sessions := input.Keyring.Sessions()
+	sessions := ckr.Sessions()
 
 	n, err := sessions.Delete(input.ProfileName)
 	if err != nil {
-		app.Fatalf(err.Error())
-		return
+		return err
 	}
 	fmt.Printf("Deleted %d sessions.\n", n)
+
+	return nil
 }

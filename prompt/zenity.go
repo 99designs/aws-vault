@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func ZenityPrompt(mfaSerial string) (string, error) {
+func ZenityMfaPrompt(mfaSerial string) (string, error) {
 	cmd := exec.Command("zenity", "--entry", "--title", "aws-vault", "--text", mfaPromptMessage(mfaSerial))
 
 	out, err := cmd.Output()
@@ -17,5 +17,5 @@ func ZenityPrompt(mfaSerial string) (string, error) {
 }
 
 func init() {
-	Methods["zenity"] = ZenityPrompt
+	Methods["zenity"] = ZenityMfaPrompt
 }

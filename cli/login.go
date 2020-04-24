@@ -18,7 +18,6 @@ import (
 
 type LoginCommandInput struct {
 	ProfileName     string
-	Keyring         *vault.CredentialKeyring
 	UseStdout       bool
 	Path            string
 	Config          vault.Config
@@ -26,7 +25,7 @@ type LoginCommandInput struct {
 	NoSession       bool
 }
 
-func ConfigureLoginCommand(app *kingpin.Application) {
+func ConfigureLoginCommand(app *kingpin.Application, a *AwsVault) {
 	input := LoginCommandInput{}
 
 	cmd := app.Command("login", "Generate a login link for the AWS Console")
@@ -55,22 +54,30 @@ func ConfigureLoginCommand(app *kingpin.Application) {
 
 	cmd.Arg("profile", "Name of the profile").
 		Required().
-		HintAction(getProfileNames).
+		HintAction(a.MustGetProfileNames).
 		StringVar(&input.ProfileName)
 
-	cmd.Action(func(c *kingpin.ParseContext) error {
-		input.Config.MfaPromptMethod = GlobalFlags.PromptDriver
+	cmd.Action(func(c *kingpin.ParseContext) (err error) {
+		input.Config.MfaPromptMethod = a.PromptDriver
 		input.Config.NonChainedGetSessionTokenDuration = input.SessionDuration
 		input.Config.AssumeRoleDuration = input.SessionDuration
 		input.Config.GetFederationTokenDuration = input.SessionDuration
-		input.Keyring = &vault.CredentialKeyring{Keyring: keyringImpl}
-		err := LoginCommand(input)
-		app.FatalIfError(err, "Login failed")
+		kr, err := a.NewCredentialKeyring()
+		if err != nil {
+			return err
+		}
+		configLoader, err := a.ConfigLoader()
+		if err != nil {
+			return err
+		}
+
+		err = LoginCommand(input, configLoader, kr)
+		app.FatalIfError(err, "login")
 		return nil
 	})
 }
 
-func LoginCommand(input LoginCommandInput) error {
+func LoginCommand(input LoginCommandInput, configLoader *vault.ConfigLoader, ckr *vault.CredentialKeyring) error {
 	vault.UseSession = !input.NoSession
 
 	configLoader.BaseConfig = input.Config
@@ -84,9 +91,9 @@ func LoginCommand(input LoginCommandInput) error {
 
 	// If AssumeRole or sso.GetRoleCredentials isn't used, GetFederationToken has to be used for IAM credentials
 	if config.HasRole() || config.HasSSOStartURL() {
-		creds, err = vault.NewTempCredentials(config, input.Keyring)
+		creds, err = vault.NewTempCredentials(config, ckr)
 	} else {
-		creds, err = vault.NewFederationTokenCredentials(input.ProfileName, input.Keyring, config)
+		creds, err = vault.NewFederationTokenCredentials(input.ProfileName, ckr, config)
 	}
 	if err != nil {
 		return err

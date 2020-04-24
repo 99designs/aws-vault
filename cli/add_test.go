@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 func ExampleAddCommand() {
@@ -27,8 +27,7 @@ func ExampleAddCommand() {
 	defer os.Unsetenv("AWS_VAULT_FILE_PASSPHRASE")
 
 	app := kingpin.New(`aws-vault`, ``)
-	ConfigureGlobals(app)
-	ConfigureAddCommand(app)
+	ConfigureAddCommand(app, ConfigureGlobals(app))
 	kingpin.MustParse(app.Parse([]string{"add", "--debug", "--env", "foo"}))
 
 	// Output:

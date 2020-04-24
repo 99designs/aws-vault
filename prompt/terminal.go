@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-func TerminalPrompt(mfaSerial string) (string, error) {
-	fmt.Fprint(os.Stderr, mfaPromptMessage(mfaSerial))
+func TerminalPrompt(message string) (string, error) {
+	fmt.Fprint(os.Stderr, message)
 
 	reader := bufio.NewReader(os.Stdin)
 	text, err := reader.ReadString('\n')
@@ -19,6 +19,10 @@ func TerminalPrompt(mfaSerial string) (string, error) {
 	return strings.TrimSpace(text), nil
 }
 
+func TerminalMfaPrompt(mfaSerial string) (string, error) {
+	return TerminalPrompt(mfaPromptMessage(mfaSerial))
+}
+
 func init() {
-	Methods["terminal"] = TerminalPrompt
+	Methods["terminal"] = TerminalMfaPrompt
 }

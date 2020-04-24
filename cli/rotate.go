@@ -15,11 +15,10 @@ import (
 type RotateCommandInput struct {
 	NoSession   bool
 	ProfileName string
-	Keyring     *vault.CredentialKeyring
 	Config      vault.Config
 }
 
-func ConfigureRotateCommand(app *kingpin.Application) {
+func ConfigureRotateCommand(app *kingpin.Application, a *AwsVault) {
 	input := RotateCommandInput{}
 
 	cmd := app.Command("rotate", "Rotates credentials")
@@ -30,18 +29,27 @@ func ConfigureRotateCommand(app *kingpin.Application) {
 
 	cmd.Arg("profile", "Name of the profile").
 		Required().
-		HintAction(getProfileNames).
+		HintAction(a.MustGetProfileNames).
 		StringVar(&input.ProfileName)
 
-	cmd.Action(func(c *kingpin.ParseContext) error {
-		input.Config.MfaPromptMethod = GlobalFlags.PromptDriver
-		input.Keyring = &vault.CredentialKeyring{Keyring: keyringImpl}
-		app.FatalIfError(RotateCommand(input), "rotate")
+	cmd.Action(func(c *kingpin.ParseContext) (err error) {
+		input.Config.MfaPromptMethod = a.PromptDriver
+		keyring, err := a.NewCredentialKeyring()
+		if err != nil {
+			return err
+		}
+		configLoader, err := a.ConfigLoader()
+		if err != nil {
+			return err
+		}
+
+		err = RotateCommand(input, configLoader, keyring)
+		app.FatalIfError(err, "rotate")
 		return nil
 	})
 }
 
-func RotateCommand(input RotateCommandInput) error {
+func RotateCommand(input RotateCommandInput, configLoader *vault.ConfigLoader, keyring *vault.CredentialKeyring) error {
 	// Can't disable sessions completely, might need to use session for MFA-Protected API Access
 	vault.UseSession = !input.NoSession
 	vault.UseSessionCache = false
@@ -53,7 +61,7 @@ func RotateCommand(input RotateCommandInput) error {
 		return err
 	}
 
-	masterCredentialsName, err := vault.MasterCredentialsFor(input.ProfileName, input.Keyring, config)
+	masterCredentialsName, err := vault.MasterCredentialsFor(input.ProfileName, keyring, config)
 	if err != nil {
 		return err
 	}
@@ -65,7 +73,7 @@ func RotateCommand(input RotateCommandInput) error {
 	}
 
 	// Get the existing credentials access key ID
-	oldMasterCreds, err := vault.NewMasterCredentials(input.Keyring, masterCredentialsName).Get()
+	oldMasterCreds, err := vault.NewMasterCredentials(keyring, masterCredentialsName).Get()
 	if err != nil {
 		return err
 	}
@@ -77,9 +85,9 @@ func RotateCommand(input RotateCommandInput) error {
 	// create a session to rotate the credentials
 	var sessCreds *credentials.Credentials
 	if input.NoSession {
-		sessCreds = vault.NewMasterCredentials(input.Keyring, config.ProfileName)
+		sessCreds = vault.NewMasterCredentials(keyring, config.ProfileName)
 	} else {
-		sessCreds, err = vault.NewTempCredentials(config, input.Keyring)
+		sessCreds, err = vault.NewTempCredentials(config, keyring)
 		if err != nil {
 			return fmt.Errorf("Error getting temporary credentials: %w", err)
 		}
@@ -110,13 +118,13 @@ func RotateCommand(input RotateCommandInput) error {
 		SecretAccessKey: *createOut.AccessKey.SecretAccessKey,
 	}
 
-	err = input.Keyring.Set(masterCredentialsName, newMasterCreds)
+	err = keyring.Set(masterCredentialsName, newMasterCreds)
 	if err != nil {
 		return fmt.Errorf("Error storing new access key %s: %w", vault.FormatKeyForDisplay(newMasterCreds.AccessKeyID), err)
 	}
 
 	// Delete old sessions
-	sessions := input.Keyring.Sessions()
+	sessions := keyring.Sessions()
 	profileNames, err := getProfilesInChain(input.ProfileName, configLoader)
 	for _, profileName := range profileNames {
 		if n, _ := sessions.Delete(profileName); n > 0 {

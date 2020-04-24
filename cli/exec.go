@@ -15,7 +15,6 @@ import (
 
 	"github.com/99designs/aws-vault/server"
 	"github.com/99designs/aws-vault/vault"
-	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -24,7 +23,6 @@ type ExecCommandInput struct {
 	ProfileName      string
 	Command          string
 	Args             []string
-	Keyring          keyring.Keyring
 	StartEc2Server   bool
 	StartEcsServer   bool
 	CredentialHelper bool
@@ -43,7 +41,7 @@ type AwsCredentialHelperData struct {
 	Expiration      string `json:"Expiration,omitempty"`
 }
 
-func ConfigureExecCommand(app *kingpin.Application) {
+func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 	input := ExecCommandInput{}
 
 	cmd := app.Command("exec", "Executes a command with AWS credentials in the environment")
@@ -81,7 +79,7 @@ func ConfigureExecCommand(app *kingpin.Application) {
 
 	cmd.Arg("profile", "Name of the profile").
 		Required().
-		HintAction(getProfileNames).
+		HintAction(a.MustGetProfileNames).
 		StringVar(&input.ProfileName)
 
 	cmd.Arg("cmd", "Command to execute, defaults to $SHELL").
@@ -90,9 +88,8 @@ func ConfigureExecCommand(app *kingpin.Application) {
 	cmd.Arg("args", "Command arguments").
 		StringsVar(&input.Args)
 
-	cmd.Action(func(c *kingpin.ParseContext) error {
-		input.Keyring = keyringImpl
-		input.Config.MfaPromptMethod = GlobalFlags.PromptDriver
+	cmd.Action(func(c *kingpin.ParseContext) (err error) {
+		input.Config.MfaPromptMethod = a.PromptDriver
 		input.Config.NonChainedGetSessionTokenDuration = input.SessionDuration
 		input.Config.AssumeRoleDuration = input.SessionDuration
 		if input.Command == "" {
@@ -101,7 +98,18 @@ func ConfigureExecCommand(app *kingpin.Application) {
 		if input.Command == "" {
 			app.Fatalf("Argument 'cmd' not provided, and SHELL not present, try --help")
 		}
-		app.FatalIfError(ExecCommand(input), "")
+
+		cl, err := a.ConfigLoader()
+		if err != nil {
+			return err
+		}
+		kr, err := a.NewCredentialKeyring()
+		if err != nil {
+			return err
+		}
+
+		err = ExecCommand(input, cl, kr)
+		app.FatalIfError(err, "exec")
 		return nil
 	})
 }
@@ -125,7 +133,7 @@ func getDefaultShellCmd() (string, []string) {
 	return shellCmd, shellArgs
 }
 
-func ExecCommand(input ExecCommandInput) error {
+func ExecCommand(input ExecCommandInput, configLoader *vault.ConfigLoader, credKeyring *vault.CredentialKeyring) error {
 	if os.Getenv("AWS_VAULT") != "" {
 		return fmt.Errorf("aws-vault sessions should be nested with care, unset $AWS_VAULT to force")
 	}
@@ -155,7 +163,6 @@ func ExecCommand(input ExecCommandInput) error {
 		return err
 	}
 
-	credKeyring := &vault.CredentialKeyring{Keyring: input.Keyring}
 	creds, err := vault.NewTempCredentials(config, credKeyring)
 	if err != nil {
 		return fmt.Errorf("Error getting temporary credentials: %w", err)

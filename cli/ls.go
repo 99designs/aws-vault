@@ -11,13 +11,12 @@ import (
 )
 
 type LsCommandInput struct {
-	Keyring         *vault.CredentialKeyring
 	OnlyProfiles    bool
 	OnlySessions    bool
 	OnlyCredentials bool
 }
 
-func ConfigureListCommand(app *kingpin.Application) {
+func ConfigureListCommand(app *kingpin.Application, a *AwsVault) {
 	input := LsCommandInput{}
 
 	cmd := app.Command("list", "List profiles, along with their credentials and sessions")
@@ -32,17 +31,25 @@ func ConfigureListCommand(app *kingpin.Application) {
 	cmd.Flag("credentials", "Show only the profiles with stored credential").
 		BoolVar(&input.OnlyCredentials)
 
-	cmd.Action(func(c *kingpin.ParseContext) error {
-		input.Keyring = &vault.CredentialKeyring{Keyring: keyringImpl}
-		app.FatalIfError(LsCommand(input), "")
+	cmd.Action(func(c *kingpin.ParseContext) (err error) {
+		ckr, err := a.NewCredentialKeyring()
+		if err != nil {
+			return err
+		}
+		awsConfigFile, err := a.AwsConfigFile()
+		if err != nil {
+			return err
+		}
+		err = LsCommand(input, awsConfigFile, ckr)
+		app.FatalIfError(err, "list")
 		return nil
 	})
 }
 
-func LsCommand(input LsCommandInput) error {
-	krs := input.Keyring.Sessions()
+func LsCommand(input LsCommandInput, awsConfigFile *vault.ConfigFile, ckr *vault.CredentialKeyring) error {
+	krs := ckr.Sessions()
 
-	credentialsNames, err := input.Keyring.CredentialsKeys()
+	credentialsNames, err := ckr.CredentialsKeys()
 	if err != nil {
 		return err
 	}
@@ -92,7 +99,7 @@ func LsCommand(input LsCommandInput) error {
 	for _, profileName := range awsConfigFile.ProfileNames() {
 		fmt.Fprintf(w, "%s\t", profileName)
 
-		hasCred, err := input.Keyring.Has(profileName)
+		hasCred, err := ckr.Has(profileName)
 		if err != nil {
 			return err
 		}

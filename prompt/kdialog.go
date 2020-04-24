@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func KDialogPrompt(mfaSerial string) (string, error) {
+func KDialogMfaPrompt(mfaSerial string) (string, error) {
 	cmd := exec.Command("kdialog", "--inputbox", mfaPromptMessage(mfaSerial), "--title", "aws-vault")
 
 	out, err := cmd.Output()
@@ -17,5 +17,5 @@ func KDialogPrompt(mfaSerial string) (string, error) {
 }
 
 func init() {
-	Methods["kdialog"] = KDialogPrompt
+	Methods["kdialog"] = KDialogMfaPrompt
 }

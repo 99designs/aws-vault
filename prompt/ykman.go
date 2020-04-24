@@ -10,7 +10,7 @@ import (
 
 // YkmanProvider runs ykman to generate a OATH-TOTP token from the Yubikey device
 // To set up ykman, first run `ykman oath add`
-func YkmanProvider(mfaSerial string) (string, error) {
+func YkmanMfaProvider(mfaSerial string) (string, error) {
 	yubikeyOathCredName := os.Getenv("YKMAN_OATH_CREDENTIAL_NAME")
 	if yubikeyOathCredName == "" {
 		yubikeyOathCredName = mfaSerial
@@ -29,5 +29,5 @@ func YkmanProvider(mfaSerial string) (string, error) {
 }
 
 func init() {
-	Methods["ykman"] = YkmanProvider
+	Methods["ykman"] = YkmanMfaProvider
 }

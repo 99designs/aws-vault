@@ -56,6 +56,10 @@ func AddCommand(input AddCommandInput, keyring *vault.CredentialKeyring, awsConf
 		return fmt.Errorf("Your profile has a source_profile of %s, adding credentials to %s won't have any effect",
 			p.SourceProfile, input.ProfileName)
 	}
+	if p.IncludeProfile != "" {
+		return fmt.Errorf("Your profile has a include_profile of %s, adding credentials to %s won't have any effect",
+			p.IncludeProfile, input.ProfileName)
+	}
 	if p.ParentProfile != "" {
 		return fmt.Errorf("Your profile has a parent_profile of %s, adding credentials to %s won't have any effect",
 			p.ParentProfile, input.ProfileName)

@@ -2,25 +2,24 @@
 
 * [Getting Help](#getting-help)
 * [Config](#config)
-  * [`include_profile`](#include_profile)
-* [Environment variables](#environment-variables)
-* [Configuring Keychain Password Prompting Time](#configuring-keychain-password-prompting-time)
-* [Managing Profiles](#managing-profiles)
-  * [Using multiple profiles](#using-multiple-profiles)
-  * [Example ~/.aws/config](#example-awsconfig)
-  * [Listing profiles](#listing-profiles)
-  * [Removing profiles](#removing-profiles)
+  * [AWS config file](#aws-config-file)
+    * [`include_profile`](#include_profile)
+  * [Environment variables](#environment-variables)
 * [Backends](#backends)
-* [MFA](#mfa)
-* [AWS Single Sign-On (AWS SSO)](#aws-single-sign-on-aws-sso)
-  * [Example ~/.aws/config](#example-awsconfig-1)
-* [Removing stored sessions](#removing-stored-sessions)
-* [Logging into AWS console](#logging-into-aws-console)
-* [Using credential helper](#using-credential-helper)
-* [Not using session credentials](#not-using-session-credentials)
-  * [Considerations](#considerations)
+  * [Keychain Password Prompting Time](#keychain-password-prompting-time)
+* [Managing Profiles and Credentials](#managing-profiles-and-credentials)
+  * [Using multiple profiles](#using-multiple-profiles)
+  * [Listing profiles](#listing-profiles)
+  * [Removing credentials](#removing-credentials)
+* [Managing Sessions](#managing-sessions)
+  * [Logging into AWS console](#logging-into-aws-console)
+  * [Removing stored sessions](#removing-stored-sessions)
+  * [Not using session credentials](#not-using-session-credentials)
   * [Assuming a role for more than 1h](#assuming-a-role-for-more-than-1h)
-  * [Being able to perform certain STS operations](#being-able-to-perform-certain-sts-operations)
+  * [Limitations with STS](#limitations-with-sts)
+  * [MFA](#mfa)
+* [AWS Single Sign-On (AWS SSO)](#aws-single-sign-on-aws-sso)
+* [Using credential helper](#using-credential-helper)
 * [Rotating Credentials](#rotating-credentials)
 * [Using a Yubikey](#using-a-yubikey)
   * [Prerequisites](#prerequisites)
@@ -35,7 +34,7 @@
 
 Context-sensitive help is available for every command in `aws-vault`.
 
-```bash
+```shell
 # Show general help about aws-vault
 $ aws-vault --help
 
@@ -49,9 +48,11 @@ $ aws-vault exec --help
 
 ## Config
 
+### AWS config file
+
 aws-vault uses your `~/.aws/config` to load AWS config. This should work identically to the config specified by the [aws-cli docs](https://docs.aws.amazon.com/cli/latest/topic/config-vars.html).
 
-### `include_profile`
+#### `include_profile`
 
 AWS Vault also recognises an extra config variable, `include_profile`, which is not recognised by the aws-cli. This variable allows a profile to load configuration horizontally from another profile.
 
@@ -94,7 +95,7 @@ role_arn=arn:aws:iam::123456789:role/administrators
 ```
 
 
-## Environment variables
+### Environment variables
 
 To configure the default flag values of `aws-vault` and its subcommands:
 * `AWS_VAULT_BACKEND`: Secret backend to use (see the flag `--backend`)
@@ -119,7 +120,14 @@ To override session durations (used in `exec` and `login`):
 * `AWS_ASSUME_ROLE_TTL`: Expiration time for the `AssumeRole` credentials. Defaults to 1h
 * `AWS_FEDERATION_TOKEN_TTL`: Expiration time for the `GetFederationToken` credentials. Defaults to 1h
 
-## Configuring Keychain Password Prompting Time
+
+## Backends
+
+You can choose among different pluggable secret storage backends. 
+
+By default, Linux uses an encrypted file but you may prefer to use the secret-service backend which [abstracts over Gnome/KDE](https://specifications.freedesktop.org/secret-service/). This can be specified on the command line with `aws-vault --backend=secret-service` or by setting the environment variable `export AWS_VAULT_BACKEND=secret-service`.
+
+### Keychain Password Prompting Time
 
 If you're looking to configure the amount of time between having to enter your Keychain password for each usage of a particular profile, you can do so through Keychain: 
 
@@ -133,7 +141,7 @@ If you're looking to configure the amount of time between having to enter your K
 ![keychain-image](https://imgur.com/ARkr5Ba.png)
 
 
-## Managing Profiles
+## Managing Profiles and Credentials
 
 ### Using multiple profiles
 
@@ -141,7 +149,7 @@ In addition to using IAM roles to assume temporary privileges as described in
 [README.md](./USAGE.md), aws-vault can also be used with multiple profiles directly. This allows you
 to use multiple separate AWS accounts that have no relation to one another, such as work and home.
 
-```bash
+```shell
 # Store AWS credentials for the "home" profile
 $ aws-vault add home
 Enter Access Key Id: ABDCDEFDASDASF
@@ -162,9 +170,7 @@ $ aws-vault exec work -- aws s3 ls
 another_bucket
 ```
 
-### Example ~/.aws/config
-
-Here is an example ~/.aws/config file, to help show the configuration. It defines two AWS accounts:
+Here is an example `~/.aws/config` file, to help show the configuration. It defines two AWS accounts:
 "home" and "work", both of which use MFA. The work account provides two roles, allowing the user to
 become either profile.
 
@@ -189,7 +195,7 @@ source_profile = work
 You can use the `aws-vault list` command to list out the defined profiles, and any session
 associated with them.
 
-```bash
+```shell
 $ aws-vault list
 Profile                  Credentials              Sessions  
 =======                  ===========              ========                 
@@ -199,12 +205,12 @@ work-read-only           work
 work-admin               work                        
 ``` 
 
-### Removing profiles
+### Removing credentials
 
 The `aws-vault remove` command can be used to remove credentials. It works similarly to the
 `aws-vault add` command.
 
-```bash
+```shell
 # Remove AWS credentials for the "work" profile
 $ aws-vault remove work
 Delete credentials for profile "work"? (Y|n)y
@@ -214,115 +220,32 @@ Deleted 1 sessions.
 
 `aws-vault remove` can also be used to close a session, leaving the credentials in place.
 
-```bash
+```shell
 # Remove the session for the "work" profile, leaving the credentials in place
 $ aws-vault remove work --sessions-only
 Deleted 1 sessions.
 ```
 
 
-## Backends
+## Managing Sessions
 
-You can choose among different pluggable secret storage backends. 
-
-By default, Linux uses an encrypted file but you may prefer to use the secret-service backend which [abstracts over Gnome/KDE](https://specifications.freedesktop.org/secret-service/). This can be specified on the command line with `aws-vault --backend=secret-service` or by setting the environment variable `export AWS_VAULT_BACKEND=secret-service`.
-
-
-## MFA
-
-If you have an MFA device attached to your account, the STS service will generate session tokens that are *invalid* unless you provide an MFA code. To enable MFA for a profile, specify the `mfa_serial` in `~/.aws/config`. You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username]`. If you have an account with an MFA associated, but you don't provide the IAM, you are unable to call IAM services, even if you have the correct permissions to do so.
-
-`mfa_serial` will be inherited from the profile designated in `source_profile`, which can be very convenient if you routinely assume multiple roles from the same source because you will only need to provide an MFA token once per source profile session.
-
-In the example below, profiles `admin-a` and `admin-b` do not specify an `mfa_serial`, but because `read-only` specifies an `mfa_serial`, the user will be prompted for a token when either profile is used if the keychain does not contain an active session for `read-only`.
-
-Another benefit of using this configuration strategy is that the user only needs to personalize the configuration of profiles which use access keys. The set of profiles for roles can be copy / pasted from documentation sources.
-
-```ini
-[profile read-only]
-mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
-
-[profile admin-a]
-source_profile = read-only
-role_arn = arn:aws:iam::123456789012:role/admin-access
-
-[profile admin-b]
-source_profile = read-only
-role_arn = arn:aws:iam::987654321987:role/admin-access
-```
-
-You can also define a chain of roles to assume:
-
-```ini
-[profile read-only]
-mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
-
-[profile intermediary]
-source_profile = read-only
-role_arn = arn:aws:iam::123456789012:role/intermediary
-
-[profile target]
-source_profile = intermediary
-role_arn = arn:aws:iam::123456789012:role/target
-```
-
-You can also set the `mfa_serial` with the environment variable `AWS_MFA_SERIAL`.
-
-## AWS Single Sign-On (AWS SSO)
-
-The AWS CLI can [generate the SSO profile configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html), but it's also possible to directly input this information in your `~/.aws/config` file. The configuration options are as follows:
-* `sso_start_url` The URL that points to the organization's AWS SSO user portal.
-* `sso_region` The AWS Region that contains the AWS SSO portal host. This is separate from, and can be a different region than the default CLI region parameter.
-* `sso_account_id` The AWS account ID that contains the IAM role that you want to use with this profile.
-* `sso_role_name` The name of the IAM role that defines the user's permissions when using this profile.
-
-### Example ~/.aws/config
-
-Here is an example `~/.aws/config` file, to help show the configuration for use with AWS SSO.
-
-```ini
-[profile Administrator-123456789012]
-sso_start_url=https://aws-sso-portal.awsapps.com/start
-sso_region=eu-west-1
-sso_account_id=123456789012
-sso_role_name=Administrator
-```
-
-## Removing stored sessions
-
-If you want to remove sessions managed by `aws-vault` before they expire, you can do this with the `--sessions-only` flag.
-
-```bash
-aws-vault remove <profile> --sessions-only
-```
-
-## Logging into AWS console
+### Logging into AWS console
 
 You can use the `aws-vault login` command to open a browser window and login to AWS Console for a
 given account:
-```bash
+```shell
 $ aws-vault login work
 ```
 
-## Using credential helper
+### Removing stored sessions
 
-Ref: https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
-This allows you to use credentials of multiple profiles at the same time.
+If you want to remove sessions managed by `aws-vault` before they expire, you can do this with the `--sessions-only` flag.
 
-```ini
-[profile home]
-credential_process = aws-vault exec home --json
+```shell
+aws-vault remove <profile> --sessions-only
 ```
 
-if `mfa_serial` is set, please define the prompt driver (for example `osascript` for macOS), else the prompt will not show up.
-
-```ini
-[profile work]
-mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
-credential_process = aws-vault exec work --json --prompt=osascript
-```
-
-## Not using session credentials
+### Not using session credentials
 
 The way `aws-vault` works, whichever profile you use, it starts by opening a session with AWS. This
 is basically a signed request (with the IAM user credentials) to AWS to get a temporary set of
@@ -331,8 +254,6 @@ credentials (see
 This allows for your base user credentials (that don't change often) to not be exposed to your
 applications that need a connection to AWS. There are however 2 use cases where this is a problem
 and we'll detail after a word of caution.
-
-### Considerations
 
 Before considering the 2 use cases below that use the `--no-session` parameter, you should
 understand the trade-off you are making.  
@@ -409,7 +330,7 @@ Also, note that if you already have set any of the below environment variables a
 * AWS_SECURITY_TOKEN
 * AWS_SESSION_TOKEN
 
-### Being able to perform certain STS operations
+### Limitations with STS
 
 While using a standard `aws-vault` connection, using an IAM role or not, you cannot use any STS API
 (except `AssumeRole`) due to the usage of the AWS session (see
@@ -424,6 +345,67 @@ API, as a STS API, you can't call it from an AWS session, but you also cannot ca
 role. This means that the only way to call `GetFederationToken` is to use both `--no-session` and an
 `aws-vault` profile that does not use a `role_arn`. This therefore exposes your IAM user's
 credentials (see before) and you should really check your design before going forward.
+
+
+### MFA
+
+To enable MFA for a profile, specify the `mfa_serial` in `~/.aws/config`. You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username]`. If you have an account with an MFA associated, but you don't provide the IAM, you are unable to call IAM services, even if you have the correct permissions to do so.
+
+AWS Vault will attempt to re-use a `GetSessionToken` between profiles that share a common `mfa_serial`. In the following example, aws-vault will cache and re-use sessions between role1 and role2. This means you don't have to continaully enter MFA codes if the user is the same.
+
+```ini
+[profile tom]
+
+[profile role1]
+source_profile = tom
+role_arn = arn:aws:iam::22222222222:role/role1
+mfa_serial = arn:aws:iam::111111111111:mfa/tom
+
+[profile role2]
+source_profile = tom
+role_arn = arn:aws:iam::33333333333:role/role2
+mfa_serial = arn:aws:iam::111111111111:mfa/tom
+```
+
+You can also set the `mfa_serial` with the environment variable `AWS_MFA_SERIAL`.
+
+
+## AWS Single Sign-On (AWS SSO)
+
+The AWS CLI can [generate the SSO profile configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html), but it's also possible to directly input this information in your `~/.aws/config` file. The configuration options are as follows:
+* `sso_start_url` The URL that points to the organization's AWS SSO user portal.
+* `sso_region` The AWS Region that contains the AWS SSO portal host. This is separate from, and can be a different region than the default CLI region parameter.
+* `sso_account_id` The AWS account ID that contains the IAM role that you want to use with this profile.
+* `sso_role_name` The name of the IAM role that defines the user's permissions when using this profile.
+
+Here is an example `~/.aws/config` file, to help show the configuration for use with AWS SSO.
+
+```ini
+[profile Administrator-123456789012]
+sso_start_url=https://aws-sso-portal.awsapps.com/start
+sso_region=eu-west-1
+sso_account_id=123456789012
+sso_role_name=Administrator
+```
+
+
+## Using credential helper
+
+Ref: https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
+This allows you to use credentials of multiple profiles at the same time.
+
+```ini
+[profile home]
+credential_process = aws-vault exec home --json
+```
+
+if `mfa_serial` is set, please define the prompt driver (for example `osascript` for macOS), else the prompt will not show up.
+
+```ini
+[profile work]
+mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
+credential_process = aws-vault exec work --json --prompt=osascript
+```
 
 
 ## Rotating Credentials
@@ -467,7 +449,7 @@ You can verify these prerequisites by running `ykman info` and checking `OATH` i
  2. Under _Multi-factor authentivation (MFA)_, click `Manage MFA device` and add a Virtual MFA device
  3. Instead of showing the QR code, click on `Show secret key` and copy the key.
  4. On a command line, run:
-    ```bash
+    ```shell
     ykman oath add -t arn:aws:iam::${ACCOUNT_ID}:mfa/${IAM_USERNAME}
     ```
     replacing `${ACCOUNT_ID}` with your AWS account ID and `${IAM_USERNAME}` with your IAM username. It will prompt you for a base32 text and you can input the key from step 3. Notice the above command uses `-t` which requires you to touch your YubiKey to generate authentication codes.
@@ -477,7 +459,7 @@ A script can be found at [contrib/enable-mfa-device-ykman.sh](contrib/enable-mfa
 
 ### Usage
 Using the `ykman` prompt driver, aws-vault will execute `ykman` to generate tokens for any profile in your `.aws/config` using an `mfa_device`.
-```bash 
+```shell
 aws-vault exec --prompt ykman ${AWS_VAULT_PROFILE_USING_MFA} -- aws s3 ls
 ```
 Further config:
@@ -492,7 +474,7 @@ Further config:
 If you want the `aws` command to use aws-vault automatically, you can create an overriding script
 (make it higher precedence in your PATH) that looks like the below:
 
-```bash
+```shell
 #!/bin/bash
 exec aws-vault exec "${AWS_DEFAULT_PROFILE:-work}" -- /usr/local/bin/aws "$@"
 ```

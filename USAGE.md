@@ -7,10 +7,11 @@
   * [Environment variables](#environment-variables)
 * [Backends](#backends)
   * [Keychain Password Prompting Time](#keychain-password-prompting-time)
-* [Managing Profiles and Credentials](#managing-profiles-and-credentials)
+* [Managing credentials](#managing-credentials)
   * [Using multiple profiles](#using-multiple-profiles)
-  * [Listing profiles](#listing-profiles)
+  * [Listing profiles and credentials](#listing-profiles-and-credentials)
   * [Removing credentials](#removing-credentials)
+  * [Rotating credentials](#rotating-credentials)
 * [Managing Sessions](#managing-sessions)
   * [Logging into AWS console](#logging-into-aws-console)
   * [Removing stored sessions](#removing-stored-sessions)
@@ -20,7 +21,6 @@
   * [MFA](#mfa)
 * [AWS Single Sign-On (AWS SSO)](#aws-single-sign-on-aws-sso)
 * [Using credential helper](#using-credential-helper)
-* [Rotating Credentials](#rotating-credentials)
 * [Using a Yubikey](#using-a-yubikey)
   * [Prerequisites](#prerequisites)
   * [Setup](#setup)
@@ -142,7 +142,7 @@ If you're looking to configure the amount of time between having to enter your K
 ![keychain-image](https://imgur.com/ARkr5Ba.png)
 
 
-## Managing Profiles and Credentials
+## Managing credentials
 
 ### Using multiple profiles
 
@@ -191,7 +191,7 @@ role_arn = arn:aws:iam::111111111111:role/Administrator
 source_profile = work
 ```
 
-### Listing profiles
+### Listing profiles and credentials
 
 You can use the `aws-vault list` command to list out the defined profiles, and any session
 associated with them.
@@ -225,6 +225,31 @@ Deleted 1 sessions.
 # Remove the session for the "work" profile, leaving the credentials in place
 $ aws-vault remove work --sessions-only
 Deleted 1 sessions.
+```
+
+### Rotating credentials
+
+Regularly rotating your access keys is a critical part of credential management. You can do this with the `aws-vault rotate <profile>` command as often as you like.
+
+The minimal IAM policy required to rotate your own credentials is:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "iam:CreateAccessKey",
+                "iam:DeleteAccessKey",
+                "iam:GetUser"
+            ],
+            "Resource": [
+                "arn:aws:iam::*:user/${aws:username}"
+            ]
+        }
+    ]
+}
 ```
 
 
@@ -407,33 +432,6 @@ if `mfa_serial` is set, please define the prompt driver (for example `osascript`
 mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
 credential_process = aws-vault exec work --json --prompt=osascript
 ```
-
-
-## Rotating Credentials
-
-Regularly rotating your access keys is a critical part of credential management. You can do this with the `aws-vault rotate <profile>` command as often as you like.
-
-The minimal IAM policy required to rotate your own credentials is:
-
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "iam:CreateAccessKey",
-                "iam:DeleteAccessKey",
-                "iam:GetUser"
-            ],
-            "Resource": [
-                "arn:aws:iam::*:user/${aws:username}"
-            ]
-        }
-    ]
-}
-```
-
 
 ## Using a Yubikey
 

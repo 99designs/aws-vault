@@ -26,6 +26,7 @@
   * [Setup](#setup)
   * [Usage](#usage)
 * [Recipes](#recipes)
+  * [Desktop apps](#desktop-apps)
   * [Overriding the aws CLI to use aws-vault](#overriding-the-aws-cli-to-use-aws-vault)
   * [An example config to switch profiles via environment variables](#an-example-config-to-switch-profiles-via-environment-variables)
 
@@ -468,6 +469,17 @@ Further config:
 
 
 ## Recipes
+
+### Desktop apps
+
+You can use desktop apps with temporary credentials from AWS Vault too! For example
+```shell
+aws-vault exec --server --prompt=osascript jonsmith -- open -a Lens
+```
+* `--server`: starts the background server so that credentials get refreshed automatically
+* `--prompt=osascript`: pop up a GUI for MFA prompts
+* `open -a Lens`: open is the macOS command to open an app from the command line
+
 
 ### Overriding the aws CLI to use aws-vault
 

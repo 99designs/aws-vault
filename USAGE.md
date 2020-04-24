@@ -6,7 +6,7 @@
     * [`include_profile`](#include_profile)
   * [Environment variables](#environment-variables)
 * [Backends](#backends)
-  * [Keychain Password Prompting Time](#keychain-password-prompting-time)
+  * [Keychain](#keychain)
 * [Managing credentials](#managing-credentials)
   * [Using multiple profiles](#using-multiple-profiles)
   * [Listing profiles and credentials](#listing-profiles-and-credentials)
@@ -18,7 +18,7 @@
   * [Not using session credentials](#not-using-session-credentials)
   * [Assuming a role for more than 1h](#assuming-a-role-for-more-than-1h)
   * [Limitations with STS](#limitations-with-sts)
-  * [MFA](#mfa)
+* [MFA](#mfa)
 * [AWS Single Sign-On (AWS SSO)](#aws-single-sign-on-aws-sso)
 * [Using credential helper](#using-credential-helper)
 * [Using a Yubikey](#using-a-yubikey)
@@ -124,20 +124,17 @@ To override session durations (used in `exec` and `login`):
 
 ## Backends
 
-You can choose among different pluggable secret storage backends. 
+You can choose among different pluggable secret storage backends. You can set the backend using the `--backend` flag or the `AWS_VAULT_BACKEND` environment variable. Run `aws-vault --help` to see what your `--backend` flag supports.
 
-By default, Linux uses an encrypted file but you may prefer to use the secret-service backend which [abstracts over Gnome/KDE](https://specifications.freedesktop.org/secret-service/). This can be specified on the command line with `aws-vault --backend=secret-service` or by setting the environment variable `export AWS_VAULT_BACKEND=secret-service`.
-
-### Keychain Password Prompting Time
+### Keychain
 
 If you're looking to configure the amount of time between having to enter your Keychain password for each usage of a particular profile, you can do so through Keychain: 
 
 1. Open "Keychain Access"
-1. Open the aws-vault keychain
-    1. If you do not have "aws-vault" in the sidebar of the Keychain app, then you can do "File -> Add Keychain" and select the `aws-vault.keychain-db`. This is typically created in `Users/{USER}/Library/Keychains`. 
-1. Right click on aws-vault keychain, and select "Change Settings for Keychain 'aws-vault"
-1. Update "Lock after X minutes of inactivity" to your desired value. 
-1. Hit save.
+2. Open the aws-vault keychain. If you do not have "aws-vault" in the sidebar of the Keychain app, then you can do "File -> Add Keychain" and select the `aws-vault.keychain-db`. This is typically created in `Users/{USER}/Library/Keychains`. 
+3. Right click on aws-vault keychain, and select "Change Settings for Keychain 'aws-vault"
+4. Update "Lock after X minutes of inactivity" to your desired value. 
+5. Hit save.
 
 ![keychain-image](https://imgur.com/ARkr5Ba.png)
 
@@ -373,7 +370,7 @@ role. This means that the only way to call `GetFederationToken` is to use both `
 credentials (see before) and you should really check your design before going forward.
 
 
-### MFA
+## MFA
 
 To enable MFA for a profile, specify the `mfa_serial` in `~/.aws/config`. You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username]`. If you have an account with an MFA associated, but you don't provide the IAM, you are unable to call IAM services, even if you have the correct permissions to do so.
 

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/99designs/aws-vault/vault"
+	"github.com/99designs/aws-vault/v5/vault"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 

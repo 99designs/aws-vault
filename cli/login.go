@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/99designs/aws-vault/vault"
+	"github.com/99designs/aws-vault/v5/vault"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/skratchdot/open-golang/open"
 	"gopkg.in/alecthomas/kingpin.v2"

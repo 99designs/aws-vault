@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/99designs/aws-vault/prompt"
+	"github.com/99designs/aws-vault/v5/prompt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"

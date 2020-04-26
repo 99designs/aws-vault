@@ -13,8 +13,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/99designs/aws-vault/server"
-	"github.com/99designs/aws-vault/vault"
+	"github.com/99designs/aws-vault/v5/server"
+	"github.com/99designs/aws-vault/v5/vault"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"gopkg.in/alecthomas/kingpin.v2"
 )

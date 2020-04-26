@@ -1,4 +1,4 @@
-module github.com/99designs/aws-vault
+module github.com/99designs/aws-vault/v5
 
 go 1.13
 

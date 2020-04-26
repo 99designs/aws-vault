@@ -3,8 +3,8 @@ package cli
 import (
 	"fmt"
 
-	"github.com/99designs/aws-vault/prompt"
-	"github.com/99designs/aws-vault/vault"
+	"github.com/99designs/aws-vault/v5/prompt"
+	"github.com/99designs/aws-vault/v5/vault"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 

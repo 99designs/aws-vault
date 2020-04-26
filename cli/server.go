@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"github.com/99designs/aws-vault/server"
+	"github.com/99designs/aws-vault/v5/server"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 

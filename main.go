@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/99designs/aws-vault/cli"
+	"github.com/99designs/aws-vault/v5/cli"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 

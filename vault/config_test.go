@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/99designs/aws-vault/vault"
+	"github.com/99designs/aws-vault/v5/vault"
 	"github.com/google/go-cmp/cmp"
 )
 

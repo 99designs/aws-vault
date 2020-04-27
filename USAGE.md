@@ -62,6 +62,7 @@ This is a flexible mechanism for more complex configurations.
 For example you can use it in "mixin" style where you import a common fragment. In this example, the `root`, `order-dev` and `order-staging-admin` profiles include the `region`, `mfa_serial` and `source_profile` configuration from `common`.
 
 ```ini
+; while common here is labelled "profile", think of it as "fragment"
 [profile common]
 region=eu-west-1
 mfa_serial=arn:aws:iam::123456789:mfa/johnsmith
@@ -81,6 +82,7 @@ role_arn=arn:aws:iam::123456789:role/administrators
 
 Or you could use it in "parent" style where you conflate the fragment with the profile. In this example the `order-dev` and `order-staging-admin` profiles include the `region`, `mfa_serial` and `source_profile` configuration from `root`, while also using the credentials stored against the `root` profile as the source credentials `source_profile = root`
 ```ini
+; The root profile here operates as both a profile and a fragment
 [profile root]
 region=eu-west-1
 mfa_serial=arn:aws:iam::123456789:mfa/johnsmith

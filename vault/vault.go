@@ -83,11 +83,15 @@ func NewSessionTokenProvider(creds *credentials.Credentials, k keyring.Keyring, 
 	}
 
 	if UseSessionCache {
-		return &CachedSessionTokenProvider{
+		return &CachedSessionProvider{
+			SessionKey: SessionKey{
+				Type:        "session",
+				ProfileName: config.ProfileName,
+				MfaSerial:   config.MfaSerial,
+			},
 			Keyring:         &SessionKeyring{Keyring: k},
-			CredentialsName: config.ProfileName,
 			ExpiryWindow:    defaultExpirationWindow,
-			Provider:        sessionTokenProvider,
+			CredentialsFunc: sessionTokenProvider.GetSessionToken,
 		}, nil
 	}
 
@@ -117,14 +121,14 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config) (*Ass
 }
 
 // NewSSORoleCredentialsProvider creates a provider for SSO credentials
-func NewSSORoleCredentialsProvider(k *CredentialKeyring, config *Config) (credentials.Provider, error) {
+func NewSSORoleCredentialsProvider(k keyring.Keyring, config *Config) (credentials.Provider, error) {
 	sess, err := session.NewSession(&aws.Config{Region: aws.String(config.SSORegion)})
 	if err != nil {
 		return nil, err
 	}
 
 	ssoOIDCProvider := &SSOOIDCProvider{
-		Keyring:    k,
+		Keyring:    &CredentialKeyring{k},
 		OIDCClient: ssooidc.New(sess),
 		StartURL:   config.SSOStartURL,
 	}
@@ -138,11 +142,15 @@ func NewSSORoleCredentialsProvider(k *CredentialKeyring, config *Config) (creden
 	}
 
 	if UseSessionCache {
-		return &CachedSSORoleCredentialsProvider{
-			CredentialsName: config.ProfileName,
-			Keyring:         &SessionKeyring{Keyring: k.Keyring},
+		return &CachedSessionProvider{
+			SessionKey: SessionKey{
+				Type:        "sso",
+				ProfileName: config.ProfileName,
+				MfaSerial:   config.SSOStartURL,
+			},
+			Keyring:         &SessionKeyring{Keyring: k},
 			ExpiryWindow:    defaultExpirationWindow,
-			Provider:        ssoRoleCredentialsProvider,
+			CredentialsFunc: ssoRoleCredentialsProvider.GetRoleCredentials,
 		}, nil
 	}
 
@@ -173,7 +181,7 @@ func (t *tempCredsCreator) provider(config *Config) (credentials.Provider, error
 			return nil, err
 		}
 	} else if config.HasSSOStartURL() {
-		return NewSSORoleCredentialsProvider(t.keyring, config)
+		return NewSSORoleCredentialsProvider(t.keyring.Keyring, config)
 	} else {
 		return nil, fmt.Errorf("profile %s: credentials missing", config.ProfileName)
 	}

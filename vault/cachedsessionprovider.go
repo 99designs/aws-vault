@@ -5,34 +5,30 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/service/sts"
 )
 
-// CachedSessionTokenProvider retrieves cached credentials from the keyring, or if no credentials are cached
-// retrieves temporary credentials from STS using GetSessionToken
-type CachedSessionTokenProvider struct {
-	CredentialsName string
-	Provider        *SessionTokenProvider
+// CachedSessionProvider retrieves cached credentials from the keyring, or if no credentials are cached
+// retrieves temporary credentials using the CredentialsFunc
+type CachedSessionProvider struct {
+	SessionKey      SessionKey
+	CredentialsFunc func() (*sts.Credentials, error)
 	Keyring         *SessionKeyring
 	ExpiryWindow    time.Duration
 	credentials.Expiry
 }
 
 // Retrieve returns cached credentials from the keyring, or if no credentials are cached
-// generates a new set of temporary credentials using STS GetSessionToken
-func (p *CachedSessionTokenProvider) Retrieve() (credentials.Value, error) {
-	key := SessionKey{
-		Type:        "session",
-		ProfileName: p.CredentialsName,
-		MfaSerial:   p.Provider.MfaSerial,
-	}
-	creds, err := p.Keyring.Get(key)
+// generates a new set of temporary credentials using the CredentialsFunc
+func (p *CachedSessionProvider) Retrieve() (credentials.Value, error) {
+	creds, err := p.Keyring.Get(p.SessionKey)
 	if err != nil {
 		// lookup missed, we need to create a new one.
-		creds, err = p.Provider.GetSessionToken()
+		creds, err = p.CredentialsFunc()
 		if err != nil {
 			return credentials.Value{}, err
 		}
-		err = p.Keyring.Set(key, creds)
+		err = p.Keyring.Set(p.SessionKey, creds)
 		if err != nil {
 			return credentials.Value{}, err
 		}

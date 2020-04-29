@@ -336,7 +336,7 @@ session, which is cached by `aws-vault`, if you use **MFA** (and you should), yo
 your **MFA** token at every invocation of the `aws-vault` command. This can become a bit tedious.  
 
 2. Start `aws-vault` as a server (`aws-vault exec <profile> -s`). This will start a background
-   process that will immitate the [metadata
+   process that will imitate the [metadata
 endpoint](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) that you
 would have on an EC2 instance. When your application will want to connect to AWS and fail to find
 credentials (typically in env variables), it will instead contact this server that will issue a new

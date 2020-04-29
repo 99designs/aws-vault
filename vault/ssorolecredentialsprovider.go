@@ -39,7 +39,7 @@ type SSOClient interface {
 // CachedSSORoleCredentialsProvider uses the keyring to cache SSO Role sessions.
 type CachedSSORoleCredentialsProvider struct {
 	CredentialsName string
-	Keyring         *CredentialKeyring
+	Keyring         *SessionKeyring
 	Provider        *SSORoleCredentialsProvider
 	ExpiryWindow    time.Duration
 	credentials.Expiry
@@ -47,30 +47,32 @@ type CachedSSORoleCredentialsProvider struct {
 
 // Retrieve the cached credentials or generate new ones.
 func (p *CachedSSORoleCredentialsProvider) Retrieve() (credentials.Value, error) {
-	sessions := p.Keyring.Sessions()
-
-	session, err := sessions.Retrieve(p.CredentialsName, "")
+	key := SessionKey{
+		Type:        "sso",
+		ProfileName: p.CredentialsName,
+	}
+	creds, err := p.Keyring.Get(key)
 	if err != nil {
-		// session lookup missed, we need to create a new one.
-		session, err = p.Provider.GetRoleCredentials()
+		// lookup missed, we need to create a new one.
+		creds, err = p.Provider.GetRoleCredentials()
 		if err != nil {
 			return credentials.Value{}, err
 		}
 
-		err = sessions.Store(p.CredentialsName, "", session)
+		err = p.Keyring.Set(key, creds)
 		if err != nil {
 			return credentials.Value{}, err
 		}
 	} else {
-		log.Printf("Re-using cached credentials %s generated from GetRoleCredentials, expires in %s", FormatKeyForDisplay(*session.AccessKeyId), time.Until(*session.Expiration).String())
+		log.Printf("Re-using cached credentials %s generated from GetRoleCredentials, expires in %s", FormatKeyForDisplay(*creds.AccessKeyId), time.Until(*creds.Expiration).String())
 	}
 
-	p.SetExpiration(*session.Expiration, p.ExpiryWindow)
+	p.SetExpiration(*creds.Expiration, p.ExpiryWindow)
 
 	return credentials.Value{
-		AccessKeyID:     *session.AccessKeyId,
-		SecretAccessKey: *session.SecretAccessKey,
-		SessionToken:    *session.SessionToken,
+		AccessKeyID:     *creds.AccessKeyId,
+		SecretAccessKey: *creds.SecretAccessKey,
+		SessionToken:    *creds.SessionToken,
 	}, nil
 }
 

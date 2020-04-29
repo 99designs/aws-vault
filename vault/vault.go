@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/99designs/aws-vault/v5/prompt"
+	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -64,7 +65,7 @@ func NewMasterCredentials(k *CredentialKeyring, credentialsName string) *credent
 	return credentials.NewCredentials(NewMasterCredentialsProvider(k, credentialsName))
 }
 
-func NewSessionTokenProvider(creds *credentials.Credentials, k *CredentialKeyring, config *Config) (credentials.Provider, error) {
+func NewSessionTokenProvider(creds *credentials.Credentials, k keyring.Keyring, config *Config) (credentials.Provider, error) {
 	sess, err := NewSession(creds, config.Region)
 	if err != nil {
 		return nil, err
@@ -83,7 +84,7 @@ func NewSessionTokenProvider(creds *credentials.Credentials, k *CredentialKeyrin
 
 	if UseSessionCache {
 		return &CachedSessionTokenProvider{
-			Keyring:         k,
+			Keyring:         &SessionKeyring{Keyring: k},
 			CredentialsName: config.ProfileName,
 			ExpiryWindow:    defaultExpirationWindow,
 			Provider:        sessionTokenProvider,
@@ -139,7 +140,7 @@ func NewSSORoleCredentialsProvider(k *CredentialKeyring, config *Config) (creden
 	if UseSessionCache {
 		return &CachedSSORoleCredentialsProvider{
 			CredentialsName: config.ProfileName,
-			Keyring:         k,
+			Keyring:         &SessionKeyring{Keyring: k.Keyring},
 			ExpiryWindow:    defaultExpirationWindow,
 			Provider:        ssoRoleCredentialsProvider,
 		}, nil
@@ -187,7 +188,7 @@ func (t *tempCredsCreator) provider(config *Config) (credentials.Provider, error
 
 		t.chainedMfa = config.MfaSerial
 		log.Printf("profile %s: using GetSessionToken %s", config.ProfileName, mfaDetails(false, config))
-		sourceCredProvider, err = NewSessionTokenProvider(credentials.NewCredentials(sourceCredProvider), t.keyring, config)
+		sourceCredProvider, err = NewSessionTokenProvider(credentials.NewCredentials(sourceCredProvider), t.keyring.Keyring, config)
 		if !config.HasRole() || err != nil {
 			return sourceCredProvider, err
 		}

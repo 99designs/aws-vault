@@ -15,6 +15,7 @@ import (
 
 	"github.com/99designs/aws-vault/v5/server"
 	"github.com/99designs/aws-vault/v5/vault"
+	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -103,12 +104,12 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 		if err != nil {
 			return err
 		}
-		kr, err := a.NewCredentialKeyring()
+		keyring, err := a.Keyring()
 		if err != nil {
 			return err
 		}
 
-		err = ExecCommand(input, cl, kr)
+		err = ExecCommand(input, cl, keyring)
 		app.FatalIfError(err, "exec")
 		return nil
 	})
@@ -133,7 +134,7 @@ func getDefaultShellCmd() (string, []string) {
 	return shellCmd, shellArgs
 }
 
-func ExecCommand(input ExecCommandInput, configLoader *vault.ConfigLoader, credKeyring *vault.CredentialKeyring) error {
+func ExecCommand(input ExecCommandInput, configLoader *vault.ConfigLoader, keyring keyring.Keyring) error {
 	if os.Getenv("AWS_VAULT") != "" {
 		return fmt.Errorf("aws-vault sessions should be nested with care, unset $AWS_VAULT to force")
 	}
@@ -163,7 +164,8 @@ func ExecCommand(input ExecCommandInput, configLoader *vault.ConfigLoader, credK
 		return err
 	}
 
-	creds, err := vault.NewTempCredentials(config, credKeyring)
+	ckr := &vault.CredentialKeyring{Keyring: keyring}
+	creds, err := vault.NewTempCredentials(config, ckr)
 	if err != nil {
 		return fmt.Errorf("Error getting temporary credentials: %w", err)
 	}

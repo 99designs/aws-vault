@@ -5,6 +5,7 @@ import (
 
 	"github.com/99designs/aws-vault/v5/prompt"
 	"github.com/99designs/aws-vault/v5/vault"
+	"github.com/99designs/keyring"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -29,19 +30,20 @@ func ConfigureRemoveCommand(app *kingpin.Application, a *AwsVault) {
 		BoolVar(&input.SessionsOnly)
 
 	cmd.Action(func(c *kingpin.ParseContext) (err error) {
-		ckr, err := a.NewCredentialKeyring()
+		keyring, err := a.Keyring()
 		if err != nil {
 			return err
 		}
-		err = RemoveCommand(input, ckr)
+		err = RemoveCommand(input, keyring)
 		app.FatalIfError(err, "remove")
 		return nil
 	})
 }
 
-func RemoveCommand(input RemoveCommandInput, ckr *vault.CredentialKeyring) error {
+func RemoveCommand(input RemoveCommandInput, keyring keyring.Keyring) error {
+	ckr := &vault.CredentialKeyring{Keyring: keyring}
 	if !input.SessionsOnly {
-		r, err := prompt.TerminalPrompt(fmt.Sprintf("Delete credentials for profile %q? (Y|n)", input.ProfileName))
+		r, err := prompt.TerminalPrompt(fmt.Sprintf("Delete credentials for profile %q? (Y|n) ", input.ProfileName))
 		if err != nil {
 			return err
 		} else if r == "N" || r == "n" {
@@ -54,9 +56,8 @@ func RemoveCommand(input RemoveCommandInput, ckr *vault.CredentialKeyring) error
 		fmt.Printf("Deleted credentials.\n")
 	}
 
-	sessions := ckr.Sessions()
-
-	n, err := sessions.Delete(input.ProfileName)
+	sk := &vault.SessionKeyring{Keyring: ckr.Keyring}
+	n, err := sk.RemoveForProfile(input.ProfileName)
 	if err != nil {
 		return err
 	}

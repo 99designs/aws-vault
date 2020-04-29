@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/99designs/aws-vault/v5/vault"
+	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/skratchdot/open-golang/open"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -62,7 +63,7 @@ func ConfigureLoginCommand(app *kingpin.Application, a *AwsVault) {
 		input.Config.NonChainedGetSessionTokenDuration = input.SessionDuration
 		input.Config.AssumeRoleDuration = input.SessionDuration
 		input.Config.GetFederationTokenDuration = input.SessionDuration
-		kr, err := a.NewCredentialKeyring()
+		keyring, err := a.Keyring()
 		if err != nil {
 			return err
 		}
@@ -71,13 +72,13 @@ func ConfigureLoginCommand(app *kingpin.Application, a *AwsVault) {
 			return err
 		}
 
-		err = LoginCommand(input, configLoader, kr)
+		err = LoginCommand(input, configLoader, keyring)
 		app.FatalIfError(err, "login")
 		return nil
 	})
 }
 
-func LoginCommand(input LoginCommandInput, configLoader *vault.ConfigLoader, ckr *vault.CredentialKeyring) error {
+func LoginCommand(input LoginCommandInput, configLoader *vault.ConfigLoader, keyring keyring.Keyring) error {
 	vault.UseSession = !input.NoSession
 
 	configLoader.BaseConfig = input.Config
@@ -89,6 +90,7 @@ func LoginCommand(input LoginCommandInput, configLoader *vault.ConfigLoader, ckr
 
 	var creds *credentials.Credentials
 
+	ckr := &vault.CredentialKeyring{Keyring: keyring}
 	// If AssumeRole or sso.GetRoleCredentials isn't used, GetFederationToken has to be used for IAM credentials
 	if config.HasRole() || config.HasSSOStartURL() {
 		creds, err = vault.NewTempCredentials(config, ckr)

@@ -33,7 +33,7 @@ func (p *CachedSessionProvider) Retrieve() (credentials.Value, error) {
 			return credentials.Value{}, err
 		}
 	} else {
-		log.Printf("Re-using cached credentials %s generated from GetSessionToken, expires in %s", FormatKeyForDisplay(*creds.AccessKeyId), time.Until(*creds.Expiration).String())
+		log.Printf("Re-using cached credentials %s from %s, expires in %s", FormatKeyForDisplay(*creds.AccessKeyId), p.SessionKey.Type, time.Until(*creds.Expiration).String())
 	}
 
 	p.SetExpiration(*creds.Expiration, p.ExpiryWindow)

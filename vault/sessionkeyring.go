@@ -3,7 +3,6 @@ package vault
 import (
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"regexp"
@@ -55,10 +54,10 @@ func (k *SessionKey) String() string {
 	)
 }
 
-func NewSessionKeyFromString(key string) (SessionKey, error) {
-	matches := sessionKeyPattern.FindStringSubmatch(key)
+func NewSessionKeyFromString(s string) (SessionKey, error) {
+	matches := sessionKeyPattern.FindStringSubmatch(s)
 	if len(matches) == 0 {
-		return SessionKey{}, errors.New("failed to parse session name")
+		return SessionKey{}, fmt.Errorf("failed to parse session name: %s", s)
 	}
 
 	profileName, err := base64Encoding.DecodeString(matches[2])
@@ -172,7 +171,7 @@ func (sk *SessionKeyring) GetMetadata(key SessionKey) (m SessionMetadata, err er
 
 	matches := regexp.MustCompile(`\(expires (.+)\)$`).FindStringSubmatch(item.Label)
 	if len(matches) == 0 {
-		return m, errors.New("failed to parse session name")
+		return m, fmt.Errorf("failed to parse session label: %s", item.Label)
 	}
 
 	m.SessionKey = key
@@ -239,7 +238,6 @@ func (sk *SessionKeyring) GarbageCollectOnce() (n int, err error) {
 		} else {
 			stsk, err := NewSessionKeyFromString(k)
 			if err != nil {
-				log.Printf("Error while deleting old session: %s", err.Error())
 				continue
 			}
 			m, err := sk.GetMetadata(stsk)

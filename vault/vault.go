@@ -85,7 +85,7 @@ func NewSessionTokenProvider(creds *credentials.Credentials, k keyring.Keyring, 
 	if UseSessionCache {
 		return &CachedSessionProvider{
 			SessionKey: SessionKey{
-				Type:        "session",
+				Type:        "sts.GetSessionToken",
 				ProfileName: config.ProfileName,
 				MfaSerial:   config.MfaSerial,
 			},
@@ -99,13 +99,13 @@ func NewSessionTokenProvider(creds *credentials.Credentials, k keyring.Keyring, 
 }
 
 // NewAssumeRoleProvider returns a provider that generates credentials using AssumeRole
-func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config) (*AssumeRoleProvider, error) {
+func NewAssumeRoleProvider(creds *credentials.Credentials, k keyring.Keyring, config *Config) (credentials.Provider, error) {
 	sess, err := NewSession(creds, config.Region)
 	if err != nil {
 		return nil, err
 	}
 
-	return &AssumeRoleProvider{
+	p := &AssumeRoleProvider{
 		StsClient:       sts.New(sess),
 		RoleARN:         config.RoleARN,
 		RoleSessionName: config.RoleSessionName,
@@ -117,7 +117,22 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config) (*Ass
 			MfaToken:        config.MfaToken,
 			MfaPromptMethod: config.MfaPromptMethod,
 		},
-	}, nil
+	}
+
+	if UseSessionCache && config.MfaSerial != "" {
+		return &CachedSessionProvider{
+			SessionKey: SessionKey{
+				Type:        "sts.AssumeRole",
+				ProfileName: config.ProfileName,
+				MfaSerial:   config.MfaSerial,
+			},
+			Keyring:         &SessionKeyring{Keyring: k},
+			ExpiryWindow:    defaultExpirationWindow,
+			CredentialsFunc: p.assumeRole,
+		}, nil
+	}
+
+	return p, nil
 }
 
 // NewSSORoleCredentialsProvider creates a provider for SSO credentials
@@ -139,7 +154,7 @@ func NewSSORoleCredentialsProvider(k keyring.Keyring, config *Config) (credentia
 	if UseSessionCache {
 		return &CachedSessionProvider{
 			SessionKey: SessionKey{
-				Type:        "sso",
+				Type:        "sso.GetRoleCredentialsInput",
 				ProfileName: config.ProfileName,
 				MfaSerial:   config.SSOStartURL,
 			},
@@ -203,7 +218,7 @@ func (t *tempCredsCreator) provider(config *Config) (credentials.Provider, error
 	}
 
 	log.Printf("profile %s: using AssumeRole %s", config.ProfileName, mfaDetails(isMfaChained, config))
-	return NewAssumeRoleProvider(credentials.NewCredentials(sourceCredProvider), config)
+	return NewAssumeRoleProvider(credentials.NewCredentials(sourceCredProvider), t.keyring.Keyring, config)
 }
 
 func mfaDetails(mfaChained bool, config *Config) string {

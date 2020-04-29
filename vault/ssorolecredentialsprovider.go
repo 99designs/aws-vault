@@ -1,13 +1,11 @@
 package vault
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 	"time"
 
-	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -17,29 +15,11 @@ import (
 	"github.com/skratchdot/open-golang/open"
 )
 
-const (
-	ssoClientName         = "aws-vault"
-	ssoClientType         = "public"
-	oAuthTokenGrantType   = "urn:ietf:params:oauth:grant-type:device_code"
-	authorizationTemplate = "Opening the SSO authorization page in your default browser (use Ctrl-C to abort)\n%s\n"
-)
-
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . SSOOIDCClient
-type SSOOIDCClient interface {
-	CreateToken(*ssooidc.CreateTokenInput) (*ssooidc.CreateTokenOutput, error)
-	RegisterClient(*ssooidc.RegisterClientInput) (*ssooidc.RegisterClientOutput, error)
-	StartDeviceAuthorization(*ssooidc.StartDeviceAuthorizationInput) (*ssooidc.StartDeviceAuthorizationOutput, error)
-}
-
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 . SSOClient
-type SSOClient interface {
-	GetRoleCredentials(*sso.GetRoleCredentialsInput) (*sso.GetRoleCredentialsOutput, error)
-}
-
 // SSORoleCredentialsProvider creates temporary credentials for an SSO Role.
 type SSORoleCredentialsProvider struct {
-	OIDCProvider *SSOOIDCProvider
-	SSOClient    SSOClient
+	OIDCClient   *ssooidc.SSOOIDC
+	StartURL     string
+	SSOClient    *sso.SSO
 	AccountID    string
 	RoleName     string
 	ExpiryWindow time.Duration
@@ -48,175 +28,94 @@ type SSORoleCredentialsProvider struct {
 
 // Retrieve generates a new set of temporary credentials using SSO GetRoleCredentials.
 func (p *SSORoleCredentialsProvider) Retrieve() (credentials.Value, error) {
-	creds, err := p.GetRoleCredentials()
+	creds, err := p.getRoleCredentials()
 	if err != nil {
 		return credentials.Value{}, err
 	}
 
-	p.SetExpiration(*creds.Expiration, p.ExpiryWindow)
+	p.SetExpiration(aws.MillisecondsTimeValue(creds.Expiration), p.ExpiryWindow)
 	return credentials.Value{
-		AccessKeyID:     *creds.AccessKeyId,
-		SecretAccessKey: *creds.SecretAccessKey,
-		SessionToken:    *creds.SessionToken,
+		AccessKeyID:     aws.StringValue(creds.AccessKeyId),
+		SecretAccessKey: aws.StringValue(creds.SecretAccessKey),
+		SessionToken:    aws.StringValue(creds.SessionToken),
 	}, nil
 }
 
-func (p *SSORoleCredentialsProvider) GetRoleCredentials() (*sts.Credentials, error) {
-	token, err := p.OIDCProvider.GetAccessToken()
+func (p *SSORoleCredentialsProvider) getRoleCredentials() (*sso.RoleCredentials, error) {
+	token, err := p.createOIDCToken()
 	if err != nil {
 		return nil, err
 	}
 
 	resp, err := p.SSOClient.GetRoleCredentials(&sso.GetRoleCredentialsInput{
-		AccessToken: aws.String(token.Token),
+		AccessToken: token.AccessToken,
 		AccountId:   aws.String(p.AccountID),
 		RoleName:    aws.String(p.RoleName),
 	})
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("Got credentials %s for SSO role %s (account: %s), expires in %s", FormatKeyForDisplay(*resp.RoleCredentials.AccessKeyId), p.RoleName, p.AccountID, time.Until(aws.MillisecondsTimeValue(resp.RoleCredentials.Expiration)).String())
 
-	expiration := aws.MillisecondsTimeValue(resp.RoleCredentials.Expiration)
-
-	// This is needed because sessions.Store expects a sts.Credentials object.
-	creds := &sts.Credentials{
-		AccessKeyId:     resp.RoleCredentials.AccessKeyId,
-		SecretAccessKey: resp.RoleCredentials.SecretAccessKey,
-		SessionToken:    resp.RoleCredentials.SessionToken,
-		Expiration:      aws.Time(expiration),
-	}
-
-	log.Printf("Got credentials %s for SSO role %s (account: %s), expires in %s", FormatKeyForDisplay(*resp.RoleCredentials.AccessKeyId), p.RoleName, p.AccountID, time.Until(expiration).String())
-
-	return creds, nil
+	return resp.RoleCredentials, nil
 }
 
-type SSOClientCredentials struct {
-	ID         string
-	Secret     string
-	Expiration time.Time
-}
-
-type SSOAccessToken struct {
-	Token      string
-	Expiration time.Time
-}
-
-type SSOOIDCProvider struct {
-	OIDCClient           SSOOIDCClient
-	Keyring              *CredentialKeyring
-	StartURL             string
-	DisableSystemBrowser bool
-}
-
-func (p *SSOOIDCProvider) GetAccessToken() (*SSOAccessToken, error) {
-	var (
-		creds = &struct {
-			Token  *SSOAccessToken
-			Client *SSOClientCredentials
-		}{
-			Client: &SSOClientCredentials{},
-			Token:  &SSOAccessToken{},
-		}
-		credsUpdated bool
-	)
-
-	item, err := p.Keyring.Keyring.Get(p.StartURL)
-	if err != nil && err != keyring.ErrKeyNotFound {
+// getRoleCredentialsAsStsCredemtials returns getRoleCredentials as sts.Credentials because sessions.Store expects it
+func (p *SSORoleCredentialsProvider) getRoleCredentialsAsStsCredemtials() (*sts.Credentials, error) {
+	creds, err := p.getRoleCredentials()
+	if err != nil {
 		return nil, err
 	}
 
-	if item.Data != nil {
-		if err = json.Unmarshal(item.Data, &creds); err != nil {
-			return nil, fmt.Errorf("Invalid data in keyring: %v", err)
-		}
-	}
-
-	if creds.Client.Expiration.Before(time.Now()) {
-		creds.Client, err = p.registerNewClient()
-		if err != nil {
-			return nil, err
-		}
-		log.Printf("Created new SSO client for %s (expires at: %s)", p.StartURL, creds.Client.Expiration.String())
-		credsUpdated = true
-	}
-
-	if creds.Token.Expiration.Before(time.Now()) {
-		creds.Token, err = p.createClientToken(creds.Client)
-		if err != nil {
-			return nil, err
-		}
-		log.Printf("Created new SSO access token for %s (expires at: %s)", p.StartURL, creds.Token.Expiration.String())
-		credsUpdated = true
-	}
-
-	if credsUpdated {
-		bytes, err := json.Marshal(creds)
-		if err != nil {
-			return nil, err
-		}
-		err = p.Keyring.Keyring.Set(keyring.Item{
-			Key:                         p.StartURL,
-			Label:                       fmt.Sprintf("aws-vault (%s)", p.StartURL),
-			Data:                        bytes,
-			KeychainNotTrustApplication: true,
-		})
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return creds.Token, nil
+	return &sts.Credentials{
+		AccessKeyId:     creds.AccessKeyId,
+		SecretAccessKey: creds.SecretAccessKey,
+		SessionToken:    creds.SessionToken,
+		Expiration:      aws.Time(aws.MillisecondsTimeValue(creds.Expiration)),
+	}, nil
 }
 
-func (p *SSOOIDCProvider) registerNewClient() (*SSOClientCredentials, error) {
-	c, err := p.OIDCClient.RegisterClient(&ssooidc.RegisterClientInput{
-		ClientName: aws.String(ssoClientName),
-		ClientType: aws.String(ssoClientType),
+func (p *SSORoleCredentialsProvider) createOIDCToken() (*ssooidc.CreateTokenOutput, error) {
+	clientCreds, err := p.OIDCClient.RegisterClient(&ssooidc.RegisterClientInput{
+		ClientName: aws.String("aws-vault"),
+		ClientType: aws.String("public"),
 	})
 	if err != nil {
 		return nil, err
 	}
-	return &SSOClientCredentials{
-		ID:         aws.StringValue(c.ClientId),
-		Secret:     aws.StringValue(c.ClientSecret),
-		Expiration: time.Unix(aws.Int64Value(c.ClientSecretExpiresAt), 0),
-	}, nil
-}
+	log.Printf("Created new OIDC client (expires at: %s)", time.Unix(aws.Int64Value(clientCreds.ClientSecretExpiresAt), 0))
 
-func (p *SSOOIDCProvider) createClientToken(creds *SSOClientCredentials) (*SSOAccessToken, error) {
-	auth, err := p.OIDCClient.StartDeviceAuthorization(&ssooidc.StartDeviceAuthorizationInput{
-		ClientId:     aws.String(creds.ID),
-		ClientSecret: aws.String(creds.Secret),
+	deviceCreds, err := p.OIDCClient.StartDeviceAuthorization(&ssooidc.StartDeviceAuthorizationInput{
+		ClientId:     clientCreds.ClientId,
+		ClientSecret: clientCreds.ClientSecret,
 		StartUrl:     aws.String(p.StartURL),
 	})
 	if err != nil {
 		return nil, err
 	}
-	fmt.Fprintf(os.Stderr, authorizationTemplate, aws.StringValue(auth.VerificationUriComplete))
+	log.Printf("Created OIDC device code for %s (expires in: %ds)", p.StartURL, aws.Int64Value(deviceCreds.ExpiresIn))
 
-	if !p.DisableSystemBrowser {
-		if err := open.Run(aws.StringValue(auth.VerificationUriComplete)); err != nil {
-			log.Printf("failed to open browser: %s", err)
-		}
+	log.Println("Opening SSO authorization page in browser")
+	fmt.Fprintf(os.Stderr, "Opening the SSO authorization page in your default browser (use Ctrl-C to abort)\n%s\n", aws.StringValue(deviceCreds.VerificationUriComplete))
+	if err := open.Run(aws.StringValue(deviceCreds.VerificationUriComplete)); err != nil {
+		log.Printf("Failed to open browser: %s", err)
 	}
 
-	var (
-		// These are the default values defined in the following RFC:
-		// https://tools.ietf.org/html/draft-ietf-oauth-device-flow-15#section-3.5
-		slowDownDelay = 5 * time.Second
-		retryInterval = 5 * time.Second
-	)
-	if i := aws.Int64Value(auth.Interval); i > 0 {
+	// These are the default values defined in the following RFC:
+	// https://tools.ietf.org/html/draft-ietf-oauth-device-flow-15#section-3.5
+	var slowDownDelay = 5 * time.Second
+	var retryInterval = 5 * time.Second
+
+	if i := aws.Int64Value(deviceCreds.Interval); i > 0 {
 		retryInterval = time.Duration(i) * time.Second
 	}
 
 	for {
 		t, err := p.OIDCClient.CreateToken(&ssooidc.CreateTokenInput{
-			ClientId:     aws.String(creds.ID),
-			ClientSecret: aws.String(creds.Secret),
-			DeviceCode:   auth.DeviceCode,
-			GrantType:    aws.String(oAuthTokenGrantType),
+			ClientId:     clientCreds.ClientId,
+			ClientSecret: clientCreds.ClientSecret,
+			DeviceCode:   deviceCreds.DeviceCode,
+			GrantType:    aws.String("urn:ietf:params:oauth:grant-type:device_code"),
 		})
 		if err != nil {
 			e, ok := err.(awserr.Error)
@@ -234,11 +133,8 @@ func (p *SSOOIDCProvider) createClientToken(creds *SSOClientCredentials) (*SSOAc
 				return nil, err
 			}
 		}
-		expiresInSecs := time.Duration(aws.Int64Value(t.ExpiresIn)) * time.Second
 
-		return &SSOAccessToken{
-			Token:      aws.StringValue(t.AccessToken),
-			Expiration: time.Now().Add(expiresInSecs),
-		}, nil
+		log.Printf("Created new OIDC access token for %s (expires in: %ds)", p.StartURL, aws.Int64Value(t.ExpiresIn))
+		return t, nil
 	}
 }

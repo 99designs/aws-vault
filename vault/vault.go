@@ -127,14 +127,9 @@ func NewSSORoleCredentialsProvider(k keyring.Keyring, config *Config) (credentia
 		return nil, err
 	}
 
-	ssoOIDCProvider := &SSOOIDCProvider{
-		Keyring:    &CredentialKeyring{k},
-		OIDCClient: ssooidc.New(sess),
-		StartURL:   config.SSOStartURL,
-	}
-
 	ssoRoleCredentialsProvider := &SSORoleCredentialsProvider{
-		OIDCProvider: ssoOIDCProvider,
+		OIDCClient:   ssooidc.New(sess),
+		StartURL:     config.SSOStartURL,
 		SSOClient:    sso.New(sess),
 		AccountID:    config.SSOAccountID,
 		RoleName:     config.SSORoleName,
@@ -150,7 +145,7 @@ func NewSSORoleCredentialsProvider(k keyring.Keyring, config *Config) (credentia
 			},
 			Keyring:         &SessionKeyring{Keyring: k},
 			ExpiryWindow:    defaultExpirationWindow,
-			CredentialsFunc: ssoRoleCredentialsProvider.GetRoleCredentials,
+			CredentialsFunc: ssoRoleCredentialsProvider.getRoleCredentialsAsStsCredemtials,
 		}, nil
 	}
 

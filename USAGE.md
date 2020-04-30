@@ -395,11 +395,11 @@ mfa_serial = arn:aws:iam::111111111111:mfa/tom
 
 You can also set the `mfa_serial` with the environment variable `AWS_MFA_SERIAL`.
 
-### Gotchas with MFA
+### Gotchas with MFA config
 
-v4 of aws-vault would incorrectly use the `mfa_serial` from the `source_profile`. While this was intuitive for some, it caused many issues, made certain configurations impossible to repesent and is different behaviour to the aws-cli.
+v4 of aws-vault would use the `mfa_serial` from the `source_profile`. While this was intuitive for some, it caused many issues, made certain configurations impossible to repesent and is different behaviour to the aws-cli.
 
-v5 of aws-vault corrected this problem. The `mfa_serial` must be specified for _each_ profile. If you wish to avoid specifying the `mfa_serial` for each profile, consider using [`include_profile`](#include_profile).
+v5 of aws-vault corrected this problem. The `mfa_serial` must be specified for _each_ profile. If you wish to avoid specifying the `mfa_serial` for each profile, consider using [`include_profile`](#include_profile), the `mfa_serial` in the `[default]` section or `AWS_MFA_SERIAL` environment variable.
 
 
 ## AWS Single Sign-On (AWS SSO)

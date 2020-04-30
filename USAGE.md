@@ -19,7 +19,7 @@
   * [Assuming a role for more than 1h](#assuming-a-role-for-more-than-1h)
   * [Limitations with STS](#limitations-with-sts)
 * [MFA](#mfa)
-  * [Gotchas with MFA](#gotchas-with-mfa)
+  * [Gotchas with MFA config](#gotchas-with-mfa-config)
 * [AWS Single Sign-On (AWS SSO)](#aws-single-sign-on-aws-sso)
 * [Using credential helper](#using-credential-helper)
 * [Using a Yubikey](#using-a-yubikey)

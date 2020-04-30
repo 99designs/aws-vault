@@ -56,6 +56,8 @@ aws-vault uses your `~/.aws/config` to load AWS config. This should work identic
 
 #### `include_profile`
 
+(Note: aws-vault v5 calls this `parent_profile`)
+
 AWS Vault also recognises an extra config variable, `include_profile`, which is not recognised by the aws-cli. This variable allows a profile to load configuration horizontally from another profile.
 
 This is a flexible mechanism for more complex configurations.

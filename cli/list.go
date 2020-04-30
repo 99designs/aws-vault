@@ -12,14 +12,14 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-type LsCommandInput struct {
+type ListCommandInput struct {
 	OnlyProfiles    bool
 	OnlySessions    bool
 	OnlyCredentials bool
 }
 
 func ConfigureListCommand(app *kingpin.Application, a *AwsVault) {
-	input := LsCommandInput{}
+	input := ListCommandInput{}
 
 	cmd := app.Command("list", "List profiles, along with their credentials and sessions")
 	cmd.Alias("ls")
@@ -42,13 +42,13 @@ func ConfigureListCommand(app *kingpin.Application, a *AwsVault) {
 		if err != nil {
 			return err
 		}
-		err = LsCommand(input, awsConfigFile, keyring)
+		err = ListCommand(input, awsConfigFile, keyring)
 		app.FatalIfError(err, "list")
 		return nil
 	})
 }
 
-func LsCommand(input LsCommandInput, awsConfigFile *vault.ConfigFile, keyring keyring.Keyring) (err error) {
+func ListCommand(input ListCommandInput, awsConfigFile *vault.ConfigFile, keyring keyring.Keyring) (err error) {
 	ckr := &vault.CredentialKeyring{Keyring: keyring}
 
 	var sessionNames, credentialsNames []string

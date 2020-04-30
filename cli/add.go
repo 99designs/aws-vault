@@ -7,6 +7,7 @@ import (
 
 	"github.com/99designs/aws-vault/v5/prompt"
 	"github.com/99designs/aws-vault/v5/vault"
+	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -34,7 +35,7 @@ func ConfigureAddCommand(app *kingpin.Application, a *AwsVault) {
 		BoolVar(&input.AddConfig)
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
-		kr, err := a.NewCredentialKeyring()
+		keyring, err := a.Keyring()
 		if err != nil {
 			return err
 		}
@@ -42,13 +43,13 @@ func ConfigureAddCommand(app *kingpin.Application, a *AwsVault) {
 		if err != nil {
 			return err
 		}
-		err = AddCommand(input, kr, awsConfigFile)
+		err = AddCommand(input, keyring, awsConfigFile)
 		app.FatalIfError(err, "add")
 		return nil
 	})
 }
 
-func AddCommand(input AddCommandInput, keyring *vault.CredentialKeyring, awsConfigFile *vault.ConfigFile) error {
+func AddCommand(input AddCommandInput, keyring keyring.Keyring, awsConfigFile *vault.ConfigFile) error {
 	var accessKeyId, secretKey string
 
 	p, _ := awsConfigFile.ProfileSection(input.ProfileName)
@@ -76,15 +77,15 @@ func AddCommand(input AddCommandInput, keyring *vault.CredentialKeyring, awsConf
 
 	creds := credentials.Value{AccessKeyID: accessKeyId, SecretAccessKey: secretKey}
 
-	if err := keyring.Set(input.ProfileName, creds); err != nil {
+	ckr := &vault.CredentialKeyring{Keyring: keyring}
+	if err := ckr.Set(input.ProfileName, creds); err != nil {
 		return err
 	}
 
 	fmt.Printf("Added credentials to profile %q in vault\n", input.ProfileName)
 
-	sessions := keyring.Sessions()
-
-	if n, _ := sessions.Delete(input.ProfileName); n > 0 {
+	sk := &vault.SessionKeyring{Keyring: keyring}
+	if n, _ := sk.RemoveForProfile(input.ProfileName); n > 0 {
 		fmt.Printf("Deleted %d existing sessions.\n", n)
 	}
 

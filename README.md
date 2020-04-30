@@ -123,9 +123,9 @@ Here's what you can expect from aws-vault
 | `aws-vault exec jonsmith`                | session-token               | session-token | Yes |
 | `aws-vault exec foo-readonly`            | role                        | No            | No  |
 | `aws-vault exec foo-admin`               | session-token + role        | session-token | Yes |
-| `aws-vault exec foo-admin --duration=2h` | role                        | No            | Yes |
+| `aws-vault exec foo-admin --duration=2h` | role                        | role          | Yes |
 | `aws-vault exec bar-role2`               | session-token + role + role | session-token | Yes |
-| `aws-vault exec bar-role2 --no-session`  | role + role                 | No            | Yes |
+| `aws-vault exec bar-role2 --no-session`  | role + role                 | role          | Yes |
 
 ## AWS SSO integration
 

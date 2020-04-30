@@ -5,8 +5,10 @@ import (
 	"os"
 	"strings"
 	"text/tabwriter"
+	"time"
 
 	"github.com/99designs/aws-vault/v5/vault"
+	"github.com/99designs/keyring"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -32,7 +34,7 @@ func ConfigureListCommand(app *kingpin.Application, a *AwsVault) {
 		BoolVar(&input.OnlyCredentials)
 
 	cmd.Action(func(c *kingpin.ParseContext) (err error) {
-		ckr, err := a.NewCredentialKeyring()
+		keyring, err := a.Keyring()
 		if err != nil {
 			return err
 		}
@@ -40,33 +42,38 @@ func ConfigureListCommand(app *kingpin.Application, a *AwsVault) {
 		if err != nil {
 			return err
 		}
-		err = LsCommand(input, awsConfigFile, ckr)
+		err = LsCommand(input, awsConfigFile, keyring)
 		app.FatalIfError(err, "list")
 		return nil
 	})
 }
 
-func LsCommand(input LsCommandInput, awsConfigFile *vault.ConfigFile, ckr *vault.CredentialKeyring) error {
-	krs := ckr.Sessions()
+func LsCommand(input LsCommandInput, awsConfigFile *vault.ConfigFile, keyring keyring.Keyring) (err error) {
+	ckr := &vault.CredentialKeyring{Keyring: keyring}
 
-	credentialsNames, err := ckr.CredentialsKeys()
-	if err != nil {
-		return err
-	}
+	var sessionNames, credentialsNames []string
+	var sessions []vault.SessionMetadata
 
-	sessions, err := krs.Sessions()
-	if err != nil {
-		return err
-	}
-
-	var sessionNames []string
-	for _, sess := range sessions {
-		label := fmt.Sprintf("%d", sess.Expiration.Unix())
-		if sess.MfaSerial != "" {
-			label += " (mfa)"
+	if !input.OnlyProfiles && !input.OnlySessions {
+		credentialsNames, err = ckr.CredentialsKeys()
+		if err != nil {
+			return err
 		}
-		sessionNames = append(sessionNames, label)
+	}
 
+	if !input.OnlyProfiles && !input.OnlyCredentials {
+		sk := &vault.SessionKeyring{Keyring: ckr.Keyring}
+		sessions, err = sk.GetAllMetadata()
+		if err != nil {
+			return err
+		}
+		for _, sess := range sessions {
+			label := fmt.Sprintf("%d", sess.Expiration.Unix())
+			if sess.MfaSerial != "" {
+				label += " (mfa)"
+			}
+			sessionNames = append(sessionNames, label)
+		}
 	}
 
 	if input.OnlyCredentials {
@@ -113,10 +120,7 @@ func LsCommand(input LsCommandInput, awsConfigFile *vault.ConfigFile, ckr *vault
 		var sessionLabels []string
 		for _, sess := range sessions {
 			if profileName == sess.ProfileName {
-				label := fmt.Sprintf("%d", sess.Expiration.Unix())
-				if sess.MfaSerial != "" {
-					label += " (mfa)"
-				}
+				label := fmt.Sprintf("%s:%s", sess.Type, time.Until(sess.Expiration).Truncate(time.Second))
 				sessionLabels = append(sessionLabels, label)
 			}
 		}

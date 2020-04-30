@@ -9,7 +9,6 @@ require (
 	github.com/aws/aws-sdk-go v1.25.37
 	github.com/google/go-cmp v0.3.1
 	github.com/keybase/go-keychain v0.0.0-20200325143049-65d7292bc904 // indirect
-	github.com/maxbrunsfeld/counterfeiter/v6 v6.2.3
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/skratchdot/open-golang v0.0.0-20190402232053-79abb63cd66e
 	github.com/smartystreets/goconvey v1.6.4 // indirect

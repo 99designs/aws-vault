@@ -62,14 +62,6 @@ func (a *AwsVault) AwsConfigFile() (*vault.ConfigFile, error) {
 	return a.awsConfigFile, nil
 }
 
-func (a *AwsVault) NewCredentialKeyring() (*vault.CredentialKeyring, error) {
-	kr, err := a.Keyring()
-	if err != nil {
-		return nil, err
-	}
-	return &vault.CredentialKeyring{Keyring: kr}, nil
-}
-
 func (a *AwsVault) MustGetProfileNames() []string {
 	config, err := a.AwsConfigFile()
 	if err != nil {

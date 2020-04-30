@@ -26,11 +26,11 @@ output=text
 source_profile=user2
 region=us-east-1
 
-[profile withmfa]
+[profile withMFA]
 source_profile=user2
-role_arn=arn:aws:iam::4451234513441615400570:role/aws_admin
-mfa_serial=arn:aws:iam::1234513441:mfa/blah
-region=us-east-1
+Role_Arn=arn:aws:iam::4451234513441615400570:role/aws_admin
+mfa_Serial=arn:aws:iam::1234513441:mfa/blah
+Region=us-east-1
 duration_seconds=1200
 
 [profile testincludeprofile1]
@@ -57,11 +57,6 @@ output=json
 
 `)
 
-var defaultsOnlyConfigWithoutHeader = []byte(`region=us-west-2
-output=json
-
-`)
-
 func newConfigFile(t *testing.T, b []byte) string {
 	f, err := ioutil.TempFile("", "aws-config")
 	if err != nil {
@@ -71,6 +66,26 @@ func newConfigFile(t *testing.T, b []byte) string {
 		t.Fatal(err)
 	}
 	return f.Name()
+}
+
+func TestProfileNameCaseSensitivity(t *testing.T) {
+	f := newConfigFile(t, exampleConfig)
+	defer os.Remove(f)
+
+	cfg, err := vault.LoadConfig(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	def, ok := cfg.ProfileSection("withMFA")
+	if !ok {
+		t.Fatalf("Expected to match profile withMFA")
+	}
+
+	expectedMfaSerial := "arn:aws:iam::1234513441:mfa/blah"
+	if def.MfaSerial != expectedMfaSerial {
+		t.Fatalf("Expected %s, got %s", expectedMfaSerial, def.MfaSerial)
+	}
 }
 
 func TestConfigParsingProfiles(t *testing.T) {
@@ -88,7 +103,7 @@ func TestConfigParsingProfiles(t *testing.T) {
 	}{
 		{vault.ProfileSection{Name: "user2", Region: "us-east-1"}, true},
 		{vault.ProfileSection{Name: "withsource", SourceProfile: "user2", Region: "us-east-1"}, true},
-		{vault.ProfileSection{Name: "withmfa", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2"}, true},
+		{vault.ProfileSection{Name: "withMFA", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2"}, true},
 		{vault.ProfileSection{Name: "nopenotthere"}, false},
 	}
 
@@ -142,7 +157,7 @@ func TestProfilesFromConfig(t *testing.T) {
 		{Name: "default", Region: "us-west-2"},
 		{Name: "user2", Region: "us-east-1"},
 		{Name: "withsource", Region: "us-east-1", SourceProfile: "user2"},
-		{Name: "withmfa", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2"},
+		{Name: "withMFA", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2"},
 		{Name: "testincludeprofile1", Region: "us-east-1"},
 		{Name: "testincludeprofile2", IncludeProfile: "testincludeprofile1"},
 	}
@@ -176,7 +191,7 @@ func TestAddProfileToExistingConfig(t *testing.T) {
 		{Name: "default", Region: "us-west-2"},
 		{Name: "user2", Region: "us-east-1"},
 		{Name: "withsource", Region: "us-east-1", SourceProfile: "user2"},
-		{Name: "withmfa", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2"},
+		{Name: "withMFA", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2"},
 		{Name: "testincludeprofile1", Region: "us-east-1"},
 		{Name: "testincludeprofile2", IncludeProfile: "testincludeprofile1"},
 		{Name: "llamas", MfaSerial: "testserial", Region: "us-east-1", SourceProfile: "default"},
@@ -269,26 +284,25 @@ func TestIniWithHeaderSavesWithHeader(t *testing.T) {
 
 }
 
-func TestIniWithoutHeaderSavesWithHeader(t *testing.T) {
-	f := newConfigFile(t, defaultsOnlyConfigWithoutHeader)
+func TestIniWithDEFAULTHeader(t *testing.T) {
+	f := newConfigFile(t, []byte(`[DEFAULT]
+region=us-east-1
+[default]
+region=us-west-2
+`))
 	defer os.Remove(f)
 
 	cfg, err := vault.LoadConfig(f)
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	err = cfg.Save()
-	if err != nil {
-		t.Fatal(err)
+	expected := []vault.ProfileSection{
+		{Name: "default", Region: "us-west-2"},
 	}
+	actual := cfg.ProfileSections()
 
-	expected := defaultsOnlyConfigWithHeader
-
-	b, _ := ioutil.ReadFile(f)
-
-	if !bytes.Equal(expected, b) {
-		t.Fatalf("Expected:\n%q\nGot:\n%q", expected, b)
+	if diff := cmp.Diff(expected, actual); diff != "" {
+		t.Errorf("ProfileSections() mismatch (-expected +actual):\n%s", diff)
 	}
 }
 

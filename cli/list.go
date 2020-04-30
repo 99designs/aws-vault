@@ -7,7 +7,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/99designs/aws-vault/v5/vault"
+	"github.com/99designs/aws-vault/v6/vault"
 	"github.com/99designs/keyring"
 	"gopkg.in/alecthomas/kingpin.v2"
 )

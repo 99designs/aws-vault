@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/99designs/aws-vault/v5/prompt"
-	"github.com/99designs/aws-vault/v5/vault"
+	"github.com/99designs/aws-vault/v6/prompt"
+	"github.com/99designs/aws-vault/v6/vault"
 	"github.com/99designs/keyring"
 	"golang.org/x/crypto/ssh/terminal"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"

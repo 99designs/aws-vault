@@ -3,9 +3,11 @@ package vault
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -28,7 +30,6 @@ const (
 var UseSession = true
 
 func init() {
-	ini.DefaultHeader = true
 	ini.PrettyFormat = false
 }
 
@@ -112,14 +113,24 @@ func LoadConfigFromEnv() (*ConfigFile, error) {
 	return LoadConfig(file)
 }
 
+var iniKeysRegex = regexp.MustCompile(`\n[^\[\=]+\=`)
+
 func (c *ConfigFile) parseFile() error {
 	log.Printf("Parsing config file %s", c.Path)
+
+	src, err := ioutil.ReadFile(c.Path)
+	if err != nil {
+		return fmt.Errorf("Error parsing config file %s: %w", c.Path, err)
+	}
+	iniWithLowerCaseKeys := iniKeysRegex.ReplaceAllFunc(src, func(w []byte) []byte {
+		return []byte(strings.ToLower(string(w)))
+	})
+
 	f, err := ini.LoadSources(ini.LoadOptions{
 		AllowNestedValues: true,
-		Insensitive:       true,
-	}, c.Path)
+	}, iniWithLowerCaseKeys)
 	if err != nil {
-		return fmt.Errorf("Error parsing config file %q: %v", c.Path, err)
+		return fmt.Errorf("Error parsing config file %s: %w", c.Path, err)
 	}
 	c.iniFile = f
 	return nil
@@ -157,7 +168,7 @@ func (c *ConfigFile) ProfileSections() []ProfileSection {
 	}
 
 	for _, section := range c.iniFile.SectionStrings() {
-		if strings.ToLower(section) != defaultSectionName && !strings.HasPrefix(section, "profile ") {
+		if section != defaultSectionName && !strings.HasPrefix(section, "profile ") {
 			log.Printf("Unrecognised ini file section: %s", section)
 			continue
 		}

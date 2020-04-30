@@ -19,6 +19,7 @@
   * [Assuming a role for more than 1h](#assuming-a-role-for-more-than-1h)
   * [Limitations with STS](#limitations-with-sts)
 * [MFA](#mfa)
+  * [Gotchas with MFA](#gotchas-with-mfa)
 * [AWS Single Sign-On (AWS SSO)](#aws-single-sign-on-aws-sso)
 * [Using credential helper](#using-credential-helper)
 * [Using a Yubikey](#using-a-yubikey)
@@ -62,7 +63,7 @@ This is a flexible mechanism for more complex configurations.
 For example you can use it in "mixin" style where you import a common fragment. In this example, the `root`, `order-dev` and `order-staging-admin` profiles include the `region`, `mfa_serial` and `source_profile` configuration from `common`.
 
 ```ini
-; while common here is labelled "profile", think of it as "fragment"
+; The "common" profile here operates as a "config fragment" rather than a profile
 [profile common]
 region=eu-west-1
 mfa_serial=arn:aws:iam::123456789:mfa/johnsmith
@@ -82,7 +83,7 @@ role_arn=arn:aws:iam::123456789:role/administrators
 
 Or you could use it in "parent" style where you conflate the fragment with the profile. In this example the `order-dev` and `order-staging-admin` profiles include the `region`, `mfa_serial` and `source_profile` configuration from `root`, while also using the credentials stored against the `root` profile as the source credentials `source_profile = root`
 ```ini
-; The root profile here operates as both a profile and a fragment
+; The "root" profile here operates as a profile, a config fragment as well as a source_profile
 [profile root]
 region=eu-west-1
 mfa_serial=arn:aws:iam::123456789:mfa/johnsmith
@@ -393,6 +394,12 @@ mfa_serial = arn:aws:iam::111111111111:mfa/tom
 ```
 
 You can also set the `mfa_serial` with the environment variable `AWS_MFA_SERIAL`.
+
+### Gotchas with MFA
+
+v4 of aws-vault would incorrectly use the `mfa_serial` from the `source_profile`. While this was intuitive for some, it caused many issues, made certain configurations impossible to repesent and is different behaviour to the aws-cli.
+
+v5 of aws-vault corrected this problem. The `mfa_serial` must be specified for _each_ profile. If you wish to avoid specifying the `mfa_serial` for each profile, consider using [`include_profile`](#include_profile).
 
 
 ## AWS Single Sign-On (AWS SSO)

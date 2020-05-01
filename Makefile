@@ -37,5 +37,5 @@ SHA256SUMS: binaries aws-vault-darwin-amd64.dmg
 install:
 	rm -f aws-vault
 	go build $(BUILD_FLAGS) .
-	codesign --options runtime --timestamp --sign "$(CERT_ID)" aws-vault
+	codesign --options runtime --timestamp --sign "$(CERT_ID)" aws-vault || true
 	mv aws-vault ~/bin/

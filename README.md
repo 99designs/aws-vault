@@ -145,17 +145,23 @@ sso_role_name=Administrator
 
 This profile should work expected with AWS Vault commands, e.g. `exec` and `login`. See [Basic Usage](#basic-usage) for more information.
 
-## Development
+## Local Development
+Have [go installed](https://golang.org/doc/install?download=go1.14.1.darwin-amd64.pkg)
 
 The [macOS release builds](https://github.com/99designs/aws-vault/releases) are code-signed to avoid extra prompts in Keychain. You can verify this with:
 
     $ codesign --verify --verbose $(which aws-vault)
 
-If you are developing or compiling the aws-vault binary yourself, you can [generate a self-signed certificate](https://support.apple.com/en-au/guide/keychain-access/kyca8916/mac) by accessing Keychain Access > Certificate Assistant > Create Certificate > Code Signing Certificate. You can then sign your binary with:
+If you are developing or compiling the aws-vault binary yourself, you can [generate a self-signed certificate](https://support.apple.com/en-au/guide/keychain-access/kyca8916/mac) by accessing Keychain Access > Certificate Assistant > Create Certificate
+The certificate 'Name' can be whatever; the 'Identity Type' can be the default; for Certificate Type choose 'Code Signing'; hit create.
+
+You can then sign your binary with:
 
     $ go build .
-    $ codesign --sign "Name of my certificate" ./aws-vault
+    $ codesign --sign <Name of certificate created above> ./aws-vault
+    $ go run main.go # should work if everything was configured correctly
 
+`go run main.go` is the local equivalent of running `aws-vault`
 
 ## References and Inspiration
 

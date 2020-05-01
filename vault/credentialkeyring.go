@@ -26,6 +26,9 @@ func (ck *CredentialKeyring) CredentialsKeys() (credentialsNames []string, err e
 }
 
 func (ck *CredentialKeyring) Has(credentialsName string) (bool, error) {
+	if credentialsName == "" {
+		return false, fmt.Errorf("Error finding credentials")
+	}
 	allKeys, err := ck.Keyring.Keys()
 	if err != nil {
 		return false, err

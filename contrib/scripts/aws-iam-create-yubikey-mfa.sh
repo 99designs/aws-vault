@@ -1,4 +1,5 @@
 #!/bin/sh
+# Adds a Yubikey TOTP device to IAM
 
 set -e
 

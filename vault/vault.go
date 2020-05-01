@@ -283,5 +283,9 @@ func MasterCredentialsFor(profileName string, keyring *CredentialKeyring, config
 		return profileName, nil
 	}
 
+	if profileName == config.SourceProfileName {
+		return "", fmt.Errorf("No master credentials found")
+	}
+
 	return MasterCredentialsFor(config.SourceProfileName, keyring, config)
 }

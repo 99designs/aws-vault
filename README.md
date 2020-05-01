@@ -151,11 +151,10 @@ The [macOS release builds](https://github.com/99designs/aws-vault/releases) are 
 
     $ codesign --verify --verbose $(which aws-vault)
 
-If you are developing or compiling the aws-vault binary yourself, you can [generate a self-signed certificate](https://support.apple.com/en-au/guide/keychain-access/kyca8916/mac) by accessing Keychain Access > Certificate Assistant > Create Certificate > Code Signing Certificate. You can then sign your binary with:
+If you are developing or compiling the aws-vault binary yourself, you can [generate a self-signed certificate](https://support.apple.com/en-au/guide/keychain-access/kyca8916/mac) by accessing Keychain Access > Certificate Assistant > Create Certificate -> Certificate Type: Code Signing. You can then sign your binary with:
 
     $ go build .
-    $ codesign --sign "Name of my certificate" ./aws-vault
-
+    $ codesign --sign <Name of certificate created above> ./aws-vault
 
 ## References and Inspiration
 

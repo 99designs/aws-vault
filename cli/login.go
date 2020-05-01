@@ -98,7 +98,7 @@ func LoginCommand(input LoginCommandInput, configLoader *vault.ConfigLoader, key
 		creds, err = vault.NewFederationTokenCredentials(input.ProfileName, ckr, config)
 	}
 	if err != nil {
-		return err
+		return fmt.Errorf("profile %s: %w", input.ProfileName, err)
 	}
 
 	val, err := creds.Get()

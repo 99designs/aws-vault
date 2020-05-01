@@ -26,6 +26,7 @@
   * [Prerequisites](#prerequisites)
   * [Setup](#setup)
   * [Usage](#usage)
+* [Shell completion](#shell-completion)
 * [Recipes](#recipes)
   * [Desktop apps](#desktop-apps)
   * [Overriding the aws CLI to use aws-vault](#overriding-the-aws-cli-to-use-aws-vault)
@@ -472,6 +473,20 @@ aws-vault exec --prompt ykman ${AWS_VAULT_PROFILE_USING_MFA} -- aws s3 ls
 Further config:
  - `AWS_VAULT_PROMPT=ykman`: to avoid specifying `--prompt` each time
  - `YKMAN_OATH_CREDENTIAL_NAME`: to use an alternative ykman credential
+
+
+## Shell completion
+
+You can generate shell completions with
+```shell
+# for bash
+eval "$(aws-vault --completion-script-bash)"
+
+# for zsh
+eval "$(aws-vault --completion-script-zsh)"
+```
+
+There are more completion scripts at [contrib/completions](contrib/completions).
 
 
 ## Recipes

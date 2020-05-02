@@ -15,9 +15,11 @@
 * [Managing Sessions](#managing-sessions)
   * [Logging into AWS console](#logging-into-aws-console)
   * [Removing stored sessions](#removing-stored-sessions)
-  * [Not using session credentials](#not-using-session-credentials)
-  * [Assuming a role for more than 1h](#assuming-a-role-for-more-than-1h)
-  * [Limitations with STS](#limitations-with-sts)
+  * [Using --no-session](#using---no-session)
+  * [Session duration](#session-duration)
+  * [Using `--server`](#using---server)
+    * [`--ecs-server`](#--ecs-server)
+  * [Temporary credentials limitations with STS, IAM](#temporary-credentials-limitations-with-sts-iam)
 * [MFA](#mfa)
   * [Gotchas with MFA config](#gotchas-with-mfa-config)
 * [AWS Single Sign-On (AWS SSO)](#aws-single-sign-on-aws-sso)
@@ -27,10 +29,7 @@
   * [Setup](#setup)
   * [Usage](#usage)
 * [Shell completion](#shell-completion)
-* [Recipes](#recipes)
   * [Desktop apps](#desktop-apps)
-  * [Overriding the aws CLI to use aws-vault](#overriding-the-aws-cli-to-use-aws-vault)
-  * [An example config to switch profiles via environment variables](#an-example-config-to-switch-profiles-via-environment-variables)
 
 
 ## Getting Help
@@ -149,9 +148,7 @@ If you're looking to configure the amount of time between having to enter your K
 
 ### Using multiple profiles
 
-In addition to using IAM roles to assume temporary privileges as described in
-[README.md](./USAGE.md), aws-vault can also be used with multiple profiles directly. This allows you
-to use multiple separate AWS accounts that have no relation to one another, such as work and home.
+In addition to using IAM roles to assume temporary privileges as described in [README.md](./USAGE.md), aws-vault can also be used with multiple profiles directly. This allows you to use multiple separate AWS accounts that have no relation to one another, such as work and home.
 
 ```shell
 # Store AWS credentials for the "home" profile
@@ -174,9 +171,7 @@ $ aws-vault exec work -- aws s3 ls
 another_bucket
 ```
 
-Here is an example `~/.aws/config` file, to help show the configuration. It defines two AWS accounts:
-"home" and "work", both of which use MFA. The work account provides two roles, allowing the user to
-become either profile.
+Here is an example `~/.aws/config` file, to help show the configuration. It defines two AWS accounts: "home" and "work", both of which use MFA. The work account provides two roles, allowing the user to become either profile.
 
 ```ini
 [default]
@@ -196,8 +191,7 @@ source_profile = work
 
 ### Listing profiles and credentials
 
-You can use the `aws-vault list` command to list out the defined profiles, and any session
-associated with them.
+You can use the `aws-vault list` command to list out the defined profiles, and any session associated with them.
 
 ```shell
 $ aws-vault list
@@ -211,8 +205,7 @@ work-admin               work
 
 ### Removing credentials
 
-The `aws-vault remove` command can be used to remove credentials. It works similarly to the
-`aws-vault add` command.
+The `aws-vault remove` command can be used to remove credentials. It works similarly to the `aws-vault add` command.
 
 ```shell
 # Remove AWS credentials for the "work" profile
@@ -260,8 +253,8 @@ The minimal IAM policy required to rotate your own credentials is:
 
 ### Logging into AWS console
 
-You can use the `aws-vault login` command to open a browser window and login to AWS Console for a
-given account:
+You can use the `aws-vault login` command to open a browser window and login to AWS Console for a given account:
+
 ```shell
 $ aws-vault login work
 ```
@@ -274,113 +267,62 @@ If you want to remove sessions managed by `aws-vault` before they expire, you ca
 aws-vault remove <profile> --sessions-only
 ```
 
-### Not using session credentials
+### Using --no-session
 
-The way `aws-vault` works, whichever profile you use, it starts by opening a session with AWS. This
-is basically a signed request (with the IAM user credentials) to AWS to get a temporary set of
-credentials (see
-[`GetSessionToken`](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_request.html#stsapi_comparison)).
-This allows for your base user credentials (that don't change often) to not be exposed to your
-applications that need a connection to AWS. There are however 2 use cases where this is a problem
-and we'll detail after a word of caution.
+AWS Vault will typically create temporary credentials using a combination of `GetSessionToken` and `AssumeRole`, depending on the config. The `GetSessionToken` call is made with MFA if available, and the resulting session is cached in the backend vault and can be used to assume roles from different profiles without further MFA prompts.
 
-Before considering the 2 use cases below that use the `--no-session` parameter, you should
-understand the trade-off you are making.  
-The AWS session offers 2 perks:
-* **a *cached* connection/session** to AWS that can authenticate you with MFA. That means that with a
-  session, through `aws-vault`, you do not have to enter your MFA every time you use the command.
-* **a security for your IAM user credentials**. When you set up `aws-vault` you give it your IAM user
-  credentials and those are stored safely in some encrypted backend. When you execute a command
-through `aws-vault` with a session, those credentials are retrieved to sign the AWS authentication
-request but they are never exposed. Instead `aws-vault` exposes the credentials of the **temporary**
-session it just opened, which gives you (mostly) the same access as with your IAM user, but through
-an `ACCESS_KEY_ID` and `SECRET_ACCESS_KEY` that expire, therefore improving the security.
+If you wish to skip the `GetSessionToken` call, you can use the `--no-session` flag.
 
-Not using a session (as a solution for the limitations described in the following 2 sections) means
-that you lose the *cached* connection and that you *might* lessen the security. 2 cases:
-* If you use a connection profile that uses a simple IAM user and not a `role_arn`, then using
-  `aws-vault` without session will expose your IAM user credentials directly to the
-terminal/application you are running. This is basically the opposite of what you are trying to do
-using `aws-vault`.
-You can easily witness that by doing
-```
+However, consider that if you use `--no-session` with a profile using IAM credentials and NO `role_arn`, then your IAM credentials will be directly exposed to the terminal/application you are running. This is the opposite of what you are normally trying to achieve by using AWS Vault. You can easily witness that by doing
+```shell
 aws-vault exec <iam_user_profile> -- env | grep AWS
 ```
 You'll see an `AWS_ACCESS_KEY_ID` of the form `ASIAxxxxxx` which is a temporary one. Doing 
-```
+```shell
 aws-vault exec <iam_user_profile> --no-session -- env | grep AWS
 ```
-You'll see your IAM user `AWS_ACCESS_KEY_ID` of the form `AKIAxxxxx` directly exposed, as well as
-the corresponding `AWS_SECRET_KEY_ID`.
-* If you use a connection profile with a `role_arn`, since `aws-vault` will use the `AssumeRole`
-  API, it will anyway only expose a set of *temporary* credentials and will therefore not lessen the
-security of the setup. You can execute the same test as before to see it for yourself.
+You'll see your IAM user `AWS_ACCESS_KEY_ID` of the form `AKIAxxxxx` directly exposed, as well as the corresponding `AWS_SECRET_KEY_ID`.
 
-### Assuming a role for more than 1h
 
-If you try to [assume a role](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html) from an opened (temporary) session, AWS considers that as [role
-chaining](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_terms-and-concepts.html#iam-term-role-chaining) and it limits your ability to assume the target role to only **1h**. Trying to use
-`--duration` with a value bigger than **1h** will result in an error:
+### Session duration
+
+If you try to [assume a role](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html) from a temporary session or another role, AWS considers that as [role chaining](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_terms-and-concepts.html#iam-term-role-chaining) and limits your ability to assume the target role to 1h. Trying to use a duration longer than 1h may result in an error:
 ```
-aws-vault: error: Failed to get credentials for default (source profile for pix4d): ValidationError: The requested DurationSeconds exceeds the MaxSessionDuration set for this role.
+aws-vault: error: Failed to get credentials for default: ValidationError: The requested DurationSeconds exceeds the MaxSessionDuration set for this role.
         status code: 400, request id: aa58fa50-4a5e-11e9-9566-293ea5c350ee
 ```
-There are reasons though where you'd like to assume a role for a longer period. For example, when
-using a tool like [Terraform](https://www.terraform.io/), you need to have AWS credentials available
-to the application for the entire duration of the infrastructure change. And in large setups, or for
-complex resources, this can take more than 1h.  
-There are 2 solutions:
 
-1. Call aws-vault with `--no-session`. This means that the `AssumeRole` API
-will be called by using directly the IAM user credentials and not opening a session. This is not a
-*role chaining* and therefore you can request a role for up to 12 hours (`--duration=12h`),
-so long as you have setup your role to allow such a thing (AWS role are created by *default* with a
-max TTL of 1h). The drawback of this method is related to **MFA**. Since you are not using the AWS
-session, which is cached by `aws-vault`, if you use **MFA** (and you should), you'll have to enter
-your **MFA** token at every invocation of the `aws-vault` command. This can become a bit tedious.  
+For that reason, AWS Vault will not use `GetSessionToken` if `--duration` or the role's `duration_seconds` is longer than 1h.
 
-2. Start `aws-vault` as a server (`aws-vault exec <profile> -s`). This will start a background
-   process that will imitate the [metadata
-endpoint](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) that you
-would have on an EC2 instance. When your application will want to connect to AWS and fail to find
-credentials (typically in env variables), it will instead contact this server that will issue a new
-set of temporary credentials (using the same profile as the one the server was started with). This
-server will work only for the duration of the session ([AWS_SESSION_TOKEN_TTL](#environment-variables)).
+### Using `--server`
 
-Note that this approach has the **major drawback** that while this `aws-vault` server runs, any
-application wanting to **connect** to AWS will be able to do so **implicitely**, with the profile the
-server was started with. Thanks to `aws-vault`, the credentials are not exposed, but the ability to
-use them to connect to AWS is!
+There may be scenarios where you'd like to assume a role for a long length of time, or perhaps when using a tool where using temporary sessions on demand is preferable. For example, when using a tool like [Terraform](https://www.terraform.io/), you need to have AWS credentials available to the application for the entire duration of the infrastructure change.
 
-Also, note that if you already have set any of the below environment variables and you want to use `--server` remember to delete them previosuly from your System Environment Variables. **Otherwise you always will need to execute all commands that requires authentication with the `aws-vault` first** , e.g : `aws-vault ec2 describe-instances`, since the vault will use the local variables if any as primary option:
+AWS Vault can run a background server to imitate the [metadata endpoint](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) that you would have on an EC2 instance. When your application uses the AWS SDK to locate credentials, it will automatically connect to this server that will issue a new set of temporary credentials (using the same profile as the one the server was started with). This server will continue to generate temporary credentials any time the application requests it.
 
-* AWS_ACCESS_KEY_ID
-* AWS_SECRET_ACCESS_KEY
-* AWS_SECURITY_TOKEN
-* AWS_SESSION_TOKEN
+This approach has the major security drawback that while this `aws-vault` server runs, any application wanting to connect to AWS will be able to do so, using the profile the server was started with. Thanks to `aws-vault`, the credentials are not exposed, but the ability to use them to connect to AWS is!
 
-### Limitations with STS
+To use `--server`, AWS Vault needs root/administrator privileges in order to bind to the privileged port. AWS Vault runs a minimal proxy as the root user, proxying through to the real aws-vault instance.
 
-While using a standard `aws-vault` connection, using an IAM role or not, you cannot use any STS API
-(except `AssumeRole`) due to the usage of the AWS session (see
-[here](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_request.html#stsapi_comparison)).
-Note that this is done for security reasons and makes sense. Needing to call the STS API from a
-session is generally a **non-standard situation**.  
-But if you are sure of your use case, using the `--no-session` parameter will solve the issue.
+#### `--ecs-server`
 
-Note that for the 
-[`GetFederationToken`](https://docs.aws.amazon.com/STS/latest/APIReference/API_GetFederationToken.html)
-API, as a STS API, you can't call it from an AWS session, but you also cannot call it using an IAM
-role. This means that the only way to call `GetFederationToken` is to use both `--no-session` and an
-`aws-vault` profile that does not use a `role_arn`. This therefore exposes your IAM user's
-credentials (see before) and you should really check your design before going forward.
+An ECS credential server can also be used instead of the ec2 metadata server. The ECS Credential provider binds to a random, ephemeral port and requires an authorization token, which offer the following advantages over the EC2 Metadata provider:
+ 1. Does not require root/administrator privileges
+ 2. Allows multiple providers simultaneously for discrete processes
+ 3. Mitigates the security issues that accompany the EC2 Metadata Service because the address is not well-known and the authorization token is only exposed to the subprocess via environment variables
+
+However, this will only work with the AWS SDKs that support `AWS_CONTAINER_CREDENTIALS_FULL_URI`. The Ruby, .NET and PHP SDKs do not currently support it.
+
+### Temporary credentials limitations with STS, IAM
+
+When using temporary credentials you are restricted from using some STS and IAM APIs (see [here](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_request.html#stsapi_comparison)). You may need to avoid the temporary session by using `--no-session`.
 
 
 ## MFA
 
 To enable MFA for a profile, specify the `mfa_serial` in `~/.aws/config`. You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username]`. If you have an account with an MFA associated, but you don't provide the IAM, you are unable to call IAM services, even if you have the correct permissions to do so.
 
-AWS Vault will attempt to re-use a `GetSessionToken` between profiles that share a common `mfa_serial`. In the following example, aws-vault will cache and re-use sessions between role1 and role2. This means you don't have to continaully enter MFA codes if the user is the same.
+AWS Vault will attempt to re-use a `GetSessionToken` between profiles that share a common `mfa_serial`. In the following example, aws-vault will cache and re-use sessions between role1 and role2. This means you don't have to continually enter MFA codes if the user is the same.
 
 ```ini
 [profile tom]
@@ -400,10 +342,22 @@ You can also set the `mfa_serial` with the environment variable `AWS_MFA_SERIAL`
 
 ### Gotchas with MFA config
 
-v4 of aws-vault would inherit the `mfa_serial` from the `source_profile`. While this was intuitive for some, it caused many issues, made certain configurations impossible to repesent and is different behaviour to the aws-cli.
+aws-vault v4 would inherit the `mfa_serial` from the `source_profile`. While this was intuitive for some, it made certain configurations difficult to express and is different behaviour to the aws-cli.
 
-v5 of aws-vault corrected this problem. The `mfa_serial` must be specified for _each_ profile. If you wish to avoid specifying the `mfa_serial` for each profile, consider using [`include_profile`](#include_profile), the `mfa_serial` in the `[default]` section or `AWS_MFA_SERIAL` environment variable.
+aws-vault v5 corrected this problem. The `mfa_serial` must be specified for _each_ profile, the same way the aws-cli interprets the configuration. If you wish to avoid specifying the `mfa_serial` for each profile, consider using the `mfa_serial` in the `[default]` section, the `AWS_MFA_SERIAL` environment variable, or [`include_profile`](#include_profile). For example:
 
+```ini
+[profile jonmfa]
+mfa_serial = arn:aws:iam::111111111111:mfa/jon
+
+[profile role1]
+role_arn = arn:aws:iam::22222222222:role/role1
+include_profile = jonmfa
+
+[profile role2]
+role_arn = arn:aws:iam::33333333333:role/role2
+include_profile = jonmfa
+```
 
 ## AWS Single Sign-On (AWS SSO)
 
@@ -426,21 +380,22 @@ sso_role_name=Administrator
 
 ## Using credential helper
 
-Ref: https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
-This allows you to use credentials of multiple profiles at the same time.
+The AWS CLI config now supports sourcing credentials directly from an external process, like aws-vault!
 
 ```ini
 [profile home]
 credential_process = aws-vault exec home --json
 ```
 
-if `mfa_serial` is set, please define the prompt driver (for example `osascript` for macOS), else the prompt will not show up.
+If `mfa_serial` is set, please define the prompt driver (for example `osascript` for macOS), else the prompt will not show up.
 
 ```ini
 [profile work]
 mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
 credential_process = aws-vault exec work --json --prompt=osascript
 ```
+
+See the [AWS CLI docs](https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes) for more details.
 
 ## Using a Yubikey
 
@@ -454,7 +409,7 @@ You can verify these prerequisites by running `ykman info` and checking `OATH` i
 
 ### Setup
  1. Log into the AWS web console with your IAM user credentials, and navigate to  _My Security Credentials_
- 2. Under _Multi-factor authentivation (MFA)_, click `Manage MFA device` and add a Virtual MFA device
+ 2. Under _Multi-factor authentication (MFA)_, click `Manage MFA device` and add a Virtual MFA device
  3. Instead of showing the QR code, click on `Show secret key` and copy the key.
  4. On a command line, run:
     ```shell
@@ -489,54 +444,12 @@ eval "$(aws-vault --completion-script-zsh)"
 There are more completion scripts at [contrib/completions](contrib/completions).
 
 
-## Recipes
-
 ### Desktop apps
 
 You can use desktop apps with temporary credentials from AWS Vault too! For example
 ```shell
 aws-vault exec --server --prompt=osascript jonsmith -- open -a Lens
 ```
-* `--server`: starts the background server so that credentials get refreshed automatically
+* `--server`: starts the background server so that temporary credentials get refreshed automatically
 * `--prompt=osascript`: pop up a GUI for MFA prompts
 * `open -a Lens`: open is the macOS command to open an app from the command line
-
-
-### Overriding the aws CLI to use aws-vault
-
-If you want the `aws` command to use aws-vault automatically, you can create an overriding script
-(make it higher precedence in your PATH) that looks like the below:
-
-```shell
-#!/bin/bash
-exec aws-vault exec "${AWS_DEFAULT_PROFILE:-work}" -- /usr/local/bin/aws "$@"
-```
-
-The exec helps reduce the number of processes that are hanging around. The `$@` passes on the
-arguments from the wrapper to the original command.
-
-
-### An example config to switch profiles via environment variables
-
-This allows you to switch profiles using the environment variable of `AWS_PROFILE=<profile-name>`
-
-Be sure you have `AWS_SDK_LOAD_CONFIG=true` in your environment. What's needed is an alias profile that when setting environment variable can be the parameter
-
-```ini
-# ~/.aws/config
-[profile jonsmith]
-[profile _source_prod_admin]
-source_profile=jonsmith
-role_arn=arn:aws:iam::111111111111:role/Administrator
-mfa_serial=arn:aws:iam::000000000000:mfa/jonsmith
-[profile prod_admin]
-credential_process=aws-vault exec _source_prod_admin --json
-```
-
-One can add this alias to switch profiles using `assume <profile-name>`
-
-```
-assume() {
-  export AWS_PROFILE=$1
-}
-```

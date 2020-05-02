@@ -13,6 +13,7 @@
   * [Removing credentials](#removing-credentials)
   * [Rotating credentials](#rotating-credentials)
 * [Managing Sessions](#managing-sessions)
+  * [Executing a command](#executing-a-command)
   * [Logging into AWS console](#logging-into-aws-console)
   * [Removing stored sessions](#removing-stored-sessions)
   * [Using --no-session](#using---no-session)
@@ -251,10 +252,21 @@ The minimal IAM policy required to rotate your own credentials is:
 
 ## Managing Sessions
 
+### Executing a command
+
+Running `aws-vault exec` will run a command with AWS credentials.
+
+When using exec, you may find it useful to use the builtin `--` feature in bash, zsh and other POSIX shells. For example
+```shell
+aws-vault exec myprofile -- aws s3 ls
+```
+Using `--` signifies the end of the `aws-vault` options, and allows the shell autocomplete to kick in and offer autocompletions for the proceeding command.
+
+If you use `exec` without specifying a command, AWS Vault will create a new interactive subshell. Note that when creating an interactive subshell, bash, zsh and other POSIX shells will execute the `~/.bashrc` or `~/.zshrc` file. If you have local variables, functions or aliases (for example your `PS1` prompt), ensure that they are defined in the rc file so they get executed when the subshell begins.
+
 ### Logging into AWS console
 
 You can use the `aws-vault login` command to open a browser window and login to AWS Console for a given account:
-
 ```shell
 $ aws-vault login work
 ```
@@ -262,7 +274,6 @@ $ aws-vault login work
 ### Removing stored sessions
 
 If you want to remove sessions managed by `aws-vault` before they expire, you can do this with the `--sessions-only` flag.
-
 ```shell
 aws-vault remove <profile> --sessions-only
 ```

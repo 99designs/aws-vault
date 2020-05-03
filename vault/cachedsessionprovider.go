@@ -11,7 +11,7 @@ import (
 // CachedSessionProvider retrieves cached credentials from the keyring, or if no credentials are cached
 // retrieves temporary credentials using the CredentialsFunc
 type CachedSessionProvider struct {
-	SessionKey      SessionKey
+	SessionKey      SessionMetadata
 	CredentialsFunc func() (*sts.Credentials, error)
 	Keyring         *SessionKeyring
 	ExpiryWindow    time.Duration

@@ -84,7 +84,7 @@ func NewSessionTokenProvider(creds *credentials.Credentials, k keyring.Keyring, 
 
 	if UseSessionCache {
 		return &CachedSessionProvider{
-			SessionKey: SessionKey{
+			SessionKey: SessionMetadata{
 				Type:        "sts.GetSessionToken",
 				ProfileName: config.ProfileName,
 				MfaSerial:   config.MfaSerial,
@@ -121,7 +121,7 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, k keyring.Keyring, co
 
 	if UseSessionCache && config.MfaSerial != "" {
 		return &CachedSessionProvider{
-			SessionKey: SessionKey{
+			SessionKey: SessionMetadata{
 				Type:        "sts.AssumeRole",
 				ProfileName: config.ProfileName,
 				MfaSerial:   config.MfaSerial,
@@ -153,7 +153,7 @@ func NewSSORoleCredentialsProvider(k keyring.Keyring, config *Config) (credentia
 
 	if UseSessionCache {
 		return &CachedSessionProvider{
-			SessionKey: SessionKey{
+			SessionKey: SessionMetadata{
 				Type:        "sso.GetRoleCredentialsInput",
 				ProfileName: config.ProfileName,
 				MfaSerial:   config.SSOStartURL,

@@ -6,13 +6,15 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/service/sts"
 )
 
-var sessionKeyPattern = regexp.MustCompile(`^(?P<type>[^,]+),(?P<profile>[^,]+),(?P<mfaSerial>[^,]*),0$`)
+var sessionKeyPattern = regexp.MustCompile(`^(?P<type>[^,]+),(?P<profile>[^,]+),(?P<mfaSerial>[^,]*),(?P<expiration>[0-9]{1,})$`)
 
 var oldSessionKeyPatterns = []*regexp.Regexp{
 	regexp.MustCompile(`^session,(?P<profile>[^,]+),(?P<mfaSerial>[^,]*),(?P<expiration>[0-9]{2,})$`),
@@ -39,46 +41,57 @@ func IsSessionKey(s string) bool {
 	return IsCurrentSessionKey(s) || IsOldSessionKey(s)
 }
 
-type SessionKey struct {
+type SessionMetadata struct {
 	Type        string
 	ProfileName string
 	MfaSerial   string
+	Expiration  time.Time
 }
 
-func (k *SessionKey) String() string {
+func (k *SessionMetadata) String() string {
 	return fmt.Sprintf(
-		"%s,%s,%s,0",
+		"%s,%s,%s,%d",
+		k.Type,
+		base64Encoding.EncodeToString([]byte(k.ProfileName)),
+		base64Encoding.EncodeToString([]byte(k.MfaSerial)),
+		k.Expiration.Unix(),
+	)
+}
+
+func (k *SessionMetadata) StringForMatching() string {
+	return fmt.Sprintf(
+		"%s,%s,%s,",
 		k.Type,
 		base64Encoding.EncodeToString([]byte(k.ProfileName)),
 		base64Encoding.EncodeToString([]byte(k.MfaSerial)),
 	)
 }
 
-func NewSessionKeyFromString(s string) (SessionKey, error) {
+func NewSessionKeyFromString(s string) (SessionMetadata, error) {
 	matches := sessionKeyPattern.FindStringSubmatch(s)
 	if len(matches) == 0 {
-		return SessionKey{}, fmt.Errorf("failed to parse session name: %s", s)
+		return SessionMetadata{}, fmt.Errorf("failed to parse session name: %s", s)
 	}
 
 	profileName, err := base64Encoding.DecodeString(matches[2])
 	if err != nil {
-		return SessionKey{}, err
+		return SessionMetadata{}, err
 	}
 	mfaSerial, err := base64Encoding.DecodeString(matches[3])
 	if err != nil {
-		return SessionKey{}, err
+		return SessionMetadata{}, err
+	}
+	expiryUnixtime, err := strconv.Atoi(matches[4])
+	if err != nil {
+		return SessionMetadata{}, err
 	}
 
-	return SessionKey{
+	return SessionMetadata{
 		Type:        matches[1],
 		ProfileName: string(profileName),
 		MfaSerial:   string(mfaSerial),
+		Expiration:  time.Unix(int64(expiryUnixtime), 0),
 	}, nil
-}
-
-type SessionMetadata struct {
-	SessionKey
-	Expiration time.Time
 }
 
 type SessionKeyring struct {
@@ -86,23 +99,41 @@ type SessionKeyring struct {
 	isGarbageCollected bool
 }
 
-func (sk *SessionKeyring) Has(key SessionKey) (bool, error) {
+var ErrNotFound = fmt.Errorf("Key not found")
+
+func (sk *SessionKeyring) lookupKeyName(key SessionMetadata) (string, error) {
 	allKeys, err := sk.Keyring.Keys()
 	if err != nil {
-		return false, err
+		return key.String(), err
 	}
 	for _, keyName := range allKeys {
-		if keyName == key.String() {
-			return true, nil
+		if strings.HasPrefix(keyName, key.StringForMatching()) {
+			return keyName, nil
 		}
 	}
-	return false, nil
+	return key.String(), ErrNotFound
 }
 
-func (sk *SessionKeyring) Get(key SessionKey) (val *sts.Credentials, err error) {
+func (sk *SessionKeyring) Has(key SessionMetadata) (bool, error) {
+	_, err := sk.lookupKeyName(key)
+	if err == ErrNotFound {
+		return false, nil
+	}
+	if err == nil {
+		return true, nil
+	}
+
+	return false, err
+}
+
+func (sk *SessionKeyring) Get(key SessionMetadata) (val *sts.Credentials, err error) {
 	sk.GarbageCollectOnce()
 
-	item, err := sk.Keyring.Get(key.String())
+	keyName, err := sk.lookupKeyName(key)
+	if err != nil && err != ErrNotFound {
+		return nil, err
+	}
+	item, err := sk.Keyring.Get(keyName)
 	if err != nil {
 		return val, err
 	}
@@ -112,12 +143,27 @@ func (sk *SessionKeyring) Get(key SessionKey) (val *sts.Credentials, err error) 
 	return val, err
 }
 
-func (sk *SessionKeyring) Set(key SessionKey, val *sts.Credentials) error {
+func (sk *SessionKeyring) Set(key SessionMetadata, val *sts.Credentials) error {
 	sk.GarbageCollectOnce()
+
+	key.Expiration = *val.Expiration
 
 	valJson, err := json.Marshal(val)
 	if err != nil {
 		return err
+	}
+
+	keyName, err := sk.lookupKeyName(key)
+	if err != ErrNotFound {
+		if err != nil {
+			return err
+		}
+		if keyName != key.String() {
+			err = sk.Keyring.Remove(keyName)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	return sk.Keyring.Set(keyring.Item{
@@ -128,12 +174,18 @@ func (sk *SessionKeyring) Set(key SessionKey, val *sts.Credentials) error {
 	})
 }
 
-func (sk *SessionKeyring) Remove(key SessionKey) error {
+func (sk *SessionKeyring) Remove(key SessionMetadata) error {
 	sk.GarbageCollectOnce()
-	return sk.Keyring.Remove(key.String())
+
+	keyName, err := sk.lookupKeyName(key)
+	if err != nil && err != ErrNotFound {
+		return err
+	}
+
+	return sk.Keyring.Remove(keyName)
 }
 
-func (sk *SessionKeyring) Keys() (kk []SessionKey, err error) {
+func (sk *SessionKeyring) Keys() (kk []SessionMetadata, err error) {
 	allKeys, err := sk.Keyring.Keys()
 	if err != nil {
 		return nil, err
@@ -148,36 +200,16 @@ func (sk *SessionKeyring) Keys() (kk []SessionKey, err error) {
 	return kk, nil
 }
 
-func (sk *SessionKeyring) RemoveAll() error {
-	allKeys, err := sk.Keys()
+func (sk *SessionKeyring) realSessionKey(key SessionMetadata) (m SessionMetadata, err error) {
+	keyName, err := sk.lookupKeyName(key)
 	if err != nil {
-		return err
+		return m, err
 	}
-	for _, k := range allKeys {
-		err = sk.Remove(k)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (sk *SessionKeyring) GetMetadata(key SessionKey) (m SessionMetadata, err error) {
-	item, err := sk.Keyring.GetMetadata(key.String())
+	sessKey, err := NewSessionKeyFromString(keyName)
 	if err != nil {
-		return m, fmt.Errorf("GetMetadata: %s: %w", key.String(), err)
+		return m, err
 	}
-
-	matches := regexp.MustCompile(`\(expires (.+)\)$`).FindStringSubmatch(item.Label)
-	if len(matches) == 0 {
-		return m, fmt.Errorf("failed to parse session label: %s", item.Label)
-	}
-
-	m.SessionKey = key
-	m.Expiration, _ = time.Parse(time.RFC3339, matches[1])
-
-	return m, nil
+	return sessKey, nil
 }
 
 func (sk *SessionKeyring) GetAllMetadata() (mm []SessionMetadata, err error) {
@@ -187,7 +219,7 @@ func (sk *SessionKeyring) GetAllMetadata() (mm []SessionMetadata, err error) {
 	}
 
 	for _, k := range allKeys {
-		m, err := sk.GetMetadata(k)
+		m, err := sk.realSessionKey(k)
 		if err != nil {
 			return nil, fmt.Errorf("GetAllMetadata: %w", err)
 		}
@@ -205,7 +237,7 @@ func (sk *SessionKeyring) RemoveForProfile(profileName string) (n int, err error
 	}
 	for _, s := range sessions {
 		if s.ProfileName == profileName {
-			err = sk.Remove(s.SessionKey)
+			err = sk.Remove(s)
 			if err != nil {
 				return n, err
 			}
@@ -240,12 +272,7 @@ func (sk *SessionKeyring) GarbageCollectOnce() (n int, err error) {
 			if err != nil {
 				continue
 			}
-			m, err := sk.GetMetadata(stsk)
-			if err != nil {
-				log.Printf("Error while deleting old session: %s", err.Error())
-				continue
-			}
-			if time.Now().After(m.Expiration) {
+			if time.Now().After(stsk.Expiration) {
 				err = sk.Keyring.Remove(k)
 				if err != nil {
 					log.Printf("Error while deleting old session: %s", err.Error())

@@ -2,15 +2,17 @@ VERSION=$(shell git describe --tags --candidates=1 --dirty)
 BUILD_FLAGS=-ldflags="-X main.Version=$(VERSION) -s -w" -trimpath
 CERT_ID ?= Developer ID Application: 99designs Inc (NRM9HVJ62Z)
 SRC=$(shell find . -name '*.go')
-INSTALL_DIR ?= ~/bin/
+INSTALL_DIR ?= ~/bin
 .PHONY: binaries clean release install
 
 aws-vault: $(SRC)
 	go build $(BUILD_FLAGS) .
-	codesign --options runtime --timestamp --sign "$(CERT_ID)" aws-vault || true
 
 install: aws-vault
-	cp -a aws-vault $(INSTALL_DIR)
+	mkdir -p $(INSTALL_DIR)
+	rm -f $(INSTALL_DIR)/aws-vault
+	cp -a ./aws-vault $(INSTALL_DIR)
+	codesign --options runtime --timestamp --sign "$(CERT_ID)" $(INSTALL_DIR)/aws-vault || true
 
 binaries: aws-vault-linux-amd64 aws-vault-linux-arm64 aws-vault-darwin-amd64 aws-vault-windows-386.exe aws-vault-freebsd-amd64
 

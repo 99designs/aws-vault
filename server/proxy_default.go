@@ -10,8 +10,8 @@ import (
 	"time"
 )
 
-// StartEc2EndpointProxyServerProcess starts a `aws-vault server` process
-func StartEc2EndpointProxyServerProcess() error {
+// StartCredentialProxy starts a `aws-vault server` process
+func StartCredentialProxy() error {
 	log.Println("Starting `aws-vault server` in the background")
 	cmd := exec.Command(os.Args[0], "server")
 	cmd.Stdin = os.Stdin
@@ -21,8 +21,8 @@ func StartEc2EndpointProxyServerProcess() error {
 		return err
 	}
 	time.Sleep(time.Second * 1)
-	if !isServerRunning(ec2MetadataEndpointAddr) {
-		return errors.New("The EC2 Instance Metadata endpoint proxy server isn't running. Run `aws-vault server` as Administrator or root in the background and then try this command again")
+	if !checkServerRunning(metadataBind) {
+		return errors.New("The credential proxy server isn't running. Run aws-vault server as Administrator in the background and then try this command again")
 	}
 	return nil
 }

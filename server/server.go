@@ -17,6 +17,7 @@ import (
 )
 
 const (
+	metadataIP      = "169.254.169.254"
 	metadataBind    = "169.254.169.254:80"
 	awsTimeFormat   = "2006-01-02T15:04:05Z"
 	localServerUrl  = "http://127.0.0.1:9099"
@@ -58,7 +59,13 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func credentialsHandler(w http.ResponseWriter, r *http.Request) {
-	resp, err := http.Get(localServerUrl)
+	req, err := http.NewRequest("GET", localServerUrl, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Host = r.Host // pass through the host so we can check for the DNS rebinding attack
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusGatewayTimeout)
 		return
@@ -139,6 +146,14 @@ func StartCredentialsServer(creds *vault.VaultCredentials) error {
 		// See https://developer.apple.com/library/content/qa/qa1357/_index.html
 		if !net.ParseIP(ip).IsLoopback() {
 			http.Error(w, "Access denied from non-localhost address", http.StatusUnauthorized)
+			return
+		}
+
+		// Check that the request is to 169.254.169.254
+		// Without this it's possible for an attacker to mount a DNS rebinding attack
+		// See https://github.com/99designs/aws-vault/issues/578
+		if r.Host != metadataIP {
+			http.Error(w, fmt.Sprintf("Access denied for host '%s'", r.Host), http.StatusUnauthorized)
 			return
 		}
 

@@ -15,6 +15,7 @@ import (
 
 const (
 	awsTimeFormat            = "2006-01-02T15:04:05Z"
+	ec2MetadataEndpointIP    = "169.254.169.254"
 	ec2MetadataEndpointAddr  = "169.254.169.254:80"
 	ec2CredentialsServerAddr = "127.0.0.1:9099"
 )
@@ -86,23 +87,30 @@ func startEc2CredentialsServer(creds *credentials.Credentials, region string) {
 
 	router.HandleFunc("/latest/meta-data/iam/security-credentials/local-credentials", credsHandler(creds))
 
-	log.Fatalln(http.ListenAndServe(ec2CredentialsServerAddr, withLogging(withLoopbackSecurityCheck(router))))
+	log.Fatalln(http.ListenAndServe(ec2CredentialsServerAddr, withLogging(withSecurityChecks(router))))
 }
 
-// withLoopbackSecurityCheck is middleware to check that the request comes from the loopback device
-// We must make sure the remote ip is from the loopback, otherwise clients on the same network segment could
-// potentially route traffic via 169.254.169.254:80
-// See https://developer.apple.com/library/content/qa/qa1357/_index.html
-func withLoopbackSecurityCheck(next *http.ServeMux) http.HandlerFunc {
+// withSecurityChecks is middleware to protect the server from attack vectors
+func withSecurityChecks(next *http.ServeMux) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Check the remote ip is from the loopback, otherwise clients on the same network segment could
+		// potentially route traffic via 169.254.169.254:80
+		// See https://developer.apple.com/library/content/qa/qa1357/_index.html
 		ip, _, err := net.SplitHostPort(r.RemoteAddr)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-
 		if !net.ParseIP(ip).IsLoopback() {
 			http.Error(w, "Access denied from non-localhost address", http.StatusUnauthorized)
+			return
+		}
+
+		// Check that the request is to 169.254.169.254
+		// Without this it's possible for an attacker to mount a DNS rebinding attack
+		// See https://github.com/99designs/aws-vault/issues/578
+		if r.Host != ec2MetadataEndpointIP {
+			http.Error(w, fmt.Sprintf("Access denied for host '%s'", r.Host), http.StatusUnauthorized)
 			return
 		}
 

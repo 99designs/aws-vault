@@ -358,16 +358,17 @@ aws-vault v4 would inherit the `mfa_serial` from the `source_profile`. While thi
 aws-vault v5 corrected this problem. The `mfa_serial` must be specified for _each_ profile, the same way the aws-cli interprets the configuration. If you wish to avoid specifying the `mfa_serial` for each profile, consider using the `mfa_serial` in the `[default]` section, the `AWS_MFA_SERIAL` environment variable, or [`include_profile`](#include_profile). For example:
 
 ```ini
-[profile jonmfa]
+[profile jon]
 mfa_serial = arn:aws:iam::111111111111:mfa/jon
+source_profile=jon
 
 [profile role1]
 role_arn = arn:aws:iam::22222222222:role/role1
-include_profile = jonmfa
+include_profile = jon
 
 [profile role2]
 role_arn = arn:aws:iam::33333333333:role/role2
-include_profile = jonmfa
+include_profile = jon
 ```
 
 ## AWS Single Sign-On (AWS SSO)
@@ -455,12 +456,12 @@ eval "$(aws-vault --completion-script-zsh)"
 There are more completion scripts at [contrib/completions](contrib/completions).
 
 
-### Desktop apps
+## Desktop apps
 
-You can use desktop apps with temporary credentials from AWS Vault too! For example
+You can use desktop apps with temporary credentials from AWS Vault too! For example on macOS run
 ```shell
 aws-vault exec --server --prompt=osascript jonsmith -- open -a Lens
 ```
 * `--server`: starts the background server so that temporary credentials get refreshed automatically
 * `--prompt=osascript`: pop up a GUI for MFA prompts
-* `open -a Lens`: open is the macOS command to open an app from the command line
+* `open -a Lens`: run the applications

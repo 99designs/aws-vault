@@ -24,6 +24,8 @@ const (
 
 	defaultSectionName          = "default"
 	roleChainingMaximumDuration = 1 * time.Hour
+
+	defaultPromptMethod = "terminal"
 )
 
 // UseSession will disable the use of GetSessionToken when set to false
@@ -153,6 +155,7 @@ type ProfileSection struct {
 	SSOAccountID    string `ini:"sso_account_id,omitempty"`
 	SSORoleName     string `ini:"sso_role_name,omitempty"`
 	AWSVaultBackend string `ini:"aws_vault_backend,omitempty"`
+	AWSVaultPrompt  string `ini:"aws_vault_prompt,omitempty"`
 }
 
 func (s ProfileSection) IsEmpty() bool {
@@ -283,6 +286,9 @@ func (cl *ConfigLoader) populateFromDefaults(config *Config) {
 	if config.ChainedGetSessionTokenDuration == 0 {
 		config.ChainedGetSessionTokenDuration = DefaultChainedSessionDuration
 	}
+	if config.AWSVaultPrompt == "" {
+		config.AWSVaultPrompt = defaultPromptMethod
+	}
 }
 
 func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName string) error {
@@ -328,6 +334,9 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 	}
 	if config.SSORoleName == "" {
 		config.SSORoleName = psection.SSORoleName
+	}
+	if config.AWSVaultPrompt == "" {
+		config.AWSVaultPrompt = psection.AWSVaultPrompt
 	}
 
 	if psection.ParentProfile != "" {
@@ -505,6 +514,9 @@ type Config struct {
 
 	// Keyring backend to use
 	AWSVaultBackend string
+
+	// Prompt method to use for mfa
+	AWSVaultPrompt string
 }
 
 func (c *Config) IsChained() bool {

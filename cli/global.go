@@ -103,6 +103,15 @@ func (a *AwsVault) updateKeyringConfig() {
 	if a.KeyringConfig.KeychainName == "" {
 		a.KeyringConfig.KeychainName = config.AWSVaultKeychainName
 	}
+	if a.KeyringConfig.PassCmd == "" {
+		a.KeyringConfig.PassCmd = config.AWSVaultPassCmd
+	}
+	if a.KeyringConfig.PassDir == "" {
+		a.KeyringConfig.PassDir = config.AWSVaultPassDir
+	}
+	if a.KeyringConfig.PassPrefix == "" {
+		a.KeyringConfig.PassPrefix = config.AWSVaultPassPrefix
+	}
 }
 
 func ConfigureGlobals(app *kingpin.Application) *AwsVault {

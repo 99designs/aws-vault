@@ -157,6 +157,9 @@ type ProfileSection struct {
 	AWSVaultBackend      string `ini:"aws_vault_backend,omitempty"`
 	AWSVaultPrompt       string `ini:"aws_vault_prompt,omitempty"`
 	AWSVaultKeychainName string `ini:"aws_vault_keychain_name,omitempty"`
+	AWSVaultPassCmd      string `ini:"aws_vault_pass_cmd,omitempty"`
+	AWSVaultPassDir      string `ini:"aws_vault_pass_dir,omitempty"`
+	AWSVaultPassPrefix   string `ini:"aws_vault_pass_prefix,omitempty"`
 }
 
 func (s ProfileSection) IsEmpty() bool {
@@ -521,6 +524,11 @@ type Config struct {
 
 	// Specifies name of mac os keychain
 	AWSVaultKeychainName string
+
+	// Pass backend config
+	AWSVaultPassCmd    string
+	AWSVaultPassDir    string
+	AWSVaultPassPrefix string
 }
 
 func (c *Config) IsChained() bool {

@@ -37,6 +37,7 @@ type AwsVault struct {
 
 func (a *AwsVault) Keyring() (keyring.Keyring, error) {
 	if a.keyringImpl == nil {
+		a.updateKeyringConfig()
 		if a.KeyringBackend != "" {
 			a.KeyringConfig.AllowedBackends = []keyring.BackendType{keyring.BackendType(a.KeyringBackend)}
 		}
@@ -80,6 +81,22 @@ func (a *AwsVault) ConfigLoader() (*vault.ConfigLoader, error) {
 	}
 
 	return a.configLoader, nil
+}
+
+func (a *AwsVault) updateKeyringConfig() {
+
+	awsConfigFile, err := a.AwsConfigFile()
+	if err != nil {
+		log.Printf("Error loading AWS config: %s", err.Error())
+		return
+	}
+
+	config, _ := awsConfigFile.DefaultProfileSection()
+
+	// Update values from config file if not set
+	if a.KeyringBackend == "" {
+		a.KeyringBackend = config.AWSVaultBackend
+	}
 }
 
 func ConfigureGlobals(app *kingpin.Application) *AwsVault {

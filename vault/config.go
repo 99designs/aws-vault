@@ -152,6 +152,7 @@ type ProfileSection struct {
 	SSORegion       string `ini:"sso_region,omitempty"`
 	SSOAccountID    string `ini:"sso_account_id,omitempty"`
 	SSORoleName     string `ini:"sso_role_name,omitempty"`
+	AWSVaultBackend string `ini:"aws_vault_backend,omitempty"`
 }
 
 func (s ProfileSection) IsEmpty() bool {
@@ -208,6 +209,10 @@ func (c *ConfigFile) ProfileSection(name string) (ProfileSection, bool) {
 		panic(err)
 	}
 	return profile, true
+}
+
+func (c *ConfigFile) DefaultProfileSection() (ProfileSection, bool) {
+	return c.ProfileSection(defaultSectionName)
 }
 
 func (c *ConfigFile) Save() error {
@@ -497,6 +502,9 @@ type Config struct {
 
 	// SSORoleName specifies the AWS SSO Role name to target.
 	SSORoleName string
+
+	// Keyring backend to use
+	AWSVaultBackend string
 }
 
 func (c *Config) IsChained() bool {

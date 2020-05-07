@@ -140,22 +140,23 @@ func (c *ConfigFile) parseFile() error {
 
 // ProfileSection is a profile section of the config file
 type ProfileSection struct {
-	Name            string `ini:"-"`
-	MfaSerial       string `ini:"mfa_serial,omitempty"`
-	RoleARN         string `ini:"role_arn,omitempty"`
-	ExternalID      string `ini:"external_id,omitempty"`
-	Region          string `ini:"region,omitempty"`
-	RoleSessionName string `ini:"role_session_name,omitempty"`
-	DurationSeconds uint   `ini:"duration_seconds,omitempty"`
-	SourceProfile   string `ini:"source_profile,omitempty"`
-	ParentProfile   string `ini:"parent_profile,omitempty"` // deprecated
-	IncludeProfile  string `ini:"include_profile,omitempty"`
-	SSOStartURL     string `ini:"sso_start_url,omitempty"`
-	SSORegion       string `ini:"sso_region,omitempty"`
-	SSOAccountID    string `ini:"sso_account_id,omitempty"`
-	SSORoleName     string `ini:"sso_role_name,omitempty"`
-	AWSVaultBackend string `ini:"aws_vault_backend,omitempty"`
-	AWSVaultPrompt  string `ini:"aws_vault_prompt,omitempty"`
+	Name                 string `ini:"-"`
+	MfaSerial            string `ini:"mfa_serial,omitempty"`
+	RoleARN              string `ini:"role_arn,omitempty"`
+	ExternalID           string `ini:"external_id,omitempty"`
+	Region               string `ini:"region,omitempty"`
+	RoleSessionName      string `ini:"role_session_name,omitempty"`
+	DurationSeconds      uint   `ini:"duration_seconds,omitempty"`
+	SourceProfile        string `ini:"source_profile,omitempty"`
+	ParentProfile        string `ini:"parent_profile,omitempty"` // deprecated
+	IncludeProfile       string `ini:"include_profile,omitempty"`
+	SSOStartURL          string `ini:"sso_start_url,omitempty"`
+	SSORegion            string `ini:"sso_region,omitempty"`
+	SSOAccountID         string `ini:"sso_account_id,omitempty"`
+	SSORoleName          string `ini:"sso_role_name,omitempty"`
+	AWSVaultBackend      string `ini:"aws_vault_backend,omitempty"`
+	AWSVaultPrompt       string `ini:"aws_vault_prompt,omitempty"`
+	AWSVaultKeychainName string `ini:"aws_vault_keychain_name,omitempty"`
 }
 
 func (s ProfileSection) IsEmpty() bool {
@@ -517,6 +518,9 @@ type Config struct {
 
 	// Prompt method to use for mfa
 	AWSVaultPrompt string
+
+	// Specifies name of mac os keychain
+	AWSVaultKeychainName string
 }
 
 func (c *Config) IsChained() bool {

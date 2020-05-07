@@ -38,6 +38,9 @@ type AwsVault struct {
 func (a *AwsVault) Keyring() (keyring.Keyring, error) {
 	if a.keyringImpl == nil {
 		a.updateKeyringConfig()
+		if a.KeyringConfig.KeychainName == "" {
+			a.KeyringConfig.KeychainName = "aws-vault"
+		}
 		if a.KeyringBackend != "" {
 			a.KeyringConfig.AllowedBackends = []keyring.BackendType{keyring.BackendType(a.KeyringBackend)}
 		}
@@ -97,6 +100,9 @@ func (a *AwsVault) updateKeyringConfig() {
 	if a.KeyringBackend == "" {
 		a.KeyringBackend = config.AWSVaultBackend
 	}
+	if a.KeyringConfig.KeychainName == "" {
+		a.KeyringConfig.KeychainName = config.AWSVaultKeychainName
+	}
 }
 
 func ConfigureGlobals(app *kingpin.Application) *AwsVault {
@@ -123,7 +129,6 @@ func ConfigureGlobals(app *kingpin.Application) *AwsVault {
 		EnumVar(&a.PromptDriver, promptsAvailable...)
 
 	app.Flag("keychain", "Name of macOS keychain to use, if it doesn't exist it will be created").
-		Default("aws-vault").
 		Envar("AWS_VAULT_KEYCHAIN_NAME").
 		StringVar(&a.KeyringConfig.KeychainName)
 

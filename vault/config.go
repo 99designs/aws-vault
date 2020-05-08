@@ -138,20 +138,22 @@ func (c *ConfigFile) parseFile() error {
 
 // ProfileSection is a profile section of the config file
 type ProfileSection struct {
-	Name            string `ini:"-"`
-	MfaSerial       string `ini:"mfa_serial,omitempty"`
-	RoleARN         string `ini:"role_arn,omitempty"`
-	ExternalID      string `ini:"external_id,omitempty"`
-	Region          string `ini:"region,omitempty"`
-	RoleSessionName string `ini:"role_session_name,omitempty"`
-	DurationSeconds uint   `ini:"duration_seconds,omitempty"`
-	SourceProfile   string `ini:"source_profile,omitempty"`
-	ParentProfile   string `ini:"parent_profile,omitempty"` // deprecated
-	IncludeProfile  string `ini:"include_profile,omitempty"`
-	SSOStartURL     string `ini:"sso_start_url,omitempty"`
-	SSORegion       string `ini:"sso_region,omitempty"`
-	SSOAccountID    string `ini:"sso_account_id,omitempty"`
-	SSORoleName     string `ini:"sso_role_name,omitempty"`
+	Name                    string `ini:"-"`
+	MfaSerial               string `ini:"mfa_serial,omitempty"`
+	RoleARN                 string `ini:"role_arn,omitempty"`
+	ExternalID              string `ini:"external_id,omitempty"`
+	Region                  string `ini:"region,omitempty"`
+	RoleSessionName         string `ini:"role_session_name,omitempty"`
+	DurationSeconds         uint   `ini:"duration_seconds,omitempty"`
+	SourceProfile           string `ini:"source_profile,omitempty"`
+	ParentProfile           string `ini:"parent_profile,omitempty"` // deprecated
+	IncludeProfile          string `ini:"include_profile,omitempty"`
+	SSOStartURL             string `ini:"sso_start_url,omitempty"`
+	SSORegion               string `ini:"sso_region,omitempty"`
+	SSOAccountID            string `ini:"sso_account_id,omitempty"`
+	SSORoleName             string `ini:"sso_role_name,omitempty"`
+	WebIdentityTokenFile    string `ini:"web_identity_token_file,omitempty"`
+	WebIdentityTokenProcess string `ini:"web_identity_token_process,omitempty"`
 }
 
 func (s ProfileSection) IsEmpty() bool {
@@ -324,6 +326,12 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 	if config.SSORoleName == "" {
 		config.SSORoleName = psection.SSORoleName
 	}
+	if config.WebIdentityTokenFile == "" {
+		config.WebIdentityTokenFile = psection.WebIdentityTokenFile
+	}
+	if config.WebIdentityTokenProcess == "" {
+		config.WebIdentityTokenProcess = psection.WebIdentityTokenProcess
+	}
 
 	if psection.ParentProfile != "" {
 		fmt.Fprint(os.Stderr, "Warning: parent_profile is deprecated, please use include_profile instead in your AWS config")
@@ -474,6 +482,10 @@ type Config struct {
 	RoleSessionName string
 	ExternalID      string
 
+	// AssumeRoleWithWebIdentity config
+	WebIdentityTokenFile    string
+	WebIdentityTokenProcess string
+
 	// GetSessionTokenDuration specifies the wanted duration for credentials generated with AssumeRole
 	AssumeRoleDuration time.Duration
 
@@ -517,6 +529,14 @@ func (c *Config) HasRole() bool {
 
 func (c *Config) HasSSOStartURL() bool {
 	return c.SSOStartURL != ""
+}
+
+func (c *Config) HasWebIdentityTokenFile() bool {
+	return c.WebIdentityTokenFile != ""
+}
+
+func (c *Config) HasWebIdentityTokenProcess() bool {
+	return c.WebIdentityTokenProcess != ""
 }
 
 // CanUseGetSessionToken determines if GetSessionToken should be used, and if not returns a reason

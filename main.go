@@ -20,6 +20,7 @@ func main() {
 	cli.ConfigureRotateCommand(app, a)
 	cli.ConfigureExecCommand(app, a)
 	cli.ConfigureRemoveCommand(app, a)
+	cli.ConfigureClearCommand(app, a)
 	cli.ConfigureLoginCommand(app, a)
 	cli.ConfigureServerCommand(app, a)
 

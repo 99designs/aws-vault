@@ -457,6 +457,10 @@ func (cl *ConfigLoader) LoadFromProfile(profileName string) (*Config, error) {
 
 	cl.populateFromDefaults(&config)
 
+	if config.MfaPromptMethod == "" {
+		config.MfaPromptMethod = config.AWSVaultPrompt
+	}
+
 	err = cl.hydrateSourceConfig(&config)
 	if err != nil {
 		return nil, err

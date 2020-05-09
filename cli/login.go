@@ -88,10 +88,6 @@ func LoginCommand(input LoginCommandInput, configLoader *vault.ConfigLoader, key
 		return err
 	}
 
-	if config.MfaPromptMethod == "" {
-		config.MfaPromptMethod = config.AWSVaultPrompt
-	}
-
 	var creds *credentials.Credentials
 
 	ckr := &vault.CredentialKeyring{Keyring: keyring}

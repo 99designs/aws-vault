@@ -139,10 +139,6 @@ func ExecCommand(input ExecCommandInput, configLoader *vault.ConfigLoader, keyri
 		return err
 	}
 
-	if config.MfaPromptMethod == "" {
-		config.MfaPromptMethod = config.AWSVaultPrompt
-	}
-
 	ckr := &vault.CredentialKeyring{Keyring: keyring}
 	creds, err := vault.NewTempCredentials(config, ckr)
 	if err != nil {

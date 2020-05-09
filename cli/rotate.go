@@ -62,10 +62,6 @@ func RotateCommand(input RotateCommandInput, configLoader *vault.ConfigLoader, k
 		return err
 	}
 
-	if config.MfaPromptMethod == "" {
-		config.MfaPromptMethod = config.AWSVaultPrompt
-	}
-
 	ckr := &vault.CredentialKeyring{Keyring: keyring}
 	masterCredentialsName, err := vault.MasterCredentialsFor(input.ProfileName, ckr, config)
 	if err != nil {

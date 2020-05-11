@@ -111,6 +111,11 @@ func ConfigureGlobals(app *kingpin.Application) *AwsVault {
 		Envar("AWS_VAULT_KEYCHAIN_NAME").
 		StringVar(&a.KeyringConfig.KeychainName)
 
+	app.Flag("secret-service-collection", "Name of secret-service collection to use, if it doesn't exist it will be created").
+		Default("awsvault").
+		Envar("AWS_VAULT_SECRET_SERVICE_COLLECTION_NAME").
+		StringVar(&a.KeyringConfig.LibSecretCollectionName)
+
 	app.Flag("pass-dir", "Pass password store directory").
 		Envar("AWS_VAULT_PASS_PASSWORD_STORE_DIR").
 		StringVar(&a.KeyringConfig.PassDir)

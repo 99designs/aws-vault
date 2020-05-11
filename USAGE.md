@@ -127,6 +127,8 @@ To override session durations (used in `exec` and `login`):
 * `AWS_ASSUME_ROLE_TTL`: Expiration time for the `AssumeRole` credentials. Defaults to 1h
 * `AWS_FEDERATION_TOKEN_TTL`: Expiration time for the `GetFederationToken` credentials. Defaults to 1h
 
+Note that the session durations above expect a unit after the number (e.g. 12h or 43200s).
+
 
 ## Backends
 

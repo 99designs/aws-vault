@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/99designs/aws-vault/cli"
+	"github.com/99designs/aws-vault/v6/cli"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -11,28 +11,17 @@ import (
 var Version = "dev"
 
 func main() {
-	run(os.Args[1:], os.Exit)
-}
-
-func run(args []string, exit func(int)) {
-	app := kingpin.New(
-		`aws-vault`,
-		`A vault for securely storing and accessing AWS credentials in development environments.`,
-	)
-
-	app.ErrorWriter(os.Stderr)
-	app.Writer(os.Stdout)
+	app := kingpin.New("aws-vault", "A vault for securely storing and accessing AWS credentials in development environments.")
 	app.Version(Version)
-	app.Terminate(exit)
 
-	cli.ConfigureGlobals(app)
-	cli.ConfigureAddCommand(app)
-	cli.ConfigureListCommand(app)
-	cli.ConfigureRotateCommand(app)
-	cli.ConfigureExecCommand(app)
-	cli.ConfigureRemoveCommand(app)
-	cli.ConfigureLoginCommand(app)
-	cli.ConfigureServerCommand(app)
+	a := cli.ConfigureGlobals(app)
+	cli.ConfigureAddCommand(app, a)
+	cli.ConfigureListCommand(app, a)
+	cli.ConfigureRotateCommand(app, a)
+	cli.ConfigureExecCommand(app, a)
+	cli.ConfigureRemoveCommand(app, a)
+	cli.ConfigureLoginCommand(app, a)
+	cli.ConfigureServerCommand(app, a)
 
-	kingpin.MustParse(app.Parse(args))
+	kingpin.MustParse(app.Parse(os.Args[1:]))
 }

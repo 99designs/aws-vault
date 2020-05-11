@@ -11,7 +11,7 @@ _aws-vault() {
         fi
     done
 
-    local matches=($(${words[1]} --completion-bash "${(@)words[1,$CURRENT]}"))
+    local matches=($(${words[1]} --completion-bash ${(@)words[2,$CURRENT]}))
     compadd -a matches
 
     if [[ $compstate[nmatches] -eq 0 && $words[$CURRENT] != -* ]]; then

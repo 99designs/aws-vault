@@ -1,13 +1,12 @@
 package prompt
 
 import (
-	"fmt"
 	"os/exec"
 	"strings"
 )
 
-func ZenityPrompt(prompt string) (string, error) {
-	cmd := exec.Command("zenity", "--entry", "--title=aws-vault", fmt.Sprintf(`--text=%s`, prompt))
+func ZenityMfaPrompt(mfaSerial string) (string, error) {
+	cmd := exec.Command("zenity", "--entry", "--title", "aws-vault", "--text", mfaPromptMessage(mfaSerial))
 
 	out, err := cmd.Output()
 	if err != nil {
@@ -18,5 +17,5 @@ func ZenityPrompt(prompt string) (string, error) {
 }
 
 func init() {
-	Methods["zenity"] = ZenityPrompt
+	Methods["zenity"] = ZenityMfaPrompt
 }

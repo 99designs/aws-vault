@@ -6,10 +6,13 @@ import (
 	"log"
 	"time"
 
-	"github.com/99designs/aws-vault/prompt"
+	"github.com/99designs/aws-vault/v6/prompt"
+	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/sso"
+	"github.com/aws/aws-sdk-go/service/ssooidc"
 	"github.com/aws/aws-sdk-go/service/sts"
 )
 
@@ -46,7 +49,7 @@ func (m *Mfa) GetMfaToken() (*string, error) {
 
 	if m.MfaPromptMethod != "" {
 		promptFunc := prompt.Method(m.MfaPromptMethod)
-		token, err := promptFunc(fmt.Sprintf("Enter token for %s: ", m.MfaSerial))
+		token, err := promptFunc(m.MfaSerial)
 		return aws.String(token), err
 	}
 
@@ -62,7 +65,7 @@ func NewMasterCredentials(k *CredentialKeyring, credentialsName string) *credent
 	return credentials.NewCredentials(NewMasterCredentialsProvider(k, credentialsName))
 }
 
-func NewSessionTokenProvider(creds *credentials.Credentials, k *CredentialKeyring, config *Config) (credentials.Provider, error) {
+func NewSessionTokenProvider(creds *credentials.Credentials, k keyring.Keyring, config *Config) (credentials.Provider, error) {
 	sess, err := NewSession(creds, config.Region)
 	if err != nil {
 		return nil, err
@@ -80,11 +83,15 @@ func NewSessionTokenProvider(creds *credentials.Credentials, k *CredentialKeyrin
 	}
 
 	if UseSessionCache {
-		return &CachedSessionTokenProvider{
-			Keyring:         k,
-			CredentialsName: config.ProfileName,
+		return &CachedSessionProvider{
+			SessionKey: SessionMetadata{
+				Type:        "sts.GetSessionToken",
+				ProfileName: config.ProfileName,
+				MfaSerial:   config.MfaSerial,
+			},
+			Keyring:         &SessionKeyring{Keyring: k},
 			ExpiryWindow:    defaultExpirationWindow,
-			Provider:        sessionTokenProvider,
+			CredentialsFunc: sessionTokenProvider.GetSessionToken,
 		}, nil
 	}
 
@@ -92,13 +99,13 @@ func NewSessionTokenProvider(creds *credentials.Credentials, k *CredentialKeyrin
 }
 
 // NewAssumeRoleProvider returns a provider that generates credentials using AssumeRole
-func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config) (*AssumeRoleProvider, error) {
+func NewAssumeRoleProvider(creds *credentials.Credentials, k keyring.Keyring, config *Config) (credentials.Provider, error) {
 	sess, err := NewSession(creds, config.Region)
 	if err != nil {
 		return nil, err
 	}
 
-	return &AssumeRoleProvider{
+	p := &AssumeRoleProvider{
 		StsClient:       sts.New(sess),
 		RoleARN:         config.RoleARN,
 		RoleSessionName: config.RoleSessionName,
@@ -110,7 +117,54 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, config *Config) (*Ass
 			MfaToken:        config.MfaToken,
 			MfaPromptMethod: config.MfaPromptMethod,
 		},
-	}, nil
+	}
+
+	if UseSessionCache && config.MfaSerial != "" {
+		return &CachedSessionProvider{
+			SessionKey: SessionMetadata{
+				Type:        "sts.AssumeRole",
+				ProfileName: config.ProfileName,
+				MfaSerial:   config.MfaSerial,
+			},
+			Keyring:         &SessionKeyring{Keyring: k},
+			ExpiryWindow:    defaultExpirationWindow,
+			CredentialsFunc: p.assumeRole,
+		}, nil
+	}
+
+	return p, nil
+}
+
+// NewSSORoleCredentialsProvider creates a provider for SSO credentials
+func NewSSORoleCredentialsProvider(k keyring.Keyring, config *Config) (credentials.Provider, error) {
+	sess, err := session.NewSession(&aws.Config{Region: aws.String(config.SSORegion)})
+	if err != nil {
+		return nil, err
+	}
+
+	ssoRoleCredentialsProvider := &SSORoleCredentialsProvider{
+		OIDCClient:   ssooidc.New(sess),
+		StartURL:     config.SSOStartURL,
+		SSOClient:    sso.New(sess),
+		AccountID:    config.SSOAccountID,
+		RoleName:     config.SSORoleName,
+		ExpiryWindow: defaultExpirationWindow,
+	}
+
+	if UseSessionCache {
+		return &CachedSessionProvider{
+			SessionKey: SessionMetadata{
+				Type:        "sso.GetRoleCredentialsInput",
+				ProfileName: config.ProfileName,
+				MfaSerial:   config.SSOStartURL,
+			},
+			Keyring:         &SessionKeyring{Keyring: k},
+			ExpiryWindow:    defaultExpirationWindow,
+			CredentialsFunc: ssoRoleCredentialsProvider.getRoleCredentialsAsStsCredemtials,
+		}, nil
+	}
+
+	return ssoRoleCredentialsProvider, nil
 }
 
 type tempCredsCreator struct {
@@ -136,6 +190,8 @@ func (t *tempCredsCreator) provider(config *Config) (credentials.Provider, error
 		if err != nil {
 			return nil, err
 		}
+	} else if config.HasSSOStartURL() {
+		return NewSSORoleCredentialsProvider(t.keyring.Keyring, config)
 	} else {
 		return nil, fmt.Errorf("profile %s: credentials missing", config.ProfileName)
 	}
@@ -150,7 +206,7 @@ func (t *tempCredsCreator) provider(config *Config) (credentials.Provider, error
 
 		t.chainedMfa = config.MfaSerial
 		log.Printf("profile %s: using GetSessionToken %s", config.ProfileName, mfaDetails(false, config))
-		sourceCredProvider, err = NewSessionTokenProvider(credentials.NewCredentials(sourceCredProvider), t.keyring, config)
+		sourceCredProvider, err = NewSessionTokenProvider(credentials.NewCredentials(sourceCredProvider), t.keyring.Keyring, config)
 		if !config.HasRole() || err != nil {
 			return sourceCredProvider, err
 		}
@@ -162,7 +218,7 @@ func (t *tempCredsCreator) provider(config *Config) (credentials.Provider, error
 	}
 
 	log.Printf("profile %s: using AssumeRole %s", config.ProfileName, mfaDetails(isMfaChained, config))
-	return NewAssumeRoleProvider(credentials.NewCredentials(sourceCredProvider), config)
+	return NewAssumeRoleProvider(credentials.NewCredentials(sourceCredProvider), t.keyring.Keyring, config)
 }
 
 func mfaDetails(mfaChained bool, config *Config) string {
@@ -225,6 +281,10 @@ func MasterCredentialsFor(profileName string, keyring *CredentialKeyring, config
 
 	if hasMasterCreds {
 		return profileName, nil
+	}
+
+	if profileName == config.SourceProfileName {
+		return "", fmt.Errorf("No master credentials found")
 	}
 
 	return MasterCredentialsFor(config.SourceProfileName, keyring, config)

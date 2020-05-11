@@ -4,9 +4,7 @@ import "fmt"
 
 type PromptFunc func(string) (string, error)
 
-var Methods = map[string]PromptFunc{
-	"terminal": TerminalPrompt,
-}
+var Methods = map[string]PromptFunc{}
 
 func Available() []string {
 	methods := []string{}
@@ -22,4 +20,8 @@ func Method(s string) PromptFunc {
 		panic(fmt.Sprintf("Prompt method %q doesn't exist", s))
 	}
 	return m
+}
+
+func mfaPromptMessage(mfaSerial string) string {
+	return fmt.Sprintf("Enter token for %s: ", mfaSerial)
 }

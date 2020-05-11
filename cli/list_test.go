@@ -6,14 +6,13 @@ import (
 	"github.com/99designs/keyring"
 )
 
-func ExampleLsCommand() {
-	keyringImpl = keyring.NewArrayKeyring([]keyring.Item{
+func ExampleListCommand() {
+	app := kingpin.New("aws-vault", "")
+	awsVault := ConfigureGlobals(app)
+	awsVault.keyringImpl = keyring.NewArrayKeyring([]keyring.Item{
 		{Key: "llamas", Data: []byte(`{"AccessKeyID":"ABC","SecretAccessKey":"XYZ"}`)},
 	})
-
-	app := kingpin.New(`aws-vault`, ``)
-	ConfigureGlobals(app)
-	ConfigureListCommand(app)
+	ConfigureListCommand(app, awsVault)
 	kingpin.MustParse(app.Parse([]string{
 		"list", "--credentials",
 	}))

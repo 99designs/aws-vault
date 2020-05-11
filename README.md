@@ -2,6 +2,7 @@
 
 [![Downloads](https://img.shields.io/github/downloads/99designs/aws-vault/total.svg)](https://github.com/99designs/aws-vault/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/99designs/aws-vault)](https://goreportcard.com/report/github.com/99designs/aws-vault)
+[![Continuous Integration](https://github.com/99designs/aws-vault/workflows/Continuous%20Integration/badge.svg)](https://github.com/99designs/aws-vault/actions)
 
 AWS Vault is a tool to securely store and access AWS credentials in a development environment.
 
@@ -15,6 +16,7 @@ You can install AWS Vault:
 - by downloading the [latest release](https://github.com/99designs/aws-vault/releases/latest)
 - on macOS with [Homebrew Cask](https://formulae.brew.sh/cask/aws-vault): `brew cask install aws-vault`
 - on Windows with [Chocolatey](https://chocolatey.org/packages/aws-vault): `choco install aws-vault`
+- on Windows with [Scoop](https://scoop.sh/): `scoop install aws-vault`
 - on Linux with [Homebrew on Linux](https://formulae.brew.sh/formula-linux/aws-vault): `brew install aws-vault`
 - on Arch Linux with the [AUR](https://aur.archlinux.org/packages/aws-vault/): `yay -S aws-vault`
 - on [FreeBSD](https://www.freshports.org/security/aws-vault/) with `pkg install aws-vault`
@@ -67,11 +69,13 @@ AWS Vault then exposes the temporary credentials to the sub-process in one of tw
    ```bash
    $ aws-vault exec jonsmith -- env | grep AWS
    AWS_VAULT=jonsmith
+   AWS_DEFAULT_REGION=us-east-1
    AWS_REGION=us-east-1
    AWS_ACCESS_KEY_ID=%%%
    AWS_SECRET_ACCESS_KEY=%%%
    AWS_SESSION_TOKEN=%%%
    AWS_SECURITY_TOKEN=%%%
+   AWS_SESSION_EXPIRATION=2020-04-16T11:16:27Z
    ```
 2. **Local [EC2 Instance Metadata server](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html)** is started. This approach has the advantage that anything that uses Amazon's SDKs will automatically refresh credentials as needed, so session times can be as short as possible. The downside is that only one can run per host and because it binds to `169.254.169.254:80`, your sudo password is required.
 
@@ -114,16 +118,33 @@ mfa_serial = arn:aws:iam::111111111111:mfa/jonsmith
 
 Here's what you can expect from aws-vault 
 
-| Command                                  | Credentials                  | Cached        | MFA   |
-| ---------------------------------------- | -----------------------------| ------------- | ----- |
-| `aws-vault exec jonsmith --no-session`   | Long-term credentials        | No            | No    |
-| `aws-vault exec jonsmith`                | session-token                | session-token | Yes   |
-| `aws-vault exec foo-readonly`            | role                         | No            | No    |
-| `aws-vault exec foo-admin`               | session-token + role         | session-token | Yes   |
-| `aws-vault exec foo-admin --duration=2h` | role                         | No            | Yes   |
-| `aws-vault exec bar-role2`               | session-token + role + role  | session-token | Yes   |
-| `aws-vault exec bar-role2 --no-session`  | role + role                  | No            | Yes   |
+| Command                                  | Credentials                 | Cached        | MFA |
+|------------------------------------------|-----------------------------|---------------|-----|
+| `aws-vault exec jonsmith --no-session`   | Long-term credentials       | No            | No  |
+| `aws-vault exec jonsmith`                | session-token               | session-token | Yes |
+| `aws-vault exec foo-readonly`            | role                        | No            | No  |
+| `aws-vault exec foo-admin`               | session-token + role        | session-token | Yes |
+| `aws-vault exec foo-admin --duration=2h` | role                        | role          | Yes |
+| `aws-vault exec bar-role2`               | session-token + role + role | session-token | Yes |
+| `aws-vault exec bar-role2 --no-session`  | role + role                 | role          | Yes |
 
+## AWS SSO integration
+
+If your organization uses AWS Single Sign-On ([AWS SSO](https://aws.amazon.com/single-sign-on/)), AWS Vault provides a method for using the credential information defined by [AWS SSO CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html). The integration supports caching of the temporary credentials for each profile, and will automatically refresh the credentials using an SSO Access Token (with a life-time that is specific to your integration).  For more information about AWS SSO, please see this [blog post](https://aws.amazon.com/blogs/aws/the-next-evolution-in-aws-single-sign-on/) from AWS.
+
+The AWS CLI v2 provides a wizard to generate the required profile configuration, but it's also possible to directly input this information in your `~/.aws/config` file.
+
+Here's an example configuration using AWS SSO:
+
+```ini
+[profile Administrator-123456789012]
+sso_start_url=https://aws-sso-portal.awsapps.com/start
+sso_region=eu-west-1
+sso_account_id=123456789012
+sso_role_name=Administrator
+```
+
+This profile should work expected with AWS Vault commands, e.g. `exec` and `login`. See [Basic Usage](#basic-usage) for more information.
 
 ## Development
 
@@ -131,11 +152,10 @@ The [macOS release builds](https://github.com/99designs/aws-vault/releases) are 
 
     $ codesign --verify --verbose $(which aws-vault)
 
-If you are developing or compiling the aws-vault binary yourself, you can [generate a self-signed certificate](https://support.apple.com/en-au/guide/keychain-access/kyca8916/mac) by accessing Keychain Access > Certificate Assistant > Create Certificate > Code Signing Certificate. You can then sign your binary with:
+If you are developing or compiling the aws-vault binary yourself, you can [generate a self-signed certificate](https://support.apple.com/en-au/guide/keychain-access/kyca8916/mac) by accessing Keychain Access > Certificate Assistant > Create Certificate -> Certificate Type: Code Signing. You can then sign your binary with:
 
     $ go build .
-    $ codesign --sign "Name of my certificate" ./aws-vault
-
+    $ codesign --sign <Name of certificate created above> ./aws-vault
 
 ## References and Inspiration
 

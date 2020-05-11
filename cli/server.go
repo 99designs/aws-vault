@@ -1,27 +1,17 @@
 package cli
 
 import (
-	"github.com/99designs/aws-vault/server"
+	"github.com/99designs/aws-vault/v6/server"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
-type ServerCommandInput struct {
-}
-
-func ConfigureServerCommand(app *kingpin.Application) {
-	input := ServerCommandInput{}
-
+func ConfigureServerCommand(app *kingpin.Application, a *AwsVault) {
 	cmd := app.Command("server", "Run an ec2 instance role server locally").
 		Hidden()
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
-		ServerCommand(app, input)
+		err := server.StartEc2MetadataEndpointProxy()
+		app.FatalIfError(err, "server")
 		return nil
 	})
-}
-
-func ServerCommand(app *kingpin.Application, input ServerCommandInput) {
-	if err := server.StartMetadataServer(); err != nil {
-		app.Fatalf("Server failed: %v", err)
-	}
 }

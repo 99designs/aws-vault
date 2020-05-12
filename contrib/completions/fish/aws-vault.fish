@@ -1,17 +1,24 @@
-complete -c aws-vault -x -a '(__fish_aws_vault_completion)'
+if status --is-interactive
+  complete -ec aws-vault
 
-function __fish_aws_vault_completion
-  if [ (count (commandline -opc)) = 1 ]
-    __fish_print_aws_vault_commands
-  else
-    __fish_print_aws_roles
+  # switch based on seeing a `--`
+  complete -c aws-vault -n 'not __fish_aws_vault_is_commandline' -xa '(__fish_aws_vault_complete_arg)'
+  complete -c aws-vault -n '__fish_aws_vault_is_commandline' -xa '(__fish_aws_vault_complete_commandline)'
+
+  function __fish_aws_vault_is_commandline
+    string match -q -r '^--$' -- (commandline -opc)
   end
-end
 
-function __fish_print_aws_vault_commands
-  aws-vault --help |awk '/^  [a-z]/ {print $1}'
-end
+  function __fish_aws_vault_complete_arg
+    set -l parts (commandline -opc)
+    set -e parts[1]
 
-function __fish_print_aws_roles
-  awk '/^\[profile/ {print $2}' ~/.aws/config |tr -d ']'
+    aws-vault --completion-bash $parts
+  end
+
+  function __fish_aws_vault_complete_commandline
+    set -l parts (string split --max 1 '--' -- (commandline -pc))
+
+    complete "-C$parts[2]"
+  end
 end

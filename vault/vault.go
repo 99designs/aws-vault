@@ -138,7 +138,7 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, k keyring.Keyring, co
 // NewAssumeRoleWithWebIdentityProvider returns a provider that generates
 // credentials using AssumeRoleWithWebIdentity
 func NewAssumeRoleWithWebIdentityProvider(k keyring.Keyring, config *Config) (credentials.Provider, error) {
-	sess, err := session.NewSession(&aws.Config{Region: aws.String(config.SSORegion)})
+	sess, err := session.NewSession(&aws.Config{Region: aws.String(config.Region)})
 	if err != nil {
 		return nil, err
 	}

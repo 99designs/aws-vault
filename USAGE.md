@@ -396,7 +396,7 @@ sso_role_name=Administrator
 
 AWS supports assuming roles using [web identity federation and OpenID Connect](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html#cli-configure-role-oidc), including login using Amazon, Google, Facebook or any other OpenID Connect server. The configuration options are as follows:
 * `web_identity_token_file` A file that contains an OpenID Connect identity token. The token is loaded and passed as the `WebIdentityToken` argument of the `AssumeRoleWithWebIdentity` operation.
-* `web_identity_token_process` A command that executes to generate an OpenID Connect identity token. The token written to the command's standard out is passed as the `WebIdentityToken` argument of the `AssumeRoleWithWebIdentity` operation.
+* `web_identity_token_process` A command that executes to generate an OpenID Connect identity token. The token written to the command's standard out is passed as the `WebIdentityToken` argument of the `AssumeRoleWithWebIdentity` operation. This is a custom option supported only by `aws-vault`.
 
 An example configuration using a static token:
 

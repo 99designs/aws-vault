@@ -102,7 +102,6 @@ func ConfigureGlobals(app *kingpin.Application) *AwsVault {
 		EnumVar(&a.KeyringBackend, backendsAvailable...)
 
 	app.Flag("prompt", fmt.Sprintf("Prompt driver to use %v", promptsAvailable)).
-		Default("terminal").
 		Envar("AWS_VAULT_PROMPT").
 		EnumVar(&a.PromptDriver, promptsAvailable...)
 

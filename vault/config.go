@@ -24,6 +24,8 @@ const (
 
 	defaultSectionName          = "default"
 	roleChainingMaximumDuration = 1 * time.Hour
+
+	defaultMfaPromptMethod = "terminal"
 )
 
 // UseSession will disable the use of GetSessionToken when set to false
@@ -140,6 +142,7 @@ func (c *ConfigFile) parseFile() error {
 type ProfileSection struct {
 	Name            string `ini:"-"`
 	MfaSerial       string `ini:"mfa_serial,omitempty"`
+	MfaPromptMethod string `ini:"mfa_prompt,omitempty"`
 	RoleARN         string `ini:"role_arn,omitempty"`
 	ExternalID      string `ini:"external_id,omitempty"`
 	Region          string `ini:"region,omitempty"`
@@ -278,6 +281,9 @@ func (cl *ConfigLoader) populateFromDefaults(config *Config) {
 	if config.ChainedGetSessionTokenDuration == 0 {
 		config.ChainedGetSessionTokenDuration = DefaultChainedSessionDuration
 	}
+	if config.MfaPromptMethod == "" {
+		config.MfaPromptMethod = defaultMfaPromptMethod
+	}
 }
 
 func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName string) error {
@@ -293,6 +299,9 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 
 	if config.MfaSerial == "" {
 		config.MfaSerial = psection.MfaSerial
+	}
+	if config.MfaPromptMethod == "" {
+		config.MfaPromptMethod = psection.MfaPromptMethod
 	}
 	if config.RoleARN == "" {
 		config.RoleARN = psection.RoleARN

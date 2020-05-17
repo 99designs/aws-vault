@@ -185,6 +185,22 @@ func (sk *SessionKeyring) Remove(key SessionMetadata) error {
 	return sk.Keyring.Remove(keyName)
 }
 
+func (sk *SessionKeyring) RemoveAll() (n int, err error) {
+	sk.GarbageCollectOnce()
+
+	allKeys, err := sk.Keys()
+	if err != nil {
+		return 0, err
+	}
+	for _, key := range allKeys {
+		if err = sk.Remove(key); err != nil {
+			return n, err
+		}
+		n++
+	}
+	return n, nil
+}
+
 func (sk *SessionKeyring) Keys() (kk []SessionMetadata, err error) {
 	allKeys, err := sk.Keyring.Keys()
 	if err != nil {

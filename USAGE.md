@@ -276,9 +276,11 @@ $ aws-vault login work
 
 ### Removing stored sessions
 
-If you want to remove sessions managed by `aws-vault` before they expire, you can do this with the `--sessions-only` flag.
+If you want to remove sessions managed by `aws-vault` before they expire, you can do this with `aws-vault clear-cache` command.
+
+You can also specify a profile to remove sessions for this profile only.
 ```shell
-aws-vault remove <profile> --sessions-only
+aws-vault clear-cache [profile]
 ```
 
 ### Using --no-session

@@ -41,8 +41,8 @@ type ConfigFile struct {
 	iniFile *ini.File
 }
 
-// configPath returns either $AWS_CONFIG_FILE or ~/.aws/config
-func configPath() (string, error) {
+// ConfigPath returns either $AWS_CONFIG_FILE or ~/.aws/config
+func ConfigPath() (string, error) {
 	file := os.Getenv("AWS_CONFIG_FILE")
 	if file == "" {
 		home, err := homedir.Dir()
@@ -58,7 +58,7 @@ func configPath() (string, error) {
 
 // createConfigFilesIfMissing will create the config directory and file if they do not exist
 func createConfigFilesIfMissing() error {
-	file, err := configPath()
+	file, err := ConfigPath()
 	if err != nil {
 		return err
 	}
@@ -106,7 +106,7 @@ func LoadConfig(path string) (*ConfigFile, error) {
 
 // LoadConfigFromEnv finds the config file from the environment
 func LoadConfigFromEnv() (*ConfigFile, error) {
-	file, err := configPath()
+	file, err := ConfigPath()
 	if err != nil {
 		return nil, err
 	}

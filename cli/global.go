@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"gopkg.in/ini.v1"
 	"io/ioutil"
 	"log"
 	"os"
@@ -13,15 +14,19 @@ import (
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
-var keyringConfigDefaults = keyring.Config{
+var keyringConfigGlobals = keyring.Config{
 	ServiceName:              "aws-vault",
 	FileDir:                  "~/.awsvault/keys/",
 	FilePasswordFunc:         fileKeyringPassphrasePrompt,
-	LibSecretCollectionName:  "awsvault",
 	KWalletAppID:             "aws-vault",
 	KWalletFolder:            "aws-vault",
 	KeychainTrustApplication: true,
 	WinCredPrefix:            "aws-vault",
+}
+
+var keyringConfigDefaults = keyring.Config{
+	KeychainName:            "aws-vault",
+	LibSecretCollectionName: "awsvault",
 }
 
 type AwsVault struct {
@@ -35,8 +40,44 @@ type AwsVault struct {
 	configLoader  *vault.ConfigLoader
 }
 
+func (a *AwsVault) loadKeyringConfig() {
+	var cfg *ini.File
+	configFile, err := vault.ConfigPath()
+	if err == nil {
+		cfg, err = ini.Load(configFile)
+	}
+	if err != nil {
+		cfg = ini.Empty()
+		log.Printf("Cannot load config file: %s", err.Error())
+	}
+	config := cfg.Section("aws-vault")
+	if a.KeyringBackend == "" {
+		a.KeyringBackend = config.Key("backend").String()
+	}
+	if a.KeyringConfig.KeychainName == "" {
+		a.KeyringConfig.KeychainName = config.Key("keychain").MustString(
+			keyringConfigDefaults.KeychainName,
+		)
+	}
+	if a.KeyringConfig.LibSecretCollectionName == "" {
+		a.KeyringConfig.LibSecretCollectionName = config.Key("secret_service_collection").MustString(
+			keyringConfigDefaults.LibSecretCollectionName,
+		)
+	}
+	if a.KeyringConfig.PassCmd == "" {
+		a.KeyringConfig.PassCmd = config.Key("pass_cmd").String()
+	}
+	if a.KeyringConfig.PassDir == "" {
+		a.KeyringConfig.PassDir = config.Key("pass_dir").String()
+	}
+	if a.KeyringConfig.PassPrefix == "" {
+		a.KeyringConfig.PassPrefix = config.Key("pass_prefix").String()
+	}
+}
+
 func (a *AwsVault) Keyring() (keyring.Keyring, error) {
 	if a.keyringImpl == nil {
+		a.loadKeyringConfig()
 		if a.KeyringBackend != "" {
 			a.KeyringConfig.AllowedBackends = []keyring.BackendType{keyring.BackendType(a.KeyringBackend)}
 		}
@@ -84,7 +125,7 @@ func (a *AwsVault) ConfigLoader() (*vault.ConfigLoader, error) {
 
 func ConfigureGlobals(app *kingpin.Application) *AwsVault {
 	a := &AwsVault{
-		KeyringConfig: keyringConfigDefaults,
+		KeyringConfig: keyringConfigGlobals,
 	}
 
 	backendsAvailable := []string{}
@@ -106,12 +147,10 @@ func ConfigureGlobals(app *kingpin.Application) *AwsVault {
 		EnumVar(&a.PromptDriver, promptsAvailable...)
 
 	app.Flag("keychain", "Name of macOS keychain to use, if it doesn't exist it will be created").
-		Default("aws-vault").
 		Envar("AWS_VAULT_KEYCHAIN_NAME").
 		StringVar(&a.KeyringConfig.KeychainName)
 
 	app.Flag("secret-service-collection", "Name of secret-service collection to use, if it doesn't exist it will be created").
-		Default("awsvault").
 		Envar("AWS_VAULT_SECRET_SERVICE_COLLECTION_NAME").
 		StringVar(&a.KeyringConfig.LibSecretCollectionName)
 

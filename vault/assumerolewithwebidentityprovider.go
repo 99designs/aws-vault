@@ -78,11 +78,6 @@ func (p *AssumeRoleWithWebIdentityProvider) assumeRole() (*sts.Credentials, erro
 }
 
 func (p *AssumeRoleWithWebIdentityProvider) webIdentityToken() (string, error) {
-	const (
-		defaultMaxBufSize = 8192
-		defaultTimeout    = 2 * time.Minute
-	)
-
 	// Read OpenID Connect token from WebIdentityTokenFile
 	if p.WebIdentityTokenFile != "" {
 		b, err := ioutil.ReadFile(p.WebIdentityTokenFile)

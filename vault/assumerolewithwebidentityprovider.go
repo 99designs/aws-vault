@@ -1,9 +1,7 @@
 package vault
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -103,59 +101,15 @@ func (p *AssumeRoleWithWebIdentityProvider) webIdentityToken() (string, error) {
 		cmdArgs = []string{"/bin/sh", "-c", p.WebIdentityTokenProcess}
 	}
 
-	r, w, err := os.Pipe()
-	if err != nil {
-		return "", err
-	}
-	defer r.Close()
-	defer w.Close()
-
 	cmd := exec.Command(cmdArgs[0], cmdArgs[1:]...)
 	cmd.Env = os.Environ()
 	cmd.Stdin = os.Stdin
-	cmd.Stdout = w
 	cmd.Stderr = os.Stderr
 
-	if err := cmd.Start(); err != nil {
-		return "", fmt.Errorf("failed to start command %q: %v", p.WebIdentityTokenProcess, err)
-	}
-	defer func() { _ = cmd.Process.Kill() }()
-
-	waitCh := make(chan error, 1)
-	go func() { waitCh <- cmd.Wait() }()
-
-	b := bytes.NewBuffer(make([]byte, 0, defaultMaxBufSize))
-	readCh := make(chan error, 1)
-	go func() {
-		w.Close() // close our write end of the pipe
-		defer r.Close()
-
-		_, err := io.CopyN(b, r, int64(defaultMaxBufSize))
-		readCh <- err
-	}()
-
-	timer := time.NewTimer(defaultTimeout)
-	defer timer.Stop()
-
-	// Wait for process to exit (or timeout)
-	select {
-	case err := <-waitCh: // process exited
-		if err != nil {
-			return "", fmt.Errorf("command %q failed: %v", p.WebIdentityTokenProcess, err)
-		}
-	case <-timer.C: // timeout
-		return "", fmt.Errorf("command %q timed out after %s", p.WebIdentityTokenProcess, defaultTimeout)
+	b, err := cmd.Output()
+	if err != nil {
+		return "", fmt.Errorf("failed to run command %q: %v", p.WebIdentityTokenProcess, err)
 	}
 
-	// Wait for read to finish (or timeout)
-	select {
-	case err := <-readCh: // process exited
-		if err != nil && err != io.EOF {
-			return "", fmt.Errorf("read output from %q failed: %v", p.WebIdentityTokenProcess, err)
-		}
-	case <-timer.C: // timeout
-		return "", fmt.Errorf("command %q timed out after %s", p.WebIdentityTokenProcess, defaultTimeout)
-	}
-
-	return b.String(), nil
+	return string(b), err
 }

@@ -135,6 +135,39 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, k keyring.Keyring, co
 	return p, nil
 }
 
+// NewAssumeRoleWithWebIdentityProvider returns a provider that generates
+// credentials using AssumeRoleWithWebIdentity
+func NewAssumeRoleWithWebIdentityProvider(k keyring.Keyring, config *Config) (credentials.Provider, error) {
+	sess, err := session.NewSession(&aws.Config{Region: aws.String(config.Region)})
+	if err != nil {
+		return nil, err
+	}
+
+	p := &AssumeRoleWithWebIdentityProvider{
+		StsClient:               sts.New(sess),
+		RoleARN:                 config.RoleARN,
+		RoleSessionName:         config.RoleSessionName,
+		WebIdentityTokenFile:    config.WebIdentityTokenFile,
+		WebIdentityTokenProcess: config.WebIdentityTokenProcess,
+		Duration:                config.AssumeRoleDuration,
+		ExpiryWindow:            defaultExpirationWindow,
+	}
+
+	if UseSessionCache {
+		return &CachedSessionProvider{
+			SessionKey: SessionMetadata{
+				Type:        "sts.AssumeRoleWithWebIdentity",
+				ProfileName: config.ProfileName,
+			},
+			Keyring:         &SessionKeyring{Keyring: k},
+			ExpiryWindow:    defaultExpirationWindow,
+			CredentialsFunc: p.assumeRole,
+		}, nil
+	}
+
+	return p, nil
+}
+
 // NewSSORoleCredentialsProvider creates a provider for SSO credentials
 func NewSSORoleCredentialsProvider(k keyring.Keyring, config *Config) (credentials.Provider, error) {
 	sess, err := session.NewSession(&aws.Config{Region: aws.String(config.SSORegion)})
@@ -192,6 +225,8 @@ func (t *tempCredsCreator) provider(config *Config) (credentials.Provider, error
 		}
 	} else if config.HasSSOStartURL() {
 		return NewSSORoleCredentialsProvider(t.keyring.Keyring, config)
+	} else if config.HasRole() && (config.HasWebIdentityTokenFile() || config.HasWebIdentityTokenProcess()) {
+		return NewAssumeRoleWithWebIdentityProvider(t.keyring.Keyring, config)
 	} else {
 		return nil, fmt.Errorf("profile %s: credentials missing", config.ProfileName)
 	}

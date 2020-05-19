@@ -22,6 +22,10 @@ You can install AWS Vault:
 - on [FreeBSD](https://www.freshports.org/security/aws-vault/) with `pkg install aws-vault`
 - with [Nix](https://nixos.org/nixos/packages.html?attr=aws-vault): `nix-env -i aws-vault`
 
+## Documentation
+
+Config, usage, tips and tricks are available in the [USAGE.md](./USAGE.md) file.
+
 ## Vaulting Backends
 
 The supported vaulting backends are:
@@ -35,9 +39,9 @@ The supported vaulting backends are:
 
 Use the `--backend` flag or `AWS_VAULT_BACKEND` environment variable to specify.
 
-## Basic Usage
+## Quick start
 
-```bash
+```shell
 # Store AWS credentials for the "jonsmith" profile
 $ aws-vault add jonsmith
 Enter Access Key Id: ABDCDEFDASDASF
@@ -57,7 +61,6 @@ Profile                  Credentials              Sessions
 =======                  ===========              ========
 jonsmith                 jonsmith                 -
 ```
-See the [USAGE](./USAGE.md) document for more help and tips.
 
 ## How it works
 
@@ -66,7 +69,7 @@ See the [USAGE](./USAGE.md) document for more help and tips.
 AWS Vault then exposes the temporary credentials to the sub-process in one of two ways
 
 1. **Environment variables** are written to the sub-process. Notice in the below example how the AWS credentials get written out
-   ```bash
+   ```shell
    $ aws-vault exec jonsmith -- env | grep AWS
    AWS_VAULT=jonsmith
    AWS_DEFAULT_REGION=us-east-1
@@ -128,34 +131,18 @@ Here's what you can expect from aws-vault
 | `aws-vault exec bar-role2`               | session-token + role + role | session-token | Yes |
 | `aws-vault exec bar-role2 --no-session`  | role + role                 | role          | Yes |
 
-## AWS SSO integration
-
-If your organization uses AWS Single Sign-On ([AWS SSO](https://aws.amazon.com/single-sign-on/)), AWS Vault provides a method for using the credential information defined by [AWS SSO CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html). The integration supports caching of the temporary credentials for each profile, and will automatically refresh the credentials using an SSO Access Token (with a life-time that is specific to your integration).  For more information about AWS SSO, please see this [blog post](https://aws.amazon.com/blogs/aws/the-next-evolution-in-aws-single-sign-on/) from AWS.
-
-The AWS CLI v2 provides a wizard to generate the required profile configuration, but it's also possible to directly input this information in your `~/.aws/config` file.
-
-Here's an example configuration using AWS SSO:
-
-```ini
-[profile Administrator-123456789012]
-sso_start_url=https://aws-sso-portal.awsapps.com/start
-sso_region=eu-west-1
-sso_account_id=123456789012
-sso_role_name=Administrator
-```
-
-This profile should work expected with AWS Vault commands, e.g. `exec` and `login`. See [Basic Usage](#basic-usage) for more information.
-
 ## Development
 
 The [macOS release builds](https://github.com/99designs/aws-vault/releases) are code-signed to avoid extra prompts in Keychain. You can verify this with:
-
-    $ codesign --verify --verbose $(which aws-vault)
+```shell
+$ codesign --verify --verbose $(which aws-vault)
+```
 
 If you are developing or compiling the aws-vault binary yourself, you can [generate a self-signed certificate](https://support.apple.com/en-au/guide/keychain-access/kyca8916/mac) by accessing Keychain Access > Certificate Assistant > Create Certificate -> Certificate Type: Code Signing. You can then sign your binary with:
-
-    $ go build .
-    $ codesign --sign <Name of certificate created above> ./aws-vault
+```shell
+$ go build .
+$ codesign --sign <Name of certificate created above> ./aws-vault
+```
 
 ## References and Inspiration
 

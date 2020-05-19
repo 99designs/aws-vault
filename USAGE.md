@@ -31,7 +31,7 @@
   * [Setup](#setup)
   * [Usage](#usage)
 * [Shell completion](#shell-completion)
-  * [Desktop apps](#desktop-apps)
+* [Desktop apps](#desktop-apps)
 
 
 ## Getting Help
@@ -376,13 +376,13 @@ include_profile = jon
 
 ## AWS Single Sign-On (AWS SSO)
 
-The AWS CLI can [generate the SSO profile configuration](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html), but it's also possible to directly input this information in your `~/.aws/config` file. The configuration options are as follows:
+If your organization uses AWS Single Sign-On ([AWS SSO](https://aws.amazon.com/single-sign-on/)), AWS Vault provides a method for using the credential information defined by [AWS SSO CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html). The configuration options are as follows:
 * `sso_start_url` The URL that points to the organization's AWS SSO user portal.
 * `sso_region` The AWS Region that contains the AWS SSO portal host. This is separate from, and can be a different region than the default CLI region parameter.
 * `sso_account_id` The AWS account ID that contains the IAM role that you want to use with this profile.
 * `sso_role_name` The name of the IAM role that defines the user's permissions when using this profile.
 
-Here is an example `~/.aws/config` file, to help show the configuration for use with AWS SSO.
+Here is an example configuration using AWS SSO.
 
 ```ini
 [profile Administrator-123456789012]

@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/99designs/aws-vault/v6/cli"
-	"gopkg.in/alecthomas/kingpin.v2"
+	"github.com/alecthomas/kingpin"
 )
 
 // Version is provided at compile time

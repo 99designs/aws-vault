@@ -2,7 +2,7 @@ package cli
 
 import (
 	"github.com/99designs/aws-vault/v6/server"
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
+	"github.com/alecthomas/kingpin"
 )
 
 func ConfigureServerCommand(app *kingpin.Application, a *AwsVault) {

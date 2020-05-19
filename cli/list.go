@@ -9,7 +9,7 @@ import (
 
 	"github.com/99designs/aws-vault/v6/vault"
 	"github.com/99designs/keyring"
-	"gopkg.in/alecthomas/kingpin.v2"
+	"github.com/alecthomas/kingpin"
 )
 
 type ListCommandInput struct {

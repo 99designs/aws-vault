@@ -8,8 +8,8 @@ import (
 	"github.com/99designs/aws-vault/v6/prompt"
 	"github.com/99designs/aws-vault/v6/vault"
 	"github.com/99designs/keyring"
+	"github.com/alecthomas/kingpin"
 	"github.com/aws/aws-sdk-go/aws/credentials"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 type AddCommandInput struct {

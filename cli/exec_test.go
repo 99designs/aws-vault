@@ -1,7 +1,7 @@
 package cli
 
 import (
-	kingpin "gopkg.in/alecthomas/kingpin.v2"
+	"github.com/alecthomas/kingpin"
 
 	"github.com/99designs/keyring"
 )

@@ -12,9 +12,9 @@ import (
 
 	"github.com/99designs/aws-vault/v6/vault"
 	"github.com/99designs/keyring"
+	"github.com/alecthomas/kingpin"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/skratchdot/open-golang/open"
-	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 type LoginCommandInput struct {

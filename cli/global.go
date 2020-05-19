@@ -32,7 +32,6 @@ type AwsVault struct {
 
 	keyringImpl   keyring.Keyring
 	awsConfigFile *vault.ConfigFile
-	configLoader  *vault.ConfigLoader
 }
 
 func (a *AwsVault) Keyring() (keyring.Keyring, error) {
@@ -68,18 +67,6 @@ func (a *AwsVault) MustGetProfileNames() []string {
 		log.Fatalf("Error loading AWS config: %s", err.Error())
 	}
 	return config.ProfileNames()
-}
-
-func (a *AwsVault) ConfigLoader() (*vault.ConfigLoader, error) {
-	if a.configLoader == nil {
-		awsConfigFile, err := a.AwsConfigFile()
-		if err != nil {
-			return nil, err
-		}
-		a.configLoader = &vault.ConfigLoader{File: awsConfigFile}
-	}
-
-	return a.configLoader, nil
 }
 
 func ConfigureGlobals(app *kingpin.Application) *AwsVault {

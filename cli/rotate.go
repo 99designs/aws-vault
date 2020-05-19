@@ -39,24 +39,27 @@ func ConfigureRotateCommand(app *kingpin.Application, a *AwsVault) {
 		if err != nil {
 			return err
 		}
-		configLoader, err := a.ConfigLoader()
+		f, err := a.AwsConfigFile()
 		if err != nil {
 			return err
 		}
 
-		err = RotateCommand(input, configLoader, keyring)
+		err = RotateCommand(input, f, keyring)
 		app.FatalIfError(err, "rotate")
 		return nil
 	})
 }
 
-func RotateCommand(input RotateCommandInput, configLoader *vault.ConfigLoader, keyring keyring.Keyring) error {
+func RotateCommand(input RotateCommandInput, f *vault.ConfigFile, keyring keyring.Keyring) error {
 	// Can't disable sessions completely, might need to use session for MFA-Protected API Access
 	vault.UseSession = !input.NoSession
 	vault.UseSessionCache = false
 
-	configLoader.BaseConfig = input.Config
-	configLoader.ActiveProfile = input.ProfileName
+	configLoader := &vault.ConfigLoader{
+		File:          f,
+		BaseConfig:    input.Config,
+		ActiveProfile: input.ProfileName,
+	}
 	config, err := configLoader.LoadFromProfile(input.ProfileName)
 	if err != nil {
 		return err

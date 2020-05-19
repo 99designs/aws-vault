@@ -94,7 +94,7 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 		input.Config.NonChainedGetSessionTokenDuration = input.SessionDuration
 		input.Config.AssumeRoleDuration = input.SessionDuration
 
-		cl, err := a.ConfigLoader()
+		f, err := a.AwsConfigFile()
 		if err != nil {
 			return err
 		}
@@ -103,13 +103,13 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 			return err
 		}
 
-		err = ExecCommand(input, cl, keyring)
+		err = ExecCommand(input, f, keyring)
 		app.FatalIfError(err, "exec")
 		return nil
 	})
 }
 
-func ExecCommand(input ExecCommandInput, configLoader *vault.ConfigLoader, keyring keyring.Keyring) error {
+func ExecCommand(input ExecCommandInput, f *vault.ConfigFile, keyring keyring.Keyring) error {
 	if os.Getenv("AWS_VAULT") != "" {
 		return fmt.Errorf("aws-vault sessions should be nested with care, unset $AWS_VAULT to force")
 	}
@@ -132,8 +132,11 @@ func ExecCommand(input ExecCommandInput, configLoader *vault.ConfigLoader, keyri
 
 	vault.UseSession = !input.NoSession
 
-	configLoader.BaseConfig = input.Config
-	configLoader.ActiveProfile = input.ProfileName
+	configLoader := vault.ConfigLoader{
+		File:          f,
+		BaseConfig:    input.Config,
+		ActiveProfile: input.ProfileName,
+	}
 	config, err := configLoader.LoadFromProfile(input.ProfileName)
 	if err != nil {
 		return err

@@ -67,22 +67,25 @@ func ConfigureLoginCommand(app *kingpin.Application, a *AwsVault) {
 		if err != nil {
 			return err
 		}
-		configLoader, err := a.ConfigLoader()
+		f, err := a.AwsConfigFile()
 		if err != nil {
 			return err
 		}
 
-		err = LoginCommand(input, configLoader, keyring)
+		err = LoginCommand(input, f, keyring)
 		app.FatalIfError(err, "login")
 		return nil
 	})
 }
 
-func LoginCommand(input LoginCommandInput, configLoader *vault.ConfigLoader, keyring keyring.Keyring) error {
+func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.Keyring) error {
 	vault.UseSession = !input.NoSession
 
-	configLoader.BaseConfig = input.Config
-	configLoader.ActiveProfile = input.ProfileName
+	configLoader := vault.ConfigLoader{
+		File:          f,
+		BaseConfig:    input.Config,
+		ActiveProfile: input.ProfileName,
+	}
 	config, err := configLoader.LoadFromProfile(input.ProfileName)
 	if err != nil {
 		return err

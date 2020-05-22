@@ -154,7 +154,7 @@ type ProfileSection struct {
 	SSORoleName             string `ini:"sso_role_name,omitempty"`
 	WebIdentityTokenFile    string `ini:"web_identity_token_file,omitempty"`
 	WebIdentityTokenProcess string `ini:"web_identity_token_process,omitempty"`
-	CredentialProcess        string `ini:"credential_process,omitempty"`
+	CredentialProcess       string `ini:"credential_process,omitempty"`
 }
 
 func (s ProfileSection) IsEmpty() bool {

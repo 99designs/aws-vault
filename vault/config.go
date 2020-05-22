@@ -154,6 +154,7 @@ type ProfileSection struct {
 	SSORoleName             string `ini:"sso_role_name,omitempty"`
 	WebIdentityTokenFile    string `ini:"web_identity_token_file,omitempty"`
 	WebIdentityTokenProcess string `ini:"web_identity_token_process,omitempty"`
+	CredentialProcess        string `ini:"credential_process,omitempty"`
 }
 
 func (s ProfileSection) IsEmpty() bool {
@@ -333,6 +334,10 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 		config.WebIdentityTokenProcess = psection.WebIdentityTokenProcess
 	}
 
+	if config.CredentialProcess == "" {
+		config.CredentialProcess = psection.CredentialProcess
+	}
+
 	if psection.ParentProfile != "" {
 		fmt.Fprint(os.Stderr, "Warning: parent_profile is deprecated, please use include_profile instead in your AWS config")
 	}
@@ -509,6 +514,9 @@ type Config struct {
 
 	// SSORoleName specifies the AWS SSO Role name to target.
 	SSORoleName string
+
+	// CredentialProcess specifies the external process to call to retrieve credentials
+	CredentialProcess string
 }
 
 func (c *Config) IsChained() bool {
@@ -537,6 +545,10 @@ func (c *Config) HasWebIdentityTokenFile() bool {
 
 func (c *Config) HasWebIdentityTokenProcess() bool {
 	return c.WebIdentityTokenProcess != ""
+}
+
+func (c *Config) HasCredentialProcess() bool {
+	return c.CredentialProcess != ""
 }
 
 // CanUseGetSessionToken determines if GetSessionToken should be used, and if not returns a reason

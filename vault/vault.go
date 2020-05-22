@@ -135,6 +135,16 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, k keyring.Keyring, co
 	return p, nil
 }
 
+// NewCredentialProcessProvider returns a provider that retrieves
+// credentials from an external process
+func NewCredentialProcessProvider(config *Config) (credentials.Provider, error) {
+	p := &CredentialProcessProvider{
+		CredentialProcess: config.CredentialProcess,
+		ExpiryWindow:      defaultExpirationWindow,
+	}
+	return p, nil
+}
+
 // NewAssumeRoleWithWebIdentityProvider returns a provider that generates
 // credentials using AssumeRoleWithWebIdentity
 func NewAssumeRoleWithWebIdentityProvider(k keyring.Keyring, config *Config) (credentials.Provider, error) {
@@ -227,6 +237,8 @@ func (t *tempCredsCreator) provider(config *Config) (credentials.Provider, error
 		return NewSSORoleCredentialsProvider(t.keyring.Keyring, config)
 	} else if config.HasRole() && (config.HasWebIdentityTokenFile() || config.HasWebIdentityTokenProcess()) {
 		return NewAssumeRoleWithWebIdentityProvider(t.keyring.Keyring, config)
+	} else if config.HasCredentialProcess() {
+		return NewCredentialProcessProvider(config)
 	} else {
 		return nil, fmt.Errorf("profile %s: credentials missing", config.ProfileName)
 	}

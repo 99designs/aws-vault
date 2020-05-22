@@ -2,9 +2,11 @@ package vault
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"os"
 	"os/exec"
-	"strings"
+	"runtime"
 	"time"
 )
 
@@ -38,14 +40,24 @@ func (p *CredentialProcessProvider) Retrieve() (credentials.Value, error) {
 }
 
 func (p *CredentialProcessProvider) callCredentialProcess() (CredentialProcessResponse, error) {
-	params := strings.Split(p.CredentialProcess, " ")
-	cmd := exec.Command(params[0], params[1:]...)
-	out, err := cmd.Output()
+	var cmdArgs []string
+	if runtime.GOOS == "windows" {
+		cmdArgs = []string{"cmd.exe", "/C", p.CredentialProcess}
+	} else {
+		cmdArgs = []string{"/bin/sh", "-c", p.CredentialProcess}
+	}
+
+	cmd := exec.Command(cmdArgs[0], cmdArgs[1:]...)
+	cmd.Env = os.Environ()
+	cmd.Stdin = os.Stdin
+	cmd.Stderr = os.Stderr
+
+	b, err := cmd.Output()
 	if err != nil {
-		return CredentialProcessResponse{}, err
+		return CredentialProcessResponse{}, fmt.Errorf("failed to run command %q: %v", p.CredentialProcess, err)
 	}
 	var cred CredentialProcessResponse
-	err = json.Unmarshal(out, &cred)
+	err = json.Unmarshal(b, &cred)
 	if err != nil {
 		return CredentialProcessResponse{}, err
 	}

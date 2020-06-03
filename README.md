@@ -36,6 +36,7 @@ The supported vaulting backends are:
 * [KWallet](https://kde.org/applications/system/org.kde.kwalletmanager5)
 * [Pass](https://www.passwordstore.org/)
 * Encrypted file
+* [LastPass](https://github.com/lastpass/lastpass-cli)
 
 Use the `--backend` flag or `AWS_VAULT_BACKEND` environment variable to specify.
 
@@ -119,7 +120,7 @@ role_arn = arn:aws:iam::333333333333:role/Role2
 mfa_serial = arn:aws:iam::111111111111:mfa/jonsmith
 ```
 
-Here's what you can expect from aws-vault 
+Here's what you can expect from aws-vault
 
 | Command                                  | Credentials                 | Cached        | MFA |
 |------------------------------------------|-----------------------------|---------------|-----|

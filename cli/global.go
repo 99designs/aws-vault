@@ -115,6 +115,14 @@ func ConfigureGlobals(app *kingpin.Application) *AwsVault {
 		Envar("AWS_VAULT_PASS_PREFIX").
 		StringVar(&a.KeyringConfig.PassPrefix)
 
+	app.Flag("lastpass-cmd", "Name of the lastpass executable").
+		Envar("AWS_VAULT_LASTPASS_CMD").
+		StringVar(&a.KeyringConfig.LastPassCmd)
+
+	app.Flag("lastpass-folder", "Lastpass folder to store secure notes").
+		Envar("AWS_VAULT_LASTPASS_FOLDER").
+		StringVar(&a.KeyringConfig.LastPassFolder)
+
 	app.PreAction(func(c *kingpin.ParseContext) error {
 		if !a.Debug {
 			log.SetOutput(ioutil.Discard)

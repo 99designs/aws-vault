@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	awsTimeFormat            = "2006-01-02T15:04:05Z"
+	awsTimeFormat            = time.RFC3339
 	ec2MetadataEndpointIP    = "169.254.169.254"
 	ec2MetadataEndpointAddr  = "169.254.169.254:80"
 	ec2CredentialsServerAddr = "127.0.0.1:9099"

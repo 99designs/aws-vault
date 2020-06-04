@@ -8,6 +8,7 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 )
@@ -71,7 +72,7 @@ func ecsCredsHandler(creds *credentials.Credentials) http.HandlerFunc {
 			"AccessKeyId":     val.AccessKeyID,
 			"SecretAccessKey": val.SecretAccessKey,
 			"Token":           val.SessionToken,
-			"Expiration":      credsExpiresAt.Format("2006-01-02T15:04:05Z"),
+			"Expiration":      credsExpiresAt.Format(time.RFC3339),
 		})
 		if err != nil {
 			writeErrorMessage(w, err.Error(), http.StatusInternalServerError)

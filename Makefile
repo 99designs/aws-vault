@@ -34,6 +34,9 @@ aws-vault-linux-amd64: $(SRC)
 aws-vault-linux-arm64: $(SRC)
 	GOOS=linux GOARCH=arm64 go build $(BUILD_FLAGS) -o $@ .
 
+aws-vault-linux-arm7: $(SRC)
+	GOOS=linux GOARM=7 GOARCH=arm go build $(BUILD_FLAGS) -o $@ .
+
 aws-vault-windows-386.exe: $(SRC)
 	GOOS=windows GOARCH=386 go build $(BUILD_FLAGS) -o $@ .
 

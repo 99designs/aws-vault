@@ -28,6 +28,7 @@ type ExecCommandInput struct {
 	CredentialHelper bool
 	Config           vault.Config
 	SessionDuration  time.Duration
+	MinValidDuration time.Duration
 	NoSession        bool
 }
 
@@ -68,6 +69,10 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 	cmd.Flag("server", "Run a server in the background for credentials").
 		Short('s').
 		BoolVar(&input.StartEc2Server)
+
+	cmd.Flag("min-duration", "Trigger a refresh of background server credentials if time to expiration is below this threshold.  Defaults to 15m5s").
+		Default("15m5s").
+		DurationVar(&input.MinValidDuration)
 
 	cmd.Flag("ec2-server", "Run a EC2 metadata server in the background for credentials").
 		Hidden().
@@ -185,7 +190,7 @@ func updateEnvForAwsVault(env environ, profileName string, region string) enviro
 }
 
 func execEc2Server(input ExecCommandInput, config *vault.Config, creds *credentials.Credentials) error {
-	if err := server.StartEc2CredentialsServer(creds, config.Region); err != nil {
+	if err := server.StartEc2CredentialsServer(creds, config.Region, input.MinValidDuration); err != nil {
 		return fmt.Errorf("Failed to start credential server: %w", err)
 	}
 
@@ -196,7 +201,7 @@ func execEc2Server(input ExecCommandInput, config *vault.Config, creds *credenti
 }
 
 func execEcsServer(input ExecCommandInput, config *vault.Config, creds *credentials.Credentials) error {
-	uri, token, err := server.StartEcsCredentialServer(creds)
+	uri, token, err := server.StartEcsCredentialServer(creds, input.MinValidDuration)
 	if err != nil {
 		return fmt.Errorf("Failed to start credential server: %w", err)
 	}

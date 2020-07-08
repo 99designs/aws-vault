@@ -32,7 +32,7 @@ func withAuthorizationCheck(token string, next http.HandlerFunc) http.HandlerFun
 }
 
 // StartEcsCredentialServer starts an ECS credential server on a random port
-func StartEcsCredentialServer(creds *credentials.Credentials) (string, string, error) {
+func StartEcsCredentialServer(creds *credentials.Credentials, minValidDuration time.Duration) (string, string, error) {
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		return "", "", err
@@ -43,7 +43,7 @@ func StartEcsCredentialServer(creds *credentials.Credentials) (string, string, e
 	}
 
 	go func() {
-		err := http.Serve(listener, withLogging(withAuthorizationCheck(token, ecsCredsHandler(creds))))
+		err := http.Serve(listener, withLogging(withAuthorizationCheck(token, ecsCredsHandler(creds, minValidDuration))))
 		// returns ErrServerClosed on graceful close
 		if err != http.ErrServerClosed {
 			log.Fatalf("ecs server: %s", err.Error())
@@ -54,7 +54,7 @@ func StartEcsCredentialServer(creds *credentials.Credentials) (string, string, e
 	return uri, token, nil
 }
 
-func ecsCredsHandler(creds *credentials.Credentials) http.HandlerFunc {
+func ecsCredsHandler(creds *credentials.Credentials, minValidDuration time.Duration) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		val, err := creds.Get()
 		if err != nil {
@@ -66,6 +66,24 @@ func ecsCredsHandler(creds *credentials.Credentials) http.HandlerFunc {
 		if err != nil {
 			writeErrorMessage(w, err.Error(), http.StatusInternalServerError)
 			return
+		}
+
+		if time.Until(credsExpiresAt) < minValidDuration {
+			log.Printf("Forcing expiration of credentials due to minValidDuration (%s)",
+				time.Until(credsExpiresAt).String())
+			creds.Expire()
+
+			val, err = creds.Get()
+			if err != nil {
+				writeErrorMessage(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			credsExpiresAt, err = creds.ExpiresAt()
+			if err != nil {
+				writeErrorMessage(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
 		}
 
 		err = json.NewEncoder(w).Encode(map[string]string{

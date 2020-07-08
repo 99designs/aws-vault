@@ -46,7 +46,7 @@ func isServerRunning(bind string) bool {
 }
 
 // StartEc2CredentialsServer starts a EC2 Instance Metadata server and endpoint proxy
-func StartEc2CredentialsServer(creds *credentials.Credentials, region string) error {
+func StartEc2CredentialsServer(creds *credentials.Credentials, region string, minValidDuration time.Duration) error {
 	if !isServerRunning(ec2MetadataEndpointAddr) {
 		if err := StartEc2EndpointProxyServerProcess(); err != nil {
 			return err
@@ -56,12 +56,12 @@ func StartEc2CredentialsServer(creds *credentials.Credentials, region string) er
 	// pre-fetch credentials so that we can respond quickly to the first request
 	_, _ = creds.Get()
 
-	go startEc2CredentialsServer(creds, region)
+	go startEc2CredentialsServer(creds, region, minValidDuration)
 
 	return nil
 }
 
-func startEc2CredentialsServer(creds *credentials.Credentials, region string) {
+func startEc2CredentialsServer(creds *credentials.Credentials, region string, minValidDuration time.Duration) {
 
 	log.Printf("Starting EC2 Instance Metadata server on %s", ec2CredentialsServerAddr)
 	router := http.NewServeMux()
@@ -85,7 +85,7 @@ func startEc2CredentialsServer(creds *credentials.Credentials, region string) {
 		fmt.Fprintf(w, `{"region": "`+region+`"}`)
 	})
 
-	router.HandleFunc("/latest/meta-data/iam/security-credentials/local-credentials", credsHandler(creds))
+	router.HandleFunc("/latest/meta-data/iam/security-credentials/local-credentials", credsHandler(creds, minValidDuration))
 
 	log.Fatalln(http.ListenAndServe(ec2CredentialsServerAddr, withLogging(withSecurityChecks(router))))
 }
@@ -118,7 +118,7 @@ func withSecurityChecks(next *http.ServeMux) http.HandlerFunc {
 	}
 }
 
-func credsHandler(creds *credentials.Credentials) http.HandlerFunc {
+func credsHandler(creds *credentials.Credentials, minValidDuration time.Duration) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Credentials.IsExpired() = %#v", creds.IsExpired())
 
@@ -131,6 +131,23 @@ func credsHandler(creds *credentials.Credentials) http.HandlerFunc {
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusGatewayTimeout)
 			return
+		}
+
+		if time.Until(credsExpiresAt) < minValidDuration {
+			log.Printf("Forcing expiration of credentials due to minValidDuration (%s)",
+				time.Until(credsExpiresAt).String())
+			creds.Expire()
+
+			val, err = creds.Get()
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusGatewayTimeout)
+				return
+			}
+			credsExpiresAt, err = creds.ExpiresAt()
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusGatewayTimeout)
+				return
+			}
 		}
 
 		log.Printf("Serving credentials via http ****************%s, expiration of %s (%s)",

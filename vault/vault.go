@@ -19,6 +19,7 @@ import (
 const defaultExpirationWindow = 5 * time.Minute
 
 var UseSessionCache = true
+var ForceNewSession = false
 
 func NewSession(creds *credentials.Credentials, region string) (*session.Session, error) {
 	return session.NewSessionWithOptions(session.Options{
@@ -92,6 +93,7 @@ func NewSessionTokenProvider(creds *credentials.Credentials, k keyring.Keyring, 
 			Keyring:         &SessionKeyring{Keyring: k},
 			ExpiryWindow:    defaultExpirationWindow,
 			CredentialsFunc: sessionTokenProvider.GetSessionToken,
+			ForceNewSession: ForceNewSession,
 		}, nil
 	}
 
@@ -129,6 +131,7 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, k keyring.Keyring, co
 			Keyring:         &SessionKeyring{Keyring: k},
 			ExpiryWindow:    defaultExpirationWindow,
 			CredentialsFunc: p.assumeRole,
+			ForceNewSession: ForceNewSession,
 		}, nil
 	}
 
@@ -162,6 +165,7 @@ func NewAssumeRoleWithWebIdentityProvider(k keyring.Keyring, config *Config) (cr
 			Keyring:         &SessionKeyring{Keyring: k},
 			ExpiryWindow:    defaultExpirationWindow,
 			CredentialsFunc: p.assumeRole,
+			ForceNewSession: ForceNewSession,
 		}, nil
 	}
 
@@ -194,6 +198,7 @@ func NewSSORoleCredentialsProvider(k keyring.Keyring, config *Config) (credentia
 			Keyring:         &SessionKeyring{Keyring: k},
 			ExpiryWindow:    defaultExpirationWindow,
 			CredentialsFunc: ssoRoleCredentialsProvider.getRoleCredentialsAsStsCredemtials,
+			ForceNewSession: ForceNewSession,
 		}, nil
 	}
 

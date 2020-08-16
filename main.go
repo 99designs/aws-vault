@@ -21,7 +21,7 @@ func main() {
 	cli.ConfigureExecCommand(app, a)
 	cli.ConfigureRemoveCommand(app, a)
 	cli.ConfigureLoginCommand(app, a)
-	cli.ConfigureServerCommand(app, a)
+	cli.ConfigureProxyCommand(app, a)
 
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 }

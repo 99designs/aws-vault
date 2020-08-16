@@ -19,22 +19,6 @@ var runAsAdministratorLocalised = []string{
 	"Als Administrator ausf",
 }
 
-func installEc2EndpointNetworkAlias() ([]byte, error) {
-	out, err := exec.Command("netsh", "interface", "ipv4", "add", "address", "Loopback Pseudo-Interface 1", "169.254.169.254", "255.255.0.0").CombinedOutput()
-
-	outMsg := string(out)
-
-	if err == nil || msgFound(alreadyRegisteredLocalised, outMsg) {
-		return []byte{}, nil
-	}
-
-	if msgFound(runAsAdministratorLocalised, outMsg) {
-		fmt.Println("Creation of network alias for server mode requires elevated permissions (Run as administrator).")
-	}
-
-	return out, err
-}
-
 func msgFound(localised []string, toTest string) bool {
 	for _, value := range localised {
 		if strings.Contains(toTest, value) {
@@ -43,4 +27,26 @@ func msgFound(localised []string, toTest string) bool {
 	}
 
 	return false
+}
+
+func runAndWrapAdminErrors(name string, arg ...string) ([]byte, error) {
+	out, err := exec.Command(name, arg...).CombinedOutput()
+	if msgFound(runAsAdministratorLocalised, string(out)) {
+		err = fmt.Errorf("Creation of network alias for server mode requires elevated permissions, run as administrator", err)
+	}
+
+	return out, err
+}
+
+func installEc2EndpointNetworkAlias() ([]byte, error) {
+	out, err := runAndWrapAdminErrors("netsh", "interface", "ipv4", "add", "address", "Loopback Pseudo-Interface 1", "169.254.169.254", "255.255.0.0")
+	if msgFound(alreadyRegisteredLocalised, string(out)) {
+		return []byte{}, nil
+	}
+
+	return out, err
+}
+
+func removeEc2EndpointNetworkAlias() ([]byte, error) {
+	return runAndWrapAdminErrors("netsh", "interface", "ipv4", "delete", "address", "Loopback Pseudo-Interface 1", "169.254.169.254", "255.255.0.0")
 }

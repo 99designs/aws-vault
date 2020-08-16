@@ -16,7 +16,7 @@ require (
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	golang.org/x/crypto v0.0.0-20200510223506-06a226fb4e37
 	golang.org/x/sys v0.0.0-20200515095857-1151b9dac4a9 // indirect
-	gopkg.in/ini.v1 v1.56.0
+	gopkg.in/ini.v1 v1.60.0
 )
 
 replace github.com/keybase/go-keychain => github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4

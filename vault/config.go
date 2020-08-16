@@ -3,11 +3,9 @@ package vault
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 
@@ -113,22 +111,14 @@ func LoadConfigFromEnv() (*ConfigFile, error) {
 	return LoadConfig(file)
 }
 
-var iniKeysRegex = regexp.MustCompile(`\n[^\[\=]+\=`)
-
 func (c *ConfigFile) parseFile() error {
 	log.Printf("Parsing config file %s", c.Path)
 
-	src, err := ioutil.ReadFile(c.Path)
-	if err != nil {
-		return fmt.Errorf("Error parsing config file %s: %w", c.Path, err)
-	}
-	iniWithLowerCaseKeys := iniKeysRegex.ReplaceAllFunc(src, func(w []byte) []byte {
-		return []byte(strings.ToLower(string(w)))
-	})
-
 	f, err := ini.LoadSources(ini.LoadOptions{
-		AllowNestedValues: true,
-	}, iniWithLowerCaseKeys)
+		AllowNestedValues:   true,
+		InsensitiveSections: false,
+		InsensitiveKeys:     true,
+	}, c.Path)
 	if err != nil {
 		return fmt.Errorf("Error parsing config file %s: %w", c.Path, err)
 	}

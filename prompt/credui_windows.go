@@ -21,7 +21,7 @@ type creduiInfoA struct {
 	hbmBanner      uintptr
 }
 
-func WindowsMfaPrompt(mfaSerial string) (string, error) {
+func CredUiPrompt(mfaSerial string) (string, error) {
 	info := &creduiInfoA{
 		hwndParent:     0,
 		pszCaptionText: syscall.StringToUTF16Ptr("Enter token for aws-vault"),
@@ -54,5 +54,5 @@ func WindowsMfaPrompt(mfaSerial string) (string, error) {
 }
 
 func init() {
-	Methods["credui"] = WindowsMfaPrompt
+	Methods["credui"] = CredUiPrompt
 }

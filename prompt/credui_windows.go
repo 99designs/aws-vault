@@ -7,21 +7,13 @@ import (
 	"unsafe"
 )
 
-var (
-	credui = syscall.NewLazyDLL("credui.dll")
-
-	procCredUIPromptForCredentials = credui.NewProc("CredUIPromptForCredentialsW")
-
-	ErrFailed = errors.New("Failed.")
-)
-
 const (
 	CREDUI_FLAGS_ALWAYS_SHOW_UI      = 0x00080
 	CREDUI_FLAGS_GENERIC_CREDENTIALS = 0x40000
 	CREDUI_FLAGS_KEEP_USERNAME       = 0x100000
 )
 
-type CREDUI_INFO struct {
+type creduiInfoA struct {
 	cbSize         uint32
 	hwndParent     uintptr
 	pszMessageText *uint16
@@ -30,7 +22,7 @@ type CREDUI_INFO struct {
 }
 
 func WindowsMfaPrompt(mfaSerial string) (string, error) {
-	info := &CREDUI_INFO{
+	info := &creduiInfoA{
 		hwndParent:     0,
 		pszCaptionText: syscall.StringToUTF16Ptr("Enter token for aws-vault"),
 		pszMessageText: syscall.StringToUTF16Ptr(mfaPromptMessage(mfaSerial)),
@@ -41,7 +33,8 @@ func WindowsMfaPrompt(mfaSerial string) (string, error) {
 	save := false
 	flags := CREDUI_FLAGS_ALWAYS_SHOW_UI | CREDUI_FLAGS_KEEP_USERNAME | CREDUI_FLAGS_GENERIC_CREDENTIALS
 	shortSerial := strings.ReplaceAll(strings.ReplaceAll(mfaSerial, "arn:aws:iam::", ""), ":mfa", "")
-	ret, _, _ := procCredUIPromptForCredentials.Call(
+
+	ret, _, _ := syscall.NewLazyDLL("credui.dll").NewProc("CredUIPromptForCredentialsW").Call(
 		uintptr(unsafe.Pointer(info)),
 		uintptr(unsafe.Pointer(syscall.StringBytePtr("aws-vault"))),
 		0,
@@ -53,14 +46,13 @@ func WindowsMfaPrompt(mfaSerial string) (string, error) {
 		uintptr(unsafe.Pointer(&save)),
 		uintptr(flags),
 	)
-
 	if ret != 0 {
-		return "", ErrFailed
+		return "", errors.New("credui: call to CredUIPromptForCredentialsW failed")
 	}
 
 	return strings.TrimSpace(syscall.UTF16ToString(passwordBuf)), nil
 }
 
 func init() {
-	Methods["native"] = WindowsMfaPrompt
+	Methods["credui"] = WindowsMfaPrompt
 }

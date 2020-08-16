@@ -65,16 +65,14 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 		Short('j').
 		BoolVar(&input.CredentialHelper)
 
-	cmd.Flag("server", "Run a server in the background for credentials").
+	cmd.Flag("server", "Alias for --ec2-server. Run a EC2 metadata server in the background for credentials").
 		Short('s').
 		BoolVar(&input.StartEc2Server)
 
 	cmd.Flag("ec2-server", "Run a EC2 metadata server in the background for credentials").
-		Hidden().
 		BoolVar(&input.StartEc2Server)
 
-	cmd.Flag("ecs-server", "Run a ECS credential server in the background for credentials").
-		Hidden().
+	cmd.Flag("ecs-server", "Run a ECS credential server in the background for credentials (the SDK or app must support AWS_CONTAINER_CREDENTIALS_FULL_URI)").
 		BoolVar(&input.StartEcsServer)
 
 	cmd.Arg("profile", "Name of the profile").

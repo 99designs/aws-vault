@@ -6,54 +6,23 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"net/http/httputil"
-	"net/url"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 )
 
-const (
-	awsTimeFormat            = time.RFC3339
-	ec2MetadataEndpointIP    = "169.254.169.254"
-	ec2MetadataEndpointAddr  = "169.254.169.254:80"
-	ec2CredentialsServerAddr = "127.0.0.1:9099"
-)
-
-// StartEc2MetadataEndpointProxy starts a http proxy server on the standard EC2 Instance Metadata endpoint
-func StartEc2MetadataEndpointProxy() error {
-	var localServerURL, err = url.Parse(fmt.Sprintf("http://%s/", ec2CredentialsServerAddr))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if _, err := installEc2EndpointNetworkAlias(); err != nil {
-		return err
-	}
-
-	l, err := net.Listen("tcp", ec2MetadataEndpointAddr)
-	if err != nil {
-		return err
-	}
-
-	log.Printf("EC2 Instance Metadata endpoint proxy server running on %s", l.Addr())
-	return http.Serve(l, httputil.NewSingleHostReverseProxy(localServerURL))
-}
-
-func isServerRunning(bind string) bool {
-	_, err := net.DialTimeout("tcp", bind, time.Millisecond*10)
-	return err == nil
-}
+const ec2CredentialsServerAddr = "127.0.0.1:9099"
 
 // StartEc2CredentialsServer starts a EC2 Instance Metadata server and endpoint proxy
 func StartEc2CredentialsServer(creds *credentials.Credentials, region string) error {
-	if !isServerRunning(ec2MetadataEndpointAddr) {
+	if !isProxyRunning() {
 		if err := StartEc2EndpointProxyServerProcess(); err != nil {
 			return err
 		}
 	}
 
 	// pre-fetch credentials so that we can respond quickly to the first request
+	// SDKs seem to very aggressively timeout
 	_, _ = creds.Get()
 
 	go startEc2CredentialsServer(creds, region)
@@ -135,17 +104,17 @@ func credsHandler(creds *credentials.Credentials) http.HandlerFunc {
 
 		log.Printf("Serving credentials via http ****************%s, expiration of %s (%s)",
 			val.AccessKeyID[len(val.AccessKeyID)-4:],
-			credsExpiresAt.Format(awsTimeFormat),
+			credsExpiresAt.Format(time.RFC3339),
 			time.Until(credsExpiresAt).String())
 
 		err = json.NewEncoder(w).Encode(map[string]interface{}{
 			"Code":            "Success",
-			"LastUpdated":     time.Now().Format(awsTimeFormat),
+			"LastUpdated":     time.Now().Format(time.RFC3339),
 			"Type":            "AWS-HMAC",
 			"AccessKeyId":     val.AccessKeyID,
 			"SecretAccessKey": val.SecretAccessKey,
 			"Token":           val.SessionToken,
-			"Expiration":      credsExpiresAt.Format(awsTimeFormat),
+			"Expiration":      credsExpiresAt.Format(time.RFC3339),
 		})
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

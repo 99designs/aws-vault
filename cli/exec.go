@@ -31,14 +31,22 @@ type ExecCommandInput struct {
 	NoSession        bool
 }
 
-// AwsCredentialHelperData is metadata for AWS CLI credential process
-// See https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
-type AwsCredentialHelperData struct {
-	Version         int    `json:"Version"`
-	AccessKeyID     string `json:"AccessKeyId"`
-	SecretAccessKey string `json:"SecretAccessKey"`
-	SessionToken    string `json:"SessionToken,omitempty"`
-	Expiration      string `json:"Expiration,omitempty"`
+func (input ExecCommandInput) validate() error {
+	if input.StartEc2Server && input.StartEcsServer {
+		return fmt.Errorf("Can't use --server with --ecs-server")
+	}
+	if input.StartEc2Server && input.CredentialHelper {
+		return fmt.Errorf("Can't use --server with --json")
+	}
+	if input.StartEc2Server && input.NoSession {
+		return fmt.Errorf("Can't use --server with --no-session")
+	}
+	if input.StartEcsServer && input.CredentialHelper {
+		return fmt.Errorf("Can't use --ecs-server with --json")
+	}
+	if input.StartEcsServer && input.NoSession {
+		return fmt.Errorf("Can't use --ecs-server with --no-session")
+	}
 }
 
 func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
@@ -112,20 +120,9 @@ func ExecCommand(input ExecCommandInput, f *vault.ConfigFile, keyring keyring.Ke
 		return fmt.Errorf("aws-vault sessions should be nested with care, unset $AWS_VAULT to force")
 	}
 
-	if input.StartEc2Server && input.StartEcsServer {
-		return fmt.Errorf("Can't use --server with --ecs-server")
-	}
-	if input.StartEc2Server && input.CredentialHelper {
-		return fmt.Errorf("Can't use --server with --json")
-	}
-	if input.StartEc2Server && input.NoSession {
-		return fmt.Errorf("Can't use --server with --no-session")
-	}
-	if input.StartEcsServer && input.CredentialHelper {
-		return fmt.Errorf("Can't use --ecs-server with --json")
-	}
-	if input.StartEcsServer && input.NoSession {
-		return fmt.Errorf("Can't use --ecs-server with --no-session")
+	err := input.validate()
+	if err != nil {
+		return err
 	}
 
 	vault.UseSession = !input.NoSession
@@ -210,6 +207,17 @@ func execEcsServer(input ExecCommandInput, config *vault.Config, creds *credenti
 }
 
 func execCredentialHelper(input ExecCommandInput, config *vault.Config, creds *credentials.Credentials) error {
+
+	// AwsCredentialHelperData is metadata for AWS CLI credential process
+	// See https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
+	type AwsCredentialHelperData struct {
+		Version         int    `json:"Version"`
+		AccessKeyID     string `json:"AccessKeyId"`
+		SecretAccessKey string `json:"SecretAccessKey"`
+		SessionToken    string `json:"SessionToken,omitempty"`
+		Expiration      string `json:"Expiration,omitempty"`
+	}
+
 	val, err := creds.Get()
 	if err != nil {
 		return fmt.Errorf("Failed to get credentials for %s: %w", input.ProfileName, err)

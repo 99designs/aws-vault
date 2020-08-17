@@ -414,9 +414,9 @@ role_arn = arn:aws:iam::33333333333:role/role2
 web_identity_token_process = oidccli raw
 ```
 
-## Using credential helper
+## Using `credential_process`
 
-The AWS CLI config supports sourcing credentials directly from an external process, using `credential_process`.
+The [AWS CLI config](https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes) supports sourcing credentials directly from an external process, using `credential_process`.
 
 ```ini
 [profile home]
@@ -443,7 +443,8 @@ role_arn = arn:aws:iam::33333333333:role/role2
 source_profile = jon
 ```
 
-See the [AWS CLI docs](https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes) for more details.
+If you're using `credential_process` in your config you should not use `aws-vault exec` on the command line to execute commands directly - the AWS SDK executes `aws-vault` for you.
+
 
 ## Using a Yubikey
 

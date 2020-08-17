@@ -185,9 +185,10 @@ func NewSSORoleCredentialsProvider(k keyring.Keyring, config *Config) (credentia
 	}
 
 	if UseSessionCache {
+		ssoRoleCredentialsProvider.OIDCTokenCache = OIDCTokenKeyring{Keyring: k}
 		return &CachedSessionProvider{
 			SessionKey: SessionMetadata{
-				Type:        "sso.GetRoleCredentialsInput",
+				Type:        "sso.GetRoleCredentials",
 				ProfileName: config.ProfileName,
 				MfaSerial:   config.SSOStartURL,
 			},

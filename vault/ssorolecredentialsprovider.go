@@ -15,14 +15,20 @@ import (
 	"github.com/skratchdot/open-golang/open"
 )
 
+type OIDCTokenCacher interface {
+	Get(string) (*ssooidc.CreateTokenOutput, error)
+	Set(string, *ssooidc.CreateTokenOutput) error
+}
+
 // SSORoleCredentialsProvider creates temporary credentials for an SSO Role.
 type SSORoleCredentialsProvider struct {
-	OIDCClient   *ssooidc.SSOOIDC
-	StartURL     string
-	SSOClient    *sso.SSO
-	AccountID    string
-	RoleName     string
-	ExpiryWindow time.Duration
+	OIDCClient     *ssooidc.SSOOIDC
+	OIDCTokenCache OIDCTokenCacher
+	StartURL       string
+	SSOClient      *sso.SSO
+	AccountID      string
+	RoleName       string
+	ExpiryWindow   time.Duration
 	credentials.Expiry
 }
 
@@ -42,7 +48,7 @@ func (p *SSORoleCredentialsProvider) Retrieve() (credentials.Value, error) {
 }
 
 func (p *SSORoleCredentialsProvider) getRoleCredentials() (*sso.RoleCredentials, error) {
-	token, err := p.createOIDCToken()
+	token, err := p.getOIDCToken()
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +81,28 @@ func (p *SSORoleCredentialsProvider) getRoleCredentialsAsStsCredemtials() (*sts.
 	}, nil
 }
 
-func (p *SSORoleCredentialsProvider) createOIDCToken() (*ssooidc.CreateTokenOutput, error) {
+func (p *SSORoleCredentialsProvider) getOIDCToken() (token *ssooidc.CreateTokenOutput, err error) {
+	if p.OIDCTokenCache != nil {
+		token, err = p.OIDCTokenCache.Get(p.StartURL)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if token == nil {
+		token, err = p.newOIDCToken()
+		if err != nil {
+			return nil, err
+		}
+
+		if p.OIDCTokenCache != nil {
+			err = p.OIDCTokenCache.Set(p.StartURL, token)
+			return nil, err
+		}
+	}
+	return token, err
+}
+
+func (p *SSORoleCredentialsProvider) newOIDCToken() (*ssooidc.CreateTokenOutput, error) {
 	clientCreds, err := p.OIDCClient.RegisterClient(&ssooidc.RegisterClientInput{
 		ClientName: aws.String("aws-vault"),
 		ClientType: aws.String("public"),

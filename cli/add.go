@@ -70,7 +70,7 @@ func AddCommand(input AddCommandInput, keyring keyring.Keyring, awsConfigFile *v
 		if accessKeyId, err = prompt.TerminalPrompt("Enter Access Key ID: "); err != nil {
 			return fmt.Errorf(err.Error())
 		}
-		if secretKey, err = prompt.TerminalPrompt("Enter Secret Access Key: "); err != nil {
+		if secretKey, err = prompt.TerminalSecretPrompt("Enter Secret Access Key: "); err != nil {
 			return fmt.Errorf(err.Error())
 		}
 	}

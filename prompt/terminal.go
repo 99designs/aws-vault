@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 func TerminalPrompt(message string) (string, error) {
@@ -17,6 +19,19 @@ func TerminalPrompt(message string) (string, error) {
 	}
 
 	return strings.TrimSpace(text), nil
+}
+
+func TerminalSecretPrompt(message string) (string, error) {
+	fmt.Fprint(os.Stderr, message)
+
+	text, err := terminal.ReadPassword(int(os.Stdin.Fd()))
+	if err != nil {
+		return "", err
+	}
+
+	fmt.Println()
+
+	return strings.TrimSpace(string(text)), nil
 }
 
 func TerminalMfaPrompt(mfaSerial string) (string, error) {

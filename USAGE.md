@@ -416,7 +416,7 @@ web_identity_token_process = oidccli raw
 
 ## Using credential helper
 
-The AWS CLI config now supports sourcing credentials directly from an external process, like aws-vault!
+The AWS CLI config supports sourcing credentials directly from an external process, using `credential_process`.
 
 ```ini
 [profile home]
@@ -429,6 +429,18 @@ If `mfa_serial` is set, please define the prompt driver (for example `osascript`
 [profile work]
 mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
 credential_process = aws-vault exec work --json --prompt=osascript
+```
+
+Note that `credential_process` is designed for retrieving master credentials, while aws-vault outputs STS credentials by default. If a role is present, the AWS CLI/SDK uses the master credentials from the `credential_process` to generate STS credentials itself. So depending on your use-case, it might make sense for aws-vault to output master credentials by using a profile without a role and the `--no-session` argument. For example:
+
+```ini
+[profile jon]
+credential_process = aws-vault exec --no-session jon
+
+[profile work]
+mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
+role_arn = arn:aws:iam::33333333333:role/role2
+source_profile = jon
 ```
 
 See the [AWS CLI docs](https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes) for more details.

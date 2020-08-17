@@ -339,8 +339,10 @@ func execSyscall(command string, args []string, env []string) error {
 
 	argv0, err := osexec.LookPath(command)
 	if err != nil {
-		return err
+		return fmt.Errorf("Couldn't find the executable '%s': %w", command, err)
 	}
+
+	log.Printf("Found executable %s", argv0)
 
 	argv := make([]string, 0, 1+len(args))
 	argv = append(argv, command)

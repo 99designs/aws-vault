@@ -47,6 +47,8 @@ func (input ExecCommandInput) validate() error {
 	if input.StartEcsServer && input.NoSession {
 		return fmt.Errorf("Can't use --ecs-server with --no-session")
 	}
+
+	return nil
 }
 
 func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {

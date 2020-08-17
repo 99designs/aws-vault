@@ -21,7 +21,7 @@ type creduiInfoA struct {
 	hbmBanner      uintptr
 }
 
-func CredUiPrompt(mfaSerial string) (string, error) {
+func WinCredUiPrompt(mfaSerial string) (string, error) {
 	info := &creduiInfoA{
 		hwndParent:     0,
 		pszCaptionText: syscall.StringToUTF16Ptr("Enter token for aws-vault"),
@@ -47,12 +47,12 @@ func CredUiPrompt(mfaSerial string) (string, error) {
 		uintptr(flags),
 	)
 	if ret != 0 {
-		return "", errors.New("credui: call to CredUIPromptForCredentialsW failed")
+		return "", errors.New("wincredui: call to CredUIPromptForCredentialsW failed")
 	}
 
 	return strings.TrimSpace(syscall.UTF16ToString(passwordBuf)), nil
 }
 
 func init() {
-	Methods["credui"] = CredUiPrompt
+	Methods["wincredui"] = WinCredUiPrompt
 }

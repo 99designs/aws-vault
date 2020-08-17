@@ -85,6 +85,7 @@ func ConfigureGlobals(app *kingpin.Application) *AwsVault {
 		BoolVar(&a.Debug)
 
 	app.Flag("backend", fmt.Sprintf("Secret backend to use %v", backendsAvailable)).
+		Default(backendsAvailable[0]).
 		Envar("AWS_VAULT_BACKEND").
 		EnumVar(&a.KeyringBackend, backendsAvailable...)
 

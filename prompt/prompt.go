@@ -1,6 +1,9 @@
 package prompt
 
-import "fmt"
+import (
+	"fmt"
+	"sort"
+)
 
 type PromptFunc func(string) (string, error)
 
@@ -11,6 +14,7 @@ func Available() []string {
 	for k := range Methods {
 		methods = append(methods, k)
 	}
+	sort.Strings(methods)
 	return methods
 }
 

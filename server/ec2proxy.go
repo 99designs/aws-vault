@@ -36,11 +36,8 @@ func StartProxy() error {
 
 	handler := http.NewServeMux()
 	handler.HandleFunc("/stop", func(w http.ResponseWriter, r *http.Request) {
-		_, err := removeEc2EndpointNetworkAlias()
-		if err != nil {
-			log.Fatalln(err)
-		}
-		os.Exit(0)
+		w.WriteHeader(http.StatusOK)
+		go Shutdown()
 	})
 	handler.Handle("/", httputil.NewSingleHostReverseProxy(localServerURL))
 
@@ -51,6 +48,14 @@ func StartProxy() error {
 func isProxyRunning() bool {
 	_, err := net.DialTimeout("tcp", ec2MetadataEndpointAddr, time.Millisecond*10)
 	return err == nil
+}
+
+func Shutdown() {
+	_, err := removeEc2EndpointNetworkAlias()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	os.Exit(0)
 }
 
 // StopProxy stops the http proxy server on the standard EC2 Instance Metadata endpoint

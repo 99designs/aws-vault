@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -84,7 +85,7 @@ func (p *SSORoleCredentialsProvider) getRoleCredentialsAsStsCredemtials() (*sts.
 func (p *SSORoleCredentialsProvider) getOIDCToken() (token *ssooidc.CreateTokenOutput, err error) {
 	if p.OIDCTokenCache != nil {
 		token, err = p.OIDCTokenCache.Get(p.StartURL)
-		if err != nil {
+		if err != nil && err != keyring.ErrKeyNotFound {
 			return nil, err
 		}
 	}
@@ -96,7 +97,9 @@ func (p *SSORoleCredentialsProvider) getOIDCToken() (token *ssooidc.CreateTokenO
 
 		if p.OIDCTokenCache != nil {
 			err = p.OIDCTokenCache.Set(p.StartURL, token)
-			return nil, err
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return token, err

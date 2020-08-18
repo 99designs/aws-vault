@@ -42,7 +42,7 @@ func StartProxy() error {
 		}
 		os.Exit(0)
 	})
-	handler.Handle("*", httputil.NewSingleHostReverseProxy(localServerURL))
+	handler.Handle("/", httputil.NewSingleHostReverseProxy(localServerURL))
 
 	log.Printf("EC2 Instance Metadata endpoint proxy server running on %s", l.Addr())
 	return http.Serve(l, handler)

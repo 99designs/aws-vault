@@ -95,9 +95,11 @@ func (p *SSORoleCredentialsProvider) getOIDCToken() (token *ssooidc.CreateTokenO
 			return nil, err
 		}
 
-		err = p.OIDCTokenCache.Set(p.StartURL, token)
-		if err != nil {
-			return nil, err
+		if p.OIDCTokenCache != nil {
+			err = p.OIDCTokenCache.Set(p.StartURL, token)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return token, err

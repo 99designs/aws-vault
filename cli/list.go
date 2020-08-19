@@ -136,7 +136,17 @@ func ListCommand(input ListCommandInput, awsConfigFile *vault.ConfigFile, keyrin
 	for _, credentialName := range credentialsNames {
 		_, ok := awsConfigFile.ProfileSection(credentialName)
 		if !ok {
-			fmt.Fprintf(w, "-\t%s\t-\t\n", credentialName)
+			if vault.IsOIDCTokenKeyringKey(credentialName) {
+				oidck := &vault.OIDCTokenKeyring{Keyring: ckr.Keyring}
+				token, err := oidck.Get(credentialName)
+				if err != nil {
+					return err
+				}
+				timeLeft := time.Duration(*token.ExpiresIn * int64(time.Second))
+				fmt.Fprintf(w, "-\t%s\toidc:%s\t\n", credentialName, timeLeft.String())
+			} else {
+				fmt.Fprintf(w, "-\t%s\t-\t\n", credentialName)
+			}
 		}
 	}
 

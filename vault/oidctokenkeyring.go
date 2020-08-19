@@ -4,11 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go/service/ssooidc"
 )
+
+const OIDCTokenKeyringPrefix = "oidc:"
 
 type OIDCTokenKeyring struct {
 	Keyring keyring.Keyring
@@ -19,11 +22,23 @@ type OIDCTokenData struct {
 	Expiration time.Time
 }
 
-func (o *OIDCTokenKeyring) key(startURL string) string {
-	return "oidc:" + startURL
+func IsOIDCTokenKeyringKey(raw string) bool {
+	return strings.HasPrefix(raw, OIDCTokenKeyringPrefix)
 }
 
-func (o OIDCTokenKeyring) Get(startURL string) (*ssooidc.CreateTokenOutput, error) {
+func (o *OIDCTokenKeyring) keyToStartURL(raw string) string {
+	return strings.TrimPrefix(raw, OIDCTokenKeyringPrefix)
+}
+
+func (o *OIDCTokenKeyring) key(startURL string) string {
+	return OIDCTokenKeyringPrefix + startURL
+}
+
+func (o OIDCTokenKeyring) Get(startURLorKey string) (*ssooidc.CreateTokenOutput, error) {
+	var startURL string
+	if IsOIDCTokenKeyringKey(startURLorKey) {
+		startURL = o.keyToStartURL(startURLorKey)
+	}
 	item, err := o.Keyring.Get(o.key(startURL))
 	if err != nil {
 		return nil, err

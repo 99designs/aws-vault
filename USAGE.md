@@ -435,7 +435,7 @@ Note that `credential_process` is designed for retrieving master credentials, wh
 
 ```ini
 [profile jon]
-credential_process = aws-vault exec --no-session jon
+credential_process = aws-vault exec --no-session jon --json
 
 [profile work]
 mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith

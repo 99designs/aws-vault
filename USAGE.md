@@ -25,7 +25,7 @@
   * [Gotchas with MFA config](#gotchas-with-mfa-config)
 * [AWS Single Sign-On (AWS SSO)](#aws-single-sign-on-aws-sso)
 * [Assuming roles with web identities](#assuming-roles-with-web-identities)
-* [Using credential helper](#using-credential-helper)
+* [Using `credential_process`](#using-credential_process)
 * [Using a Yubikey](#using-a-yubikey)
   * [Prerequisites](#prerequisites)
   * [Setup](#setup)
@@ -435,7 +435,7 @@ Note that `credential_process` is designed for retrieving master credentials, wh
 
 ```ini
 [profile jon]
-credential_process = aws-vault exec --no-session jon --json
+credential_process = aws-vault exec --no-session --json jon
 
 [profile work]
 mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith

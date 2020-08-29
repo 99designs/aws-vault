@@ -54,7 +54,8 @@ func (o OIDCTokenKeyring) Get(startURL string) (*ssooidc.CreateTokenOutput, erro
 	val := OIDCTokenData{}
 
 	if err = json.Unmarshal(item.Data, &val); err != nil {
-		return nil, fmt.Errorf("Invalid data in keyring: %w", err)
+		log.Printf("Invalid data in keyring: %s", err.Error())
+		return nil, keyring.ErrKeyNotFound
 	}
 	if time.Now().After(val.Expiration) {
 		log.Printf("OIDC token for '%s' expired, removing", startURL)

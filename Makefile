@@ -6,7 +6,7 @@ INSTALL_DIR ?= ~/bin
 .PHONY: binaries clean release install
 
 aws-vault: $(SRC)
-	go build $(BUILD_FLAGS) .
+	go build -ldflags="-X main.Version=$(VERSION)" .
 
 install: aws-vault
 	mkdir -p $(INSTALL_DIR)

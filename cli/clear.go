@@ -26,13 +26,18 @@ func ConfigureClearCommand(app *kingpin.Application, a *AwsVault) {
 		if err != nil {
 			return err
 		}
-		err = ClearCommand(input, keyring)
+		awsConfigFile, err := a.AwsConfigFile()
+		if err != nil {
+			return err
+		}
+
+		err = ClearCommand(input, awsConfigFile, keyring)
 		app.FatalIfError(err, "clear")
 		return nil
 	})
 }
 
-func ClearCommand(input ClearCommandInput, keyring keyring.Keyring) error {
+func ClearCommand(input ClearCommandInput, awsConfigFile *vault.ConfigFile, keyring keyring.Keyring) error {
 	sessions := &vault.SessionKeyring{Keyring: keyring}
 	oidcTokens := &vault.OIDCTokenKeyring{Keyring: keyring}
 	var numSessionsRemoved, numTokensRemoved int
@@ -50,6 +55,16 @@ func ClearCommand(input ClearCommandInput, keyring keyring.Keyring) error {
 		numSessionsRemoved, err = sessions.RemoveForProfile(input.ProfileName)
 		if err != nil {
 			return err
+		}
+
+		if profileSection, ok := awsConfigFile.ProfileSection(input.ProfileName); ok {
+			if exists, _ := oidcTokens.Has(profileSection.SSOStartURL); exists {
+				err = oidcTokens.Remove(profileSection.SSOStartURL)
+				if err != nil {
+					return err
+				}
+				numTokensRemoved = 1
+			}
 		}
 	}
 	fmt.Printf("Cleared %d sessions.\n", numSessionsRemoved+numTokensRemoved)

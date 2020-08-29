@@ -186,8 +186,6 @@ func (sk *SessionKeyring) Remove(key SessionMetadata) error {
 }
 
 func (sk *SessionKeyring) RemoveAll() (n int, err error) {
-	sk.GarbageCollectOnce()
-
 	allKeys, err := sk.Keys()
 	if err != nil {
 		return 0, err

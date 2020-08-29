@@ -21,13 +21,13 @@ type AddCommandInput struct {
 func ConfigureAddCommand(app *kingpin.Application, a *AwsVault) {
 	input := AddCommandInput{}
 
-	cmd := app.Command("add", "Adds credentials, prompts if none provided")
+	cmd := app.Command("add", "Adds credentials to the secure keystore")
 
 	cmd.Arg("profile", "Name of the profile").
 		Required().
 		StringVar(&input.ProfileName)
 
-	cmd.Flag("env", "Read the credentials from the environment").
+	cmd.Flag("env", "Read the credentials from the environment (AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY)").
 		BoolVar(&input.FromEnv)
 
 	cmd.Flag("add-config", "Add a profile to ~/.aws/config if one doesn't exist").
@@ -68,10 +68,10 @@ func AddCommand(input AddCommandInput, keyring keyring.Keyring, awsConfigFile *v
 	} else {
 		var err error
 		if accessKeyId, err = prompt.TerminalPrompt("Enter Access Key ID: "); err != nil {
-			return fmt.Errorf(err.Error())
+			return err
 		}
 		if secretKey, err = prompt.TerminalSecretPrompt("Enter Secret Access Key: "); err != nil {
-			return fmt.Errorf(err.Error())
+			return err
 		}
 	}
 
@@ -96,7 +96,7 @@ func AddCommand(input AddCommandInput, keyring keyring.Keyring, awsConfigFile *v
 			}
 			log.Printf("Adding profile %s to config at %s", input.ProfileName, awsConfigFile.Path)
 			if err := awsConfigFile.Add(newProfileSection); err != nil {
-				return fmt.Errorf("Error adding profile: %#v", err)
+				return fmt.Errorf("Error adding profile: %w", err)
 			}
 		}
 	}

@@ -48,54 +48,82 @@ func ConfigureListCommand(app *kingpin.Application, a *AwsVault) {
 	})
 }
 
-func ListCommand(input ListCommandInput, awsConfigFile *vault.ConfigFile, keyring keyring.Keyring) (err error) {
-	ckr := &vault.CredentialKeyring{Keyring: keyring}
+type stringslice []string
 
-	var sessionNames, credentialsNames []string
-	var sessions []vault.SessionMetadata
-
-	if !input.OnlyProfiles && !input.OnlySessions {
-		credentialsNames, err = ckr.CredentialsKeys()
-		if err != nil {
-			return err
+func (ss stringslice) remove(stringsToRemove []string) (newSS []string) {
+	xx := stringslice(stringsToRemove)
+	for _, s := range ss {
+		if !xx.has(s) {
+			newSS = append(newSS, s)
 		}
 	}
 
-	if !input.OnlyProfiles && !input.OnlyCredentials {
-		sk := &vault.SessionKeyring{Keyring: ckr.Keyring}
-		sessions, err = sk.GetAllMetadata()
-		if err != nil {
-			return err
+	return
+}
+
+func (ss stringslice) has(s string) bool {
+	for _, t := range ss {
+		if s == t {
+			return true
 		}
-		for _, sess := range sessions {
-			label := fmt.Sprintf("%d", sess.Expiration.Unix())
-			if sess.MfaSerial != "" {
-				label += " (mfa)"
-			}
-			sessionNames = append(sessionNames, label)
-		}
+	}
+	return false
+}
+
+func sessionLabel(sess vault.SessionMetadata) string {
+	return fmt.Sprintf("%s:%s", sess.Type, time.Until(sess.Expiration).Truncate(time.Second))
+}
+
+func ListCommand(input ListCommandInput, awsConfigFile *vault.ConfigFile, keyring keyring.Keyring) (err error) {
+	credentialKeyring := &vault.CredentialKeyring{Keyring: keyring}
+	oidcTokenKeyring := &vault.OIDCTokenKeyring{Keyring: credentialKeyring.Keyring}
+	sessionKeyring := &vault.SessionKeyring{Keyring: credentialKeyring.Keyring}
+
+	credentialsNames, err := credentialKeyring.Keys()
+	if err != nil {
+		return err
+	}
+
+	tokens, err := oidcTokenKeyring.Keys()
+	if err != nil {
+		return err
+	}
+
+	sessions, err := sessionKeyring.GetAllMetadata()
+	if err != nil {
+		return err
+	}
+
+	allSessionLabels := []string{}
+	for _, t := range tokens {
+		allSessionLabels = append(allSessionLabels, fmt.Sprintf("oidc:%s", t))
+	}
+	for _, sess := range sessions {
+		allSessionLabels = append(allSessionLabels, fmt.Sprintln(sessionLabel(sess)))
 	}
 
 	if input.OnlyCredentials {
 		for _, c := range credentialsNames {
-			fmt.Printf("%s\n", c)
+			fmt.Println(c)
 		}
 		return nil
 	}
 
 	if input.OnlyProfiles {
 		for _, profileName := range awsConfigFile.ProfileNames() {
-			fmt.Printf("%s\n", profileName)
+			fmt.Println(profileName)
 		}
 		return nil
 	}
 
 	if input.OnlySessions {
-		for _, c := range sessionNames {
-			fmt.Printf("%s\n", c)
+		for _, l := range allSessionLabels {
+			fmt.Println(l)
 		}
 		return nil
 	}
+
+	displayedSessionLabels := []string{}
 
 	w := tabwriter.NewWriter(os.Stdout, 25, 4, 2, ' ', 0)
 
@@ -106,7 +134,7 @@ func ListCommand(input ListCommandInput, awsConfigFile *vault.ConfigFile, keyrin
 	for _, profileName := range awsConfigFile.ProfileNames() {
 		fmt.Fprintf(w, "%s\t", profileName)
 
-		hasCred, err := ckr.Has(profileName)
+		hasCred, err := credentialKeyring.Has(profileName)
 		if err != nil {
 			return err
 		}
@@ -118,10 +146,18 @@ func ListCommand(input ListCommandInput, awsConfigFile *vault.ConfigFile, keyrin
 		}
 
 		var sessionLabels []string
+
+		// check oidc keyring
+		if profileSection, ok := awsConfigFile.ProfileSection(profileName); ok {
+			if exists, _ := oidcTokenKeyring.Has(profileSection.SSOStartURL); exists {
+				sessionLabels = append(sessionLabels, fmt.Sprintf("oidc:%s", profileSection.SSOStartURL))
+			}
+		}
+
+		// check session keyring
 		for _, sess := range sessions {
 			if profileName == sess.ProfileName {
-				label := fmt.Sprintf("%s:%s", sess.Type, time.Until(sess.Expiration).Truncate(time.Second))
-				sessionLabels = append(sessionLabels, label)
+				sessionLabels = append(sessionLabels, sessionLabel(sess))
 			}
 		}
 
@@ -130,6 +166,8 @@ func ListCommand(input ListCommandInput, awsConfigFile *vault.ConfigFile, keyrin
 		} else {
 			fmt.Fprintf(w, "-\t\n")
 		}
+
+		displayedSessionLabels = append(displayedSessionLabels, sessionLabels...)
 	}
 
 	// show credentials that don't have profiles
@@ -138,6 +176,12 @@ func ListCommand(input ListCommandInput, awsConfigFile *vault.ConfigFile, keyrin
 		if !ok {
 			fmt.Fprintf(w, "-\t%s\t-\t\n", credentialName)
 		}
+	}
+
+	// show sessions that don't have profiles
+	sessionsWithoutProfiles := stringslice(allSessionLabels).remove(displayedSessionLabels)
+	for _, s := range sessionsWithoutProfiles {
+		fmt.Fprintf(w, "-\t-\t%s\t\n", s)
 	}
 
 	if err = w.Flush(); err != nil {

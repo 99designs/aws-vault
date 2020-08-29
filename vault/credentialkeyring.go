@@ -12,13 +12,13 @@ type CredentialKeyring struct {
 	Keyring keyring.Keyring
 }
 
-func (ck *CredentialKeyring) CredentialsKeys() (credentialsNames []string, err error) {
+func (ck *CredentialKeyring) Keys() (credentialsNames []string, err error) {
 	allKeys, err := ck.Keyring.Keys()
 	if err != nil {
 		return credentialsNames, err
 	}
 	for _, keyName := range allKeys {
-		if !IsSessionKey(keyName) {
+		if !IsSessionKey(keyName) && !IsOIDCTokenKey(keyName) {
 			credentialsNames = append(credentialsNames, keyName)
 		}
 	}

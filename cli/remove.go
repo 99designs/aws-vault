@@ -17,7 +17,7 @@ type RemoveCommandInput struct {
 func ConfigureRemoveCommand(app *kingpin.Application, a *AwsVault) {
 	input := RemoveCommandInput{}
 
-	cmd := app.Command("remove", "Removes credentials, including sessions")
+	cmd := app.Command("remove", "Removes credentials from the secure keystore")
 	cmd.Alias("rm")
 
 	cmd.Arg("profile", "Name of the profile").
@@ -27,9 +27,10 @@ func ConfigureRemoveCommand(app *kingpin.Application, a *AwsVault) {
 
 	cmd.Flag("sessions-only", "Only remove sessions, leave credentials intact").
 		Short('s').
+		Hidden().
 		BoolVar(&input.SessionsOnly)
 
-	cmd.Action(func(c *kingpin.ParseContext) (err error) {
+	cmd.Action(func(c *kingpin.ParseContext) error {
 		keyring, err := a.Keyring()
 		if err != nil {
 			return err
@@ -42,26 +43,31 @@ func ConfigureRemoveCommand(app *kingpin.Application, a *AwsVault) {
 
 func RemoveCommand(input RemoveCommandInput, keyring keyring.Keyring) error {
 	ckr := &vault.CredentialKeyring{Keyring: keyring}
-	if !input.SessionsOnly {
-		r, err := prompt.TerminalPrompt(fmt.Sprintf("Delete credentials for profile %q? (Y|n) ", input.ProfileName))
+
+	// Legacy --sessions-only option for backwards compatibility, use aws-vault clear instead
+	if input.SessionsOnly {
+		sk := &vault.SessionKeyring{Keyring: ckr.Keyring}
+		n, err := sk.RemoveForProfile(input.ProfileName)
 		if err != nil {
 			return err
-		} else if r == "N" || r == "n" {
-			return nil
 		}
-
-		if err := ckr.Remove(input.ProfileName); err != nil {
-			return err
-		}
-		fmt.Printf("Deleted credentials.\n")
+		fmt.Printf("Deleted %d sessions.\n", n)
+		return nil
 	}
 
-	sk := &vault.SessionKeyring{Keyring: ckr.Keyring}
-	n, err := sk.RemoveForProfile(input.ProfileName)
+	r, err := prompt.TerminalPrompt(fmt.Sprintf("Delete credentials for profile %q? (y|N) ", input.ProfileName))
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Deleted %d sessions.\n", n)
+
+	if r != "Y" && r != "y" {
+		return nil
+	}
+
+	if err := ckr.Remove(input.ProfileName); err != nil {
+		return err
+	}
+	fmt.Printf("Deleted credentials.\n")
 
 	return nil
 }

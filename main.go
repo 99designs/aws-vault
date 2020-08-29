@@ -19,6 +19,7 @@ func main() {
 	cli.ConfigureListCommand(app, a)
 	cli.ConfigureRotateCommand(app, a)
 	cli.ConfigureExecCommand(app, a)
+	cli.ConfigureClearCommand(app, a)
 	cli.ConfigureRemoveCommand(app, a)
 	cli.ConfigureLoginCommand(app, a)
 	cli.ConfigureProxyCommand(app, a)

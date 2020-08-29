@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/99designs/keyring"
@@ -19,12 +20,33 @@ type OIDCTokenData struct {
 	Expiration time.Time
 }
 
-func (o *OIDCTokenKeyring) key(startURL string) string {
-	return "oidc:" + startURL
+const oidcTokenKeyPrefix = "oidc:"
+
+func (o *OIDCTokenKeyring) fmtKey(startURL string) string {
+	return oidcTokenKeyPrefix + startURL
+}
+
+func IsOIDCTokenKey(k string) bool {
+	return strings.HasPrefix(k, oidcTokenKeyPrefix)
+}
+
+func (o OIDCTokenKeyring) Has(startURL string) (bool, error) {
+	kk, err := o.Keyring.Keys()
+	if err != nil {
+		return false, err
+	}
+
+	for _, k := range kk {
+		if startURL == k {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
 
 func (o OIDCTokenKeyring) Get(startURL string) (*ssooidc.CreateTokenOutput, error) {
-	item, err := o.Keyring.Get(o.key(startURL))
+	item, err := o.Keyring.Get(o.fmtKey(startURL))
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +81,7 @@ func (o OIDCTokenKeyring) Set(startURL string, token *ssooidc.CreateTokenOutput)
 	}
 
 	return o.Keyring.Set(keyring.Item{
-		Key:         o.key(startURL),
+		Key:         o.fmtKey(startURL),
 		Data:        valJson,
 		Label:       fmt.Sprintf("aws-vault oidc token for %s (expires %s)", startURL, val.Expiration.Format(time.RFC3339)),
 		Description: "aws-vault oidc token",
@@ -67,5 +89,34 @@ func (o OIDCTokenKeyring) Set(startURL string, token *ssooidc.CreateTokenOutput)
 }
 
 func (o OIDCTokenKeyring) Remove(startURL string) error {
-	return o.Keyring.Remove(o.key(startURL))
+	return o.Keyring.Remove(o.fmtKey(startURL))
+}
+
+func (o *OIDCTokenKeyring) RemoveAll() (n int, err error) {
+	allKeys, err := o.Keys()
+	if err != nil {
+		return 0, err
+	}
+	for _, key := range allKeys {
+		if err = o.Remove(key); err != nil {
+			return n, err
+		}
+		n++
+	}
+	return n, nil
+}
+
+func (o *OIDCTokenKeyring) Keys() (kk []string, err error) {
+	allKeys, err := o.Keyring.Keys()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, k := range allKeys {
+		if IsOIDCTokenKey(k) {
+			kk = append(kk, strings.TrimPrefix(k, oidcTokenKeyPrefix))
+		}
+	}
+
+	return kk, nil
 }

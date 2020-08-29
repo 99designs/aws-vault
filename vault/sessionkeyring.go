@@ -127,7 +127,7 @@ func (sk *SessionKeyring) Has(key SessionMetadata) (bool, error) {
 }
 
 func (sk *SessionKeyring) Get(key SessionMetadata) (val *sts.Credentials, err error) {
-	sk.GarbageCollectOnce()
+	sk.garbageCollect()
 
 	keyName, err := sk.lookupKeyName(key)
 	if err != nil && err != ErrNotFound {
@@ -144,7 +144,7 @@ func (sk *SessionKeyring) Get(key SessionMetadata) (val *sts.Credentials, err er
 }
 
 func (sk *SessionKeyring) Set(key SessionMetadata, val *sts.Credentials) error {
-	sk.GarbageCollectOnce()
+	sk.garbageCollectOnce()
 
 	key.Expiration = *val.Expiration
 
@@ -175,7 +175,7 @@ func (sk *SessionKeyring) Set(key SessionMetadata, val *sts.Credentials) error {
 }
 
 func (sk *SessionKeyring) Remove(key SessionMetadata) error {
-	sk.GarbageCollectOnce()
+	sk.garbageCollectOnce()
 
 	keyName, err := sk.lookupKeyName(key)
 	if err != nil && err != ErrNotFound {
@@ -186,6 +186,8 @@ func (sk *SessionKeyring) Remove(key SessionMetadata) error {
 }
 
 func (sk *SessionKeyring) RemoveAll() (n int, err error) {
+	sk.garbageCollectOnce()
+
 	allKeys, err := sk.Keys()
 	if err != nil {
 		return 0, err
@@ -262,10 +264,14 @@ func (sk *SessionKeyring) RemoveForProfile(profileName string) (n int, err error
 	return n, nil
 }
 
-func (sk *SessionKeyring) GarbageCollectOnce() (n int, err error) {
+func (sk *SessionKeyring) garbageCollectOnce() (n int, err error) {
 	if sk.isGarbageCollected {
 		return
 	}
+	return sk.garbageCollect()
+}
+
+func (sk *SessionKeyring) garbageCollect() (n int, err error) {
 	sk.isGarbageCollected = true
 
 	allKeys, err := sk.Keyring.Keys()

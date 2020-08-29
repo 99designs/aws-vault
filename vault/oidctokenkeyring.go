@@ -59,7 +59,7 @@ func (o OIDCTokenKeyring) Get(startURL string) (*ssooidc.CreateTokenOutput, erro
 	if time.Now().After(val.Expiration) {
 		log.Printf("OIDC token for '%s' expired, removing", startURL)
 		_ = o.Remove(startURL)
-		return nil, fmt.Errorf("Token expired")
+		return nil, keyring.ErrKeyNotFound
 	}
 
 	secondsLeft := int64(time.Until(val.Expiration) / time.Second)

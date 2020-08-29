@@ -214,17 +214,8 @@ The `aws-vault remove` command can be used to remove credentials. It works simil
 ```shell
 # Remove AWS credentials for the "work" profile
 $ aws-vault remove work
-Delete credentials for profile "work"? (Y|n)y
+Delete credentials for profile "work"? (y|N) y
 Deleted credentials.
-Deleted 1 sessions.
-```
-
-`aws-vault remove` can also be used to close a session, leaving the credentials in place.
-
-```shell
-# Remove the session for the "work" profile, leaving the credentials in place
-$ aws-vault remove work --sessions-only
-Deleted 1 sessions.
 ```
 
 ### Rotating credentials

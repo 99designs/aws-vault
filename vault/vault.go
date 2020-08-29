@@ -20,14 +20,21 @@ const defaultExpirationWindow = 5 * time.Minute
 
 var UseSessionCache = true
 
-func NewSession(creds *credentials.Credentials, region string) (*session.Session, error) {
+func NewSession(region string) (*session.Session, error) {
 	return session.NewSessionWithOptions(session.Options{
-		Config: aws.Config{
-			Region:      aws.String(region),
-			Credentials: creds,
-		},
+		Config:            aws.Config{Region: aws.String(region)},
 		SharedConfigState: session.SharedConfigDisable,
 	})
+}
+
+func NewSessionWithCreds(creds *credentials.Credentials, region string) (*session.Session, error) {
+	s, err := NewSession(region)
+	if err != nil {
+		return nil, err
+	}
+	s.Config.Credentials = creds
+
+	return s, nil
 }
 
 func FormatKeyForDisplay(k string) string {
@@ -66,7 +73,7 @@ func NewMasterCredentials(k *CredentialKeyring, credentialsName string) *credent
 }
 
 func NewSessionTokenProvider(creds *credentials.Credentials, k keyring.Keyring, config *Config) (credentials.Provider, error) {
-	sess, err := NewSession(creds, config.Region)
+	sess, err := NewSessionWithCreds(creds, config.Region)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +107,7 @@ func NewSessionTokenProvider(creds *credentials.Credentials, k keyring.Keyring, 
 
 // NewAssumeRoleProvider returns a provider that generates credentials using AssumeRole
 func NewAssumeRoleProvider(creds *credentials.Credentials, k keyring.Keyring, config *Config) (credentials.Provider, error) {
-	sess, err := NewSession(creds, config.Region)
+	sess, err := NewSessionWithCreds(creds, config.Region)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +145,7 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, k keyring.Keyring, co
 // NewAssumeRoleWithWebIdentityProvider returns a provider that generates
 // credentials using AssumeRoleWithWebIdentity
 func NewAssumeRoleWithWebIdentityProvider(k keyring.Keyring, config *Config) (credentials.Provider, error) {
-	sess, err := session.NewSession(&aws.Config{Region: aws.String(config.Region)})
+	sess, err := NewSession(config.Region)
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +177,7 @@ func NewAssumeRoleWithWebIdentityProvider(k keyring.Keyring, config *Config) (cr
 
 // NewSSORoleCredentialsProvider creates a provider for SSO credentials
 func NewSSORoleCredentialsProvider(k keyring.Keyring, config *Config) (credentials.Provider, error) {
-	sess, err := session.NewSession(&aws.Config{Region: aws.String(config.SSORegion)})
+	sess, err := NewSession(config.SSORegion)
 	if err != nil {
 		return nil, err
 	}
@@ -291,7 +298,7 @@ func NewFederationTokenCredentials(profileName string, k *CredentialKeyring, con
 		return nil, err
 	}
 
-	sess, err := NewSession(NewMasterCredentials(k, credentialsName), config.Region)
+	sess, err := NewSessionWithCreds(NewMasterCredentials(k, credentialsName), config.Region)
 	if err != nil {
 		return nil, err
 	}

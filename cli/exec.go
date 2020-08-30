@@ -71,7 +71,7 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 		Short('t').
 		StringVar(&input.Config.MfaToken)
 
-	cmd.Flag("json", "AWS credential helper. Ref: https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes").
+	cmd.Flag("json", "Output credentials in JSON that can be used by credential_process").
 		Short('j').
 		BoolVar(&input.CredentialHelper)
 

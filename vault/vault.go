@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/99designs/aws-vault/v6/prompt"
@@ -16,7 +17,13 @@ import (
 	"github.com/aws/aws-sdk-go/service/sts"
 )
 
-const defaultExpirationWindow = 5 * time.Minute
+var defaultExpirationWindow = 5 * time.Minute
+
+func init() {
+	if d, err := time.ParseDuration(os.Getenv("AWS_MIN_TTL")); err == nil {
+		defaultExpirationWindow = d
+	}
+}
 
 var UseSessionCache = true
 

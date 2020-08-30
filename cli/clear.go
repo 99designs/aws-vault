@@ -15,7 +15,7 @@ type ClearCommandInput struct {
 func ConfigureClearCommand(app *kingpin.Application, a *AwsVault) {
 	input := ClearCommandInput{}
 
-	cmd := app.Command("clear", "Clear cached short-term credentials")
+	cmd := app.Command("clear", "Clear temporary credentials from the secure keystore")
 
 	cmd.Arg("profile", "Name of the profile").
 		HintAction(a.MustGetProfileNames).

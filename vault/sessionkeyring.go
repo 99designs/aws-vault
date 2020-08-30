@@ -99,7 +99,7 @@ type SessionKeyring struct {
 	isGarbageCollected bool
 }
 
-var ErrNotFound = fmt.Errorf("Key not found")
+var ErrNotFound = keyring.ErrKeyNotFound
 
 func (sk *SessionKeyring) lookupKeyName(key SessionMetadata) (string, error) {
 	allKeys, err := sk.Keyring.Keys()
@@ -138,7 +138,8 @@ func (sk *SessionKeyring) Get(key SessionMetadata) (val *sts.Credentials, err er
 		return val, err
 	}
 	if err = json.Unmarshal(item.Data, &val); err != nil {
-		return val, fmt.Errorf("Invalid data in keyring: %w", err)
+		log.Printf("SessionKeyring: Ignoring invalid data: %s", err.Error())
+		return val, ErrNotFound
 	}
 	return val, err
 }

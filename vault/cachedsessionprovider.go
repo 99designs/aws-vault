@@ -22,7 +22,8 @@ type CachedSessionProvider struct {
 // generates a new set of temporary credentials using the CredentialsFunc
 func (p *CachedSessionProvider) Retrieve() (credentials.Value, error) {
 	creds, err := p.Keyring.Get(p.SessionKey)
-	if err != nil {
+
+	if err != nil || time.Until(*creds.Expiration) < p.ExpiryWindow {
 		// lookup missed, we need to create a new one.
 		creds, err = p.CredentialsFunc()
 		if err != nil {

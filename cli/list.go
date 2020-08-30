@@ -99,7 +99,7 @@ func ListCommand(input ListCommandInput, awsConfigFile *vault.ConfigFile, keyrin
 		allSessionLabels = append(allSessionLabels, fmt.Sprintf("oidc:%s", t))
 	}
 	for _, sess := range sessions {
-		allSessionLabels = append(allSessionLabels, fmt.Sprintln(sessionLabel(sess)))
+		allSessionLabels = append(allSessionLabels, sessionLabel(sess))
 	}
 
 	if input.OnlyCredentials {

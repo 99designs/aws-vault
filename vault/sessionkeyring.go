@@ -21,7 +21,7 @@ var oldSessionKeyPatterns = []*regexp.Regexp{
 	regexp.MustCompile(`^session:(?P<profile>[^ ]+):(?P<mfaSerial>[^ ]*):(?P<expiration>[^:]+)$`),
 	regexp.MustCompile(`^(.+?) session \((\d+)\)$`),
 }
-var base64Encoding = base64.URLEncoding.WithPadding(base64.NoPadding)
+var base64URLEncodingNoPadding = base64.URLEncoding.WithPadding(base64.NoPadding)
 
 func IsOldSessionKey(s string) bool {
 	for _, pattern := range oldSessionKeyPatterns {
@@ -52,8 +52,8 @@ func (k *SessionMetadata) String() string {
 	return fmt.Sprintf(
 		"%s,%s,%s,%d",
 		k.Type,
-		base64Encoding.EncodeToString([]byte(k.ProfileName)),
-		base64Encoding.EncodeToString([]byte(k.MfaSerial)),
+		base64URLEncodingNoPadding.EncodeToString([]byte(k.ProfileName)),
+		base64URLEncodingNoPadding.EncodeToString([]byte(k.MfaSerial)),
 		k.Expiration.Unix(),
 	)
 }
@@ -62,8 +62,8 @@ func (k *SessionMetadata) StringForMatching() string {
 	return fmt.Sprintf(
 		"%s,%s,%s,",
 		k.Type,
-		base64Encoding.EncodeToString([]byte(k.ProfileName)),
-		base64Encoding.EncodeToString([]byte(k.MfaSerial)),
+		base64URLEncodingNoPadding.EncodeToString([]byte(k.ProfileName)),
+		base64URLEncodingNoPadding.EncodeToString([]byte(k.MfaSerial)),
 	)
 }
 
@@ -73,11 +73,11 @@ func NewSessionKeyFromString(s string) (SessionMetadata, error) {
 		return SessionMetadata{}, fmt.Errorf("failed to parse session name: %s", s)
 	}
 
-	profileName, err := base64Encoding.DecodeString(matches[2])
+	profileName, err := base64URLEncodingNoPadding.DecodeString(matches[2])
 	if err != nil {
 		return SessionMetadata{}, err
 	}
-	mfaSerial, err := base64Encoding.DecodeString(matches[3])
+	mfaSerial, err := base64URLEncodingNoPadding.DecodeString(matches[3])
 	if err != nil {
 		return SessionMetadata{}, err
 	}
@@ -95,8 +95,7 @@ func NewSessionKeyFromString(s string) (SessionMetadata, error) {
 }
 
 type SessionKeyring struct {
-	Keyring            keyring.Keyring
-	isGarbageCollected bool
+	Keyring keyring.Keyring
 }
 
 var ErrNotFound = keyring.ErrKeyNotFound
@@ -127,7 +126,7 @@ func (sk *SessionKeyring) Has(key SessionMetadata) (bool, error) {
 }
 
 func (sk *SessionKeyring) Get(key SessionMetadata) (val *sts.Credentials, err error) {
-	sk.garbageCollect()
+	sk.RemoveOldSessions()
 
 	keyName, err := sk.lookupKeyName(key)
 	if err != nil && err != ErrNotFound {
@@ -145,7 +144,7 @@ func (sk *SessionKeyring) Get(key SessionMetadata) (val *sts.Credentials, err er
 }
 
 func (sk *SessionKeyring) Set(key SessionMetadata, val *sts.Credentials) error {
-	sk.garbageCollectOnce()
+	sk.RemoveOldSessions()
 
 	key.Expiration = *val.Expiration
 
@@ -176,8 +175,6 @@ func (sk *SessionKeyring) Set(key SessionMetadata, val *sts.Credentials) error {
 }
 
 func (sk *SessionKeyring) Remove(key SessionMetadata) error {
-	sk.garbageCollectOnce()
-
 	keyName, err := sk.lookupKeyName(key)
 	if err != nil && err != ErrNotFound {
 		return err
@@ -187,8 +184,6 @@ func (sk *SessionKeyring) Remove(key SessionMetadata) error {
 }
 
 func (sk *SessionKeyring) RemoveAll() (n int, err error) {
-	sk.garbageCollectOnce()
-
 	allKeys, err := sk.Keys()
 	if err != nil {
 		return 0, err
@@ -265,16 +260,7 @@ func (sk *SessionKeyring) RemoveForProfile(profileName string) (n int, err error
 	return n, nil
 }
 
-func (sk *SessionKeyring) garbageCollectOnce() (n int, err error) {
-	if sk.isGarbageCollected {
-		return
-	}
-	return sk.garbageCollect()
-}
-
-func (sk *SessionKeyring) garbageCollect() (n int, err error) {
-	sk.isGarbageCollected = true
-
+func (sk *SessionKeyring) RemoveOldSessions() (n int, err error) {
 	allKeys, err := sk.Keyring.Keys()
 	if err != nil {
 		log.Printf("Error while deleting old session: %s", err.Error())

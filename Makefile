@@ -41,7 +41,7 @@ aws-vault-linux-arm7: $(SRC)
 	GOOS=linux GOARCH=arm GOARM=7 go build $(BUILD_FLAGS) -o $@ .
 
 aws-vault-android-arm64: $(SRC)
-	GOOS=android GOARCH=arm64 go build $(BUILD_FLAGS) -o $@ .
+	GOOS=linux GOARCH=arm64 go build -tags='androiddnsfix' $(BUILD_FLAGS) -o $@ .
 
 aws-vault-windows-386.exe: $(SRC)
 	GOOS=windows GOARCH=386 go build $(BUILD_FLAGS) -o $@ .

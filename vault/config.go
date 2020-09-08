@@ -324,7 +324,7 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 	}
 
 	if psection.ParentProfile != "" {
-		fmt.Fprint(os.Stderr, "Warning: parent_profile is deprecated, please use include_profile instead in your AWS config")
+		fmt.Fprint(os.Stderr, "Warning: parent_profile is deprecated, please use include_profile instead in your AWS config\n")
 	}
 
 	if psection.IncludeProfile != "" {

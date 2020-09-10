@@ -78,7 +78,7 @@ func (p *SSORoleCredentialsProvider) getRoleCredentialsAsStsCredemtials() (*sts.
 		AccessKeyId:     creds.AccessKeyId,
 		SecretAccessKey: creds.SecretAccessKey,
 		SessionToken:    creds.SessionToken,
-		Expiration:      aws.Time(aws.MillisecondsTimeValue(creds.Expiration)),
+		Expiration:      aws.Time(aws.MillisecondsTimeValue(creds.Expiration).UTC()),
 	}, nil
 }
 

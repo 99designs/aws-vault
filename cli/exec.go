@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/99designs/aws-vault/v6/iso8601"
 	"github.com/99designs/aws-vault/v6/server"
 	"github.com/99designs/aws-vault/v6/vault"
 	"github.com/99designs/keyring"
@@ -229,12 +230,11 @@ func execCredentialHelper(input ExecCommandInput, config *vault.Config, creds *c
 		Version:         1,
 		AccessKeyID:     val.AccessKeyID,
 		SecretAccessKey: val.SecretAccessKey,
+		SessionToken:    val.SessionToken,
 	}
-	if val.SessionToken != "" {
-		credentialData.SessionToken = val.SessionToken
-	}
+
 	if credsExpiresAt, err := creds.ExpiresAt(); err == nil {
-		credentialData.Expiration = credsExpiresAt.Format(time.RFC3339)
+		credentialData.Expiration = credsExpiresAt.UTC().Format(time.RFC3339)
 	}
 
 	json, err := json.Marshal(&credentialData)
@@ -267,7 +267,7 @@ func execEnvironment(input ExecCommandInput, config *vault.Config, creds *creden
 	}
 	if expiration, err := creds.ExpiresAt(); err == nil {
 		log.Println("Setting subprocess env: AWS_SESSION_EXPIRATION")
-		env.Set("AWS_SESSION_EXPIRATION", expiration.Format(time.RFC3339))
+		env.Set("AWS_SESSION_EXPIRATION", iso8601.Format(expiration))
 	}
 
 	if !supportsExecSyscall() {

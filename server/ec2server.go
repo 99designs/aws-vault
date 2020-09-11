@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/99designs/aws-vault/v6/iso8601"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 )
 
@@ -109,12 +110,12 @@ func credsHandler(creds *credentials.Credentials) http.HandlerFunc {
 
 		err = json.NewEncoder(w).Encode(map[string]interface{}{
 			"Code":            "Success",
-			"LastUpdated":     time.Now().Format(time.RFC3339),
+			"LastUpdated":     iso8601.Format(time.Now()),
 			"Type":            "AWS-HMAC",
 			"AccessKeyId":     val.AccessKeyID,
 			"SecretAccessKey": val.SecretAccessKey,
 			"Token":           val.SessionToken,
-			"Expiration":      credsExpiresAt.Format(time.RFC3339),
+			"Expiration":      iso8601.Format(credsExpiresAt),
 		})
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

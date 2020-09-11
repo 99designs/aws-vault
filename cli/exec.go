@@ -234,7 +234,7 @@ func execCredentialHelper(input ExecCommandInput, config *vault.Config, creds *c
 	}
 
 	if credsExpiresAt, err := creds.ExpiresAt(); err == nil {
-		credentialData.Expiration = credsExpiresAt.UTC().Format(time.RFC3339)
+		credentialData.Expiration = iso8601.Format(credsExpiresAt)
 	}
 
 	json, err := json.Marshal(&credentialData)

@@ -14,7 +14,7 @@ install: aws-vault
 	cp -a ./aws-vault $(INSTALL_DIR)
 	codesign --options runtime --timestamp --sign "$(CERT_ID)" $(INSTALL_DIR)/aws-vault || true
 
-binaries: aws-vault-linux-amd64 aws-vault-linux-arm64 aws-vault-darwin-amd64 aws-vault-windows-386.exe aws-vault-freebsd-amd64
+binaries: aws-vault-linux-amd64 aws-vault-linux-arm64 aws-vault-linux-ppc64le aws-vault-linux-arm7 aws-vault-darwin-amd64 aws-vault-windows-386.exe aws-vault-freebsd-amd64
 
 clean:
 	rm -f ./aws-vault ./aws-vault-*-* ./SHA256SUMS
@@ -34,6 +34,12 @@ aws-vault-linux-amd64: $(SRC)
 aws-vault-linux-arm64: $(SRC)
 	GOOS=linux GOARCH=arm64 go build $(BUILD_FLAGS) -o $@ .
 
+aws-vault-linux-ppc64le: $(SRC)
+	GOOS=linux GOARCH=ppc64le go build $(BUILD_FLAGS) -o $@ .
+
+aws-vault-linux-arm7: $(SRC)
+	GOOS=linux GOARCH=arm GOARM=7 go build $(BUILD_FLAGS) -o $@ .
+
 aws-vault-windows-386.exe: $(SRC)
 	GOOS=windows GOARCH=386 go build $(BUILD_FLAGS) -o $@ .
 
@@ -41,4 +47,4 @@ aws-vault-darwin-amd64.dmg: aws-vault-darwin-amd64
 	./bin/create-dmg aws-vault-darwin-amd64 $@
 
 SHA256SUMS: binaries aws-vault-darwin-amd64.dmg
-	shasum -a 256 aws-vault-freebsd-amd64 aws-vault-linux-amd64 aws-vault-linux-arm64 aws-vault-windows-386.exe aws-vault-darwin-amd64.dmg > $@
+	shasum -a 256 aws-vault-freebsd-amd64 aws-vault-linux-amd64 aws-vault-linux-arm64 aws-vault-linux-ppc64le aws-vault-linux-arm7 aws-vault-windows-386.exe aws-vault-darwin-amd64.dmg > $@

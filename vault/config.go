@@ -544,6 +544,10 @@ func (c *Config) CanUseGetSessionToken() (bool, string) {
 			return false, fmt.Sprintf("profile '%s' has no MFA serial defined", c.ChainedFromProfile.ProfileName)
 		}
 
+		if !c.HasMfaSerial() && c.ChainedFromProfile.HasMfaSerial() {
+			return false, fmt.Sprintf("profile '%s' has no MFA serial defined", c.ProfileName)
+		}
+
 		if c.ChainedFromProfile.MfaSerial != c.MfaSerial {
 			return false, fmt.Sprintf("MFA serial doesn't match profile '%s'", c.ChainedFromProfile.ProfileName)
 		}

@@ -334,6 +334,7 @@ AWS Vault will attempt to re-use a `GetSessionToken` between profiles that share
 
 ```ini
 [profile tom]
+mfa_serial = arn:aws:iam::111111111111:mfa/tom
 
 [profile role1]
 source_profile = tom
@@ -345,6 +346,8 @@ source_profile = tom
 role_arn = arn:aws:iam::33333333333:role/role2
 mfa_serial = arn:aws:iam::111111111111:mfa/tom
 ```
+
+Be sure to specify the `mfa_serial` for the source profile (in the above example `tom`) so that aws-vault can match the common `mfa_serial`.
 
 You can also set the `mfa_serial` with the environment variable `AWS_MFA_SERIAL`.
 

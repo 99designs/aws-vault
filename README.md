@@ -15,11 +15,13 @@ Check out the [announcement blog post](https://99designs.com.au/tech-blog/blog/2
 You can install AWS Vault:
 - by downloading the [latest release](https://github.com/99designs/aws-vault/releases/latest)
 - on macOS with [Homebrew Cask](https://formulae.brew.sh/cask/aws-vault): `brew cask install aws-vault`
+- on macOS with [MacPorts](https://ports.macports.org/port/aws-vault/summary): `port install aws-vault`
 - on Windows with [Chocolatey](https://chocolatey.org/packages/aws-vault): `choco install aws-vault`
 - on Windows with [Scoop](https://scoop.sh/): `scoop install aws-vault`
 - on Linux with [Homebrew on Linux](https://formulae.brew.sh/formula-linux/aws-vault): `brew install aws-vault`
-- on Arch Linux with the [AUR](https://aur.archlinux.org/packages/aws-vault/): `yay -S aws-vault`
-- on [FreeBSD](https://www.freshports.org/security/aws-vault/) with `pkg install aws-vault`
+- on [Arch Linux](https://aur.archlinux.org/packages/aws-vault/): `yay -S aws-vault`
+- on [Void Linux](https://github.com/void-linux/void-packages/blob/master/srcpkgs/aws-vault/template): `xbps-install aws-vault`
+- on [FreeBSD](https://www.freshports.org/security/aws-vault/): `pkg install aws-vault`
 - with [Nix](https://nixos.org/nixos/packages.html?attr=aws-vault): `nix-env -i aws-vault`
 
 ## Documentation

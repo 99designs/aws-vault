@@ -14,7 +14,7 @@ install: aws-vault
 	cp -a ./aws-vault $(INSTALL_DIR)
 	codesign --options runtime --timestamp --sign "$(CERT_ID)" $(INSTALL_DIR)/aws-vault || true
 
-binaries: aws-vault-linux-amd64 aws-vault-linux-arm64 aws-vault-linux-ppc64le aws-vault-linux-arm7 aws-vault-android-amd64 aws-vault-darwin-amd64 aws-vault-windows-386.exe aws-vault-freebsd-amd64
+binaries: aws-vault-linux-amd64 aws-vault-linux-arm64 aws-vault-linux-ppc64le aws-vault-linux-arm7 aws-vault-android-arm64 aws-vault-darwin-amd64 aws-vault-windows-386.exe aws-vault-freebsd-amd64
 
 clean:
 	rm -f ./aws-vault ./aws-vault-*-* ./SHA256SUMS

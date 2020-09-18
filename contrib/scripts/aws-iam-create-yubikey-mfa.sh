@@ -1,9 +1,9 @@
 #!/bin/sh
 # Adds a Yubikey TOTP device to IAM
 
-set -e
+set -eu
 
-if [ -n "$AWS_SESSION_TOKEN" ]; then
+if [ -n "${AWS_SESSION_TOKEN:-}" ]; then
   echo "aws-vault must be run without a STS session, please run it with the --no-session flag" >&2
   exit 1
 fi

@@ -17,7 +17,9 @@ cleanup()
 trap cleanup EXIT
 
 ACCOUNT_ARN=$(aws sts get-caller-identity --query Arn --output text)
-USERNAME=$(echo "$ACCOUNT_ARN" | cut -d/ -f2)
+# Assume that the final portion of the ARN is the username
+# Works for ARNs like `users/<user>` and `users/engineers/<user>`
+USERNAME=$(echo "$ACCOUNT_ARN" | rev | cut -d/ -f1 | rev)
 
 OUTFILE=$(mktemp)
 SERIAL_NUMBER=$(aws iam create-virtual-mfa-device \

@@ -67,6 +67,8 @@ func (p *AssumeRoleProvider) assumeRole() (*sts.Credentials, error) {
 		}
 	}
 
+	log.Printf("Using STS endpoint %s", p.StsClient.Endpoint)
+
 	resp, err := p.StsClient.AssumeRole(input)
 	if err != nil {
 		return nil, err

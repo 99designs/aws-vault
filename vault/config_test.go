@@ -32,6 +32,7 @@ Role_Arn=arn:aws:iam::4451234513441615400570:role/aws_admin
 mfa_Serial=arn:aws:iam::1234513441:mfa/blah
 Region=us-east-1
 duration_seconds=1200
+sts_regional_endpoints=legacy
 
 [profile testincludeprofile1]
 region=us-east-1
@@ -103,7 +104,7 @@ func TestConfigParsingProfiles(t *testing.T) {
 	}{
 		{vault.ProfileSection{Name: "user2", Region: "us-east-1"}, true},
 		{vault.ProfileSection{Name: "withsource", SourceProfile: "user2", Region: "us-east-1"}, true},
-		{vault.ProfileSection{Name: "withMFA", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2"}, true},
+		{vault.ProfileSection{Name: "withMFA", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2", STSRegionalEndpoints: "legacy"}, true},
 		{vault.ProfileSection{Name: "nopenotthere"}, false},
 	}
 
@@ -157,7 +158,7 @@ func TestProfilesFromConfig(t *testing.T) {
 		{Name: "default", Region: "us-west-2"},
 		{Name: "user2", Region: "us-east-1"},
 		{Name: "withsource", Region: "us-east-1", SourceProfile: "user2"},
-		{Name: "withMFA", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2"},
+		{Name: "withMFA", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2", STSRegionalEndpoints: "legacy"},
 		{Name: "testincludeprofile1", Region: "us-east-1"},
 		{Name: "testincludeprofile2", IncludeProfile: "testincludeprofile1"},
 	}
@@ -191,7 +192,7 @@ func TestAddProfileToExistingConfig(t *testing.T) {
 		{Name: "default", Region: "us-west-2"},
 		{Name: "user2", Region: "us-east-1"},
 		{Name: "withsource", Region: "us-east-1", SourceProfile: "user2"},
-		{Name: "withMFA", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2"},
+		{Name: "withMFA", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2", STSRegionalEndpoints: "legacy"},
 		{Name: "testincludeprofile1", Region: "us-east-1"},
 		{Name: "testincludeprofile2", IncludeProfile: "testincludeprofile1"},
 		{Name: "llamas", MfaSerial: "testserial", Region: "us-east-1", SourceProfile: "default"},

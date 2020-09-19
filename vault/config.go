@@ -471,7 +471,7 @@ type Config struct {
 	// Region is the AWS region
 	Region string
 
-	// Endpoint is the AWS STS endpoint URL
+	// STSRegionalEndpoints sets STS endpoint resolution logic, must be "regional" or "legacy"
 	STSRegionalEndpoints string
 
 	// Mfa config

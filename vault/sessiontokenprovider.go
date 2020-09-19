@@ -49,6 +49,8 @@ func (p *SessionTokenProvider) GetSessionToken() (*sts.Credentials, error) {
 		}
 	}
 
+	log.Printf("Using STS endpoint %s", p.StsClient.Endpoint)
+
 	resp, err := p.StsClient.GetSessionToken(input)
 	if err != nil {
 		return nil, err

@@ -118,6 +118,7 @@ To configure the default flag values of `aws-vault` and its subcommands:
 To override the AWS config file (used in the `exec`, `login` and `rotate` subcommands):
 * `AWS_REGION`: The AWS region
 * `AWS_DEFAULT_REGION`: The AWS region, applied only if `AWS_REGION` isn't set
+* `AWS_STS_REGIONAL_ENDPOINTS`: STS endpoint resolution logic, must be "regional" or "legacy"
 * `AWS_MFA_SERIAL`: The identification number of the MFA device to use
 * `AWS_ROLE_ARN`: Specifies the ARN of an IAM role in the active profile
 * `AWS_ROLE_SESSION_NAME`: Specifies the name to attach to the role session in the active profile

@@ -144,6 +144,7 @@ type ProfileSection struct {
 	SSORoleName             string `ini:"sso_role_name,omitempty"`
 	WebIdentityTokenFile    string `ini:"web_identity_token_file,omitempty"`
 	WebIdentityTokenProcess string `ini:"web_identity_token_process,omitempty"`
+	STSRegionalEndpoints    string `ini:"sts_regional_endpoints,omitempty"`
 }
 
 func (s ProfileSection) IsEmpty() bool {
@@ -322,6 +323,9 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 	if config.WebIdentityTokenProcess == "" {
 		config.WebIdentityTokenProcess = psection.WebIdentityTokenProcess
 	}
+	if config.STSRegionalEndpoints == "" {
+		config.STSRegionalEndpoints = psection.STSRegionalEndpoints
+	}
 
 	if psection.ParentProfile != "" {
 		fmt.Fprint(os.Stderr, "Warning: parent_profile is deprecated, please use include_profile instead in your AWS config\n")
@@ -361,6 +365,11 @@ func (cl *ConfigLoader) populateFromEnv(profile *Config) {
 	if region := os.Getenv("AWS_DEFAULT_REGION"); region != "" && profile.Region == "" {
 		log.Printf("Using region %q from AWS_DEFAULT_REGION", region)
 		profile.Region = region
+	}
+
+	if stsRegionalEndpoints := os.Getenv("AWS_STS_REGIONAL_ENDPOINTS"); stsRegionalEndpoints != "" && profile.STSRegionalEndpoints == "" {
+		log.Printf("Using %q from AWS_STS_REGIONAL_ENDPOINTS", stsRegionalEndpoints)
+		profile.STSRegionalEndpoints = stsRegionalEndpoints
 	}
 
 	if mfaSerial := os.Getenv("AWS_MFA_SERIAL"); mfaSerial != "" && profile.MfaSerial == "" {
@@ -461,6 +470,9 @@ type Config struct {
 
 	// Region is the AWS region
 	Region string
+
+	// STSRegionalEndpoints sets STS endpoint resolution logic, must be "regional" or "legacy"
+	STSRegionalEndpoints string
 
 	// Mfa config
 	MfaSerial       string

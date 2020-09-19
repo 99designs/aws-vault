@@ -98,7 +98,7 @@ func RotateCommand(input RotateCommandInput, f *vault.ConfigFile, keyring keyrin
 		}
 	}
 
-	sess, err := vault.NewSessionWithCreds(sessCreds, config.Region)
+	sess, err := vault.NewSessionWithCreds(sessCreds, config.Region, config.STSRegionalEndpoints)
 	if err != nil {
 		return err
 	}

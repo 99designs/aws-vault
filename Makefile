@@ -1,7 +1,7 @@
 VERSION=$(shell git describe --tags --candidates=1 --dirty)
 BUILD_FLAGS=-ldflags="-X main.Version=$(VERSION) -s -w" -trimpath
 CERT_ID ?= Developer ID Application: 99designs Inc (NRM9HVJ62Z)
-SRC=$(shell find . -name '*.go')
+SRC=$(shell find . -name '*.go') go.mod
 INSTALL_DIR ?= ~/bin
 .PHONY: binaries clean release install
 

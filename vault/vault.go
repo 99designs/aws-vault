@@ -129,12 +129,14 @@ func NewAssumeRoleProvider(creds *credentials.Credentials, k keyring.Keyring, co
 	}
 
 	p := &AssumeRoleProvider{
-		StsClient:       sts.New(sess),
-		RoleARN:         config.RoleARN,
-		RoleSessionName: config.RoleSessionName,
-		ExternalID:      config.ExternalID,
-		Duration:        config.AssumeRoleDuration,
-		ExpiryWindow:    defaultExpirationWindow,
+		StsClient:         sts.New(sess),
+		RoleARN:           config.RoleARN,
+		RoleSessionName:   config.RoleSessionName,
+		ExternalID:        config.ExternalID,
+		Duration:          config.AssumeRoleDuration,
+		ExpiryWindow:      defaultExpirationWindow,
+		Tags:              config.SessionTags,
+		TransitiveTagKeys: config.TransitiveSessionTags,
 		Mfa: Mfa{
 			MfaSerial:       config.MfaSerial,
 			MfaToken:        config.MfaToken,

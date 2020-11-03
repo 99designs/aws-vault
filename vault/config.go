@@ -145,6 +145,8 @@ type ProfileSection struct {
 	WebIdentityTokenFile    string `ini:"web_identity_token_file,omitempty"`
 	WebIdentityTokenProcess string `ini:"web_identity_token_process,omitempty"`
 	STSRegionalEndpoints    string `ini:"sts_regional_endpoints,omitempty"`
+	SessionTags             string `ini:"session_tags,omitempty"`
+	TransitiveSessionTags   string `ini:"transitive_session_tags,omitempty"`
 }
 
 func (s ProfileSection) IsEmpty() bool {
@@ -326,6 +328,23 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 	if config.STSRegionalEndpoints == "" {
 		config.STSRegionalEndpoints = psection.STSRegionalEndpoints
 	}
+	if sessionTags := psection.SessionTags; sessionTags != "" && len(config.SessionTags) == 0 {
+		if config.SessionTags == nil {
+			config.SessionTags = make(map[string]string)
+		}
+		for _, tag := range strings.Split(sessionTags, ",") {
+			kvPair := strings.SplitN(tag, "=", 2)
+			if len(kvPair) != 2 {
+				return errors.New("Failed to parse session_tags profile setting, must be <key1>=<value1>,[<key2>=<value2>[,...]]")
+			}
+			config.SessionTags[strings.TrimSpace(kvPair[0])] = strings.TrimSpace(kvPair[1])
+		}
+	}
+	if transitiveSessionTags := psection.TransitiveSessionTags; transitiveSessionTags != "" && len(config.TransitiveSessionTags) == 0 {
+		for _, tag := range strings.Split(transitiveSessionTags, ",") {
+			config.TransitiveSessionTags = append(config.TransitiveSessionTags, strings.TrimSpace(tag))
+		}
+	}
 
 	if psection.ParentProfile != "" {
 		fmt.Fprint(os.Stderr, "Warning: parent_profile is deprecated, please use include_profile instead in your AWS config\n")
@@ -406,7 +425,7 @@ func (cl *ConfigLoader) populateFromEnv(profile *Config) {
 		}
 	}
 
-	// AWS_ROLE_ARN and AWS_ROLE_SESSION_NAME only apply to the target profile
+	// AWS_ROLE_ARN, AWS_ROLE_SESSION_NAME, AWS_SESSION_TAGS and AWS_TRANSITIVE_TAGS only apply to the target profile
 	if profile.ProfileName == cl.ActiveProfile {
 		if roleARN := os.Getenv("AWS_ROLE_ARN"); roleARN != "" && profile.RoleARN == "" {
 			log.Printf("Using role_arn %q from AWS_ROLE_ARN", roleARN)
@@ -416,6 +435,27 @@ func (cl *ConfigLoader) populateFromEnv(profile *Config) {
 		if roleSessionName := os.Getenv("AWS_ROLE_SESSION_NAME"); roleSessionName != "" && profile.RoleSessionName == "" {
 			log.Printf("Using role_session_name %q from AWS_ROLE_SESSION_NAME", roleSessionName)
 			profile.RoleSessionName = roleSessionName
+		}
+
+		if sessionTags := os.Getenv("AWS_SESSION_TAGS"); sessionTags != "" && len(profile.SessionTags) == 0 {
+			if profile.SessionTags == nil {
+				profile.SessionTags = make(map[string]string)
+			}
+			for _, tag := range strings.Split(sessionTags, ",") {
+				kvPair := strings.SplitN(tag, "=", 2)
+				if len(kvPair) != 2 {
+					log.Fatalf("Failed to parse AWS_SESSION_TAGS environment variable, must be <key1>=<value1>,[<key2>=<value2>[,...]]")
+				}
+				profile.SessionTags[strings.TrimSpace(kvPair[0])] = strings.TrimSpace(kvPair[1])
+			}
+			log.Printf("Using session_tags %v from AWS_SESSION_TAGS", profile.SessionTags)
+		}
+
+		if transitiveSessionTags := os.Getenv("AWS_TRANSITIVE_TAGS"); transitiveSessionTags != "" && len(profile.TransitiveSessionTags) == 0 {
+			for _, tag := range strings.Split(transitiveSessionTags, ",") {
+				profile.TransitiveSessionTags = append(profile.TransitiveSessionTags, strings.TrimSpace(tag))
+			}
+			log.Printf("Using transitive_session_tags %v from AWS_TRANSITIVE_TAGS", profile.TransitiveSessionTags)
 		}
 	}
 }
@@ -511,6 +551,12 @@ type Config struct {
 
 	// SSORoleName specifies the AWS SSO Role name to target.
 	SSORoleName string
+
+	// SessionTags specifies assumed role Session Tags
+	SessionTags map[string]string
+
+	// TransitiveSessionTags specifies assumed role Transitive Session Tags keys
+	TransitiveSessionTags []string
 }
 
 func (c *Config) IsChained() bool {

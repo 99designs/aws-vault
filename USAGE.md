@@ -149,6 +149,14 @@ If you're looking to configure the amount of time between having to enter your K
 
 ![keychain-image](https://imgur.com/ARkr5Ba.png)
 
+<br>
+
+**Note:** If using `pass` backend and you're experiencing the below error, you may need to `export GPG_TTY=$(tty)`
+```
+Error when retrieving credentials from custom-process: gpg: decryption failed: No secret key
+gpg: decryption failed: No secret key
+aws-vault: error: exec: Failed to get credentials for <your-profile>: exit status 2
+```
 
 ## Managing credentials
 

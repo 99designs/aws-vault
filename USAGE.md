@@ -7,6 +7,7 @@
   * [Environment variables](#environment-variables)
 * [Backends](#backends)
   * [Keychain](#keychain)
+  * [Pass](#pass)
 * [Managing credentials](#managing-credentials)
   * [Using multiple profiles](#using-multiple-profiles)
   * [Listing profiles and credentials](#listing-profiles-and-credentials)
@@ -149,7 +150,7 @@ If you're looking to configure the amount of time between having to enter your K
 
 ![keychain-image](https://imgur.com/ARkr5Ba.png)
 
-<br>
+### Pass
 
 **Note:** If using `pass` backend and you're experiencing the below error, you may need to `export GPG_TTY=$(tty)`
 ```

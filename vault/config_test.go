@@ -378,6 +378,70 @@ source_profile=root
 	}
 }
 
+func TestSetSessionTags(t *testing.T) {
+	var testCases = []struct {
+		stringValue string
+		expected    map[string]string
+		ok          bool
+	}{
+		{"tag1=value1", map[string]string{"tag1": "value1"}, true},
+		{
+			"tag2=value2,tag3=value3,tag4=value4",
+			map[string]string{"tag2": "value2", "tag3": "value3", "tag4": "value4"},
+			true,
+		},
+		{" tagA = valueA ,  tagB  =  valueB  ,  tagC   =   valueC  ",
+			map[string]string{"tagA": "valueA", "tagB": "valueB", "tagC": "valueC"},
+			true,
+		},
+		{"", nil, false},
+		{"tag1=value1,", nil, false},
+		{"tagA=valueA,tagB", nil, false},
+		{"tagOne,tagTwo=valueTwo", nil, false},
+		{"tagI=valueI,tagII,tagIII=valueIII", nil, false},
+	}
+
+	for _, tc := range testCases {
+		config := vault.Config{}
+		err := config.SetSessionTags(tc.stringValue)
+		if tc.ok {
+			if err != nil {
+				t.Fatalf("Unsexpected parsing error: %s", err)
+			}
+			if !reflect.DeepEqual(tc.expected, config.SessionTags) {
+				t.Fatalf("Expected SessionTags: %+v, got %+v", tc.expected, config.SessionTags)
+			}
+		} else {
+			if err == nil {
+				t.Fatalf("Expected an error parsing %#v, but got none", tc.stringValue)
+			}
+		}
+	}
+}
+
+func TestSetTransitiveSessionTags(t *testing.T) {
+	var testCases = []struct {
+		stringValue string
+		expected    []string
+	}{
+		{"tag1", []string{"tag1"}},
+		{"tag2,tag3,tag4", []string{"tag2", "tag3", "tag4"}},
+		{" tagA ,  tagB  ,   tagC   ", []string{"tagA", "tagB", "tagC"}},
+		{"tag1,", []string{"tag1"}},
+		{",tagA", []string{"tagA"}},
+		{"", nil},
+		{",", nil},
+	}
+
+	for _, tc := range testCases {
+		config := vault.Config{}
+		config.SetTransitiveSessionTags(tc.stringValue)
+		if !reflect.DeepEqual(tc.expected, config.TransitiveSessionTags) {
+			t.Fatalf("Expected TransitiveSessionTags: %+v, got %+v", tc.expected, config.TransitiveSessionTags)
+		}
+	}
+}
+
 func TestSessionTaggingFromIni(t *testing.T) {
 	os.Unsetenv("AWS_SESSION_TAGS")
 	os.Unsetenv("AWS_TRANSITIVE_TAGS")

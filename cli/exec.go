@@ -337,16 +337,29 @@ func supportsExecSyscall() bool {
 func execSyscall(command string, args []string, env []string) error {
 	log.Printf("Exec command %s %s", command, strings.Join(args, " "))
 
-	argv0, err := osexec.LookPath(command)
-	if err != nil {
+	newArgs := make([]string, 0)
+	cmd, err := osexec.LookPath(command)
+	if len(cmd) < 1 || err != nil {
+		if runtime.GOOS != "windows" {
+			sh := os.Getenv("SHELL")
+			if strings.HasSuffix(sh, "/bash") || strings.HasSuffix(sh, "/fish") ||
+				strings.HasSuffix(sh, "/zsh") || strings.HasSuffix(sh, "/ksh") {
+				newArgs = append(newArgs, "-i", "-c", command)
+				cmd = sh
+				args = newArgs
+			}
+		}
+	} else if len(cmd) > 0 && err != nil {
 		return fmt.Errorf("Couldn't find the executable '%s': %w", command, err)
 	}
 
-	log.Printf("Found executable %s", argv0)
+	log.Printf("Found executable %s", cmd)
 
 	argv := make([]string, 0, 1+len(args))
-	argv = append(argv, command)
+	argv = append(argv, cmd)
 	argv = append(argv, args...)
 
-	return syscall.Exec(argv0, argv, env)
+	log.Printf("Command: %s - Arguments: %s", cmd, argv)
+
+	return syscall.Exec(cmd, argv, env)
 }

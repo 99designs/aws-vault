@@ -467,6 +467,8 @@ You can verify these prerequisites by running `ykman info` and checking `OATH` i
 
 A script can be found at [contrib/scripts/aws-iam-create-yubikey-mfa.sh](contrib/scripts/aws-iam-create-yubikey-mfa.sh) to automate the process.
 
+In case of TOTP being out of sync (AWS API doesn't accept MFA codes), yubikey resync script can be found at [contrib/scripts/aws-iam-resync-yubikey-mfa.sh](contrib/scripts/aws-iam-resync-yubikey-mfa.sh) to resync the yubikey with AWS.
+
 ### Usage
 Using the `ykman` prompt driver, aws-vault will execute `ykman` to generate tokens for any profile in your `.aws/config` using an `mfa_device`.
 ```shell

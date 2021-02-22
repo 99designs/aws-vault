@@ -1,28 +1,23 @@
 #!/bin/sh
 # Adds a Yubikey TOTP device to IAM
 
-set -eu
+set -e
 
 if [ -n "${AWS_SESSION_TOKEN:-}" ]; then
   echo "aws-vault must be run without a STS session, please run it with the --no-session flag" >&2
   exit 1
 fi
 
-cleanup()
-{
-  if [ -z "$OUTFILE" ]; then
-    rm "$OUTFILE"
-  fi
-}
+cleanup() { rm -f "$OUTFILE"; }
 trap cleanup EXIT
 
 waittime() {
     # wait until next code can be generated
     # if SECONDS are :00 or :30, generate right away
     SECONDS=$(date +%S)
-    if (( ${SECONDS#0} >= 1 && ${SECONDS#0} <= 29 )); then
+    if [ ${SECONDS#0} -gt 0 ] && [ ${SECONDS#0} -lt 30 ]; then
         WAIT_SECONDS=$(( 30 - ${SECONDS#0} ))
-    elif (( ${SECONDS#0} >= 31 && ${SECONDS#0} <= 59 )); then
+    elif [ ${SECONDS#0} -gt 30 ] && [ ${SECONDS#0} -lt 60 ]; then
         WAIT_SECONDS=$(( 60 - ${SECONDS#0} ))
     fi
     echo ${WAIT_SECONDS:-0}
@@ -41,7 +36,7 @@ SERIAL_NUMBER=$(aws iam create-virtual-mfa-device \
   --query VirtualMFADevice.SerialNumber \
   --output text)
 
-ykman oath add -t "$SERIAL_NUMBER" < "$OUTFILE" 2> /dev/null
+ykman oath add -ft "$SERIAL_NUMBER" < "$OUTFILE" 2> /dev/null
 rm "$OUTFILE"
 
 CODE1=$(ykman oath code -s "$SERIAL_NUMBER")

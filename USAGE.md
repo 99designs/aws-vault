@@ -20,7 +20,7 @@
   * [Session duration](#session-duration)
   * [Metadata server](#metadata-server)
     * [Using `--server`](#using---server)
-    * [Using `--ecs-server`](#using--ecs-server)
+    * [Using `--ecs-server`](#using---ecs-server)
     * [Launchd plist](#launchd-plist)
   * [Temporary credentials limitations with STS, IAM](#temporary-credentials-limitations-with-sts-iam)
 * [MFA](#mfa)

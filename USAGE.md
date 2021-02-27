@@ -376,6 +376,7 @@ Create `/Library/LaunchDaemons/local.aws_vault_proxy.plist`
 Load the plist
 ```bash
 $ sudo launchctl load -w /Library/LaunchDaemons/local.aws_vault_proxy.plist
+```
 
 Verify the proxy is working
 ```bash

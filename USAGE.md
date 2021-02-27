@@ -303,7 +303,9 @@ aws-vault: error: Failed to get credentials for default: ValidationError: The re
 
 For that reason, AWS Vault will not use `GetSessionToken` if `--duration` or the role's `duration_seconds` is longer than 1h.
 
-### Using `--server`
+### Metadata server
+
+#### Using `--server`
 
 There may be scenarios where you'd like to assume a role for a long length of time, or perhaps when using a tool where using temporary sessions on demand is preferable. For example, when using a tool like [Terraform](https://www.terraform.io/), you need to have AWS credentials available to the application for the entire duration of the infrastructure change.
 
@@ -313,7 +315,7 @@ This approach has the major security drawback that while this `aws-vault` server
 
 To use `--server`, AWS Vault needs root/administrator privileges in order to bind to the privileged port. AWS Vault runs a minimal proxy as the root user, proxying through to the real aws-vault instance.
 
-#### `--ecs-server`
+#### Using `--ecs-server`
 
 An ECS credential server can also be used instead of the ec2 metadata server. The ECS Credential provider binds to a random, ephemeral port and requires an authorization token, which offer the following advantages over the EC2 Metadata provider:
  1. Does not require root/administrator privileges
@@ -321,6 +323,83 @@ An ECS credential server can also be used instead of the ec2 metadata server. Th
  3. Mitigates the security issues that accompany the EC2 Metadata Service because the address is not well-known and the authorization token is only exposed to the subprocess via environment variables
 
 However, this will only work with the AWS SDKs that support `AWS_CONTAINER_CREDENTIALS_FULL_URI`. The Ruby, .NET and PHP SDKs do not currently support it.
+
+#### Launchd plist
+
+Create `/Library/LaunchDaemons/local.aws_vault_proxy.plist`
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+        <key>Label</key>
+        <string>local.aws_vault</string>
+
+        <key>EnvironmentVariables</key>
+        <dict>
+            <key>AWS_VAULT_PROMPT</key>
+            <string>osascript</string>
+            <key>AWS_VAULT_KEYCHAIN_NAME</key>
+            <string>login</string>
+        </dict>
+
+        <key>KeepAlive</key>
+        <true/>
+
+        <key>StandardOutPath</key>
+        <string>/var/log/aws_vault/proxy.log</string>
+
+        <key>StandardErrorPath</key>
+        <string>/var/log/aws_vault/proxy.errors.log</string>
+
+        <key>Program</key>
+        <string>/usr/local/bin/aws-vault</string>
+
+        <key>ProgramArguments</key>
+        <array>
+                <string>/usr/local/bin/aws-vault</string>
+                <string>proxy</string>
+        </array>
+
+        <key>SessionCreate</key>
+        <true/>
+
+        <key>RunAtLoad</key>
+        <true/>
+</dict>
+</plist>
+```
+
+Load the plist
+```bash
+$ sudo launchctl load -w /Library/LaunchDaemons/local.aws_vault_proxy.plist
+
+Verify the proxy is working
+```bash
+$ ps ax | grep aws-vault | grep -v grep
+35091   ??  Ss     0:00.02 /usr/local/bin/aws-vault proxy
+```
+
+You can then use `screen` to run the metadata service (`--server` or `--ecs-server`) in the background. Replace `<profile>` with your profile.
+
+```bash
+$ screen -dmS vault aws-vault exec <profile> --server
+```
+
+Verify the metadata server is working
+```bash
+$ ps ax | grep aws-vault | grep -v grep
+35091   ??  Ss     0:00.02 /usr/local/bin/aws-vault proxy
+35271   ??  Ss     0:00.00 SCREEN -dmS vault aws-vault exec <profile> --server
+35274 s029  Ss     0:00.18 aws-vault exec sso_sre --server
+```
+
+Finally check the metadata service returns `Success`
+```bash
+$ curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/local-credentials | jq -r .Code
+Success
+```
 
 ### Temporary credentials limitations with STS, IAM
 

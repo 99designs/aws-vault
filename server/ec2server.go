@@ -26,7 +26,7 @@ func StartEc2CredentialsServer(creds *credentials.Credentials, region string) er
 	// SDKs seem to very aggressively timeout
 	_, _ = creds.Get()
 
-	go startEc2CredentialsServer(creds, region)
+	startEc2CredentialsServer(creds, region)
 
 	return nil
 }

@@ -26,11 +26,11 @@ func StartEc2CredentialsServer(creds *credentials.Credentials, Daemonize bool, r
 	// SDKs seem to very aggressively timeout
 	_, _ = creds.Get()
 
-  	if Daemonize {
-  	  	go startEc2CredentialsServer(creds, region)
-  	} else {
-  	  	startEc2CredentialsServer(creds, region)
-  	}
+	if Daemonize {
+		go startEc2CredentialsServer(creds, region)
+	} else {
+		startEc2CredentialsServer(creds, region)
+	}
 
 	return nil
 }

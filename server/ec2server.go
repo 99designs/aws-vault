@@ -15,7 +15,7 @@ import (
 const ec2CredentialsServerAddr = "127.0.0.1:9099"
 
 // StartEc2CredentialsServer starts a EC2 Instance Metadata server and endpoint proxy
-func StartEc2CredentialsServer(creds *credentials.Credentials, region string) error {
+func StartEc2CredentialsServer(creds *credentials.Credentials, Daemonize bool, region string) error {
 	if !isProxyRunning() {
 		if err := StartEc2EndpointProxyServerProcess(); err != nil {
 			return err
@@ -26,7 +26,11 @@ func StartEc2CredentialsServer(creds *credentials.Credentials, region string) er
 	// SDKs seem to very aggressively timeout
 	_, _ = creds.Get()
 
-	startEc2CredentialsServer(creds, region)
+  	if Daemonize {
+  	  	go startEc2CredentialsServer(creds, region)
+  	} else {
+  	  	startEc2CredentialsServer(creds, region)
+  	}
 
 	return nil
 }

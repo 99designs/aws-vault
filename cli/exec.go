@@ -26,6 +26,7 @@ type ExecCommandInput struct {
 	Args             []string
 	StartEc2Server   bool
 	StartEcsServer   bool
+	NoDaemonize      bool
 	CredentialHelper bool
 	Config           vault.Config
 	SessionDuration  time.Duration
@@ -41,6 +42,9 @@ func (input ExecCommandInput) validate() error {
 	}
 	if input.StartEc2Server && input.NoSession {
 		return fmt.Errorf("Can't use --server with --no-session")
+	}
+	if input.NoDaemonize && !input.StartEc2Server {
+		return fmt.Errorf("Can't use --no-daemonize without --server")
 	}
 	if input.StartEcsServer && input.CredentialHelper {
 		return fmt.Errorf("Can't use --ecs-server with --json")
@@ -64,6 +68,10 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 	cmd.Flag("no-session", "Skip creating STS session with GetSessionToken").
 		Short('n').
 		BoolVar(&input.NoSession)
+
+	cmd.Flag("no-daemonize", "Do not daemonize the metadataserver").
+		Short('z').
+		BoolVar(&input.NoDaemonize)
 
 	cmd.Flag("region", "The AWS region").
 		StringVar(&input.Config.Region)
@@ -129,6 +137,7 @@ func ExecCommand(input ExecCommandInput, f *vault.ConfigFile, keyring keyring.Ke
 	}
 
 	vault.UseSession = !input.NoSession
+	vault.Daemonize = !input.NoDaemonize
 
 	configLoader := vault.ConfigLoader{
 		File:          f,
@@ -183,7 +192,7 @@ func updateEnvForAwsVault(env environ, profileName string, region string) enviro
 }
 
 func execEc2Server(input ExecCommandInput, config *vault.Config, creds *credentials.Credentials) error {
-	if err := server.StartEc2CredentialsServer(creds, config.Region); err != nil {
+	if err := server.StartEc2CredentialsServer(creds, !input.NoDaemonize, config.Region); err != nil {
 		return fmt.Errorf("Failed to start credential server: %w", err)
 	}
 

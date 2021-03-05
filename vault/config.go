@@ -26,6 +26,7 @@ const (
 
 // UseSession will disable the use of GetSessionToken when set to false
 var UseSession = true
+var Daemonize = true
 
 func init() {
 	ini.PrettyFormat = false

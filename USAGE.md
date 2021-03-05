@@ -313,6 +313,8 @@ This approach has the major security drawback that while this `aws-vault` server
 
 To use `--server`, AWS Vault needs root/administrator privileges in order to bind to the privileged port. AWS Vault runs a minimal proxy as the root user, proxying through to the real aws-vault instance.
 
+By default `--server` runs as a background daemon. To run this as a foreground process you may also pass in the `--no-daemonize` (or `-z`) flag to avoid this.
+
 #### `--ecs-server`
 
 An ECS credential server can also be used instead of the ec2 metadata server. The ECS Credential provider binds to a random, ephemeral port and requires an authorization token, which offer the following advantages over the EC2 Metadata provider:
@@ -501,4 +503,5 @@ aws-vault exec --server --prompt=osascript jonsmith -- open -a Lens
 ```
 * `--server`: starts the background server so that temporary credentials get refreshed automatically
 * `--prompt=osascript`: pop up a GUI for MFA prompts
+* `--no-daemonize`: do not run the server as a background daemon
 * `open -a Lens`: run the applications

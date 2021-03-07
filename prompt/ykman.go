@@ -16,8 +16,8 @@ func YkmanMfaProvider(mfaSerial string) (string, error) {
 		yubikeyOathCredName = mfaSerial
 	}
 
-	log.Printf("Fetching MFA code using `ykman oath code --single %s`", yubikeyOathCredName)
-	cmd := exec.Command("ykman", "oath", "code", "--single", yubikeyOathCredName)
+	log.Printf("Fetching MFA code using `ykman oath accounts code --single %s`", yubikeyOathCredName)
+	cmd := exec.Command("ykman", "oath", "accounts", "code", "--single", yubikeyOathCredName)
 	cmd.Stderr = os.Stderr
 
 	out, err := cmd.Output()

@@ -8,6 +8,7 @@ require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d // indirect
 	github.com/aws/aws-sdk-go v1.34.13
+	github.com/blang/semver v3.5.1+incompatible
 	github.com/danieljoos/wincred v1.1.0 // indirect
 	github.com/google/go-cmp v0.5.2
 	github.com/keybase/go-keychain v0.0.0-20200502122510-cda31fe0c86d // indirect

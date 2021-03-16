@@ -24,6 +24,7 @@ type LoginCommandInput struct {
 	Config          vault.Config
 	SessionDuration time.Duration
 	NoSession       bool
+	BrowserName	string
 }
 
 func ConfigureLoginCommand(app *kingpin.Application, a *AwsVault) {
@@ -49,7 +50,7 @@ func ConfigureLoginCommand(app *kingpin.Application, a *AwsVault) {
 	cmd.Flag("region", "The AWS region").
 		StringVar(&input.Config.Region)
 
-	cmd.Flag("stdout", "Print login URL to stdout instead of opening in default browser").
+	cmd.Flag("stdout", "Print login URL to stdout instead of opening in browser").
 		Short('s').
 		BoolVar(&input.UseStdout)
 
@@ -57,6 +58,9 @@ func ConfigureLoginCommand(app *kingpin.Application, a *AwsVault) {
 		Required().
 		HintAction(a.MustGetProfileNames).
 		StringVar(&input.ProfileName)
+	
+	cmd.Arg("browser", "Name of the browser to open with").
+		StringVar(&input.BrowserName)
 
 	cmd.Action(func(c *kingpin.ParseContext) (err error) {
 		input.Config.MfaPromptMethod = a.PromptDriver
@@ -167,7 +171,7 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 
 	if input.UseStdout {
 		fmt.Println(loginURL)
-	} else if err = open.Run(loginURL); err != nil {
+	} else if err = open.Run(loginURL, input.BrowserName); err != nil {
 		log.Println(err)
 		fmt.Println(loginURL)
 	}

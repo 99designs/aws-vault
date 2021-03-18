@@ -102,6 +102,21 @@ include_profile = root
 role_arn=arn:aws:iam::123456789:role/administrators
 ```
 
+#### `session_tags` and `transitive_session_tags`
+
+It is possible to set [session tags](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_session-tags.html) when `AssumeRole` is used. Two custom config variables could be defined for that: `session_tags` and `transitive_session_tags`. The former defines a comma separated key=value list of tags and the latter is a comma separated list of tags that should be persited during role chaining:
+
+```ini
+[profile root]
+region=eu-west-1
+
+[profile order-dev]
+source_profile = root
+role_arn=arn:aws:iam::123456789:role/developers
+session_tags = key1=value1,key2=value2,key3=value3
+transitive_session_tags = key1,key2
+```
+
 
 ### Environment variables
 
@@ -131,6 +146,10 @@ To override session durations (used in `exec` and `login`):
 * `AWS_MIN_TTL`: The minimum expiration time allowed for a credential. Defaults to 5m
 
 Note that the session durations above expect a unit after the number (e.g. 12h or 43200s).
+
+To override or set session tagging (used in `exec`):
+* `AWS_ROLE_TAGS`: Comma separated key-value list of tags passed with the `AssumeRole` call, overrides `session_tags` profile config variable
+* `AWS_TRANSITIVE_TAGS`: Comma separated list of transitive tags passed with the `AssumeRole` call, overrides `transitive_session_tags` profile config variable
 
 
 ## Backends

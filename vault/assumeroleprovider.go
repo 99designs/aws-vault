@@ -12,12 +12,14 @@ import (
 
 // AssumeRoleProvider retrieves temporary credentials from STS using AssumeRole
 type AssumeRoleProvider struct {
-	StsClient       *sts.STS
-	RoleARN         string
-	RoleSessionName string
-	ExternalID      string
-	Duration        time.Duration
-	ExpiryWindow    time.Duration
+	StsClient         *sts.STS
+	RoleARN           string
+	RoleSessionName   string
+	ExternalID        string
+	Duration          time.Duration
+	ExpiryWindow      time.Duration
+	Tags              map[string]string
+	TransitiveTagKeys []string
 	Mfa
 	credentials.Expiry
 }
@@ -65,6 +67,21 @@ func (p *AssumeRoleProvider) assumeRole() (*sts.Credentials, error) {
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	if len(p.Tags) > 0 {
+		input.Tags = make([]*sts.Tag, 0)
+		for key, value := range p.Tags {
+			tag := &sts.Tag{
+				Key:   aws.String(key),
+				Value: aws.String(value),
+			}
+			input.Tags = append(input.Tags, tag)
+		}
+	}
+
+	if len(p.TransitiveTagKeys) > 0 {
+		input.TransitiveTagKeys = aws.StringSlice(p.TransitiveTagKeys)
 	}
 
 	log.Printf("Using STS endpoint %s", p.StsClient.Endpoint)

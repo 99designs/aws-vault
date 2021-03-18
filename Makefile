@@ -19,7 +19,7 @@ binaries: aws-vault-linux-amd64 aws-vault-linux-arm64 aws-vault-linux-ppc64le aw
 clean:
 	rm -f ./aws-vault ./aws-vault-*-* ./SHA256SUMS
 
-release: binaries aws-vault-darwin-amd64.dmg aws-vault-darwin-arm64.dmg aws-vault-darwin-arm7.dmg SHA256SUMS
+release: binaries aws-vault-darwin-amd64.dmg aws-vault-darwin-arm64.dmg SHA256SUMS
 	@echo "\nTo update homebrew-cask run\n\n    cask-repair -v $(shell echo $(VERSION) | sed 's/v\(.*\)/\1/') aws-vault\n"
 
 aws-vault-darwin-amd64: $(SRC)

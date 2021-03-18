@@ -331,7 +331,7 @@ func execCmd(command string, args []string, env []string) error {
 }
 
 func supportsExecSyscall() bool {
-	return runtime.GOOS == "linux" || runtime.GOOS == "darwin" || runtime.GOOS == "freebsd"
+	return runtime.GOOS == "linux" || runtime.GOOS == "darwin" || runtime.GOOS == "freebsd" || runtime.GOOS == "openbsd"
 }
 
 func execSyscall(command string, args []string, env []string) error {

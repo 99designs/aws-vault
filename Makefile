@@ -28,9 +28,6 @@ aws-vault-darwin-amd64: $(SRC)
 aws-vault-darwin-arm64: $(SRC)
 	GOOS=darwin GOARCH=arm64 go build $(BUILD_FLAGS) -o $@ .
 
-aws-vault-darwin-arm7: $(SRC)
-	GOOS=linux GOARCH=arm GOARM=7 go build $(BUILD_FLAGS) -o $@ .
-
 aws-vault-freebsd-amd64: $(SRC)
 	GOOS=freebsd GOARCH=amd64 go build $(BUILD_FLAGS) -o $@ .
 
@@ -58,9 +55,6 @@ aws-vault-darwin-amd64.dmg: aws-vault-darwin-amd64
 aws-vault-darwin-arm64.dmg: aws-vault-darwin-arm64
 	./bin/create-dmg aws-vault-darwin-arm64 $@
 
-aws-vault-darwin-arm7.dmg: aws-vault-darwin-arm7
-	./bin/create-dmg aws-vault-darwin-arm7 $@
-
 SHA256SUMS: binaries aws-vault-darwin-amd64.dmg
 	shasum -a 256 \
 	aws-vault-freebsd-amd64 \
@@ -71,5 +65,4 @@ SHA256SUMS: binaries aws-vault-darwin-amd64.dmg
 	aws-vault-android-arm64 \
 	aws-vault-windows-386.exe \
 	aws-vault-darwin-amd64.dmg \
-	aws-vault-darwin-arm64.dmg \
-	aws-vault-darwin-arm7.dmg > $@
+	aws-vault-darwin-arm64.dmg > $@

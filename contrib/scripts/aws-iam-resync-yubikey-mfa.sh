@@ -6,9 +6,9 @@ waittime() {
     # wait until next code can be generated
     # if SECONDS are :00 or :30, generate right away
     SECONDS=$(date +%S)
-    if (( ${SECONDS#0} >= 1 && ${SECONDS#0} <= 29 )); then
+    if [ ${SECONDS#0} -gt 0 ] && [ ${SECONDS#0} -lt 30 ]; then
         WAIT_SECONDS=$(( 30 - ${SECONDS#0} ))
-    elif (( ${SECONDS#0} >= 31 && ${SECONDS#0} <= 59 )); then
+    elif [ ${SECONDS#0} -gt 30 ] && [ ${SECONDS#0} -lt 60 ]; then
         WAIT_SECONDS=$(( 60 - ${SECONDS#0} ))
     fi
     echo ${WAIT_SECONDS:-0}

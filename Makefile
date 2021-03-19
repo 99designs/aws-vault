@@ -1,5 +1,5 @@
 VERSION=$(shell git describe --tags --candidates=1 --dirty)
-BUILD_FLAGS=-ldflags="-X main.Version=$(VERSION) -s -w" -trimpath
+BUILD_FLAGS=-ldflags="-X main.Version=$(VERSION)" -trimpath
 CERT_ID ?= Developer ID Application: 99designs Inc (NRM9HVJ62Z)
 SRC=$(shell find . -name '*.go') go.mod
 INSTALL_DIR ?= ~/bin
@@ -15,11 +15,12 @@ install: aws-vault
 	codesign --options runtime --timestamp --sign "$(CERT_ID)" $(INSTALL_DIR)/aws-vault || true
 
 binaries: aws-vault-linux-amd64 aws-vault-linux-arm64 aws-vault-linux-ppc64le aws-vault-linux-arm7 aws-vault-android-arm64 aws-vault-darwin-amd64 aws-vault-darwin-arm64 aws-vault-windows-386.exe aws-vault-freebsd-amd64
+dmgs: aws-vault-darwin-amd64.dmg aws-vault-darwin-arm64.dmg
 
 clean:
 	rm -f ./aws-vault ./aws-vault-*-* ./SHA256SUMS
 
-release: binaries aws-vault-darwin-amd64.dmg aws-vault-darwin-arm64.dmg SHA256SUMS
+release: binaries dmgs SHA256SUMS
 	@echo "\nTo update homebrew-cask run\n\n    cask-repair -v $(shell echo $(VERSION) | sed 's/v\(.*\)/\1/') aws-vault\n"
 
 aws-vault-darwin-amd64: $(SRC)
@@ -55,14 +56,15 @@ aws-vault-darwin-amd64.dmg: aws-vault-darwin-amd64
 aws-vault-darwin-arm64.dmg: aws-vault-darwin-arm64
 	./bin/create-dmg aws-vault-darwin-arm64 $@
 
-SHA256SUMS: binaries aws-vault-darwin-amd64.dmg
+SHA256SUMS: binaries dmgs
 	shasum -a 256 \
-	aws-vault-freebsd-amd64 \
-	aws-vault-linux-amd64 \
-	aws-vault-linux-arm64 \
-	aws-vault-linux-ppc64le \
-	aws-vault-linux-arm7 \
-	aws-vault-android-arm64 \
-	aws-vault-windows-386.exe \
-	aws-vault-darwin-amd64.dmg \
-	aws-vault-darwin-arm64.dmg > $@
+	  aws-vault-android-arm64 \
+	  aws-vault-darwin-amd64.dmg \
+	  aws-vault-darwin-arm64.dmg \
+	  aws-vault-freebsd-amd64 \
+	  aws-vault-linux-amd64 \
+	  aws-vault-linux-arm64 \
+	  aws-vault-linux-arm7 \
+	  aws-vault-linux-ppc64le \
+	  aws-vault-windows-386.exe \
+	    > $@

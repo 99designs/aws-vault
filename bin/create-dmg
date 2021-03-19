@@ -16,7 +16,7 @@ get_apple_id() {
 }
 
 BIN_PATH="$1"
-DMG_PATH="$2"
+DMG_PATH="${2:-$1.dmg}"
 APPLE_ID_USERNAME="${APPLE_ID_USERNAME:-$(get_apple_id)}"
 APPLE_ID_APP_PASSWORD="${APPLE_ID_APP_PASSWORD:-"@keychain:AC_PASSWORD"}"
 CERT_ID="${CERT_ID:-"Developer ID Application: 99designs Inc (NRM9HVJ62Z)"}"
@@ -46,18 +46,20 @@ fi
 request_uuid=$(cat "$tmplog" | awk '/RequestUUID/ { print $NF; }')
 echo "Finished submitting, got Request UUID $request_uuid"
 
-echo -n "Waiting for notorization to complete"
-while [[ "$(notarization_status "$request_uuid")" == "in progress" ]] ; do
+echo "Waiting for notorization to complete"
+echo -n "..."
+status=$(notarization_status "$request_uuid")
+last_status=""
+while [[ "$status" != "success" ]] ; do
   echo -n .
   sleep 10
+  status=$(notarization_status "$request_uuid")
+  if [[ "$status" != "$last_status" ]] ; then
+    echo -n "$status"
+    last_status="$status"
+  fi
 done
 echo
-
-status="$(notarization_status "$request_uuid")"
-if [[ "$status" != "success" ]] ; then
-  echo "Notorization status is: $status"
-  exit 1
-fi
 
 echo "Stapling"
 xcrun stapler staple -q $DMG_PATH

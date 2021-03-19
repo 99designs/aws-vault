@@ -4,6 +4,7 @@
 * [Config](#config)
   * [AWS config file](#aws-config-file)
     * [`include_profile`](#include_profile)
+    * [`session_tags` and `transitive_session_tags`](#session_tags-and-transitive_session_tags)
   * [Environment variables](#environment-variables)
 * [Backends](#backends)
   * [Keychain](#keychain)

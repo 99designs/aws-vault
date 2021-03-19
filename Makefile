@@ -21,7 +21,7 @@ clean:
 	rm -f ./aws-vault ./aws-vault-*-* ./SHA256SUMS
 
 release: binaries dmgs SHA256SUMS
-	@echo "\nTo update homebrew-cask run\n\n    cask-repair -v $(shell echo $(VERSION) | sed 's/v\(.*\)/\1/') aws-vault\n"
+	@echo "\nTo update homebrew-cask run\n\n    brew bump-cask-pr --version $(shell echo $(VERSION) | sed 's/v\(.*\)/\1/') aws-vault\n"
 
 aws-vault-darwin-amd64: $(SRC)
 	GOOS=darwin GOARCH=amd64 go build $(BUILD_FLAGS) -o $@ .

@@ -18,12 +18,13 @@ import (
 )
 
 type LoginCommandInput struct {
-	ProfileName     string
-	UseStdout       bool
-	Path            string
-	Config          vault.Config
-	SessionDuration time.Duration
-	NoSession       bool
+	ProfileName         string
+	UseStdout           bool
+	Path                string
+	Config              vault.Config
+	SessionDuration     time.Duration
+	NoSession           bool
+	UseFirefoxContainer bool
 }
 
 func ConfigureLoginCommand(app *kingpin.Application, a *AwsVault) {
@@ -57,6 +58,10 @@ func ConfigureLoginCommand(app *kingpin.Application, a *AwsVault) {
 		Required().
 		HintAction(a.MustGetProfileNames).
 		StringVar(&input.ProfileName)
+
+	cmd.Flag("firefox-container", "Use the Firefox container addon to open this account in a separate container.").
+		Short('f').
+		BoolVar(&input.UseFirefoxContainer)
 
 	cmd.Action(func(c *kingpin.ParseContext) (err error) {
 		input.Config.MfaPromptMethod = a.PromptDriver
@@ -167,6 +172,11 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 
 	if input.UseStdout {
 		fmt.Println(loginURL)
+	} else if input.UseFirefoxContainer {
+		if err = open.RunWith(fmt.Sprintf("ext+container:name=%s&url=%s", url.QueryEscape(input.ProfileName), url.QueryEscape(loginURL)), "firefox"); err != nil {
+			log.Println(err)
+			fmt.Println(loginURL)
+		}
 	} else if err = open.Run(loginURL); err != nil {
 		log.Println(err)
 		fmt.Println(loginURL)

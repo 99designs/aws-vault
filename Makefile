@@ -24,10 +24,10 @@ release: binaries dmgs SHA256SUMS
 	@echo "\nTo update homebrew-cask run\n\n    brew bump-cask-pr --version $(shell echo $(VERSION) | sed 's/v\(.*\)/\1/') aws-vault\n"
 
 aws-vault-darwin-amd64: $(SRC)
-	GOOS=darwin GOARCH=amd64 go build $(BUILD_FLAGS) -o $@ .
+	GOOS=darwin GOARCH=amd64 CGO_ENABLED=1 SDKROOT=$(shell xcrun --sdk macosx --show-sdk-path) go build $(BUILD_FLAGS) -o $@ .
 
 aws-vault-darwin-arm64: $(SRC)
-	GOOS=darwin GOARCH=arm64 go build $(BUILD_FLAGS) -o $@ .
+	GOOS=darwin GOARCH=arm64 CGO_ENABLED=1 SDKROOT=$(shell xcrun --sdk macosx --show-sdk-path) go build $(BUILD_FLAGS) -o $@ .
 
 aws-vault-freebsd-amd64: $(SRC)
 	GOOS=freebsd GOARCH=amd64 go build $(BUILD_FLAGS) -o $@ .

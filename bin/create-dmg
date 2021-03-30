@@ -46,8 +46,7 @@ fi
 request_uuid=$(cat "$tmplog" | awk '/RequestUUID/ { print $NF; }')
 echo "Finished submitting, got Request UUID $request_uuid"
 
-echo "Waiting for notorization to complete"
-echo -n "..."
+echo -n "Waiting for notorization to complete..."
 status=$(notarization_status "$request_uuid")
 last_status=""
 while [[ "$status" != "success" ]] ; do

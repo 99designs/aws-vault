@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
@@ -10,7 +11,7 @@ import (
 	"net/http"
 
 	"github.com/99designs/aws-vault/v6/iso8601"
-	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go-v2/aws"
 )
 
 func writeErrorMessage(w http.ResponseWriter, msg string, statusCode int) {
@@ -32,7 +33,7 @@ func withAuthorizationCheck(token string, next http.HandlerFunc) http.HandlerFun
 }
 
 // StartEcsCredentialServer starts an ECS credential server on a random port
-func StartEcsCredentialServer(creds *credentials.Credentials) (string, string, error) {
+func StartEcsCredentialServer(creds aws.CredentialsProvider) (string, string, error) {
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		return "", "", err
@@ -54,25 +55,19 @@ func StartEcsCredentialServer(creds *credentials.Credentials) (string, string, e
 	return uri, token, nil
 }
 
-func ecsCredsHandler(creds *credentials.Credentials) http.HandlerFunc {
+func ecsCredsHandler(credsProvider aws.CredentialsProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		val, err := creds.Get()
-		if err != nil {
-			writeErrorMessage(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		credsExpiresAt, err := creds.ExpiresAt()
+		creds, err := credsProvider.Retrieve(context.TODO())
 		if err != nil {
 			writeErrorMessage(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		err = json.NewEncoder(w).Encode(map[string]string{
-			"AccessKeyId":     val.AccessKeyID,
-			"SecretAccessKey": val.SecretAccessKey,
-			"Token":           val.SessionToken,
-			"Expiration":      iso8601.Format(credsExpiresAt),
+			"AccessKeyId":     creds.AccessKeyID,
+			"SecretAccessKey": creds.SecretAccessKey,
+			"Token":           creds.SessionToken,
+			"Expiration":      iso8601.Format(creds.Expires),
 		})
 		if err != nil {
 			writeErrorMessage(w, err.Error(), http.StatusInternalServerError)

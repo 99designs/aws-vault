@@ -1,44 +1,44 @@
 package vault
 
 import (
+	"context"
 	"log"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
+	ststypes "github.com/aws/aws-sdk-go-v2/service/sts/types"
 )
 
 // SessionTokenProvider retrieves temporary credentials from STS using GetSessionToken
 type SessionTokenProvider struct {
-	StsClient    *sts.STS
-	Duration     time.Duration
-	ExpiryWindow time.Duration
+	StsClient *sts.Client
+	Duration  time.Duration
 	Mfa
-	credentials.Expiry
 }
 
 // Retrieve generates a new set of temporary credentials using STS GetSessionToken
-func (p *SessionTokenProvider) Retrieve() (credentials.Value, error) {
-	session, err := p.GetSessionToken()
+func (p *SessionTokenProvider) Retrieve(ctx context.Context) (aws.Credentials, error) {
+	creds, err := p.GetSessionToken()
 	if err != nil {
-		return credentials.Value{}, err
+		return aws.Credentials{}, err
 	}
 
-	p.SetExpiration(*session.Expiration, p.ExpiryWindow)
-	return credentials.Value{
-		AccessKeyID:     *session.AccessKeyId,
-		SecretAccessKey: *session.SecretAccessKey,
-		SessionToken:    *session.SessionToken,
+	return aws.Credentials{
+		AccessKeyID:     aws.ToString(creds.AccessKeyId),
+		SecretAccessKey: aws.ToString(creds.SecretAccessKey),
+		SessionToken:    aws.ToString(creds.SessionToken),
+		CanExpire:       true,
+		Expires:         aws.ToTime(creds.Expiration),
 	}, nil
 }
 
 // GetSessionToken generates a new set of temporary credentials using STS GetSessionToken
-func (p *SessionTokenProvider) GetSessionToken() (*sts.Credentials, error) {
+func (p *SessionTokenProvider) GetSessionToken() (*ststypes.Credentials, error) {
 	var err error
 
 	input := &sts.GetSessionTokenInput{
-		DurationSeconds: aws.Int64(int64(p.Duration.Seconds())),
+		DurationSeconds: aws.Int32(int32(p.Duration.Seconds())),
 	}
 
 	if p.MfaSerial != "" {
@@ -49,9 +49,7 @@ func (p *SessionTokenProvider) GetSessionToken() (*sts.Credentials, error) {
 		}
 	}
 
-	log.Printf("Using STS endpoint %s", p.StsClient.Endpoint)
-
-	resp, err := p.StsClient.GetSessionToken(input)
+	resp, err := p.StsClient.GetSessionToken(context.TODO(), input)
 	if err != nil {
 		return nil, err
 	}

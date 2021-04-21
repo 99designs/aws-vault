@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
@@ -8,9 +9,8 @@ import (
 	"github.com/99designs/aws-vault/v6/vault"
 	"github.com/99designs/keyring"
 	"github.com/alecthomas/kingpin"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/iam"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/iam"
 )
 
 type RotateCommandInput struct {
@@ -78,7 +78,7 @@ func RotateCommand(input RotateCommandInput, f *vault.ConfigFile, keyring keyrin
 	}
 
 	// Get the existing credentials access key ID
-	oldMasterCreds, err := vault.NewMasterCredentials(ckr, masterCredentialsName).Get()
+	oldMasterCreds, err := vault.NewMasterCredentialsProvider(ckr, masterCredentialsName).Retrieve(context.TODO())
 	if err != nil {
 		return err
 	}
@@ -88,29 +88,30 @@ func RotateCommand(input RotateCommandInput, f *vault.ConfigFile, keyring keyrin
 	fmt.Println("Creating a new access key")
 
 	// create a session to rotate the credentials
-	var sessCreds *credentials.Credentials
+	var sessCreds aws.CredentialsProvider
 	if input.NoSession {
-		sessCreds = vault.NewMasterCredentials(ckr, config.ProfileName)
+		sessCreds = vault.NewMasterCredentialsProvider(ckr, config.ProfileName)
 	} else {
-		sessCreds, err = vault.NewTempCredentials(config, ckr)
+		sessCreds, err = vault.NewTempCredentialsCache(config, ckr)
 		if err != nil {
 			return fmt.Errorf("Error getting temporary credentials: %w", err)
 		}
 	}
 
-	sess, err := vault.NewSessionWithCreds(sessCreds, config.Region, config.STSRegionalEndpoints)
+	cfg, err := vault.NewAwsConfigWithCredsProvider(sessCreds, config.Region, config.STSRegionalEndpoints)
 	if err != nil {
 		return err
 	}
 
 	// A username is needed for some IAM calls if the credentials have assumed a role
-	iamUserName, err := getUsernameIfAssumingRole(sess, config)
+	iamUserName, err := getUsernameIfAssumingRole(cfg, config)
 	if err != nil {
 		return err
 	}
 
+	iamClient := iam.NewFromConfig(cfg)
 	// Create a new access key
-	createOut, err := iam.New(sess).CreateAccessKey(&iam.CreateAccessKeyInput{
+	createOut, err := iamClient.CreateAccessKey(context.TODO(), &iam.CreateAccessKeyInput{
 		UserName: iamUserName,
 	})
 	if err != nil {
@@ -118,7 +119,7 @@ func RotateCommand(input RotateCommandInput, f *vault.ConfigFile, keyring keyrin
 	}
 	fmt.Printf("Created new access key %s\n", vault.FormatKeyForDisplay(*createOut.AccessKey.AccessKeyId))
 
-	newMasterCreds := credentials.Value{
+	newMasterCreds := aws.Credentials{
 		AccessKeyID:     *createOut.AccessKey.AccessKeyId,
 		SecretAccessKey: *createOut.AccessKey.SecretAccessKey,
 	}
@@ -137,13 +138,10 @@ func RotateCommand(input RotateCommandInput, f *vault.ConfigFile, keyring keyrin
 		}
 	}
 
-	// expire the cached credentials
-	sessCreds.Expire()
-
 	// Use new credentials to delete old access key
 	fmt.Printf("Deleting old access key %s\n", oldMasterCredsAccessKeyID)
 	err = retry(time.Second*20, time.Second*2, func() error {
-		_, err = iam.New(sess).DeleteAccessKey(&iam.DeleteAccessKeyInput{
+		_, err = iamClient.DeleteAccessKey(context.TODO(), &iam.DeleteAccessKeyInput{
 			AccessKeyId: &oldMasterCreds.AccessKeyID,
 			UserName:    iamUserName,
 		})
@@ -180,9 +178,9 @@ func retry(maxTime time.Duration, sleep time.Duration, f func() error) (err erro
 	}
 }
 
-func getUsernameIfAssumingRole(sess *session.Session, config *vault.Config) (*string, error) {
+func getUsernameIfAssumingRole(awsCfg aws.Config, config *vault.Config) (*string, error) {
 	if config.RoleARN != "" {
-		n, err := vault.GetUsernameFromSession(sess)
+		n, err := vault.GetUsernameFromSession(awsCfg)
 		if err != nil {
 			return nil, err
 		}

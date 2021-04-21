@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/99designs/keyring"
-	"github.com/aws/aws-sdk-go/service/ssooidc"
+	"github.com/aws/aws-sdk-go-v2/service/ssooidc"
 )
 
 type OIDCTokenKeyring struct {
@@ -63,9 +63,9 @@ func (o OIDCTokenKeyring) Get(startURL string) (*ssooidc.CreateTokenOutput, erro
 		return nil, keyring.ErrKeyNotFound
 	}
 
-	secondsLeft := int64(time.Until(val.Expiration) / time.Second)
+	secondsLeft := time.Until(val.Expiration) / time.Second
 
-	val.Token.ExpiresIn = &secondsLeft
+	val.Token.ExpiresIn = int32(secondsLeft)
 
 	return &val.Token, err
 }
@@ -73,7 +73,7 @@ func (o OIDCTokenKeyring) Get(startURL string) (*ssooidc.CreateTokenOutput, erro
 func (o OIDCTokenKeyring) Set(startURL string, token *ssooidc.CreateTokenOutput) error {
 	val := OIDCTokenData{
 		Token:      *token,
-		Expiration: time.Now().Add(time.Duration(*token.ExpiresIn) * time.Second),
+		Expiration: time.Now().Add(time.Duration(token.ExpiresIn) * time.Second),
 	}
 
 	valJson, err := json.Marshal(val)

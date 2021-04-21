@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -9,29 +10,31 @@ import (
 	"time"
 
 	"github.com/99designs/aws-vault/v6/iso8601"
-	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go-v2/aws"
 )
 
 const ec2CredentialsServerAddr = "127.0.0.1:9099"
 
 // StartEc2CredentialsServer starts a EC2 Instance Metadata server and endpoint proxy
-func StartEc2CredentialsServer(creds *credentials.Credentials, region string) error {
+func StartEc2CredentialsServer(creds aws.CredentialsProvider, region string) error {
 	if !isProxyRunning() {
 		if err := StartEc2EndpointProxyServerProcess(); err != nil {
 			return err
 		}
 	}
 
+	credsCache := aws.NewCredentialsCache(creds)
+
 	// pre-fetch credentials so that we can respond quickly to the first request
 	// SDKs seem to very aggressively timeout
-	_, _ = creds.Get()
+	_, _ = credsCache.Retrieve(context.TODO())
 
-	go startEc2CredentialsServer(creds, region)
+	go startEc2CredentialsServer(credsCache, region)
 
 	return nil
 }
 
-func startEc2CredentialsServer(creds *credentials.Credentials, region string) {
+func startEc2CredentialsServer(creds aws.CredentialsProvider, region string) {
 
 	log.Printf("Starting EC2 Instance Metadata server on %s", ec2CredentialsServerAddr)
 	router := http.NewServeMux()
@@ -88,34 +91,27 @@ func withSecurityChecks(next *http.ServeMux) http.HandlerFunc {
 	}
 }
 
-func credsHandler(creds *credentials.Credentials) http.HandlerFunc {
+func credsHandler(credsProvider aws.CredentialsProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("Credentials.IsExpired() = %#v", creds.IsExpired())
-
-		val, err := creds.Get()
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusGatewayTimeout)
-			return
-		}
-		credsExpiresAt, err := creds.ExpiresAt()
+		creds, err := credsProvider.Retrieve(context.TODO())
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusGatewayTimeout)
 			return
 		}
 
 		log.Printf("Serving credentials via http ****************%s, expiration of %s (%s)",
-			val.AccessKeyID[len(val.AccessKeyID)-4:],
-			credsExpiresAt.Format(time.RFC3339),
-			time.Until(credsExpiresAt).String())
+			creds.AccessKeyID[len(creds.AccessKeyID)-4:],
+			creds.Expires.Format(time.RFC3339),
+			time.Until(creds.Expires).String())
 
 		err = json.NewEncoder(w).Encode(map[string]interface{}{
 			"Code":            "Success",
 			"LastUpdated":     iso8601.Format(time.Now()),
 			"Type":            "AWS-HMAC",
-			"AccessKeyId":     val.AccessKeyID,
-			"SecretAccessKey": val.SecretAccessKey,
-			"Token":           val.SessionToken,
-			"Expiration":      iso8601.Format(credsExpiresAt),
+			"AccessKeyId":     creds.AccessKeyID,
+			"SecretAccessKey": creds.SecretAccessKey,
+			"Token":           creds.SessionToken,
+			"Expiration":      iso8601.Format(creds.Expires),
 		})
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -9,7 +9,7 @@ import (
 	"github.com/99designs/aws-vault/v6/vault"
 	"github.com/99designs/keyring"
 	"github.com/alecthomas/kingpin"
-	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go-v2/aws"
 )
 
 type AddCommandInput struct {
@@ -75,7 +75,7 @@ func AddCommand(input AddCommandInput, keyring keyring.Keyring, awsConfigFile *v
 		}
 	}
 
-	creds := credentials.Value{AccessKeyID: accessKeyId, SecretAccessKey: secretKey}
+	creds := aws.Credentials{AccessKeyID: accessKeyId, SecretAccessKey: secretKey}
 
 	ckr := &vault.CredentialKeyring{Keyring: keyring}
 	if err := ckr.Set(input.ProfileName, creds); err != nil {

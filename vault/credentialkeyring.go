@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/99designs/keyring"
-	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go-v2/aws"
 )
 
 type CredentialKeyring struct {
@@ -38,19 +38,19 @@ func (ck *CredentialKeyring) Has(credentialsName string) (bool, error) {
 	return false, nil
 }
 
-func (ck *CredentialKeyring) Get(credentialsName string) (val credentials.Value, err error) {
+func (ck *CredentialKeyring) Get(credentialsName string) (creds aws.Credentials, err error) {
 	item, err := ck.Keyring.Get(credentialsName)
 	if err != nil {
-		return val, err
+		return creds, err
 	}
-	if err = json.Unmarshal(item.Data, &val); err != nil {
-		return val, fmt.Errorf("Invalid data in keyring: %v", err)
+	if err = json.Unmarshal(item.Data, &creds); err != nil {
+		return creds, fmt.Errorf("Invalid data in keyring: %v", err)
 	}
-	return val, err
+	return creds, err
 }
 
-func (ck *CredentialKeyring) Set(credentialsName string, val credentials.Value) error {
-	bytes, err := json.Marshal(val)
+func (ck *CredentialKeyring) Set(credentialsName string, creds aws.Credentials) error {
+	bytes, err := json.Marshal(creds)
 	if err != nil {
 		return err
 	}

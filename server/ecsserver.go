@@ -33,7 +33,7 @@ func withAuthorizationCheck(token string, next http.HandlerFunc) http.HandlerFun
 }
 
 // StartEcsCredentialServer starts an ECS credential server on a random port
-func StartEcsCredentialServer(creds aws.CredentialsProvider) (string, string, error) {
+func StartEcsCredentialServer(credsProvider aws.CredentialsProvider) (string, string, error) {
 	listener, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		return "", "", err
@@ -42,9 +42,10 @@ func StartEcsCredentialServer(creds aws.CredentialsProvider) (string, string, er
 	if err != nil {
 		return "", "", err
 	}
+	credsCache := aws.NewCredentialsCache(credsProvider)
 
 	go func() {
-		err := http.Serve(listener, withLogging(withAuthorizationCheck(token, ecsCredsHandler(creds))))
+		err := http.Serve(listener, withLogging(withAuthorizationCheck(token, ecsCredsHandler(credsCache))))
 		// returns ErrServerClosed on graceful close
 		if err != http.ErrServerClosed {
 			log.Fatalf("ecs server: %s", err.Error())
@@ -55,9 +56,9 @@ func StartEcsCredentialServer(creds aws.CredentialsProvider) (string, string, er
 	return uri, token, nil
 }
 
-func ecsCredsHandler(credsProvider aws.CredentialsProvider) http.HandlerFunc {
+func ecsCredsHandler(credsCache *aws.CredentialsCache) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		creds, err := credsProvider.Retrieve(context.TODO())
+		creds, err := credsCache.Retrieve(context.TODO())
 		if err != nil {
 			writeErrorMessage(w, err.Error(), http.StatusInternalServerError)
 			return

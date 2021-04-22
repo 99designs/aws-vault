@@ -88,17 +88,17 @@ func RotateCommand(input RotateCommandInput, f *vault.ConfigFile, keyring keyrin
 	fmt.Println("Creating a new access key")
 
 	// create a session to rotate the credentials
-	var sessCreds aws.CredentialsProvider
+	var credsProvider aws.CredentialsProvider
 	if input.NoSession {
-		sessCreds = vault.NewMasterCredentialsProvider(ckr, config.ProfileName)
+		credsProvider = vault.NewMasterCredentialsProvider(ckr, config.ProfileName)
 	} else {
-		sessCreds, err = vault.NewTempCredentialsCache(config, ckr)
+		credsProvider, err = vault.NewTempCredentialsProvider(config, ckr)
 		if err != nil {
 			return fmt.Errorf("Error getting temporary credentials: %w", err)
 		}
 	}
 
-	cfg, err := vault.NewAwsConfigWithCredsProvider(sessCreds, config.Region, config.STSRegionalEndpoints)
+	cfg, err := vault.NewAwsConfigWithCredsProvider(credsProvider, config.Region, config.STSRegionalEndpoints)
 	if err != nil {
 		return err
 	}

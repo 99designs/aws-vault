@@ -142,24 +142,24 @@ func ExecCommand(input ExecCommandInput, f *vault.ConfigFile, keyring keyring.Ke
 	}
 
 	ckr := &vault.CredentialKeyring{Keyring: keyring}
-	creds, err := vault.NewTempCredentialsCache(config, ckr)
+	credsProvider, err := vault.NewTempCredentialsProvider(config, ckr)
 	if err != nil {
 		return fmt.Errorf("Error getting temporary credentials: %w", err)
 	}
 
 	if input.StartEc2Server {
-		return execEc2Server(input, config, creds)
+		return execEc2Server(input, config, credsProvider)
 	}
 
 	if input.StartEcsServer {
-		return execEcsServer(input, config, creds)
+		return execEcsServer(input, config, credsProvider)
 	}
 
 	if input.CredentialHelper {
-		return execCredentialHelper(input, config, creds)
+		return execCredentialHelper(input, config, credsProvider)
 	}
 
-	return execEnvironment(input, config, creds)
+	return execEnvironment(input, config, credsProvider)
 }
 
 func updateEnvForAwsVault(env environ, profileName string, region string) environ {
@@ -183,8 +183,8 @@ func updateEnvForAwsVault(env environ, profileName string, region string) enviro
 	return env
 }
 
-func execEc2Server(input ExecCommandInput, config *vault.Config, creds aws.CredentialsProvider) error {
-	if err := server.StartEc2CredentialsServer(creds, config.Region); err != nil {
+func execEc2Server(input ExecCommandInput, config *vault.Config, credsProvider aws.CredentialsProvider) error {
+	if err := server.StartEc2CredentialsServer(credsProvider, config.Region); err != nil {
 		return fmt.Errorf("Failed to start credential server: %w", err)
 	}
 
@@ -194,8 +194,8 @@ func execEc2Server(input ExecCommandInput, config *vault.Config, creds aws.Crede
 	return execCmd(input.Command, input.Args, env)
 }
 
-func execEcsServer(input ExecCommandInput, config *vault.Config, creds aws.CredentialsProvider) error {
-	uri, token, err := server.StartEcsCredentialServer(creds)
+func execEcsServer(input ExecCommandInput, config *vault.Config, credsProvider aws.CredentialsProvider) error {
+	uri, token, err := server.StartEcsCredentialServer(credsProvider)
 	if err != nil {
 		return fmt.Errorf("Failed to start credential server: %w", err)
 	}
@@ -210,7 +210,7 @@ func execEcsServer(input ExecCommandInput, config *vault.Config, creds aws.Crede
 	return execCmd(input.Command, input.Args, env)
 }
 
-func execCredentialHelper(input ExecCommandInput, config *vault.Config, credsCache aws.CredentialsProvider) error {
+func execCredentialHelper(input ExecCommandInput, config *vault.Config, credsProvider aws.CredentialsProvider) error {
 
 	// AwsCredentialHelperData is metadata for AWS CLI credential process
 	// See https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
@@ -222,7 +222,7 @@ func execCredentialHelper(input ExecCommandInput, config *vault.Config, credsCac
 		Expiration      string `json:"Expiration,omitempty"`
 	}
 
-	creds, err := credsCache.Retrieve(context.TODO())
+	creds, err := credsProvider.Retrieve(context.TODO())
 	if err != nil {
 		return fmt.Errorf("Failed to get credentials for %s: %w", input.ProfileName, err)
 	}
@@ -248,8 +248,8 @@ func execCredentialHelper(input ExecCommandInput, config *vault.Config, credsCac
 	return nil
 }
 
-func execEnvironment(input ExecCommandInput, config *vault.Config, credsCache aws.CredentialsProvider) error {
-	creds, err := credsCache.Retrieve(context.TODO())
+func execEnvironment(input ExecCommandInput, config *vault.Config, credsProvider aws.CredentialsProvider) error {
+	creds, err := credsProvider.Retrieve(context.TODO())
 	if err != nil {
 		return fmt.Errorf("Failed to get credentials for %s: %w", input.ProfileName, err)
 	}

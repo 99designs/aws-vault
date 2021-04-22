@@ -71,8 +71,8 @@ func NewMasterCredentialsProvider(k *CredentialKeyring, credentialsName string) 
 	return &KeyringProvider{k, credentialsName}
 }
 
-func NewSessionTokenProvider(credProvider aws.CredentialsProvider, k keyring.Keyring, config *Config) (aws.CredentialsProvider, error) {
-	cfg, err := NewAwsConfigWithCredsProvider(credProvider, config.Region, config.STSRegionalEndpoints)
+func NewSessionTokenProvider(credsProvider aws.CredentialsProvider, k keyring.Keyring, config *Config) (aws.CredentialsProvider, error) {
+	cfg, err := NewAwsConfigWithCredsProvider(credsProvider, config.Region, config.STSRegionalEndpoints)
 	if err != nil {
 		return nil, err
 	}
@@ -104,8 +104,8 @@ func NewSessionTokenProvider(credProvider aws.CredentialsProvider, k keyring.Key
 }
 
 // NewAssumeRoleProvider returns a provider that generates credentials using AssumeRole
-func NewAssumeRoleProvider(credProvider aws.CredentialsProvider, k keyring.Keyring, config *Config) (aws.CredentialsProvider, error) {
-	cfg, err := NewAwsConfigWithCredsProvider(credProvider, config.Region, config.STSRegionalEndpoints)
+func NewAssumeRoleProvider(credsProvider aws.CredentialsProvider, k keyring.Keyring, config *Config) (aws.CredentialsProvider, error) {
+	cfg, err := NewAwsConfigWithCredsProvider(credsProvider, config.Region, config.STSRegionalEndpoints)
 	if err != nil {
 		return nil, err
 	}
@@ -211,7 +211,7 @@ type tempCredsCreator struct {
 }
 
 func (t *tempCredsCreator) provider(config *Config) (aws.CredentialsProvider, error) {
-	var sourceCredProvider aws.CredentialsProvider
+	var sourcecredsProvider aws.CredentialsProvider
 
 	hasStoredCredentials, err := t.keyring.Has(config.ProfileName)
 	if err != nil {
@@ -222,9 +222,9 @@ func (t *tempCredsCreator) provider(config *Config) (aws.CredentialsProvider, er
 		return nil, fmt.Errorf("profile %s: have stored credentials but source_profile is defined", config.ProfileName)
 	} else if hasStoredCredentials {
 		log.Printf("profile %s: using stored credentials", config.ProfileName)
-		sourceCredProvider = NewMasterCredentialsProvider(t.keyring, config.ProfileName)
+		sourcecredsProvider = NewMasterCredentialsProvider(t.keyring, config.ProfileName)
 	} else if config.HasSourceProfile() {
-		sourceCredProvider, err = t.provider(config.SourceProfile)
+		sourcecredsProvider, err = t.provider(config.SourceProfile)
 		if err != nil {
 			return nil, err
 		}
@@ -240,15 +240,15 @@ func (t *tempCredsCreator) provider(config *Config) (aws.CredentialsProvider, er
 		if canUseGetSessionToken, reason := config.CanUseGetSessionToken(); !canUseGetSessionToken {
 			log.Printf("profile %s: skipping GetSessionToken because %s", config.ProfileName, reason)
 			if !config.HasRole() {
-				return sourceCredProvider, nil
+				return sourcecredsProvider, nil
 			}
 		}
 
 		t.chainedMfa = config.MfaSerial
 		log.Printf("profile %s: using GetSessionToken %s", config.ProfileName, mfaDetails(false, config))
-		sourceCredProvider, err = NewSessionTokenProvider(aws.NewCredentialsCache(sourceCredProvider), t.keyring.Keyring, config)
+		sourcecredsProvider, err = NewSessionTokenProvider(sourcecredsProvider, t.keyring.Keyring, config)
 		if !config.HasRole() || err != nil {
-			return sourceCredProvider, err
+			return sourcecredsProvider, err
 		}
 	}
 
@@ -258,7 +258,7 @@ func (t *tempCredsCreator) provider(config *Config) (aws.CredentialsProvider, er
 	}
 
 	log.Printf("profile %s: using AssumeRole %s", config.ProfileName, mfaDetails(isMfaChained, config))
-	return NewAssumeRoleProvider(aws.NewCredentialsCache(sourceCredProvider), t.keyring.Keyring, config)
+	return NewAssumeRoleProvider(sourcecredsProvider, t.keyring.Keyring, config)
 }
 
 func mfaDetails(mfaChained bool, config *Config) string {
@@ -279,17 +279,7 @@ func NewTempCredentialsProvider(config *Config, keyring *CredentialKeyring) (aws
 	return t.provider(config)
 }
 
-// NewTempCredentialsCache returns credentials for the given config
-func NewTempCredentialsCache(config *Config, k *CredentialKeyring) (*aws.CredentialsCache, error) {
-	provider, err := NewTempCredentialsProvider(config, k)
-	if err != nil {
-		return nil, err
-	}
-
-	return aws.NewCredentialsCache(provider), nil
-}
-
-func NewFederationTokenCredentialsCache(profileName string, k *CredentialKeyring, config *Config) (*aws.CredentialsCache, error) {
+func NewFederationTokenCredentialsProvider(profileName string, k *CredentialKeyring, config *Config) (aws.CredentialsProvider, error) {
 	credentialsName, err := MasterCredentialsFor(profileName, k, config)
 	if err != nil {
 		return nil, err
@@ -307,11 +297,11 @@ func NewFederationTokenCredentialsCache(profileName string, k *CredentialKeyring
 	}
 
 	log.Printf("Using GetFederationToken for credentials")
-	return aws.NewCredentialsCache(&FederationTokenProvider{
+	return &FederationTokenProvider{
 		StsClient: sts.NewFromConfig(cfg),
 		Name:      currentUsername,
 		Duration:  config.GetFederationTokenDuration,
-	}), nil
+	}, nil
 }
 
 func MasterCredentialsFor(profileName string, keyring *CredentialKeyring, config *Config) (string, error) {

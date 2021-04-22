@@ -16,14 +16,14 @@ import (
 const ec2CredentialsServerAddr = "127.0.0.1:9099"
 
 // StartEc2CredentialsServer starts a EC2 Instance Metadata server and endpoint proxy
-func StartEc2CredentialsServer(creds aws.CredentialsProvider, region string) error {
+func StartEc2CredentialsServer(credsProvider aws.CredentialsProvider, region string) error {
 	if !isProxyRunning() {
 		if err := StartEc2EndpointProxyServerProcess(); err != nil {
 			return err
 		}
 	}
 
-	credsCache := aws.NewCredentialsCache(creds)
+	credsCache := aws.NewCredentialsCache(credsProvider)
 
 	// pre-fetch credentials so that we can respond quickly to the first request
 	// SDKs seem to very aggressively timeout
@@ -34,7 +34,7 @@ func StartEc2CredentialsServer(creds aws.CredentialsProvider, region string) err
 	return nil
 }
 
-func startEc2CredentialsServer(creds aws.CredentialsProvider, region string) {
+func startEc2CredentialsServer(credsProvider aws.CredentialsProvider, region string) {
 
 	log.Printf("Starting EC2 Instance Metadata server on %s", ec2CredentialsServerAddr)
 	router := http.NewServeMux()
@@ -58,7 +58,7 @@ func startEc2CredentialsServer(creds aws.CredentialsProvider, region string) {
 		fmt.Fprintf(w, `{"region": "`+region+`"}`)
 	})
 
-	router.HandleFunc("/latest/meta-data/iam/security-credentials/local-credentials", credsHandler(creds))
+	router.HandleFunc("/latest/meta-data/iam/security-credentials/local-credentials", credsHandler(credsProvider))
 
 	log.Fatalln(http.ListenAndServe(ec2CredentialsServerAddr, withLogging(withSecurityChecks(router))))
 }

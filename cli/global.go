@@ -129,7 +129,7 @@ func ConfigureGlobals(app *kingpin.Application) *AwsVault {
 }
 
 func fileKeyringPassphrasePrompt(prompt string) (string, error) {
-	if password := os.Getenv("AWS_VAULT_FILE_PASSPHRASE"); password != "" {
+	if password, ok := os.LookupEnv("AWS_VAULT_FILE_PASSPHRASE"); ok {
 		return password, nil
 	}
 

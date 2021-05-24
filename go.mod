@@ -20,9 +20,9 @@ require (
 	github.com/mtibben/androiddnsfix v0.0.0-20200907095054-ff0280446354
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	github.com/smartystreets/goconvey v1.6.4 // indirect
-	golang.org/x/crypto v0.0.0-20210317152858-513c2a44f670
-	golang.org/x/sys v0.0.0-20210319071255-635bc2c9138d // indirect
-	golang.org/x/term v0.0.0-20210317153231-de623e64d2a6 // indirect
+	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a
+	golang.org/x/sys v0.0.0-20210521203332-0cec03c779c1 // indirect
+	golang.org/x/term v0.0.0-20210503060354-a79de5458b56
 	gopkg.in/ini.v1 v1.62.0
 )
 

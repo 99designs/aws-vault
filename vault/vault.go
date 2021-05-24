@@ -25,19 +25,19 @@ func init() {
 
 var UseSessionCache = true
 
-func NewAwsConfig(region, stsRegionalEndpoints string) (aws.Config, error) {
+func NewAwsConfig(region, stsRegionalEndpoints string) aws.Config {
 	return aws.Config{
 		Region:           region,
 		EndpointResolver: getSTSEndpointResolver(stsRegionalEndpoints),
-	}, nil
+	}
 }
 
-func NewAwsConfigWithCredsProvider(credsProvider aws.CredentialsProvider, region, stsRegionalEndpoints string) (aws.Config, error) {
+func NewAwsConfigWithCredsProvider(credsProvider aws.CredentialsProvider, region, stsRegionalEndpoints string) aws.Config {
 	return aws.Config{
 		Region:           region,
 		Credentials:      credsProvider,
 		EndpointResolver: getSTSEndpointResolver(stsRegionalEndpoints),
-	}, nil
+	}
 }
 
 func FormatKeyForDisplay(k string) string {
@@ -72,10 +72,7 @@ func NewMasterCredentialsProvider(k *CredentialKeyring, credentialsName string) 
 }
 
 func NewSessionTokenProvider(credsProvider aws.CredentialsProvider, k keyring.Keyring, config *Config) (aws.CredentialsProvider, error) {
-	cfg, err := NewAwsConfigWithCredsProvider(credsProvider, config.Region, config.STSRegionalEndpoints)
-	if err != nil {
-		return nil, err
-	}
+	cfg := NewAwsConfigWithCredsProvider(credsProvider, config.Region, config.STSRegionalEndpoints)
 
 	sessionTokenProvider := &SessionTokenProvider{
 		StsClient: sts.NewFromConfig(cfg),
@@ -105,10 +102,7 @@ func NewSessionTokenProvider(credsProvider aws.CredentialsProvider, k keyring.Ke
 
 // NewAssumeRoleProvider returns a provider that generates credentials using AssumeRole
 func NewAssumeRoleProvider(credsProvider aws.CredentialsProvider, k keyring.Keyring, config *Config) (aws.CredentialsProvider, error) {
-	cfg, err := NewAwsConfigWithCredsProvider(credsProvider, config.Region, config.STSRegionalEndpoints)
-	if err != nil {
-		return nil, err
-	}
+	cfg := NewAwsConfigWithCredsProvider(credsProvider, config.Region, config.STSRegionalEndpoints)
 
 	p := &AssumeRoleProvider{
 		StsClient:         sts.NewFromConfig(cfg),
@@ -144,10 +138,7 @@ func NewAssumeRoleProvider(credsProvider aws.CredentialsProvider, k keyring.Keyr
 // NewAssumeRoleWithWebIdentityProvider returns a provider that generates
 // credentials using AssumeRoleWithWebIdentity
 func NewAssumeRoleWithWebIdentityProvider(k keyring.Keyring, config *Config) (aws.CredentialsProvider, error) {
-	cfg, err := NewAwsConfig(config.Region, config.STSRegionalEndpoints)
-	if err != nil {
-		return nil, err
-	}
+	cfg := NewAwsConfig(config.Region, config.STSRegionalEndpoints)
 
 	p := &AssumeRoleWithWebIdentityProvider{
 		StsClient:               sts.NewFromConfig(cfg),
@@ -175,10 +166,7 @@ func NewAssumeRoleWithWebIdentityProvider(k keyring.Keyring, config *Config) (aw
 
 // NewSSORoleCredentialsProvider creates a provider for SSO credentials
 func NewSSORoleCredentialsProvider(k keyring.Keyring, config *Config) (aws.CredentialsProvider, error) {
-	cfg, err := NewAwsConfig(config.SSORegion, config.STSRegionalEndpoints)
-	if err != nil {
-		return nil, err
-	}
+	cfg := NewAwsConfig(config.SSORegion, config.STSRegionalEndpoints)
 
 	ssoRoleCredentialsProvider := &SSORoleCredentialsProvider{
 		OIDCClient: ssooidc.NewFromConfig(cfg),
@@ -286,10 +274,7 @@ func NewFederationTokenCredentialsProvider(profileName string, k *CredentialKeyr
 	}
 
 	masterCreds := NewMasterCredentialsProvider(k, credentialsName)
-	cfg, err := NewAwsConfigWithCredsProvider(masterCreds, config.Region, config.STSRegionalEndpoints)
-	if err != nil {
-		return nil, err
-	}
+	cfg := NewAwsConfigWithCredsProvider(masterCreds, config.Region, config.STSRegionalEndpoints)
 
 	currentUsername, err := GetUsernameFromSession(cfg)
 	if err != nil {

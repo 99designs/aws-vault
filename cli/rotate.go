@@ -98,10 +98,7 @@ func RotateCommand(input RotateCommandInput, f *vault.ConfigFile, keyring keyrin
 		}
 	}
 
-	cfg, err := vault.NewAwsConfigWithCredsProvider(credsProvider, config.Region, config.STSRegionalEndpoints)
-	if err != nil {
-		return err
-	}
+	cfg := vault.NewAwsConfigWithCredsProvider(credsProvider, config.Region, config.STSRegionalEndpoints)
 
 	// A username is needed for some IAM calls if the credentials have assumed a role
 	iamUserName, err := getUsernameIfAssumingRole(cfg, config)

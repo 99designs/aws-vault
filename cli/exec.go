@@ -138,7 +138,7 @@ func ExecCommand(input ExecCommandInput, f *vault.ConfigFile, keyring keyring.Ke
 	}
 	config, err := configLoader.LoadFromProfile(input.ProfileName)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error loading config: %w", err)
 	}
 
 	ckr := &vault.CredentialKeyring{Keyring: keyring}

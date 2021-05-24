@@ -62,13 +62,13 @@ func RotateCommand(input RotateCommandInput, f *vault.ConfigFile, keyring keyrin
 	}
 	config, err := configLoader.LoadFromProfile(input.ProfileName)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error loading config: %w", err)
 	}
 
 	ckr := &vault.CredentialKeyring{Keyring: keyring}
-	masterCredentialsName, err := vault.MasterCredentialsFor(input.ProfileName, ckr, config)
+	masterCredentialsName, err := vault.FindMasterCredentialsNameFor(input.ProfileName, ckr, config)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error determining credential name for '%s': %w", input.ProfileName, err)
 	}
 
 	if input.NoSession {
@@ -80,7 +80,7 @@ func RotateCommand(input RotateCommandInput, f *vault.ConfigFile, keyring keyrin
 	// Get the existing credentials access key ID
 	oldMasterCreds, err := vault.NewMasterCredentialsProvider(ckr, masterCredentialsName).Retrieve(context.TODO())
 	if err != nil {
-		return err
+		return fmt.Errorf("Error loading source credentials for '%s': %w", masterCredentialsName, err)
 	}
 	oldMasterCredsAccessKeyID := vault.FormatKeyForDisplay(oldMasterCreds.AccessKeyID)
 	log.Printf("Rotating access key %s\n", oldMasterCredsAccessKeyID)
@@ -112,7 +112,7 @@ func RotateCommand(input RotateCommandInput, f *vault.ConfigFile, keyring keyrin
 		UserName: iamUserName,
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("Error creating a new access key: %w", err)
 	}
 	fmt.Printf("Created new access key %s\n", vault.FormatKeyForDisplay(*createOut.AccessKey.AccessKeyId))
 
@@ -179,7 +179,7 @@ func getUsernameIfAssumingRole(awsCfg aws.Config, config *vault.Config) (*string
 	if config.RoleARN != "" {
 		n, err := vault.GetUsernameFromSession(awsCfg)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Error getting IAM username from session: %w", err)
 		}
 		log.Printf("Found IAM username '%s'", n)
 		return &n, nil

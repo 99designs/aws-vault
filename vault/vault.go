@@ -268,7 +268,7 @@ func NewTempCredentialsProvider(config *Config, keyring *CredentialKeyring) (aws
 }
 
 func NewFederationTokenCredentialsProvider(profileName string, k *CredentialKeyring, config *Config) (aws.CredentialsProvider, error) {
-	credentialsName, err := MasterCredentialsFor(profileName, k, config)
+	credentialsName, err := FindMasterCredentialsNameFor(profileName, k, config)
 	if err != nil {
 		return nil, err
 	}
@@ -289,7 +289,7 @@ func NewFederationTokenCredentialsProvider(profileName string, k *CredentialKeyr
 	}, nil
 }
 
-func MasterCredentialsFor(profileName string, keyring *CredentialKeyring, config *Config) (string, error) {
+func FindMasterCredentialsNameFor(profileName string, keyring *CredentialKeyring, config *Config) (string, error) {
 	hasMasterCreds, err := keyring.Has(profileName)
 	if err != nil {
 		return "", err
@@ -303,5 +303,5 @@ func MasterCredentialsFor(profileName string, keyring *CredentialKeyring, config
 		return "", fmt.Errorf("No master credentials found")
 	}
 
-	return MasterCredentialsFor(config.SourceProfileName, keyring, config)
+	return FindMasterCredentialsNameFor(config.SourceProfileName, keyring, config)
 }

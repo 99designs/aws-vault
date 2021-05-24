@@ -89,7 +89,7 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 	}
 	config, err := configLoader.LoadFromProfile(input.ProfileName)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error loading config: %w", err)
 	}
 
 	var credsProvider aws.CredentialsProvider

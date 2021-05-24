@@ -22,6 +22,11 @@ APPLE_ID_APP_PASSWORD="${APPLE_ID_APP_PASSWORD:-"@keychain:AC_PASSWORD"}"
 CERT_ID="${CERT_ID:-"Developer ID Application: 99designs Inc (NRM9HVJ62Z)"}"
 BUNDLE_ID="${BUNDLE_ID:-"com.99designs.aws-vault"}"
 
+if [[ -f "$DMG_PATH" ]] ; then
+  echo "File '$DMG_PATH' already exists. Remove it and try again"
+  exit 1
+fi
+
 tmplog=$(mktemp)
 tmpdir="$(mktemp -d)"
 trap "rm -rf $tmpdir $tmplog" EXIT

@@ -93,7 +93,7 @@ func withSecurityChecks(next *http.ServeMux) http.HandlerFunc {
 
 func credsHandler(credsProvider aws.CredentialsProvider) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		creds, err := credsProvider.Retrieve(context.TODO())
+		creds, err := credsProvider.Retrieve(r.Context())
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusGatewayTimeout)
 			return

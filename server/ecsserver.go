@@ -1,7 +1,6 @@
 package server
 
 import (
-	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
@@ -58,7 +57,7 @@ func StartEcsCredentialServer(credsProvider aws.CredentialsProvider) (string, st
 
 func ecsCredsHandler(credsCache *aws.CredentialsCache) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		creds, err := credsCache.Retrieve(context.TODO())
+		creds, err := credsCache.Retrieve(r.Context())
 		if err != nil {
 			writeErrorMessage(w, err.Error(), http.StatusInternalServerError)
 			return

@@ -573,7 +573,6 @@ source_profile = interim
 		t.Fatalf("Expected session_tags to be empty, got %+v", baseConfig.SessionTags)
 	}
 
-	expectedTransitiveSessionTags = []string{}
 	if len(baseConfig.TransitiveSessionTags) > 0 {
 		t.Fatalf("Expected transitive_session_tags to be empty, got %+v", baseConfig.TransitiveSessionTags)
 	}

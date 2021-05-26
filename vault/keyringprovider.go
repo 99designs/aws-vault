@@ -1,9 +1,10 @@
 package vault
 
 import (
+	"context"
 	"log"
 
-	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go-v2/aws"
 )
 
 // KeyringProvider stores and retrieves master credentials
@@ -12,11 +13,7 @@ type KeyringProvider struct {
 	CredentialsName string
 }
 
-func (p *KeyringProvider) IsExpired() bool {
-	return false
-}
-
-func (p *KeyringProvider) Retrieve() (val credentials.Value, err error) {
+func (p *KeyringProvider) Retrieve(ctx context.Context) (aws.Credentials, error) {
 	log.Printf("Looking up keyring for '%s'", p.CredentialsName)
 	return p.Keyring.Get(p.CredentialsName)
 }

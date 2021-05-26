@@ -377,3 +377,203 @@ source_profile=root
 		t.Fatalf("Expected '%s', got '%s'", expectedSourceProfileName, config.SourceProfileName)
 	}
 }
+
+func TestSetSessionTags(t *testing.T) {
+	var testCases = []struct {
+		stringValue string
+		expected    map[string]string
+		ok          bool
+	}{
+		{"tag1=value1", map[string]string{"tag1": "value1"}, true},
+		{
+			"tag2=value2,tag3=value3,tag4=value4",
+			map[string]string{"tag2": "value2", "tag3": "value3", "tag4": "value4"},
+			true,
+		},
+		{" tagA = valueA ,  tagB  =  valueB  ,  tagC   =   valueC  ",
+			map[string]string{"tagA": "valueA", "tagB": "valueB", "tagC": "valueC"},
+			true,
+		},
+		{"", nil, false},
+		{"tag1=value1,", nil, false},
+		{"tagA=valueA,tagB", nil, false},
+		{"tagOne,tagTwo=valueTwo", nil, false},
+		{"tagI=valueI,tagII,tagIII=valueIII", nil, false},
+	}
+
+	for _, tc := range testCases {
+		config := vault.Config{}
+		err := config.SetSessionTags(tc.stringValue)
+		if tc.ok {
+			if err != nil {
+				t.Fatalf("Unsexpected parsing error: %s", err)
+			}
+			if !reflect.DeepEqual(tc.expected, config.SessionTags) {
+				t.Fatalf("Expected SessionTags: %+v, got %+v", tc.expected, config.SessionTags)
+			}
+		} else {
+			if err == nil {
+				t.Fatalf("Expected an error parsing %#v, but got none", tc.stringValue)
+			}
+		}
+	}
+}
+
+func TestSetTransitiveSessionTags(t *testing.T) {
+	var testCases = []struct {
+		stringValue string
+		expected    []string
+	}{
+		{"tag1", []string{"tag1"}},
+		{"tag2,tag3,tag4", []string{"tag2", "tag3", "tag4"}},
+		{" tagA ,  tagB  ,   tagC   ", []string{"tagA", "tagB", "tagC"}},
+		{"tag1,", []string{"tag1"}},
+		{",tagA", []string{"tagA"}},
+		{"", nil},
+		{",", nil},
+	}
+
+	for _, tc := range testCases {
+		config := vault.Config{}
+		config.SetTransitiveSessionTags(tc.stringValue)
+		if !reflect.DeepEqual(tc.expected, config.TransitiveSessionTags) {
+			t.Fatalf("Expected TransitiveSessionTags: %+v, got %+v", tc.expected, config.TransitiveSessionTags)
+		}
+	}
+}
+
+func TestSessionTaggingFromIni(t *testing.T) {
+	os.Unsetenv("AWS_SESSION_TAGS")
+	os.Unsetenv("AWS_TRANSITIVE_TAGS")
+	f := newConfigFile(t, []byte(`
+[profile tagged]
+session_tags = tag1 = value1 , tag2=value2 ,tag3=value3
+transitive_session_tags = tagOne ,tagTwo,tagThree
+`))
+	defer os.Remove(f)
+
+	configFile, err := vault.LoadConfig(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+	configLoader := &vault.ConfigLoader{File: configFile, ActiveProfile: "tagged"}
+	config, err := configLoader.LoadFromProfile("tagged")
+	if err != nil {
+		t.Fatalf("Should have found a profile: %v", err)
+	}
+	expectedSessionTags := map[string]string{
+		"tag1": "value1",
+		"tag2": "value2",
+		"tag3": "value3",
+	}
+	if !reflect.DeepEqual(expectedSessionTags, config.SessionTags) {
+		t.Fatalf("Expected session_tags: %+v, got %+v", expectedSessionTags, config.SessionTags)
+	}
+
+	expectedTransitiveSessionTags := []string{"tagOne", "tagTwo", "tagThree"}
+	if !reflect.DeepEqual(expectedTransitiveSessionTags, config.TransitiveSessionTags) {
+		t.Fatalf("Expected transitive_session_tags: %+v, got %+v", expectedTransitiveSessionTags, config.TransitiveSessionTags)
+	}
+}
+
+func TestSessionTaggingFromEnvironment(t *testing.T) {
+	os.Setenv("AWS_SESSION_TAGS", " tagA = val1 , tagB=val2 ,tagC=val3")
+	os.Setenv("AWS_TRANSITIVE_TAGS", " tagD ,tagE")
+	defer os.Unsetenv("AWS_SESSION_TAGS")
+	defer os.Unsetenv("AWS_TRANSITIVE_TAGS")
+
+	f := newConfigFile(t, []byte(`
+[profile tagged]
+session_tags = tag1 = value1 , tag2=value2 ,tag3=value3
+transitive_session_tags = tagOne ,tagTwo,tagThree
+`))
+	defer os.Remove(f)
+
+	configFile, err := vault.LoadConfig(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+	configLoader := &vault.ConfigLoader{File: configFile, ActiveProfile: "tagged"}
+	config, err := configLoader.LoadFromProfile("tagged")
+	if err != nil {
+		t.Fatalf("Should have found a profile: %v", err)
+	}
+	expectedSessionTags := map[string]string{
+		"tagA": "val1",
+		"tagB": "val2",
+		"tagC": "val3",
+	}
+	if !reflect.DeepEqual(expectedSessionTags, config.SessionTags) {
+		t.Fatalf("Expected session_tags: %+v, got %+v", expectedSessionTags, config.SessionTags)
+	}
+
+	expectedTransitiveSessionTags := []string{"tagD", "tagE"}
+	if !reflect.DeepEqual(expectedTransitiveSessionTags, config.TransitiveSessionTags) {
+		t.Fatalf("Expected transitive_session_tags: %+v, got %+v", expectedTransitiveSessionTags, config.TransitiveSessionTags)
+	}
+}
+
+func TestSessionTaggingFromEnvironmentChainedRoles(t *testing.T) {
+	os.Setenv("AWS_SESSION_TAGS", "tagI=valI")
+	os.Setenv("AWS_TRANSITIVE_TAGS", " tagII")
+	defer os.Unsetenv("AWS_SESSION_TAGS")
+	defer os.Unsetenv("AWS_TRANSITIVE_TAGS")
+
+	f := newConfigFile(t, []byte(`
+[profile base]
+
+[profile interim]
+session_tags=tag1=value1
+transitive_session_tags=tag2
+source_profile = base
+
+[profile target]
+session_tags=tagA=valueA
+transitive_session_tags=tagB
+source_profile = interim
+`))
+	defer os.Remove(f)
+
+	configFile, err := vault.LoadConfig(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+	configLoader := &vault.ConfigLoader{File: configFile, ActiveProfile: "target"}
+	config, err := configLoader.LoadFromProfile("target")
+	if err != nil {
+		t.Fatalf("Should have found a profile: %v", err)
+	}
+
+	// Testing target profile, should have values populated from environment variables
+	expectedSessionTags := map[string]string{"tagI": "valI"}
+	if !reflect.DeepEqual(expectedSessionTags, config.SessionTags) {
+		t.Fatalf("Expected session_tags: %+v, got %+v", expectedSessionTags, config.SessionTags)
+	}
+
+	expectedTransitiveSessionTags := []string{"tagII"}
+	if !reflect.DeepEqual(expectedTransitiveSessionTags, config.TransitiveSessionTags) {
+		t.Fatalf("Expected transitive_session_tags: %+v, got %+v", expectedTransitiveSessionTags, config.TransitiveSessionTags)
+	}
+
+	// Testing interim profile, parameters should come from the config, not environment
+	interimConfig := config.SourceProfile
+	expectedSessionTags = map[string]string{"tag1": "value1"}
+	if !reflect.DeepEqual(expectedSessionTags, interimConfig.SessionTags) {
+		t.Fatalf("Expected session_tags: %+v, got %+v", expectedSessionTags, interimConfig.SessionTags)
+	}
+
+	expectedTransitiveSessionTags = []string{"tag2"}
+	if !reflect.DeepEqual(expectedTransitiveSessionTags, interimConfig.TransitiveSessionTags) {
+		t.Fatalf("Expected transitive_session_tags: %+v, got %+v", expectedTransitiveSessionTags, interimConfig.TransitiveSessionTags)
+	}
+
+	// Testing base profile, should have empty parameters
+	baseConfig := interimConfig.SourceProfile
+	if len(baseConfig.SessionTags) > 0 {
+		t.Fatalf("Expected session_tags to be empty, got %+v", baseConfig.SessionTags)
+	}
+
+	if len(baseConfig.TransitiveSessionTags) > 0 {
+		t.Fatalf("Expected transitive_session_tags to be empty, got %+v", baseConfig.TransitiveSessionTags)
+	}
+}

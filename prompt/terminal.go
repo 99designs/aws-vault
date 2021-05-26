@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 func TerminalPrompt(message string) (string, error) {
@@ -24,7 +24,7 @@ func TerminalPrompt(message string) (string, error) {
 func TerminalSecretPrompt(message string) (string, error) {
 	fmt.Fprint(os.Stderr, message)
 
-	text, err := terminal.ReadPassword(int(os.Stdin.Fd()))
+	text, err := term.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
 		return "", err
 	}

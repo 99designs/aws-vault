@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -13,7 +14,7 @@ import (
 	"github.com/99designs/aws-vault/v6/vault"
 	"github.com/99designs/keyring"
 	"github.com/alecthomas/kingpin"
-	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/skratchdot/open-golang/open"
 )
 
@@ -88,31 +89,31 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 	}
 	config, err := configLoader.LoadFromProfile(input.ProfileName)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error loading config: %w", err)
 	}
 
-	var creds *credentials.Credentials
+	var credsProvider aws.CredentialsProvider
 
 	ckr := &vault.CredentialKeyring{Keyring: keyring}
 	// If AssumeRole or sso.GetRoleCredentials isn't used, GetFederationToken has to be used for IAM credentials
 	if config.HasRole() || config.HasSSOStartURL() {
-		creds, err = vault.NewTempCredentials(config, ckr)
+		credsProvider, err = vault.NewTempCredentialsProvider(config, ckr)
 	} else {
-		creds, err = vault.NewFederationTokenCredentials(input.ProfileName, ckr, config)
+		credsProvider, err = vault.NewFederationTokenCredentialsProvider(input.ProfileName, ckr, config)
 	}
 	if err != nil {
 		return fmt.Errorf("profile %s: %w", input.ProfileName, err)
 	}
 
-	val, err := creds.Get()
+	creds, err := credsProvider.Retrieve(context.TODO())
 	if err != nil {
 		return fmt.Errorf("Failed to get credentials for %s: %w", config.ProfileName, err)
 	}
 
 	jsonBytes, err := json.Marshal(map[string]string{
-		"sessionId":    val.AccessKeyID,
-		"sessionKey":   val.SecretAccessKey,
-		"sessionToken": val.SessionToken,
+		"sessionId":    creds.AccessKeyID,
+		"sessionKey":   creds.SecretAccessKey,
+		"sessionToken": creds.SessionToken,
 	})
 	if err != nil {
 		return err
@@ -125,8 +126,8 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 		return err
 	}
 
-	if expiration, err := creds.ExpiresAt(); err != nil {
-		log.Printf("Creating login token, expires in %s", time.Until(expiration))
+	if creds.CanExpire {
+		log.Printf("Creating login token, expires in %s", time.Until(creds.Expires))
 	}
 
 	q := req.URL.Query()

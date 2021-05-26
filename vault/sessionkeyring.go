@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/99designs/keyring"
-	"github.com/aws/aws-sdk-go/service/sts"
+	ststypes "github.com/aws/aws-sdk-go-v2/service/sts/types"
 )
 
 var sessionKeyPattern = regexp.MustCompile(`^(?P<type>[^,]+),(?P<profile>[^,]+),(?P<mfaSerial>[^,]*),(?P<expiration>[0-9]{1,})$`)
@@ -125,8 +125,8 @@ func (sk *SessionKeyring) Has(key SessionMetadata) (bool, error) {
 	return false, err
 }
 
-func (sk *SessionKeyring) Get(key SessionMetadata) (val *sts.Credentials, err error) {
-	sk.RemoveOldSessions()
+func (sk *SessionKeyring) Get(key SessionMetadata) (creds *ststypes.Credentials, err error) {
+	_, _ = sk.RemoveOldSessions()
 
 	keyName, err := sk.lookupKeyName(key)
 	if err != nil && err != ErrNotFound {
@@ -134,21 +134,21 @@ func (sk *SessionKeyring) Get(key SessionMetadata) (val *sts.Credentials, err er
 	}
 	item, err := sk.Keyring.Get(keyName)
 	if err != nil {
-		return val, err
+		return creds, err
 	}
-	if err = json.Unmarshal(item.Data, &val); err != nil {
+	if err = json.Unmarshal(item.Data, &creds); err != nil {
 		log.Printf("SessionKeyring: Ignoring invalid data: %s", err.Error())
-		return val, ErrNotFound
+		return creds, ErrNotFound
 	}
-	return val, err
+	return creds, err
 }
 
-func (sk *SessionKeyring) Set(key SessionMetadata, val *sts.Credentials) error {
-	sk.RemoveOldSessions()
+func (sk *SessionKeyring) Set(key SessionMetadata, creds *ststypes.Credentials) error {
+	_, _ = sk.RemoveOldSessions()
 
-	key.Expiration = *val.Expiration
+	key.Expiration = *creds.Expiration
 
-	valJson, err := json.Marshal(val)
+	valJson, err := json.Marshal(creds)
 	if err != nil {
 		return err
 	}
@@ -169,7 +169,7 @@ func (sk *SessionKeyring) Set(key SessionMetadata, val *sts.Credentials) error {
 	return sk.Keyring.Set(keyring.Item{
 		Key:         key.String(),
 		Data:        valJson,
-		Label:       fmt.Sprintf("aws-vault session for %s (expires %s)", key.ProfileName, val.Expiration.Format(time.RFC3339)),
+		Label:       fmt.Sprintf("aws-vault session for %s (expires %s)", key.ProfileName, creds.Expiration.Format(time.RFC3339)),
 		Description: "aws-vault session",
 	})
 }

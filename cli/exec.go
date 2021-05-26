@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -17,7 +18,7 @@ import (
 	"github.com/99designs/aws-vault/v6/vault"
 	"github.com/99designs/keyring"
 	"github.com/alecthomas/kingpin"
-	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go-v2/aws"
 )
 
 type ExecCommandInput struct {
@@ -146,28 +147,28 @@ func ExecCommand(input ExecCommandInput, f *vault.ConfigFile, keyring keyring.Ke
 	}
 	config, err := configLoader.LoadFromProfile(input.ProfileName)
 	if err != nil {
-		return err
+		return fmt.Errorf("Error loading config: %w", err)
 	}
 
 	ckr := &vault.CredentialKeyring{Keyring: keyring}
-	creds, err := vault.NewTempCredentials(config, ckr)
+	credsProvider, err := vault.NewTempCredentialsProvider(config, ckr)
 	if err != nil {
 		return fmt.Errorf("Error getting temporary credentials: %w", err)
 	}
 
 	if input.StartEc2Server {
-		return execEc2Server(input, config, creds)
+		return execEc2Server(input, config, credsProvider)
 	}
 
 	if input.StartEcsServer {
-		return execEcsServer(input, config, creds)
+		return execEcsServer(input, config, credsProvider)
 	}
 
 	if input.CredentialHelper {
-		return execCredentialHelper(input, config, creds)
+		return execCredentialHelper(input, config, credsProvider)
 	}
 
-	return execEnvironment(input, config, creds)
+	return execEnvironment(input, config, credsProvider)
 }
 
 func updateEnvForAwsVault(env environ, profileName string, region string) environ {
@@ -191,8 +192,8 @@ func updateEnvForAwsVault(env environ, profileName string, region string) enviro
 	return env
 }
 
-func execEc2Server(input ExecCommandInput, config *vault.Config, creds *credentials.Credentials) error {
-	if err := server.StartEc2CredentialsServer(creds, !input.NoDaemonize, config.Region); err != nil {
+func execEc2Server(input ExecCommandInput, config *vault.Config, credsProvider aws.CredentialsProvider) error {
+	if err := server.StartEc2CredentialsServer(credsProvider, !input.NoDaemonize, config.Region); err != nil {
 		return fmt.Errorf("Failed to start credential server: %w", err)
 	}
 
@@ -202,8 +203,8 @@ func execEc2Server(input ExecCommandInput, config *vault.Config, creds *credenti
 	return execCmd(input.Command, input.Args, env)
 }
 
-func execEcsServer(input ExecCommandInput, config *vault.Config, creds *credentials.Credentials) error {
-	uri, token, err := server.StartEcsCredentialServer(creds)
+func execEcsServer(input ExecCommandInput, config *vault.Config, credsProvider aws.CredentialsProvider) error {
+	uri, token, err := server.StartEcsCredentialServer(credsProvider)
 	if err != nil {
 		return fmt.Errorf("Failed to start credential server: %w", err)
 	}
@@ -218,7 +219,7 @@ func execEcsServer(input ExecCommandInput, config *vault.Config, creds *credenti
 	return execCmd(input.Command, input.Args, env)
 }
 
-func execCredentialHelper(input ExecCommandInput, config *vault.Config, creds *credentials.Credentials) error {
+func execCredentialHelper(input ExecCommandInput, config *vault.Config, credsProvider aws.CredentialsProvider) error {
 
 	// AwsCredentialHelperData is metadata for AWS CLI credential process
 	// See https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
@@ -230,20 +231,20 @@ func execCredentialHelper(input ExecCommandInput, config *vault.Config, creds *c
 		Expiration      string `json:"Expiration,omitempty"`
 	}
 
-	val, err := creds.Get()
+	creds, err := credsProvider.Retrieve(context.TODO())
 	if err != nil {
 		return fmt.Errorf("Failed to get credentials for %s: %w", input.ProfileName, err)
 	}
 
 	credentialData := AwsCredentialHelperData{
 		Version:         1,
-		AccessKeyID:     val.AccessKeyID,
-		SecretAccessKey: val.SecretAccessKey,
-		SessionToken:    val.SessionToken,
+		AccessKeyID:     creds.AccessKeyID,
+		SecretAccessKey: creds.SecretAccessKey,
+		SessionToken:    creds.SessionToken,
 	}
 
-	if credsExpiresAt, err := creds.ExpiresAt(); err == nil {
-		credentialData.Expiration = iso8601.Format(credsExpiresAt)
+	if creds.CanExpire {
+		credentialData.Expiration = iso8601.Format(creds.Expires)
 	}
 
 	json, err := json.Marshal(&credentialData)
@@ -256,8 +257,8 @@ func execCredentialHelper(input ExecCommandInput, config *vault.Config, creds *c
 	return nil
 }
 
-func execEnvironment(input ExecCommandInput, config *vault.Config, creds *credentials.Credentials) error {
-	val, err := creds.Get()
+func execEnvironment(input ExecCommandInput, config *vault.Config, credsProvider aws.CredentialsProvider) error {
+	creds, err := credsProvider.Retrieve(context.TODO())
 	if err != nil {
 		return fmt.Errorf("Failed to get credentials for %s: %w", input.ProfileName, err)
 	}
@@ -266,17 +267,17 @@ func execEnvironment(input ExecCommandInput, config *vault.Config, creds *creden
 	env = updateEnvForAwsVault(env, input.ProfileName, config.Region)
 
 	log.Println("Setting subprocess env: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY")
-	env.Set("AWS_ACCESS_KEY_ID", val.AccessKeyID)
-	env.Set("AWS_SECRET_ACCESS_KEY", val.SecretAccessKey)
+	env.Set("AWS_ACCESS_KEY_ID", creds.AccessKeyID)
+	env.Set("AWS_SECRET_ACCESS_KEY", creds.SecretAccessKey)
 
-	if val.SessionToken != "" {
+	if creds.SessionToken != "" {
 		log.Println("Setting subprocess env: AWS_SESSION_TOKEN, AWS_SECURITY_TOKEN")
-		env.Set("AWS_SESSION_TOKEN", val.SessionToken)
-		env.Set("AWS_SECURITY_TOKEN", val.SessionToken)
+		env.Set("AWS_SESSION_TOKEN", creds.SessionToken)
+		env.Set("AWS_SECURITY_TOKEN", creds.SessionToken)
 	}
-	if expiration, err := creds.ExpiresAt(); err == nil {
+	if creds.CanExpire {
 		log.Println("Setting subprocess env: AWS_SESSION_EXPIRATION")
-		env.Set("AWS_SESSION_EXPIRATION", iso8601.Format(expiration))
+		env.Set("AWS_SESSION_EXPIRATION", iso8601.Format(creds.Expires))
 	}
 
 	if !supportsExecSyscall() {
@@ -325,12 +326,12 @@ func execCmd(command string, args []string, env []string) error {
 	go func() {
 		for {
 			sig := <-sigChan
-			cmd.Process.Signal(sig)
+			_ = cmd.Process.Signal(sig)
 		}
 	}()
 
 	if err := cmd.Wait(); err != nil {
-		cmd.Process.Signal(os.Kill)
+		_ = cmd.Process.Signal(os.Kill)
 		return fmt.Errorf("Failed to wait for command termination: %v", err)
 	}
 
@@ -340,7 +341,7 @@ func execCmd(command string, args []string, env []string) error {
 }
 
 func supportsExecSyscall() bool {
-	return runtime.GOOS == "linux" || runtime.GOOS == "darwin" || runtime.GOOS == "freebsd"
+	return runtime.GOOS == "linux" || runtime.GOOS == "darwin" || runtime.GOOS == "freebsd" || runtime.GOOS == "openbsd"
 }
 
 func execSyscall(command string, args []string, env []string) error {

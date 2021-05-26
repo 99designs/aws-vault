@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/99designs/aws-vault/v6/prompt"
 	"github.com/99designs/aws-vault/v6/vault"
@@ -12,6 +13,7 @@ import (
 type RemoveCommandInput struct {
 	ProfileName  string
 	SessionsOnly bool
+	Force        bool
 }
 
 func ConfigureRemoveCommand(app *kingpin.Application, a *AwsVault) {
@@ -29,6 +31,10 @@ func ConfigureRemoveCommand(app *kingpin.Application, a *AwsVault) {
 		Short('s').
 		Hidden().
 		BoolVar(&input.SessionsOnly)
+
+	cmd.Flag("force", "Force-remove the profile without a prompt").
+		Short('f').
+		BoolVar(&input.Force)
 
 	cmd.Action(func(c *kingpin.ParseContext) error {
 		keyring, err := a.Keyring()
@@ -55,13 +61,15 @@ func RemoveCommand(input RemoveCommandInput, keyring keyring.Keyring) error {
 		return nil
 	}
 
-	r, err := prompt.TerminalPrompt(fmt.Sprintf("Delete credentials for profile %q? (y|N) ", input.ProfileName))
-	if err != nil {
-		return err
-	}
+	if !input.Force {
+		r, err := prompt.TerminalPrompt(fmt.Sprintf("Delete credentials for profile %q? (y|N) ", input.ProfileName))
+		if err != nil {
+			return err
+		}
 
-	if r != "Y" && r != "y" {
-		return nil
+		if !strings.EqualFold(r, "y") && !strings.EqualFold(r, "yes") {
+			return nil
+		}
 	}
 
 	if err := ckr.Remove(input.ProfileName); err != nil {

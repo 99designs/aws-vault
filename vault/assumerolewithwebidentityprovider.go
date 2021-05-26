@@ -1,6 +1,7 @@
 package vault
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -9,36 +10,35 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
+	ststypes "github.com/aws/aws-sdk-go-v2/service/sts/types"
 )
 
 // AssumeRoleWithWebIdentityProvider retrieves temporary credentials from STS using AssumeRoleWithWebIdentity
 type AssumeRoleWithWebIdentityProvider struct {
-	StsClient               *sts.STS
+	StsClient               *sts.Client
 	RoleARN                 string
 	RoleSessionName         string
 	WebIdentityTokenFile    string
 	WebIdentityTokenProcess string
 	ExternalID              string
 	Duration                time.Duration
-	ExpiryWindow            time.Duration
-	credentials.Expiry
 }
 
 // Retrieve generates a new set of temporary credentials using STS AssumeRoleWithWebIdentity
-func (p *AssumeRoleWithWebIdentityProvider) Retrieve() (credentials.Value, error) {
-	role, err := p.assumeRole()
+func (p *AssumeRoleWithWebIdentityProvider) Retrieve(ctx context.Context) (aws.Credentials, error) {
+	creds, err := p.assumeRole()
 	if err != nil {
-		return credentials.Value{}, err
+		return aws.Credentials{}, err
 	}
 
-	p.SetExpiration(*role.Expiration, p.ExpiryWindow)
-	return credentials.Value{
-		AccessKeyID:     *role.AccessKeyId,
-		SecretAccessKey: *role.SecretAccessKey,
-		SessionToken:    *role.SessionToken,
+	return aws.Credentials{
+		AccessKeyID:     aws.ToString(creds.AccessKeyId),
+		SecretAccessKey: aws.ToString(creds.SecretAccessKey),
+		SessionToken:    aws.ToString(creds.SessionToken),
+		CanExpire:       true,
+		Expires:         aws.ToTime(creds.Expiration),
 	}, nil
 }
 
@@ -51,7 +51,7 @@ func (p *AssumeRoleWithWebIdentityProvider) roleSessionName() string {
 	return p.RoleSessionName
 }
 
-func (p *AssumeRoleWithWebIdentityProvider) assumeRole() (*sts.Credentials, error) {
+func (p *AssumeRoleWithWebIdentityProvider) assumeRole() (*ststypes.Credentials, error) {
 	var err error
 
 	webIdentityToken, err := p.webIdentityToken()
@@ -59,16 +59,13 @@ func (p *AssumeRoleWithWebIdentityProvider) assumeRole() (*sts.Credentials, erro
 		return nil, err
 	}
 
-	req, resp := p.StsClient.AssumeRoleWithWebIdentityRequest(&sts.AssumeRoleWithWebIdentityInput{
+	resp, err := p.StsClient.AssumeRoleWithWebIdentity(context.TODO(), &sts.AssumeRoleWithWebIdentityInput{
 		RoleArn:          aws.String(p.RoleARN),
 		RoleSessionName:  aws.String(p.roleSessionName()),
-		DurationSeconds:  aws.Int64(int64(p.Duration.Seconds())),
+		DurationSeconds:  aws.Int32(int32(p.Duration.Seconds())),
 		WebIdentityToken: aws.String(webIdentityToken),
 	})
-	// Retry possibly temporary errors
-	req.RetryErrorCodes = append(req.RetryErrorCodes, sts.ErrCodeInvalidIdentityTokenException)
-
-	if err := req.Send(); err != nil {
+	if err != nil {
 		return nil, err
 	}
 

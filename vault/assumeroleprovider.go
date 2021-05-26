@@ -1,39 +1,41 @@
 package vault
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/service/sts"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/sts"
+	ststypes "github.com/aws/aws-sdk-go-v2/service/sts/types"
 )
 
 // AssumeRoleProvider retrieves temporary credentials from STS using AssumeRole
 type AssumeRoleProvider struct {
-	StsClient       *sts.STS
-	RoleARN         string
-	RoleSessionName string
-	ExternalID      string
-	Duration        time.Duration
-	ExpiryWindow    time.Duration
+	StsClient         *sts.Client
+	RoleARN           string
+	RoleSessionName   string
+	ExternalID        string
+	Duration          time.Duration
+	Tags              map[string]string
+	TransitiveTagKeys []string
 	Mfa
-	credentials.Expiry
 }
 
 // Retrieve generates a new set of temporary credentials using STS AssumeRole
-func (p *AssumeRoleProvider) Retrieve() (credentials.Value, error) {
+func (p *AssumeRoleProvider) Retrieve(ctx context.Context) (aws.Credentials, error) {
 	role, err := p.assumeRole()
 	if err != nil {
-		return credentials.Value{}, err
+		return aws.Credentials{}, err
 	}
 
-	p.SetExpiration(*role.Expiration, p.ExpiryWindow)
-	return credentials.Value{
+	return aws.Credentials{
 		AccessKeyID:     *role.AccessKeyId,
 		SecretAccessKey: *role.SecretAccessKey,
 		SessionToken:    *role.SessionToken,
+		CanExpire:       true,
+		Expires:         *role.Expiration,
 	}, nil
 }
 
@@ -46,13 +48,13 @@ func (p *AssumeRoleProvider) roleSessionName() string {
 	return p.RoleSessionName
 }
 
-func (p *AssumeRoleProvider) assumeRole() (*sts.Credentials, error) {
+func (p *AssumeRoleProvider) assumeRole() (*ststypes.Credentials, error) {
 	var err error
 
 	input := &sts.AssumeRoleInput{
 		RoleArn:         aws.String(p.RoleARN),
 		RoleSessionName: aws.String(p.roleSessionName()),
-		DurationSeconds: aws.Int64(int64(p.Duration.Seconds())),
+		DurationSeconds: aws.Int32(int32(p.Duration.Seconds())),
 	}
 
 	if p.ExternalID != "" {
@@ -67,9 +69,22 @@ func (p *AssumeRoleProvider) assumeRole() (*sts.Credentials, error) {
 		}
 	}
 
-	log.Printf("Using STS endpoint %s", p.StsClient.Endpoint)
+	if len(p.Tags) > 0 {
+		input.Tags = make([]ststypes.Tag, 0)
+		for key, value := range p.Tags {
+			tag := ststypes.Tag{
+				Key:   aws.String(key),
+				Value: aws.String(value),
+			}
+			input.Tags = append(input.Tags, tag)
+		}
+	}
 
-	resp, err := p.StsClient.AssumeRole(input)
+	if len(p.TransitiveTagKeys) > 0 {
+		input.TransitiveTagKeys = p.TransitiveTagKeys
+	}
+
+	resp, err := p.StsClient.AssumeRole(context.TODO(), input)
 	if err != nil {
 		return nil, err
 	}

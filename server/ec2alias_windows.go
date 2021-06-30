@@ -4,7 +4,7 @@ package server
 
 import (
 	"fmt"
-	"os/exec"
+	exec "golang.org/x/sys/execabs"
 	"strings"
 )
 

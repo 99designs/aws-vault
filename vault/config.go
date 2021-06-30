@@ -72,7 +72,13 @@ func createConfigFilesIfMissing() error {
 			log.Printf("Config file %s not created", file)
 			return err
 		}
-		newFile.Close()
+
+		err = newFile.Close()
+		if err != nil {
+			log.Printf("Failed to write config file to %s", file)
+			return err
+		}
+
 		log.Printf("Config file %s created", file)
 	}
 	return nil

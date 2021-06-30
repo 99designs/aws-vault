@@ -6,12 +6,13 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
-	"runtime"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
+	exec "golang.org/x/sys/execabs"
+
 	ststypes "github.com/aws/aws-sdk-go-v2/service/sts/types"
 )
 
@@ -86,12 +87,7 @@ func (p *AssumeRoleWithWebIdentityProvider) webIdentityToken() (string, error) {
 	}
 
 	// Exec WebIdentityTokenProcess to retrieve OpenID Connect token
-	var cmdArgs []string
-	if runtime.GOOS == "windows" {
-		cmdArgs = []string{"cmd.exe", "/C", p.WebIdentityTokenProcess}
-	} else {
-		cmdArgs = []string{"/bin/sh", "-c", p.WebIdentityTokenProcess}
-	}
+	var cmdArgs []string = strings.Fields(p.WebIdentityTokenProcess)
 
 	cmd := exec.Command(cmdArgs[0], cmdArgs[1:]...)
 	cmd.Env = os.Environ()

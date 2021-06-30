@@ -1,12 +1,16 @@
 package prompt
 
 import (
+	"errors"
 	"fmt"
 	"os/exec"
 	"strings"
 )
 
 func OSAScriptMfaPrompt(mfaSerial string) (string, error) {
+	if !validateMfaName(mfaSerial) {
+		return "", errors.New(fmt.Sprintf("Invalid Mfa serial name %s.", mfaSerial))
+	}
 	cmd := exec.Command("osascript", "-e", fmt.Sprintf(`
 		display dialog "%s" default answer "" buttons {"OK", "Cancel"} default button 1
         text returned of the result

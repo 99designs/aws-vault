@@ -4,9 +4,9 @@ package server
 
 import (
 	"errors"
+	exec "golang.org/x/sys/execabs"
 	"log"
 	"os"
-	"os/exec"
 	"time"
 )
 

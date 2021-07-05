@@ -1,8 +1,9 @@
 package prompt
 
 import (
-	"os/exec"
 	"strings"
+
+	exec "golang.org/x/sys/execabs"
 )
 
 func ZenityMfaPrompt(mfaSerial string) (string, error) {

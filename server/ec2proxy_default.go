@@ -6,8 +6,9 @@ import (
 	"errors"
 	"log"
 	"os"
-	"os/exec"
 	"time"
+
+	exec "golang.org/x/sys/execabs"
 )
 
 // StartEc2EndpointProxyServerProcess starts a `aws-vault proxy` process

@@ -8,7 +8,7 @@ import (
 
 func OSAScriptMfaPrompt(mfaSerial string) (string, error) {
 	cmd := exec.Command("osascript", "-e", fmt.Sprintf(`
-		display dialog "%s" default answer "" buttons {"OK", "Cancel"} default button 1
+		display dialog %q default answer "" buttons {"OK", "Cancel"} default button 1
         text returned of the result
         return result`,
 		mfaPromptMessage(mfaSerial)))

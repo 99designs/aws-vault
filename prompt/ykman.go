@@ -25,12 +25,12 @@ func YkmanMfaProvider(mfaSerial string) (string, error) {
 		args = append(args, "--device", yubikeyDeviceSerial)
 	}
 
+	// default to v4 and above
 	ykmanMajorVersion := os.Getenv("AWS_VAULT_YKMAN_VERSION")
-	if ykmanMajorVersion == "1" ||
-		ykmanMajorVersion == "2" ||
-		ykmanMajorVersion == "3" {
+	switch ykmanMajorVersion {
+	case "1", "2", "3":
 		args = append(args, "oath", "code", "--single", yubikeyOathCredName)
-	} else { // default to v4 and above
+	default:
 		args = append(args, "oath", "accounts", "code", "--single", yubikeyOathCredName)
 	}
 

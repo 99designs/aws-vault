@@ -6,12 +6,13 @@ import (
 	"fmt"
 	"log"
 	"os"
-	osexec "os/exec"
 	"os/signal"
 	"runtime"
 	"strings"
 	"syscall"
 	"time"
+
+	osexec "golang.org/x/sys/execabs"
 
 	"github.com/99designs/aws-vault/v6/iso8601"
 	"github.com/99designs/aws-vault/v6/server"

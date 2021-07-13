@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 
 	"github.com/99designs/aws-vault/v6/prompt"
 	"github.com/99designs/aws-vault/v6/vault"
@@ -27,6 +28,7 @@ var keyringConfigDefaults = keyring.Config{
 type AwsVault struct {
 	Debug          bool
 	KeyringConfig  keyring.Config
+	UseXDGConfig   bool
 	KeyringBackend string
 	PromptDriver   string
 
@@ -116,9 +118,20 @@ func ConfigureGlobals(app *kingpin.Application) *AwsVault {
 		Envar("AWS_VAULT_PASS_PREFIX").
 		StringVar(&a.KeyringConfig.PassPrefix)
 
+	app.Flag("xdg-spec", "Follow XDG base directory specification").
+		Envar("AWS_VAULT_XDG").
+		BoolVar(&a.UseXDGConfig)
+
 	app.PreAction(func(c *kingpin.ParseContext) error {
 		if !a.Debug {
 			log.SetOutput(ioutil.Discard)
+		}
+		if a.UseXDGConfig {
+			xdgConfigHome := path.Join("~", ".config")
+			if homeEnv, ok := os.LookupEnv("XDG_CONFIG_HOME"); ok {
+				xdgConfigHome = homeEnv
+			}
+			a.KeyringConfig.FileDir = path.Join(xdgConfigHome, "awsvault", "keys")
 		}
 		keyring.Debug = a.Debug
 		log.Printf("aws-vault %s", app.Model().Version)

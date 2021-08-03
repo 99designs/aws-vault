@@ -50,7 +50,7 @@ func ConfigureAddCommand(app *kingpin.Application, a *AwsVault) {
 }
 
 func AddCommand(input AddCommandInput, keyring keyring.Keyring, awsConfigFile *vault.ConfigFile) error {
-	var accessKeyId, secretKey string
+	var accessKeyId, secretKey, sessionToken string
 
 	p, _ := awsConfigFile.ProfileSection(input.ProfileName)
 	if p.SourceProfile != "" {
@@ -65,6 +65,9 @@ func AddCommand(input AddCommandInput, keyring keyring.Keyring, awsConfigFile *v
 		if secretKey = os.Getenv("AWS_SECRET_ACCESS_KEY"); secretKey == "" {
 			return fmt.Errorf("Missing value for AWS_SECRET_ACCESS_KEY")
 		}
+		if sessionToken = os.Getenv("AWS_SESSION_TOKEN"); sessionToken == "" {
+			return fmt.Errorf("Missing value for AWS_SESSION_TOKEN")
+		}
 	} else {
 		var err error
 		if accessKeyId, err = prompt.TerminalPrompt("Enter Access Key ID: "); err != nil {
@@ -75,7 +78,7 @@ func AddCommand(input AddCommandInput, keyring keyring.Keyring, awsConfigFile *v
 		}
 	}
 
-	creds := aws.Credentials{AccessKeyID: accessKeyId, SecretAccessKey: secretKey}
+	creds := aws.Credentials{AccessKeyID: accessKeyId, SecretAccessKey: secretKey, SessionToken: sessionToken}
 
 	ckr := &vault.CredentialKeyring{Keyring: keyring}
 	if err := ckr.Set(input.ProfileName, creds); err != nil {

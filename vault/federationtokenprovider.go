@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
+	"github.com/aws/aws-sdk-go-v2/service/sts/types"
 )
 
 const allowAllIAMPolicy = `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"*","Resource":"*"}]}`
@@ -16,6 +17,7 @@ type FederationTokenProvider struct {
 	StsClient *sts.Client
 	Name      string
 	Duration  time.Duration
+	Tags      []types.Tag
 }
 
 func (f *FederationTokenProvider) name() string {
@@ -32,6 +34,7 @@ func (f *FederationTokenProvider) Retrieve(ctx context.Context) (creds aws.Crede
 		Name:            aws.String(f.name()),
 		DurationSeconds: aws.Int32(int32(f.Duration.Seconds())),
 		Policy:          aws.String(allowAllIAMPolicy),
+		Tags:            f.Tags,
 	})
 	if err != nil {
 		return creds, err

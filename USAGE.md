@@ -5,6 +5,7 @@
   * [AWS config file](#aws-config-file)
     * [`include_profile`](#include_profile)
     * [`session_tags` and `transitive_session_tags`](#session_tags-and-transitive_session_tags)
+    * [`federation_session_tags`](#federation_session_tags)
   * [Environment variables](#environment-variables)
 * [Backends](#backends)
   * [Keychain](#keychain)
@@ -118,6 +119,19 @@ session_tags = key1=value1,key2=value2,key3=value3
 transitive_session_tags = key1,key2
 ```
 
+#### `federation_session_tags`
+
+It is possible to set [session tags](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_session-tags.html) when `GetFederationToken` is used. The `federation_session_tags` defines a comma separated key=value list of tags
+
+```ini
+[profile root]
+region=eu-west-1
+
+[profile order-dev]
+source_profile = root
+role_arn=arn:aws:iam::123456789:role/developers
+federation_session_tags = key1=value1,key2=value2,key3=value3
+```
 
 ### Environment variables
 

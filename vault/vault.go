@@ -286,6 +286,7 @@ func NewFederationTokenCredentialsProvider(profileName string, k *CredentialKeyr
 		StsClient: sts.NewFromConfig(cfg),
 		Name:      currentUsername,
 		Duration:  config.GetFederationTokenDuration,
+		Tags:      config.FederationSessionTags,
 	}, nil
 }
 

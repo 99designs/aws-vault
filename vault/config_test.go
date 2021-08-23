@@ -9,6 +9,8 @@ import (
 	"testing"
 
 	"github.com/99designs/aws-vault/v6/vault"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	ststypes "github.com/aws/aws-sdk-go-v2/service/sts/types"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -439,6 +441,43 @@ func TestSetTransitiveSessionTags(t *testing.T) {
 		if !reflect.DeepEqual(tc.expected, config.TransitiveSessionTags) {
 			t.Fatalf("Expected TransitiveSessionTags: %+v, got %+v", tc.expected, config.TransitiveSessionTags)
 		}
+	}
+}
+
+func TestFederationSessionTaggingFromIni(t *testing.T) {
+
+	f := newConfigFile(t, []byte(`
+[profile tagged]
+federation_session_tags = tag1 = value1 , tag2=value2 ,tag3=value3
+`))
+	defer os.Remove(f)
+
+	configFile, err := vault.LoadConfig(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+	configLoader := &vault.ConfigLoader{File: configFile, ActiveProfile: "tagged"}
+	config, err := configLoader.LoadFromProfile("tagged")
+	if err != nil {
+		t.Fatalf("Should have found a profile: %v", err)
+	}
+
+	expectedSessionTags := []ststypes.Tag{
+		{
+			Key:   aws.String("tag1"),
+			Value: aws.String("value1"),
+		},
+		{
+			Key:   aws.String("tag2"),
+			Value: aws.String("value2"),
+		},
+		{
+			Key:   aws.String("tag3"),
+			Value: aws.String("value3"),
+		},
+	}
+	if !reflect.DeepEqual(expectedSessionTags, config.FederationSessionTags) {
+		t.Fatalf("Expected session_tags: %+v, got %+v", expectedSessionTags, config.FederationSessionTags)
 	}
 }
 

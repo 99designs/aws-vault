@@ -7,7 +7,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
-	"github.com/aws/aws-sdk-go-v2/service/sts/types"
+	ststypes "github.com/aws/aws-sdk-go-v2/service/sts/types"
 )
 
 const allowAllIAMPolicy = `{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"*","Resource":"*"}]}`
@@ -17,7 +17,7 @@ type FederationTokenProvider struct {
 	StsClient *sts.Client
 	Name      string
 	Duration  time.Duration
-	Tags      []types.Tag
+	Tags      map[string]string
 }
 
 func (f *FederationTokenProvider) name() string {
@@ -30,11 +30,20 @@ func (f *FederationTokenProvider) name() string {
 
 // Retrieve generates a new set of temporary credentials using STS GetFederationToken
 func (f *FederationTokenProvider) Retrieve(ctx context.Context) (creds aws.Credentials, err error) {
+	Tags := make([]ststypes.Tag, 0)
+	for key, value := range f.Tags {
+		tag := ststypes.Tag{
+			Key:   aws.String(key),
+			Value: aws.String(value),
+		}
+		Tags = append(Tags, tag)
+	}
+
 	resp, err := f.StsClient.GetFederationToken(context.TODO(), &sts.GetFederationTokenInput{
 		Name:            aws.String(f.name()),
 		DurationSeconds: aws.Int32(int32(f.Duration.Seconds())),
 		Policy:          aws.String(allowAllIAMPolicy),
-		Tags:            f.Tags,
+		Tags:            Tags,
 	})
 	if err != nil {
 		return creds, err

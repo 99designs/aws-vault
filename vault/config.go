@@ -9,8 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/sts/types"
 	"github.com/mitchellh/go-homedir"
 	ini "gopkg.in/ini.v1"
 )
@@ -340,7 +338,7 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 	if federationSessionTags := psection.FederationSessionTags; federationSessionTags != "" && config.FederationSessionTags == nil {
 		err := config.SetFederationSessionTags(federationSessionTags)
 		if err != nil {
-			return fmt.Errorf("Failed to parse session_tags profile setting: %s", err)
+			return fmt.Errorf("Failed to parse federation_session_tags profile setting: %s", err)
 		}
 	}
 	if transitiveSessionTags := psection.TransitiveSessionTags; transitiveSessionTags != "" && config.TransitiveSessionTags == nil {
@@ -548,14 +546,14 @@ type Config struct {
 	// SessionTags specifies assumed role Session Tags
 	SessionTags map[string]string
 
-	// TransitiveSessionTags specifies assumed role Transitive Session Tags keys
+	// TransitiveSessionTags specifies which session keys in AssumeRole are transitive
 	TransitiveSessionTags []string
 
 	// FederationSessionTags specifies tags used when creating a Federation token
-	FederationSessionTags []types.Tag
+	FederationSessionTags map[string]string
 }
 
-// SetSessionTags parses a comma separated key=vaue string and sets Config.SessionTags map
+// SetSessionTags parses a comma separated key=value string and sets Config.SessionTags map
 func (c *Config) SetSessionTags(s string) error {
 	c.SessionTags = make(map[string]string)
 	for _, tag := range strings.Split(s, ",") {
@@ -569,17 +567,15 @@ func (c *Config) SetSessionTags(s string) error {
 	return nil
 }
 
-// SetFederationSessionTags parses a comma separated key=vaue string and sets Config.FederationSessionTags map
+// SetFederationSessionTags parses a comma separated key=value string and sets Config.FederationSessionTags map
 func (c *Config) SetFederationSessionTags(s string) error {
+	c.FederationSessionTags = make(map[string]string)
 	for _, tag := range strings.Split(s, ",") {
 		kvPair := strings.SplitN(tag, "=", 2)
 		if len(kvPair) != 2 {
 			return errors.New("federation tags string must be <key1>=<value1>,[<key2>=<value2>[,...]]")
 		}
-		c.FederationSessionTags = append(c.FederationSessionTags, types.Tag{
-			Key:   aws.String(strings.TrimSpace(kvPair[0])),
-			Value: aws.String(strings.TrimSpace(kvPair[1])),
-		})
+		c.FederationSessionTags[strings.TrimSpace(kvPair[0])] = strings.TrimSpace(kvPair[1])
 
 	}
 

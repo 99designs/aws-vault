@@ -27,5 +27,5 @@ func Method(s string) PromptFunc {
 }
 
 func mfaPromptMessage(mfaSerial string) string {
-	return fmt.Sprintf("Enter token for %s: ", mfaSerial)
+	return fmt.Sprintf("Enter MFA token for MFA Device %s: ", mfaSerial)
 }

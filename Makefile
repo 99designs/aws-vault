@@ -5,14 +5,19 @@ SRC=$(shell find . -name '*.go') go.mod
 INSTALL_DIR ?= ~/bin
 .PHONY: binaries clean release install
 
+ifeq ($(shell uname), Darwin)
 aws-vault: $(SRC)
-	go build -ldflags="-X main.Version=$(VERSION)" .
+	go build -ldflags="-X main.Version=$(VERSION)" -o $@ .
+	codesign --options runtime --timestamp --sign "$(CERT_ID)" $@
+else
+aws-vault: $(SRC)
+	go build -ldflags="-X main.Version=$(VERSION)" -o $@ .
+endif
 
 install: aws-vault
 	mkdir -p $(INSTALL_DIR)
 	rm -f $(INSTALL_DIR)/aws-vault
-	cp -a ./aws-vault $(INSTALL_DIR)
-	codesign --options runtime --timestamp --sign "$(CERT_ID)" $(INSTALL_DIR)/aws-vault || true
+	cp -a ./aws-vault $(INSTALL_DIR)/aws-vault
 
 binaries: aws-vault-linux-amd64 aws-vault-linux-arm64 aws-vault-linux-ppc64le aws-vault-linux-arm7 aws-vault-android-arm64 aws-vault-darwin-amd64 aws-vault-darwin-arm64 aws-vault-windows-386.exe aws-vault-freebsd-amd64
 dmgs: aws-vault-darwin-amd64.dmg aws-vault-darwin-arm64.dmg

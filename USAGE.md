@@ -149,7 +149,7 @@ To override session durations (used in `exec` and `login`):
 Note that the session durations above expect a unit after the number (e.g. 12h or 43200s).
 
 To override or set session tagging (used in `exec`):
-* `AWS_ROLE_TAGS`: Comma separated key-value list of tags passed with the `AssumeRole` call, overrides `session_tags` profile config variable
+* `AWS_SESSION_TAGS`: Comma separated key-value list of tags passed with the `AssumeRole` call, overrides `session_tags` profile config variable
 * `AWS_TRANSITIVE_TAGS`: Comma separated list of transitive tags passed with the `AssumeRole` call, overrides `transitive_session_tags` profile config variable
 
 

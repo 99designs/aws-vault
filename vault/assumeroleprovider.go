@@ -20,6 +20,7 @@ type AssumeRoleProvider struct {
 	Duration          time.Duration
 	Tags              map[string]string
 	TransitiveTagKeys []string
+	SourceIdentity    string
 	Mfa
 }
 
@@ -82,6 +83,10 @@ func (p *AssumeRoleProvider) assumeRole() (*ststypes.Credentials, error) {
 
 	if len(p.TransitiveTagKeys) > 0 {
 		input.TransitiveTagKeys = p.TransitiveTagKeys
+	}
+
+	if p.SourceIdentity != "" {
+		input.SourceIdentity = aws.String(p.SourceIdentity)
 	}
 
 	resp, err := p.StsClient.AssumeRole(context.TODO(), input)

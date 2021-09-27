@@ -12,13 +12,13 @@ USERNAME=$(echo "$ACCOUNT_ARN" | rev | cut -d/ -f1 | rev)
 ACCOUNT_ID=$(echo "$ACCOUNT_ARN" | cut -d: -f5)
 SERIAL_NUMBER="arn:aws:iam::${ACCOUNT_ID}:mfa/${USERNAME}"
 
-CODE1=$(ykman oath code -s "$SERIAL_NUMBER")
+CODE1=$(ykman oath accounts code -s "$SERIAL_NUMBER")
 
 WAIT_TIME=$((30-$(date +%s)%30))
 echo "Waiting $WAIT_TIME seconds before generating a second code" >&2
 sleep $WAIT_TIME
 
-CODE2=$(ykman oath code -s "$SERIAL_NUMBER")
+CODE2=$(ykman oath accounts code -s "$SERIAL_NUMBER")
 
 aws iam resync-mfa-device \
   --user-name "$USERNAME" \

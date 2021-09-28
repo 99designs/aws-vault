@@ -159,12 +159,12 @@ You can choose among different pluggable secret storage backends. You can set th
 
 ### Keychain
 
-If you're looking to configure the amount of time between having to enter your Keychain password for each usage of a particular profile, you can do so through Keychain: 
+If you're looking to configure the amount of time between having to enter your Keychain password for each usage of a particular profile, you can do so through Keychain:
 
 1. Open "Keychain Access"
-2. Open the aws-vault keychain. If you do not have "aws-vault" in the sidebar of the Keychain app, then you can do "File -> Add Keychain" and select the `aws-vault.keychain-db`. This is typically created in `Users/{USER}/Library/Keychains`. 
+2. Open the aws-vault keychain. If you do not have "aws-vault" in the sidebar of the Keychain app, then you can do "File -> Add Keychain" and select the `aws-vault.keychain-db`. This is typically created in `Users/{USER}/Library/Keychains`.
 3. Right click on aws-vault keychain, and select "Change Settings for Keychain 'aws-vault"
-4. Update "Lock after X minutes of inactivity" to your desired value. 
+4. Update "Lock after X minutes of inactivity" to your desired value.
 5. Hit save.
 
 ![keychain-image](https://imgur.com/ARkr5Ba.png)
@@ -221,13 +221,13 @@ You can use the `aws-vault list` command to list out the defined profiles, and a
 
 ```shell
 $ aws-vault list
-Profile                  Credentials              Sessions  
-=======                  ===========              ========                 
-home                     home                        
-work                     work                     1525456570  
-work-read-only           work                        
-work-admin               work                        
-``` 
+Profile                  Credentials              Sessions
+=======                  ===========              ========
+home                     home
+work                     work                     1525456570
+work-read-only           work
+work-admin               work
+```
 
 ### Removing credentials
 
@@ -306,7 +306,7 @@ However, consider that if you use `--no-session` with a profile using IAM creden
 ```shell
 aws-vault exec <iam_user_profile> -- env | grep AWS
 ```
-You'll see an `AWS_ACCESS_KEY_ID` of the form `ASIAxxxxxx` which is a temporary one. Doing 
+You'll see an `AWS_ACCESS_KEY_ID` of the form `ASIAxxxxxx` which is a temporary one. Doing
 ```shell
 aws-vault exec <iam_user_profile> --no-session -- env | grep AWS
 ```
@@ -480,10 +480,10 @@ You can verify these prerequisites by running `ykman info` and checking `OATH` i
  3. Instead of showing the QR code, click on `Show secret key` and copy the key.
  4. On a command line, run:
     ```shell
-    ykman oath add -t arn:aws:iam::${ACCOUNT_ID}:mfa/${IAM_USERNAME}
+    ykman oath accounts add -t arn:aws:iam::${ACCOUNT_ID}:mfa/${IAM_USERNAME}
     ```
     replacing `${ACCOUNT_ID}` with your AWS account ID and `${IAM_USERNAME}` with your IAM username. It will prompt you for a base32 text and you can input the key from step 3. Notice the above command uses `-t` which requires you to touch your YubiKey to generate authentication codes.
- 5. Now you have to enter two consecutive MFA codes into the AWS website to assign your key to your AWS login. Just run `ykman oath code arn:aws:iam::${ACCOUNT_ID}:mfa/${IAM_USERNAME}` to get an authentication code. The codes are re-generated every 30 seconds, so you have to run this command twice with about 30 seconds in between to get two distinct codes. Enter the two codes in the AWS form and click `Assign MFA`
+ 5. Now you have to enter two consecutive MFA codes into the AWS website to assign your key to your AWS login. Just run `ykman oath accounts code arn:aws:iam::${ACCOUNT_ID}:mfa/${IAM_USERNAME}` to get an authentication code. The codes are re-generated every 30 seconds, so you have to run this command twice with about 30 seconds in between to get two distinct codes. Enter the two codes in the AWS form and click `Assign MFA`
 
 A script can be found at [contrib/scripts/aws-iam-create-yubikey-mfa.sh](contrib/scripts/aws-iam-create-yubikey-mfa.sh) to automate the process.
 

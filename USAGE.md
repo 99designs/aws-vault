@@ -33,6 +33,7 @@
   * [Usage](#usage)
 * [Shell completion](#shell-completion)
 * [Desktop apps](#desktop-apps)
+* [Running inside a Docker container](#running-inside-a-docker-container)
 
 
 ## Getting Help
@@ -522,3 +523,7 @@ aws-vault exec --server --prompt=osascript jonsmith -- open -a Lens
 * `--server`: starts the background server so that temporary credentials get refreshed automatically
 * `--prompt=osascript`: pop up a GUI for MFA prompts
 * `open -a Lens`: run the applications
+
+## Running as a Docker container
+
+Running aws-vault inside a Docker container is also [relatively easy](https://github.com/Dzhuneyt/aws-vault-docker).

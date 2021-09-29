@@ -33,7 +33,7 @@
   * [Usage](#usage)
 * [Shell completion](#shell-completion)
 * [Desktop apps](#desktop-apps)
-* [Running inside a Docker container](#running-inside-a-docker-container)
+* [Running as a Docker container](#running-as-a-docker-container)
 
 
 ## Getting Help

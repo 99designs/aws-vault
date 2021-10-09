@@ -14,6 +14,7 @@ Check out the [announcement blog post](https://99designs.com.au/tech-blog/blog/2
 
 You can install AWS Vault:
 - by downloading the [latest release](https://github.com/99designs/aws-vault/releases/latest)
+- with [asdf-vm](https://github.com/asdf-vm/asdf): `asdf plugin-add aws-vault https://github.com/karancode/asdf-aws-vault.git && asdf install aws-vault <version>`
 - on macOS with [Homebrew Cask](https://formulae.brew.sh/cask/aws-vault): `brew install --cask aws-vault`
 - on macOS with [MacPorts](https://ports.macports.org/port/aws-vault/summary): `port install aws-vault`
 - on Windows with [Chocolatey](https://chocolatey.org/packages/aws-vault): `choco install aws-vault`
@@ -121,7 +122,7 @@ role_arn = arn:aws:iam::333333333333:role/Role2
 mfa_serial = arn:aws:iam::111111111111:mfa/jonsmith
 ```
 
-Here's what you can expect from aws-vault 
+Here's what you can expect from aws-vault
 
 | Command                                  | Credentials                 | Cached        | MFA |
 |------------------------------------------|-----------------------------|---------------|-----|

@@ -128,6 +128,7 @@ To configure the default flag values of `aws-vault` and its subcommands:
 * `AWS_VAULT_PASS_PASSWORD_STORE_DIR`: Pass password store directory (see the flag `--pass-dir`)
 * `AWS_VAULT_PASS_CMD`: Name of the pass executable (see the flag `--pass-cmd`)
 * `AWS_VAULT_PASS_PREFIX`: Prefix to prepend to the item path stored in pass (see the flag `--pass-prefix`)
+* `AWS_VAULT_FILE_DIR`: Directory for the "file" password store (see the flag `--file-dir`)
 * `AWS_VAULT_FILE_PASSPHRASE`: Password for the "file" password store
 * `AWS_CONFIG_FILE`: The location of the AWS config file
 

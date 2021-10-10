@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
@@ -42,6 +43,12 @@ func StartEcsCredentialServer(credsProvider aws.CredentialsProvider) (string, st
 		return "", "", err
 	}
 	credsCache := aws.NewCredentialsCache(credsProvider)
+
+	// Retrieve credentials eagerly to support MFA prompts
+	_, err = credsCache.Retrieve(context.Background())
+	if err != nil {
+		return "", "", err
+	}
 
 	go func() {
 		err := http.Serve(listener, withLogging(withAuthorizationCheck(token, ecsCredsHandler(credsCache))))

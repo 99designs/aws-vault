@@ -24,7 +24,7 @@ type creduiInfoA struct {
 func WinCredUiPrompt(mfaSerial string) (string, error) {
 	info := &creduiInfoA{
 		hwndParent:     0,
-		pszCaptionText: syscall.StringToUTF16Ptr("Enter token for aws-vault"),
+		pszCaptionText: syscall.StringToUTF16Ptr("Enter MFA code for aws-vault"),
 		pszMessageText: syscall.StringToUTF16Ptr(mfaPromptMessage(mfaSerial)),
 		hbmBanner:      0,
 	}

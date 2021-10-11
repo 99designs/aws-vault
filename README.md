@@ -21,9 +21,9 @@ You can install AWS Vault:
 - on Linux with [Homebrew on Linux](https://formulae.brew.sh/formula-linux/aws-vault): `brew install aws-vault`
 - on [Arch Linux](https://www.archlinux.org/packages/community/x86_64/aws-vault/): `pacman -S aws-vault`
 - on [FreeBSD](https://www.freshports.org/security/aws-vault/): `pkg install aws-vault`
-- on [OpenSUSE](https://software.opensuse.org/package/aws-vault): enable devel:languages:go repo then `zypper install aws-vault` (sometimes version lags)
+- on [OpenSUSE](https://software.opensuse.org/package/aws-vault): enable devel:languages:go repo then `zypper install aws-vault`
 - with [Nix](https://nixos.org/nixos/packages.html?attr=aws-vault): `nix-env -i aws-vault`
-- with [asdf-vm](https://github.com/asdf-vm/asdf): `asdf plugin-add aws-vault https://github.com/karancode/asdf-aws-vault.git && asdf install aws-vault <version>`
+- with [asdf-vm](https://github.com/karancode/asdf-aws-vault): `asdf plugin-add aws-vault https://github.com/karancode/asdf-aws-vault.git && asdf install aws-vault <version>`
 
 ## Documentation
 

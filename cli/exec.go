@@ -122,7 +122,7 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 
 func ExecCommand(input ExecCommandInput, f *vault.ConfigFile, keyring keyring.Keyring) error {
 	if os.Getenv("AWS_VAULT") != "" {
-		return fmt.Errorf("aws-vault sessions should be nested with care, unset $AWS_VAULT to force")
+		return fmt.Errorf("aws-vault sessions should be nested with care, unset AWS_VAULT to force")
 	}
 
 	err := input.validate()

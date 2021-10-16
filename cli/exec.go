@@ -32,6 +32,7 @@ type ExecCommandInput struct {
 	Config           vault.Config
 	SessionDuration  time.Duration
 	NoSession        bool
+	UseStdout        bool
 }
 
 func (input ExecCommandInput) validate() error {
@@ -88,6 +89,9 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 	cmd.Flag("ecs-server", "Run a ECS credential server in the background for credentials (the SDK or app must support AWS_CONTAINER_CREDENTIALS_FULL_URI)").
 		BoolVar(&input.StartEcsServer)
 
+	cmd.Flag("stdout", "Print the SSO link to the terminal without automatically opening the browser").
+		BoolVar(&input.UseStdout)
+
 	cmd.Arg("profile", "Name of the profile").
 		Required().
 		HintAction(a.MustGetProfileNames).
@@ -104,6 +108,7 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 		input.Config.MfaPromptMethod = a.PromptDriver
 		input.Config.NonChainedGetSessionTokenDuration = input.SessionDuration
 		input.Config.AssumeRoleDuration = input.SessionDuration
+		input.Config.SSOUseStdout = input.UseStdout
 
 		f, err := a.AwsConfigFile()
 		if err != nil {

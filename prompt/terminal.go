@@ -35,7 +35,7 @@ func TerminalSecretPrompt(message string) (string, error) {
 }
 
 func TerminalMfaPrompt(mfaSerial string) (string, error) {
-	return TerminalPrompt(mfaPromptMessage(mfaSerial))
+	return TerminalSecretPrompt(mfaPromptMessage(mfaSerial))
 }
 
 func init() {

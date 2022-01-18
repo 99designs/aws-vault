@@ -19,11 +19,10 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mtibben/androiddnsfix v0.0.0-20200907095054-ff0280446354
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
-	github.com/smartystreets/goconvey v1.6.4 // indirect
 	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a
 	golang.org/x/sys v0.0.0-20210521203332-0cec03c779c1
 	golang.org/x/term v0.0.0-20210503060354-a79de5458b56
-	gopkg.in/ini.v1 v1.62.0
+	gopkg.in/ini.v1 v1.66.2
 )
 
 replace github.com/keybase/go-keychain => github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4

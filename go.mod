@@ -12,7 +12,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.14.0
 	github.com/google/go-cmp v0.5.6
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/mtibben/androiddnsfix v0.0.0-20200907095054-ff0280446354
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	golang.org/x/crypto v0.0.0-20220112180741-5e0467b6c7ce
 	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9

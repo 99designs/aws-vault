@@ -118,6 +118,20 @@ session_tags = key1=value1,key2=value2,key3=value3
 transitive_session_tags = key1,key2
 ```
 
+#### `source_identity`
+
+It is possible to set [source identity](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_control-access_monitor.html) when `AssumeRole` is used. Custom config variable `source_identity` allows you to set the value.
+
+```ini
+[profile root]
+region=eu-west-1
+
+[profile order-dev]
+source_profile = root
+role_arn=arn:aws:iam::123456789:role/developers
+source_identity=your_user_name
+```
+
 
 ### Environment variables
 
@@ -153,6 +167,8 @@ To override or set session tagging (used in `exec`):
 * `AWS_SESSION_TAGS`: Comma separated key-value list of tags passed with the `AssumeRole` call, overrides `session_tags` profile config variable
 * `AWS_TRANSITIVE_TAGS`: Comma separated list of transitive tags passed with the `AssumeRole` call, overrides `transitive_session_tags` profile config variable
 
+To override or set the source identity (used in `exec` and `login`):
+* `AWS_SOURCE_IDENTITY`: Specifies the source identity for assumed role sessions
 
 ## Backends
 

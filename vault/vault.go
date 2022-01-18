@@ -112,6 +112,7 @@ func NewAssumeRoleProvider(credsProvider aws.CredentialsProvider, k keyring.Keyr
 		Duration:          config.AssumeRoleDuration,
 		Tags:              config.SessionTags,
 		TransitiveTagKeys: config.TransitiveSessionTags,
+		SourceIdentity:    config.SourceIdentity,
 		Mfa: Mfa{
 			MfaSerial:       config.MfaSerial,
 			MfaToken:        config.MfaToken,

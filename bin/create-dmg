@@ -3,33 +3,29 @@
 # create-dmg packages the aws-vault CLI binary for macOS
 # using Apple's signing and notorizing process
 #
+#
+# As per https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
+# AC_PASSWORD can be set in your keychain with:
+#     xcrun notarytool store-credentials "AC_PASSWORD"
+#               --apple-id "AC_USERNAME"
+#               --team-id <WWDRTeamID>
+#               --password <secret_2FA_password>
+#
 
 set -euo pipefail
 
-notarization_status() {
-  xcrun altool --notarization-info "$1" --username "$APPLE_ID_USERNAME" --password "$APPLE_ID_APP_PASSWORD" 2>&1 \
-    | awk -F ': ' '/Status:/ { print $2; }'
-}
-
-get_apple_id() {
-  /usr/libexec/PlistBuddy -c "print :Accounts:0:AccountID" ~/Library/Preferences/MobileMeAccounts.plist
-}
-
 BIN_PATH="$1"
 DMG_PATH="${2:-$1.dmg}"
-APPLE_ID_USERNAME="${APPLE_ID_USERNAME:-$(get_apple_id)}"
-APPLE_ID_APP_PASSWORD="${APPLE_ID_APP_PASSWORD:-"@keychain:AC_PASSWORD"}"
 CERT_ID="${CERT_ID:-"Developer ID Application: 99designs Inc (NRM9HVJ62Z)"}"
-BUNDLE_ID="${BUNDLE_ID:-"com.99designs.aws-vault"}"
+KEYCHAIN_PROFILE="${KEYCHAIN_PROFILE:-AC_PASSWORD}"
 
 if [[ -f "$DMG_PATH" ]] ; then
   echo "File '$DMG_PATH' already exists. Remove it and try again"
   exit 1
 fi
 
-tmplog=$(mktemp)
 tmpdir="$(mktemp -d)"
-trap "rm -rf $tmpdir $tmplog" EXIT
+trap "rm -rf $tmpdir" EXIT
 
 cp -a $BIN_PATH $tmpdir/aws-vault
 src_path="$tmpdir/aws-vault"
@@ -44,26 +40,7 @@ echo "Signing dmg"
 codesign --timestamp --sign "$CERT_ID" "$DMG_PATH"
 
 echo "Submitting notorization request"
-if ! xcrun altool --notarize-app --primary-bundle-id "$BUNDLE_ID" --username "$APPLE_ID_USERNAME" --password "$APPLE_ID_APP_PASSWORD" --file $DMG_PATH > $tmplog 2>&1 ; then
-  cat $tmplog
-  exit 1
-fi
-request_uuid=$(cat "$tmplog" | awk '/RequestUUID/ { print $NF; }')
-echo "Finished submitting, got Request UUID $request_uuid"
-
-echo -n "Waiting for notorization to complete..."
-status=$(notarization_status "$request_uuid")
-last_status=""
-while [[ "$status" != "success" ]] ; do
-  echo -n .
-  sleep 10
-  status=$(notarization_status "$request_uuid")
-  if [[ "$status" != "$last_status" ]] ; then
-    echo -n "$status"
-    last_status="$status"
-  fi
-done
-echo
+xcrun notarytool submit $DMG_PATH --keychain-profile "$KEYCHAIN_PROFILE" --wait
 
 echo "Stapling"
 xcrun stapler staple -q $DMG_PATH

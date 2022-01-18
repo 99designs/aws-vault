@@ -9,7 +9,7 @@ require (
 	github.com/alecthomas/units v0.0.0-20210208195552-ff826a37aa15 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.13.0
 	github.com/aws/aws-sdk-go-v2/service/iam v1.5.0
-	github.com/aws/aws-sdk-go-v2/service/sso v1.2.1
+	github.com/aws/aws-sdk-go-v2/service/sso v1.9.0
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.10.0
 	github.com/aws/aws-sdk-go-v2/service/sts v1.4.1
 	github.com/danieljoos/wincred v1.1.0 // indirect

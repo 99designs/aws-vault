@@ -18,7 +18,7 @@ You can install AWS Vault:
 - on macOS with [MacPorts](https://ports.macports.org/port/aws-vault/summary): `port install aws-vault`
 - on Windows with [Chocolatey](https://chocolatey.org/packages/aws-vault): `choco install aws-vault`
 - on Windows with [Scoop](https://scoop.sh/): `scoop install aws-vault`
-- on Linux with [Homebrew on Linux](https://formulae.brew.sh/formula-linux/aws-vault): `brew install aws-vault`
+- on Linux with [Homebrew on Linux](https://formulae.brew.sh/formula/aws-vault): `brew install aws-vault`
 - on [Arch Linux](https://www.archlinux.org/packages/community/x86_64/aws-vault/): `pacman -S aws-vault`
 - on [FreeBSD](https://www.freshports.org/security/aws-vault/): `pkg install aws-vault`
 - on [OpenSUSE](https://software.opensuse.org/package/aws-vault): enable devel:languages:go repo then `zypper install aws-vault`

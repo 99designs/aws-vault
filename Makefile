@@ -27,7 +27,7 @@ clean:
 
 release: binaries dmgs SHA256SUMS
 
-	@echo "\nTo create a new release run:\n\n    gh release create --title $(VERSION) $(VERSION) \
+	@echo "\nTo create a new release run:\n\n    gh release create --title v$(VERSION) v$(VERSION) \
 	aws-vault-darwin-amd64.dmg \
 	aws-vault-darwin-arm64.dmg \
 	aws-vault-freebsd-amd64 \

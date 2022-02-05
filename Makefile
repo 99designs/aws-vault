@@ -19,7 +19,7 @@ install: aws-vault
 	rm -f $(INSTALL_DIR)/aws-vault
 	cp -a ./aws-vault $(INSTALL_DIR)/aws-vault
 
-binaries: aws-vault-linux-amd64 aws-vault-linux-arm64 aws-vault-linux-ppc64le aws-vault-linux-arm7 aws-vault-darwin-amd64 aws-vault-darwin-arm64 aws-vault-windows-386.exe aws-vault-freebsd-amd64
+binaries: aws-vault-linux-amd64 aws-vault-linux-arm64 aws-vault-linux-ppc64le aws-vault-linux-arm7 aws-vault-darwin-amd64 aws-vault-darwin-arm64 aws-vault-windows-386.exe aws-vault-windows-arm64.exe aws-vault-freebsd-amd64
 dmgs: aws-vault-darwin-amd64.dmg aws-vault-darwin-arm64.dmg
 
 clean:
@@ -36,6 +36,7 @@ release: binaries dmgs SHA256SUMS
 	aws-vault-linux-arm7 \
 	aws-vault-linux-ppc64le \
 	aws-vault-windows-386.exe \
+	aws-vault-windows-arm64.exe \
 	SHA256SUMS\n"
 
 	@echo "\nTo update homebrew-cask run:\n\n    brew bump-cask-pr --version $(shell echo $(VERSION) | sed 's/v\(.*\)/\1/') aws-vault\n"
@@ -64,6 +65,9 @@ aws-vault-linux-arm7: $(SRC)
 aws-vault-windows-386.exe: $(SRC)
 	GOOS=windows GOARCH=386 go build $(BUILD_FLAGS) -o $@ .
 
+aws-vault-windows-arm64.exe: $(SRC)
+	GOOS=windows GOARCH=arm64 go build $(BUILD_FLAGS) -o $@ .
+
 aws-vault-darwin-amd64.dmg: aws-vault-darwin-amd64
 	./bin/create-dmg aws-vault-darwin-amd64 $@
 
@@ -80,4 +84,5 @@ SHA256SUMS: binaries dmgs
 	  aws-vault-linux-arm7 \
 	  aws-vault-linux-ppc64le \
 	  aws-vault-windows-386.exe \
+	  aws-vault-windows-arm64.exe \
 	    > $@

@@ -175,6 +175,7 @@ func NewSSORoleCredentialsProvider(k keyring.Keyring, config *Config) (aws.Crede
 		SSOClient:  sso.NewFromConfig(cfg),
 		AccountID:  config.SSOAccountID,
 		RoleName:   config.SSORoleName,
+		UseStdout:  config.SSOUseStdout,
 	}
 
 	if UseSessionCache {

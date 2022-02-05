@@ -544,6 +544,9 @@ type Config struct {
 	// SSORoleName specifies the AWS SSO Role name to target.
 	SSORoleName string
 
+	// SSOUseStdout specifies that the system browser should not be automatically opened
+	SSOUseStdout bool
+
 	// SessionTags specifies assumed role Session Tags
 	SessionTags map[string]string
 

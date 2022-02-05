@@ -31,6 +31,7 @@ type SSORoleCredentialsProvider struct {
 	SSOClient      *sso.Client
 	AccountID      string
 	RoleName       string
+	UseStdout      bool
 }
 
 func millisecondsTimeValue(v int64) time.Time {
@@ -130,10 +131,14 @@ func (p *SSORoleCredentialsProvider) newOIDCToken() (*ssooidc.CreateTokenOutput,
 	}
 	log.Printf("Created OIDC device code for %s (expires in: %ds)", p.StartURL, deviceCreds.ExpiresIn)
 
-	log.Println("Opening SSO authorization page in browser")
-	fmt.Fprintf(os.Stderr, "Opening the SSO authorization page in your default browser (use Ctrl-C to abort)\n%s\n", aws.ToString(deviceCreds.VerificationUriComplete))
-	if err := open.Run(aws.ToString(deviceCreds.VerificationUriComplete)); err != nil {
-		log.Printf("Failed to open browser: %s", err)
+	if p.UseStdout {
+		fmt.Fprintf(os.Stderr, "Open the SSO authorization page in a browser (use Ctrl-C to abort)\n%s\n", aws.ToString(deviceCreds.VerificationUriComplete))
+	} else {
+		log.Println("Opening SSO authorization page in browser")
+		fmt.Fprintf(os.Stderr, "Opening the SSO authorization page in your default browser (use Ctrl-C to abort)\n%s\n", aws.ToString(deviceCreds.VerificationUriComplete))
+		if err := open.Run(aws.ToString(deviceCreds.VerificationUriComplete)); err != nil {
+			log.Printf("Failed to open browser: %s", err)
+		}
 	}
 
 	// These are the default values defined in the following RFC:

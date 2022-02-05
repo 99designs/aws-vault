@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mitchellh/go-homedir"
 	ini "gopkg.in/ini.v1"
 )
 
@@ -41,7 +40,7 @@ type ConfigFile struct {
 func configPath() (string, error) {
 	file := os.Getenv("AWS_CONFIG_FILE")
 	if file == "" {
-		home, err := homedir.Dir()
+		home, err := os.UserHomeDir()
 		if err != nil {
 			return "", err
 		}

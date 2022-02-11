@@ -19,12 +19,13 @@ import (
 )
 
 type LoginCommandInput struct {
-	ProfileName     string
-	UseStdout       bool
-	Path            string
-	Config          vault.Config
-	SessionDuration time.Duration
-	NoSession       bool
+	ProfileName                      string
+	UseStdout                        bool
+	Path                             string
+	Config                           vault.Config
+	SessionDuration                  time.Duration
+	NoSession                        bool
+	SourceCredentialsFromEnvironment bool
 }
 
 func ConfigureLoginCommand(app *kingpin.Application, a *AwsVault) {
@@ -55,9 +56,11 @@ func ConfigureLoginCommand(app *kingpin.Application, a *AwsVault) {
 		BoolVar(&input.UseStdout)
 
 	cmd.Arg("profile", "Name of the profile").
-		Required().
 		HintAction(a.MustGetProfileNames).
 		StringVar(&input.ProfileName)
+
+	cmd.Flag("from-env", "Use temporary STS credentials available in the environment").
+		BoolVar(&input.SourceCredentialsFromEnvironment)
 
 	cmd.Action(func(c *kingpin.ParseContext) (err error) {
 		input.Config.MfaPromptMethod = a.PromptDriver
@@ -82,6 +85,11 @@ func ConfigureLoginCommand(app *kingpin.Application, a *AwsVault) {
 func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.Keyring) error {
 	vault.UseSession = !input.NoSession
 
+	// Require that either the profile name is set, either credentials should be sourced from the environment
+	if !input.SourceCredentialsFromEnvironment && input.ProfileName == "" {
+		return fmt.Errorf("required argument 'profile' not provided")
+	}
+
 	configLoader := vault.ConfigLoader{
 		File:          f,
 		BaseConfig:    input.Config,
@@ -94,22 +102,37 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 
 	var credsProvider aws.CredentialsProvider
 
-	ckr := &vault.CredentialKeyring{Keyring: keyring}
-	// If AssumeRole or sso.GetRoleCredentials isn't used, GetFederationToken has to be used for IAM credentials
-	if config.HasRole() || config.HasSSOStartURL() {
-		credsProvider, err = vault.NewTempCredentialsProvider(config, ckr)
+	if input.SourceCredentialsFromEnvironment {
+		// Source credentials from environment variables
+		credsProvider, err = vault.NewEnvironmentCredentialsProvider()
+		if err != nil {
+			return fmt.Errorf("using credentials from environment: %w", err)
+		}
 	} else {
-		credsProvider, err = vault.NewFederationTokenCredentialsProvider(input.ProfileName, ckr, config)
-	}
-	if err != nil {
-		return fmt.Errorf("profile %s: %w", input.ProfileName, err)
+		// Use a profile from the AWS config file
+		ckr := &vault.CredentialKeyring{Keyring: keyring}
+		if config.HasRole() || config.HasSSOStartURL() {
+			// If AssumeRole or sso.GetRoleCredentials isn't used, GetFederationToken has to be used for IAM credentials
+			credsProvider, err = vault.NewTempCredentialsProvider(config, ckr)
+		} else {
+			credsProvider, err = vault.NewFederationTokenCredentialsProvider(input.ProfileName, ckr, config)
+		}
+		if err != nil {
+			return fmt.Errorf("profile %s: %w", input.ProfileName, err)
+		}
 	}
 
 	creds, err := credsProvider.Retrieve(context.TODO())
 	if err != nil {
 		return fmt.Errorf("Failed to get credentials for %s: %w", config.ProfileName, err)
 	}
-
+	if creds.SessionToken == "" {
+		// When sourcing credentials from the environment, it's possible a session token wasn't set
+		// Generating a sign-in link requires temporary credentials, so we return an error
+		// NOTE: We deliberately chose to have this logic here rather than in 'EnvironmentVariablesCredentialsProvider'
+		// to make it possible to reuse it for other commands than `aws-vault login` in the future
+		return fmt.Errorf("failed to retrieve a session token. Cannot generate a login URL without it")
+	}
 	jsonBytes, err := json.Marshal(map[string]string{
 		"sessionId":    creds.AccessKeyID,
 		"sessionKey":   creds.SecretAccessKey,

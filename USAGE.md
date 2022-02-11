@@ -304,6 +304,14 @@ You can use the `aws-vault login` command to open a browser window and login to 
 $ aws-vault login work
 ```
 
+If you have temporary STS credentials already available in your environment, you can have aws-vault use these credentials to sign you in.
+This is useful when you had to use something else than aws-vault to retrieve temporary credentials:
+
+```shell
+# AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_SESSION_TOKEN must be set in your environment prior to running the below
+$ aws-vault login --from-env
+```
+
 ### Removing stored sessions
 
 If you want to remove sessions managed by `aws-vault` before they expire, you can do this with `aws-vault clear` command.

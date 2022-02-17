@@ -5,7 +5,6 @@ import (
 
 	"github.com/99designs/aws-vault/v6/cli"
 	"github.com/alecthomas/kingpin"
-	_ "github.com/mtibben/androiddnsfix"
 )
 
 // Version is provided at compile time

@@ -1,3 +1,4 @@
+//go:build !darwin && !freebsd && !openbsd && !linux
 // +build !darwin,!freebsd,!openbsd,!linux
 
 package server

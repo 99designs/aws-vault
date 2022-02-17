@@ -24,15 +24,15 @@ SERIAL_NUMBER=$(aws iam create-virtual-mfa-device \
   --query VirtualMFADevice.SerialNumber \
   --output text)
 
-ykman oath add -ft "$SERIAL_NUMBER" < "$OUTFILE" 2> /dev/null
+ykman oath accounts add -ft "$SERIAL_NUMBER" < "$OUTFILE" 2> /dev/null
 
-CODE1=$(ykman oath code -s "$SERIAL_NUMBER")
+CODE1=$(ykman oath accounts code -s "$SERIAL_NUMBER")
 
 WAIT_TIME=$((30-$(date +%s)%30))
 echo "Waiting $WAIT_TIME seconds before generating a second code" >&2
 sleep $WAIT_TIME
 
-CODE2=$(ykman oath code -s "$SERIAL_NUMBER")
+CODE2=$(ykman oath accounts code -s "$SERIAL_NUMBER")
 
 aws iam enable-mfa-device \
   --user-name "$USERNAME" \

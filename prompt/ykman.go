@@ -10,7 +10,7 @@ import (
 )
 
 // YkmanProvider runs ykman to generate a OATH-TOTP token from the Yubikey device
-// To set up ykman, first run `ykman oath add`
+// To set up ykman, first run `ykman oath accounts add`
 func YkmanMfaProvider(mfaSerial string) (string, error) {
 	args := []string{}
 

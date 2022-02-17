@@ -1,7 +1,6 @@
 # AWS Vault
 
 [![Downloads](https://img.shields.io/github/downloads/99designs/aws-vault/total.svg)](https://github.com/99designs/aws-vault/releases)
-[![Go Report Card](https://goreportcard.com/badge/github.com/99designs/aws-vault)](https://goreportcard.com/report/github.com/99designs/aws-vault)
 [![Continuous Integration](https://github.com/99designs/aws-vault/workflows/Continuous%20Integration/badge.svg)](https://github.com/99designs/aws-vault/actions)
 
 AWS Vault is a tool to securely store and access AWS credentials in a development environment.
@@ -18,11 +17,12 @@ You can install AWS Vault:
 - on macOS with [MacPorts](https://ports.macports.org/port/aws-vault/summary): `port install aws-vault`
 - on Windows with [Chocolatey](https://chocolatey.org/packages/aws-vault): `choco install aws-vault`
 - on Windows with [Scoop](https://scoop.sh/): `scoop install aws-vault`
-- on Linux with [Homebrew on Linux](https://formulae.brew.sh/formula-linux/aws-vault): `brew install aws-vault`
+- on Linux with [Homebrew on Linux](https://formulae.brew.sh/formula/aws-vault): `brew install aws-vault`
 - on [Arch Linux](https://www.archlinux.org/packages/community/x86_64/aws-vault/): `pacman -S aws-vault`
 - on [FreeBSD](https://www.freshports.org/security/aws-vault/): `pkg install aws-vault`
+- on [OpenSUSE](https://software.opensuse.org/package/aws-vault): enable devel:languages:go repo then `zypper install aws-vault`
 - with [Nix](https://nixos.org/nixos/packages.html?attr=aws-vault): `nix-env -i aws-vault`
-- on [OpenSUSE](https://software.opensuse.org/package/aws-vault): enable devel:languages:go repo then `zypper install aws-vault` (sometimes version lags)
+- with [asdf-vm](https://github.com/karancode/asdf-aws-vault): `asdf plugin-add aws-vault https://github.com/karancode/asdf-aws-vault.git && asdf install aws-vault <version>`
 
 ## Documentation
 
@@ -121,7 +121,7 @@ role_arn = arn:aws:iam::333333333333:role/Role2
 mfa_serial = arn:aws:iam::111111111111:mfa/jonsmith
 ```
 
-Here's what you can expect from aws-vault 
+Here's what you can expect from aws-vault
 
 | Command                                  | Credentials                 | Cached        | MFA |
 |------------------------------------------|-----------------------------|---------------|-----|

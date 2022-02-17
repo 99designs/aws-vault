@@ -5,16 +5,21 @@ SRC=$(shell find . -name '*.go') go.mod
 INSTALL_DIR ?= ~/bin
 .PHONY: binaries clean release install
 
+ifeq ($(shell uname), Darwin)
 aws-vault: $(SRC)
-	go build -ldflags="-X main.Version=$(VERSION)" .
+	go build -ldflags="-X main.Version=$(VERSION)" -o $@ .
+	codesign --options runtime --timestamp --sign "$(CERT_ID)" $@
+else
+aws-vault: $(SRC)
+	go build -ldflags="-X main.Version=$(VERSION)" -o $@ .
+endif
 
 install: aws-vault
 	mkdir -p $(INSTALL_DIR)
 	rm -f $(INSTALL_DIR)/aws-vault
-	cp -a ./aws-vault $(INSTALL_DIR)
-	codesign --options runtime --timestamp --sign "$(CERT_ID)" $(INSTALL_DIR)/aws-vault || true
+	cp -a ./aws-vault $(INSTALL_DIR)/aws-vault
 
-binaries: aws-vault-linux-amd64 aws-vault-linux-arm64 aws-vault-linux-ppc64le aws-vault-linux-arm7 aws-vault-android-arm64 aws-vault-darwin-amd64 aws-vault-darwin-arm64 aws-vault-windows-386.exe aws-vault-freebsd-amd64
+binaries: aws-vault-linux-amd64 aws-vault-linux-arm64 aws-vault-linux-ppc64le aws-vault-linux-arm7 aws-vault-darwin-amd64 aws-vault-darwin-arm64 aws-vault-windows-386.exe aws-vault-windows-arm64.exe aws-vault-freebsd-amd64
 dmgs: aws-vault-darwin-amd64.dmg aws-vault-darwin-arm64.dmg
 
 clean:
@@ -23,7 +28,6 @@ clean:
 release: binaries dmgs SHA256SUMS
 
 	@echo "\nTo create a new release run:\n\n    gh release create --title $(VERSION) $(VERSION) \
-	aws-vault-android-arm64 \
 	aws-vault-darwin-amd64.dmg \
 	aws-vault-darwin-arm64.dmg \
 	aws-vault-freebsd-amd64 \
@@ -32,6 +36,7 @@ release: binaries dmgs SHA256SUMS
 	aws-vault-linux-arm7 \
 	aws-vault-linux-ppc64le \
 	aws-vault-windows-386.exe \
+	aws-vault-windows-arm64.exe \
 	SHA256SUMS\n"
 
 	@echo "\nTo update homebrew-cask run:\n\n    brew bump-cask-pr --version $(shell echo $(VERSION) | sed 's/v\(.*\)/\1/') aws-vault\n"
@@ -57,11 +62,11 @@ aws-vault-linux-ppc64le: $(SRC)
 aws-vault-linux-arm7: $(SRC)
 	GOOS=linux GOARCH=arm GOARM=7 go build $(BUILD_FLAGS) -o $@ .
 
-aws-vault-android-arm64: $(SRC)
-	GOOS=linux GOARCH=arm64 go build -tags='androiddnsfix' $(BUILD_FLAGS) -o $@ .
-
 aws-vault-windows-386.exe: $(SRC)
 	GOOS=windows GOARCH=386 go build $(BUILD_FLAGS) -o $@ .
+
+aws-vault-windows-arm64.exe: $(SRC)
+	GOOS=windows GOARCH=arm64 go build $(BUILD_FLAGS) -o $@ .
 
 aws-vault-darwin-amd64.dmg: aws-vault-darwin-amd64
 	./bin/create-dmg aws-vault-darwin-amd64 $@
@@ -71,7 +76,6 @@ aws-vault-darwin-arm64.dmg: aws-vault-darwin-arm64
 
 SHA256SUMS: binaries dmgs
 	shasum -a 256 \
-	  aws-vault-android-arm64 \
 	  aws-vault-darwin-amd64.dmg \
 	  aws-vault-darwin-arm64.dmg \
 	  aws-vault-freebsd-amd64 \
@@ -80,4 +84,5 @@ SHA256SUMS: binaries dmgs
 	  aws-vault-linux-arm7 \
 	  aws-vault-linux-ppc64le \
 	  aws-vault-windows-386.exe \
+	  aws-vault-windows-arm64.exe \
 	    > $@

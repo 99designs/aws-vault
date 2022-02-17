@@ -15,7 +15,6 @@ import (
 
 var keyringConfigDefaults = keyring.Config{
 	ServiceName:              "aws-vault",
-	FileDir:                  "~/.awsvault/keys/",
 	FilePasswordFunc:         fileKeyringPassphrasePrompt,
 	LibSecretCollectionName:  "awsvault",
 	KWalletAppID:             "aws-vault",
@@ -115,6 +114,11 @@ func ConfigureGlobals(app *kingpin.Application) *AwsVault {
 	app.Flag("pass-prefix", "Prefix to prepend to the item path stored in pass").
 		Envar("AWS_VAULT_PASS_PREFIX").
 		StringVar(&a.KeyringConfig.PassPrefix)
+
+	app.Flag("file-dir", "Directory for the \"file\" password store").
+		Default("~/.awsvault/keys/").
+		Envar("AWS_VAULT_FILE_DIR").
+		StringVar(&a.KeyringConfig.FileDir)
 
 	app.PreAction(func(c *kingpin.ParseContext) error {
 		if !a.Debug {

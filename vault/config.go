@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/mitchellh/go-homedir"
 	ini "gopkg.in/ini.v1"
 )
 
@@ -41,7 +40,7 @@ type ConfigFile struct {
 func configPath() (string, error) {
 	file := os.Getenv("AWS_CONFIG_FILE")
 	if file == "" {
-		home, err := homedir.Dir()
+		home, err := os.UserHomeDir()
 		if err != nil {
 			return "", err
 		}
@@ -147,6 +146,7 @@ type ProfileSection struct {
 	STSRegionalEndpoints    string `ini:"sts_regional_endpoints,omitempty"`
 	SessionTags             string `ini:"session_tags,omitempty"`
 	TransitiveSessionTags   string `ini:"transitive_session_tags,omitempty"`
+	SourceIdentity          string `ini:"source_identity,omitempty"`
 }
 
 func (s ProfileSection) IsEmpty() bool {
@@ -328,6 +328,9 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 	if config.STSRegionalEndpoints == "" {
 		config.STSRegionalEndpoints = psection.STSRegionalEndpoints
 	}
+	if config.SourceIdentity == "" {
+		config.SourceIdentity = psection.SourceIdentity
+	}
 	if sessionTags := psection.SessionTags; sessionTags != "" && config.SessionTags == nil {
 		err := config.SetSessionTags(sessionTags)
 		if err != nil {
@@ -417,7 +420,7 @@ func (cl *ConfigLoader) populateFromEnv(profile *Config) {
 		}
 	}
 
-	// AWS_ROLE_ARN, AWS_ROLE_SESSION_NAME, AWS_SESSION_TAGS and AWS_TRANSITIVE_TAGS only apply to the target profile
+	// AWS_ROLE_ARN, AWS_ROLE_SESSION_NAME, AWS_SESSION_TAGS, AWS_TRANSITIVE_TAGS and AWS_SOURCE_IDENTITY only apply to the target profile
 	if profile.ProfileName == cl.ActiveProfile {
 		if roleARN := os.Getenv("AWS_ROLE_ARN"); roleARN != "" && profile.RoleARN == "" {
 			log.Printf("Using role_arn %q from AWS_ROLE_ARN", roleARN)
@@ -440,6 +443,11 @@ func (cl *ConfigLoader) populateFromEnv(profile *Config) {
 		if transitiveSessionTags := os.Getenv("AWS_TRANSITIVE_TAGS"); transitiveSessionTags != "" && profile.TransitiveSessionTags == nil {
 			profile.SetTransitiveSessionTags(transitiveSessionTags)
 			log.Printf("Using transitive_session_tags %v from AWS_TRANSITIVE_TAGS", profile.TransitiveSessionTags)
+		}
+
+		if sourceIdentity := os.Getenv("AWS_SOURCE_IDENTITY"); sourceIdentity != "" && profile.SourceIdentity == "" {
+			profile.SourceIdentity = sourceIdentity
+			log.Printf("Using source_identity %v from AWS_SOURCE_IDENTITY", profile.SourceIdentity)
 		}
 	}
 }
@@ -536,11 +544,17 @@ type Config struct {
 	// SSORoleName specifies the AWS SSO Role name to target.
 	SSORoleName string
 
+	// SSOUseStdout specifies that the system browser should not be automatically opened
+	SSOUseStdout bool
+
 	// SessionTags specifies assumed role Session Tags
 	SessionTags map[string]string
 
 	// TransitiveSessionTags specifies assumed role Transitive Session Tags keys
 	TransitiveSessionTags []string
+
+	// SourceIdentity specifies assumed role Source Identity
+	SourceIdentity string
 }
 
 // SetSessionTags parses a comma separated key=vaue string and sets Config.SessionTags map

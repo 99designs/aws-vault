@@ -19,13 +19,12 @@ import (
 )
 
 type LoginCommandInput struct {
-	ProfileName                      string
-	UseStdout                        bool
-	Path                             string
-	Config                           vault.Config
-	SessionDuration                  time.Duration
-	NoSession                        bool
-	SourceCredentialsFromEnvironment bool
+	ProfileName     string
+	UseStdout       bool
+	Path            string
+	Config          vault.Config
+	SessionDuration time.Duration
+	NoSession       bool
 }
 
 func ConfigureLoginCommand(app *kingpin.Application, a *AwsVault) {
@@ -59,9 +58,6 @@ func ConfigureLoginCommand(app *kingpin.Application, a *AwsVault) {
 		HintAction(a.MustGetProfileNames).
 		StringVar(&input.ProfileName)
 
-	cmd.Flag("from-env", "Use temporary STS credentials available in the environment").
-		BoolVar(&input.SourceCredentialsFromEnvironment)
-
 	cmd.Action(func(c *kingpin.ParseContext) (err error) {
 		input.Config.MfaPromptMethod = a.PromptDriver
 		input.Config.NonChainedGetSessionTokenDuration = input.SessionDuration
@@ -85,11 +81,6 @@ func ConfigureLoginCommand(app *kingpin.Application, a *AwsVault) {
 func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.Keyring) error {
 	vault.UseSession = !input.NoSession
 
-	// Require that either the profile name is set, either credentials should be sourced from the environment
-	if !input.SourceCredentialsFromEnvironment && input.ProfileName == "" {
-		return fmt.Errorf("required argument 'profile' not provided")
-	}
-
 	configLoader := vault.ConfigLoader{
 		File:          f,
 		BaseConfig:    input.Config,
@@ -102,8 +93,8 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 
 	var credsProvider aws.CredentialsProvider
 
-	if input.SourceCredentialsFromEnvironment {
-		// Source credentials from environment variables
+	if input.ProfileName == "" {
+		// When no profile is specified, source credentials from the environment
 		credsProvider, err = vault.NewEnvironmentCredentialsProvider()
 		if err != nil {
 			return fmt.Errorf("using credentials from environment: %w", err)
@@ -124,7 +115,7 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 
 	creds, err := credsProvider.Retrieve(context.TODO())
 	if err != nil {
-		return fmt.Errorf("Failed to get credentials for %s: %w", config.ProfileName, err)
+		return fmt.Errorf("Failed to get credentials: %w", err)
 	}
 	if creds.SessionToken == "" {
 		// When sourcing credentials from the environment, it's possible a session token wasn't set

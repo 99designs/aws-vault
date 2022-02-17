@@ -24,7 +24,8 @@ func (m *EnvironmentVariablesCredentialsProvider) Retrieve(context.Context) (cre
 
 	if accessKeyId == "" || secretAccessKey == "" {
 		err := fmt.Errorf(
-			"missing AWS credentials in your environment.\n You need to set at least %s and %s.",
+			"missing AWS credentials in your environment.\n You need to set at least %s and %s, "+
+				"or use use aws-vault login <profile> to source credentials from your keychain",
 			accessKeyIdEnvKey, secretAccessKeyEnvKey,
 		)
 		return aws.Credentials{}, err

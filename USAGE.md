@@ -309,7 +309,7 @@ This is useful when you had to use something else than aws-vault to retrieve tem
 
 ```shell
 # AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_SESSION_TOKEN must be set in your environment prior to running the below
-$ aws-vault login --from-env
+$ aws-vault login
 ```
 
 ### Removing stored sessions

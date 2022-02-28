@@ -8,7 +8,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.14.0
 	github.com/aws/aws-sdk-go-v2/service/iam v1.17.0
 	github.com/aws/aws-sdk-go-v2/service/sso v1.10.0
-	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.10.0
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.11.0
 	github.com/aws/aws-sdk-go-v2/service/sts v1.14.0
 	github.com/google/go-cmp v0.5.7
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966

@@ -6,7 +6,7 @@ require (
 	github.com/99designs/keyring v1.2.0
 	github.com/alecthomas/kingpin v0.0.0-20200323085623-b6657d9477a6
 	github.com/aws/aws-sdk-go-v2 v1.14.0
-	github.com/aws/aws-sdk-go-v2/service/iam v1.16.0
+	github.com/aws/aws-sdk-go-v2/service/iam v1.17.0
 	github.com/aws/aws-sdk-go-v2/service/sso v1.10.0
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.10.0
 	github.com/aws/aws-sdk-go-v2/service/sts v1.14.0

@@ -9,7 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/iam v1.17.0
 	github.com/aws/aws-sdk-go-v2/service/sso v1.10.0
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.11.0
-	github.com/aws/aws-sdk-go-v2/service/sts v1.14.0
+	github.com/aws/aws-sdk-go-v2/service/sts v1.15.0
 	github.com/google/go-cmp v0.5.7
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	golang.org/x/crypto v0.0.0-20220131195533-30dcbda58838
@@ -24,7 +24,7 @@ require (
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.5 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.3.0 // indirect
-	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.7.0 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.8.0 // indirect
 	github.com/aws/smithy-go v1.11.0 // indirect
 	github.com/danieljoos/wincred v1.1.2 // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect

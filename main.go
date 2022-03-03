@@ -23,6 +23,7 @@ func main() {
 	cli.ConfigureRemoveCommand(app, a)
 	cli.ConfigureLoginCommand(app, a)
 	cli.ConfigureProxyCommand(app, a)
+	cli.ConfigureEcsRoleServerCommand(app, a)
 
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 }

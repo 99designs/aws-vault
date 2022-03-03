@@ -28,6 +28,7 @@ func ConfigureEcsRoleServerCommand(app *kingpin.Application, a *AwsVault) {
 		HintAction(a.MustGetProfileNames).
 		StringVar(&input.ProfileName)
 	cmd.Flag("auth-token", "Token required in the Authorization header of the request").
+		Envar("AWS_VAULT_ECS_ROLE_SERVER_AUTH_TOKEN").
 		StringVar(&input.AuthToken)
 	cmd.Flag("port", "Port to listen on").
 		Short('p').

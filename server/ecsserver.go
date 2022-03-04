@@ -95,7 +95,7 @@ func generateRandomString() string {
 	return base64.RawURLEncoding.EncodeToString(b)
 }
 
-func StartStandaloneEcsRoleCredentialServer(credsProvider aws.CredentialsProvider, config *vault.Config, authToken string, port int, roleDuration time.Duration) error {
+func StartStandaloneEcsRoleCredentialServer(ctx context.Context, credsProvider aws.CredentialsProvider, config *vault.Config, authToken string, port int, roleDuration time.Duration) error {
 	listener, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
 	if err != nil {
 		return err
@@ -103,6 +103,14 @@ func StartStandaloneEcsRoleCredentialServer(credsProvider aws.CredentialsProvide
 
 	if authToken == "" {
 		authToken = generateRandomString()
+	}
+
+	credsCache := aws.NewCredentialsCache(credsProvider)
+
+	// Retrieve credentials eagerly to support MFA prompts
+	_, err = credsCache.Retrieve(ctx)
+	if err != nil {
+		return fmt.Errorf("Retrieving base creds: %w", err)
 	}
 
 	fmt.Println("Starting standalone ECS credential server.")
@@ -118,14 +126,14 @@ func StartStandaloneEcsRoleCredentialServer(credsProvider aws.CredentialsProvide
 
 	router.HandleFunc("/role-arn/", func(w http.ResponseWriter, r *http.Request) {
 		roleArn := strings.TrimPrefix(r.URL.Path, "/role-arn/")
-		cfg := vault.NewAwsConfigWithCredsProvider(credsProvider, config.Region, config.STSRegionalEndpoints)
+		cfg := vault.NewAwsConfigWithCredsProvider(credsCache, config.Region, config.STSRegionalEndpoints)
 		roleProvider := &vault.AssumeRoleProvider{
 			StsClient: sts.NewFromConfig(cfg),
 			RoleARN:   roleArn,
 			Duration:  roleDuration,
 		}
 
-		creds, err := roleProvider.Retrieve(context.TODO())
+		creds, err := roleProvider.Retrieve(ctx)
 		if err != nil {
 			writeErrorMessage(w, err.Error(), http.StatusInternalServerError)
 			return

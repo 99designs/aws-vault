@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -40,6 +41,8 @@ func ConfigureEcsRoleServerCommand(app *kingpin.Application, a *AwsVault) {
 		DurationVar(&input.RoleSessionDuration)
 
 	cmd.Action(func(c *kingpin.ParseContext) (err error) {
+		input.Config.MfaPromptMethod = a.PromptDriver
+
 		f, err := a.AwsConfigFile()
 		if err != nil {
 			return err
@@ -56,8 +59,6 @@ func ConfigureEcsRoleServerCommand(app *kingpin.Application, a *AwsVault) {
 }
 
 func EcsRoleServerCommand(input EcsServerCommandInput, f *vault.ConfigFile, keyring keyring.Keyring) error {
-	vault.UseSession = false
-
 	configLoader := vault.ConfigLoader{
 		File:          f,
 		BaseConfig:    input.Config,
@@ -74,7 +75,8 @@ func EcsRoleServerCommand(input EcsServerCommandInput, f *vault.ConfigFile, keyr
 		return fmt.Errorf("Error getting temporary credentials: %w", err)
 	}
 
-	err = server.StartStandaloneEcsRoleCredentialServer(credsProvider, config, input.AuthToken, input.Port, input.RoleSessionDuration)
+	ctx := context.Background()
+	err = server.StartStandaloneEcsRoleCredentialServer(ctx, credsProvider, config, input.AuthToken, input.Port, input.RoleSessionDuration)
 	if err != nil {
 		return fmt.Errorf("Failed to start credential server: %w", err)
 	}

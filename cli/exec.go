@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"runtime"
@@ -50,6 +51,12 @@ func (input ExecCommandInput) validate() error {
 	}
 	if input.StartEcsServer && input.NoSession {
 		return fmt.Errorf("Can't use --ecs-server with --no-session")
+	}
+	if input.StartEcsServer && input.Config.MfaPromptMethod == "terminal" {
+		return fmt.Errorf("Can't use --prompt=terminal with --ecs-server. Specifiy a different prompt driver")
+	}
+	if input.StartEc2Server && input.Config.MfaPromptMethod == "terminal" {
+		return fmt.Errorf("Can't use --prompt=terminal with --ec2-server. Specifiy a different prompt driver")
 	}
 
 	return nil
@@ -201,17 +208,23 @@ func execEc2Server(input ExecCommandInput, config *vault.Config, credsProvider a
 }
 
 func execEcsServer(input ExecCommandInput, config *vault.Config, credsProvider aws.CredentialsProvider) error {
-	uri, token, err := server.StartEcsCredentialServer(credsProvider)
-	if err != nil {
-		return fmt.Errorf("Failed to start credential server: %w", err)
-	}
 
-	env := environ(os.Environ())
-	env = updateEnvForAwsVault(env, input.ProfileName, config.Region)
+	ecsServer, err := server.NewEcsServer(credsProvider, config, "", 0)
+	if err != nil {
+		return err
+	}
+	go func() {
+		err = ecsServer.Start()
+		if err != http.ErrServerClosed { // ErrServerClosed is a graceful close
+			log.Fatalf("ecs server: %s", err.Error())
+		}
+	}()
 
 	log.Println("Setting subprocess env AWS_CONTAINER_CREDENTIALS_FULL_URI, AWS_CONTAINER_AUTHORIZATION_TOKEN")
-	env.Set("AWS_CONTAINER_CREDENTIALS_FULL_URI", uri)
-	env.Set("AWS_CONTAINER_AUTHORIZATION_TOKEN", token)
+	env := environ(os.Environ())
+	env = updateEnvForAwsVault(env, input.ProfileName, config.Region)
+	env.Set("AWS_CONTAINER_CREDENTIALS_FULL_URI", ecsServer.BaseUrl())
+	env.Set("AWS_CONTAINER_AUTHORIZATION_TOKEN", ecsServer.AuthToken())
 
 	return execCmd(input.Command, input.Args, env)
 }

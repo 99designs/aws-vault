@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"context"
 	"fmt"
 	"time"
 
@@ -12,11 +11,11 @@ import (
 )
 
 type EcsServerCommandInput struct {
-	ProfileName         string
-	Config              vault.Config
-	AuthToken           string
-	Port                int
-	RoleSessionDuration time.Duration
+	ProfileName     string
+	Config          vault.Config
+	AuthToken       string
+	Port            int
+	SessionDuration time.Duration
 }
 
 func ConfigureEcsRoleServerCommand(app *kingpin.Application, a *AwsVault) {
@@ -33,15 +32,15 @@ func ConfigureEcsRoleServerCommand(app *kingpin.Application, a *AwsVault) {
 		StringVar(&input.AuthToken)
 	cmd.Flag("port", "Port to listen on").
 		Short('p').
-		Default("55777").
 		IntVar(&input.Port)
-	cmd.Flag("duration", "Duration of the assume-role session. Defaults to 1h").
+	cmd.Flag("duration", "Duration of the session").
 		Short('d').
-		Default("1h").
-		DurationVar(&input.RoleSessionDuration)
+		Default("15m").
+		DurationVar(&input.SessionDuration)
 
 	cmd.Action(func(c *kingpin.ParseContext) (err error) {
 		input.Config.MfaPromptMethod = a.PromptDriver
+		input.Config.AssumeRoleDuration = input.SessionDuration
 
 		f, err := a.AwsConfigFile()
 		if err != nil {
@@ -75,10 +74,23 @@ func EcsRoleServerCommand(input EcsServerCommandInput, f *vault.ConfigFile, keyr
 		return fmt.Errorf("Error getting temporary credentials: %w", err)
 	}
 
-	ctx := context.Background()
-	err = server.StartStandaloneEcsRoleCredentialServer(ctx, credsProvider, config, input.AuthToken, input.Port, input.RoleSessionDuration)
+	ecsServer, err := server.NewEcsServer(credsProvider, config, "", input.Port)
 	if err != nil {
-		return fmt.Errorf("Failed to start credential server: %w", err)
+		return err
+	}
+
+	fmt.Println("Starting standalone ECS credential server.")
+	fmt.Println("Set the following environment variables to use the ECS credential server:")
+	fmt.Println("")
+	fmt.Println("      AWS_CONTAINER_AUTHORIZATION_TOKEN=" + ecsServer.AuthToken())
+	fmt.Printf("      AWS_CONTAINER_CREDENTIALS_FULL_URI=%s/role-arn/YOUR_ROLE_ARN\n", ecsServer.BaseUrl())
+	fmt.Println("")
+	fmt.Println("If you wish to use AWS_CONTAINER_CREDENTIALS_RELATIVE_URI=/role-arn/YOUR_ROLE_ARN instead of AWS_CONTAINER_CREDENTIALS_FULL_URI, use a reverse proxy on http://169.254.170.2:80")
+	fmt.Println("")
+
+	err = ecsServer.Start()
+	if err != nil {
+		return err
 	}
 
 	return nil

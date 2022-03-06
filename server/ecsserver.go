@@ -10,7 +10,6 @@ import (
 	"net"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/99designs/aws-vault/v6/iso8601"
 	"github.com/99designs/aws-vault/v6/vault"
@@ -36,44 +35,6 @@ func withAuthorizationCheck(authToken string, next http.HandlerFunc) http.Handle
 	}
 }
 
-// StartEcsCredentialServer starts an ECS credential server on a random port
-func StartEcsCredentialServer(credsProvider aws.CredentialsProvider) (string, string, error) {
-	listener, err := net.Listen("tcp", "127.0.0.1:0")
-	if err != nil {
-		return "", "", err
-	}
-	authToken := generateRandomString()
-	credsCache := aws.NewCredentialsCache(credsProvider)
-
-	// Retrieve credentials eagerly to support MFA prompts
-	_, err = credsCache.Retrieve(context.Background())
-	if err != nil {
-		return "", "", err
-	}
-
-	go func() {
-		err := http.Serve(listener, withLogging(withAuthorizationCheck(authToken, ecsCredsHandler(credsCache))))
-		if err != http.ErrServerClosed { // ErrServerClosed is a graceful close
-			log.Fatalf("ecs server: %s", err.Error())
-		}
-	}()
-
-	uri := fmt.Sprintf("http://%s", listener.Addr().String())
-	return uri, authToken, nil
-}
-
-func ecsCredsHandler(credsCache *aws.CredentialsCache) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		creds, err := credsCache.Retrieve(r.Context())
-		if err != nil {
-			writeErrorMessage(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		writeCredsToResponse(creds, w)
-	}
-}
-
 func writeCredsToResponse(creds aws.Credentials, w http.ResponseWriter) {
 	err := json.NewEncoder(w).Encode(map[string]string{
 		"AccessKeyId":     creds.AccessKeyID,
@@ -95,45 +56,67 @@ func generateRandomString() string {
 	return base64.RawURLEncoding.EncodeToString(b)
 }
 
-func StartStandaloneEcsRoleCredentialServer(ctx context.Context, credsProvider aws.CredentialsProvider, config *vault.Config, authToken string, port int, roleDuration time.Duration) error {
+type EcsServer struct {
+	listener      net.Listener
+	credsProvider aws.CredentialsProvider
+	config        *vault.Config
+	authToken     string
+}
+
+func NewEcsServer(credsProvider aws.CredentialsProvider, config *vault.Config, authToken string, port int) (*EcsServer, error) {
 	listener, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
 	if err != nil {
-		return err
+		return nil, err
 	}
-
 	if authToken == "" {
 		authToken = generateRandomString()
 	}
 
-	credsCache := aws.NewCredentialsCache(credsProvider)
+	return &EcsServer{
+		listener:      listener,
+		credsProvider: credsProvider,
+		config:        config,
+		authToken:     authToken,
+	}, nil
+}
+
+func (e *EcsServer) BaseUrl() string {
+	return fmt.Sprintf("http://%s", e.listener.Addr().String())
+}
+func (e *EcsServer) AuthToken() string {
+	return e.authToken
+}
+
+func (e *EcsServer) Start() error {
+	credsCache := aws.NewCredentialsCache(e.credsProvider)
 
 	// Retrieve credentials eagerly to support MFA prompts
-	_, err = credsCache.Retrieve(ctx)
+	_, err := credsCache.Retrieve(context.TODO())
 	if err != nil {
 		return fmt.Errorf("Retrieving base creds: %w", err)
 	}
 
-	fmt.Println("Starting standalone ECS credential server.")
-	fmt.Println("Set the following environment variables to use the ECS credential server:")
-	fmt.Println("")
-	fmt.Println("      AWS_CONTAINER_AUTHORIZATION_TOKEN=" + authToken)
-	fmt.Printf("      AWS_CONTAINER_CREDENTIALS_FULL_URI=http://127.0.0.1:%d/role-arn/YOUR_ROLE_ARN\n", port)
-	fmt.Println("")
-	fmt.Println("If you wish to use AWS_CONTAINER_CREDENTIALS_RELATIVE_URI=/role-arn/YOUR_ROLE_ARN instead of AWS_CONTAINER_CREDENTIALS_FULL_URI, use a reverse proxy on http://169.254.170.2:80")
-	fmt.Println("")
-
 	router := http.NewServeMux()
+
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		creds, err := credsCache.Retrieve(r.Context())
+		if err != nil {
+			writeErrorMessage(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		writeCredsToResponse(creds, w)
+	})
 
 	router.HandleFunc("/role-arn/", func(w http.ResponseWriter, r *http.Request) {
 		roleArn := strings.TrimPrefix(r.URL.Path, "/role-arn/")
-		cfg := vault.NewAwsConfigWithCredsProvider(credsCache, config.Region, config.STSRegionalEndpoints)
+		cfg := vault.NewAwsConfigWithCredsProvider(credsCache, e.config.Region, e.config.STSRegionalEndpoints)
 		roleProvider := &vault.AssumeRoleProvider{
 			StsClient: sts.NewFromConfig(cfg),
 			RoleARN:   roleArn,
-			Duration:  roleDuration,
+			Duration:  e.config.AssumeRoleDuration,
 		}
 
-		creds, err := roleProvider.Retrieve(ctx)
+		creds, err := roleProvider.Retrieve(r.Context())
 		if err != nil {
 			writeErrorMessage(w, err.Error(), http.StatusInternalServerError)
 			return
@@ -142,10 +125,5 @@ func StartStandaloneEcsRoleCredentialServer(ctx context.Context, credsProvider a
 		writeCredsToResponse(creds, w)
 	})
 
-	err = http.Serve(listener, withLogging(withAuthorizationCheck(authToken, router.ServeHTTP)))
-	if err != http.ErrServerClosed {
-		log.Fatalf("ecs server: %s", err.Error())
-	}
-
-	return nil
+	return http.Serve(e.listener, withLogging(withAuthorizationCheck(e.authToken, router.ServeHTTP)))
 }

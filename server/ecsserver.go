@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"sync"
 
 	"github.com/99designs/aws-vault/v6/iso8601"
 	"github.com/99designs/aws-vault/v6/vault"
@@ -57,13 +58,15 @@ func generateRandomString() string {
 }
 
 type EcsServer struct {
-	listener      net.Listener
-	credsProvider aws.CredentialsProvider
-	config        *vault.Config
-	authToken     string
+	listener          net.Listener
+	authToken         string
+	server            http.Server
+	cache             sync.Map
+	baseCredsProvider aws.CredentialsProvider
+	config            *vault.Config
 }
 
-func NewEcsServer(credsProvider aws.CredentialsProvider, config *vault.Config, authToken string, port int) (*EcsServer, error) {
+func NewEcsServer(baseCredsProvider aws.CredentialsProvider, config *vault.Config, authToken string, port int, lazyLoadBaseCreds bool) (*EcsServer, error) {
 	listener, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
 	if err != nil {
 		return nil, err
@@ -72,12 +75,27 @@ func NewEcsServer(credsProvider aws.CredentialsProvider, config *vault.Config, a
 		authToken = generateRandomString()
 	}
 
-	return &EcsServer{
-		listener:      listener,
-		credsProvider: credsProvider,
-		config:        config,
-		authToken:     authToken,
-	}, nil
+	credsCache := aws.NewCredentialsCache(baseCredsProvider)
+	if !lazyLoadBaseCreds {
+		_, err := credsCache.Retrieve(context.TODO())
+		if err != nil {
+			return nil, fmt.Errorf("Retrieving creds: %w", err)
+		}
+	}
+
+	e := &EcsServer{
+		listener:          listener,
+		authToken:         authToken,
+		baseCredsProvider: credsCache,
+		config:            config,
+	}
+
+	router := http.NewServeMux()
+	router.HandleFunc("/", e.DefaultRoute)
+	router.HandleFunc("/role-arn/", e.AssumeRoleArnRoute)
+	e.server.Handler = withLogging(withAuthorizationCheck(e.authToken, router.ServeHTTP))
+
+	return e, nil
 }
 
 func (e *EcsServer) BaseUrl() string {
@@ -87,43 +105,45 @@ func (e *EcsServer) AuthToken() string {
 	return e.authToken
 }
 
-func (e *EcsServer) Start() error {
-	credsCache := aws.NewCredentialsCache(e.credsProvider)
+func (e *EcsServer) Serve() error {
+	return e.server.Serve(e.listener)
+}
 
-	// Retrieve credentials eagerly to support MFA prompts
-	_, err := credsCache.Retrieve(context.TODO())
+func (e *EcsServer) DefaultRoute(w http.ResponseWriter, r *http.Request) {
+	creds, err := e.baseCredsProvider.Retrieve(r.Context())
 	if err != nil {
-		return fmt.Errorf("Retrieving base creds: %w", err)
+		writeErrorMessage(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
+	writeCredsToResponse(creds, w)
+}
 
-	router := http.NewServeMux()
+func (e *EcsServer) getRoleProvider(roleArn string) aws.CredentialsProvider {
+	var roleProviderCache *aws.CredentialsCache
 
-	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		creds, err := credsCache.Retrieve(r.Context())
-		if err != nil {
-			writeErrorMessage(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		writeCredsToResponse(creds, w)
-	})
-
-	router.HandleFunc("/role-arn/", func(w http.ResponseWriter, r *http.Request) {
-		roleArn := strings.TrimPrefix(r.URL.Path, "/role-arn/")
-		cfg := vault.NewAwsConfigWithCredsProvider(credsCache, e.config.Region, e.config.STSRegionalEndpoints)
+	v, ok := e.cache.Load(roleArn)
+	if ok {
+		roleProviderCache = v.(*aws.CredentialsCache)
+	} else {
+		cfg := vault.NewAwsConfigWithCredsProvider(e.baseCredsProvider, e.config.Region, e.config.STSRegionalEndpoints)
 		roleProvider := &vault.AssumeRoleProvider{
 			StsClient: sts.NewFromConfig(cfg),
 			RoleARN:   roleArn,
 			Duration:  e.config.AssumeRoleDuration,
 		}
+		roleProviderCache = aws.NewCredentialsCache(roleProvider)
+		e.cache.Store(roleArn, roleProviderCache)
+	}
+	return roleProviderCache
+}
 
-		creds, err := roleProvider.Retrieve(r.Context())
-		if err != nil {
-			writeErrorMessage(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		writeCredsToResponse(creds, w)
-	})
-
-	return http.Serve(e.listener, withLogging(withAuthorizationCheck(e.authToken, router.ServeHTTP)))
+func (e *EcsServer) AssumeRoleArnRoute(w http.ResponseWriter, r *http.Request) {
+	roleArn := strings.TrimPrefix(r.URL.Path, "/role-arn/")
+	roleProvider := e.getRoleProvider(roleArn)
+	creds, err := roleProvider.Retrieve(r.Context())
+	if err != nil {
+		writeErrorMessage(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	writeCredsToResponse(creds, w)
 }

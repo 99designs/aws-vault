@@ -13,14 +13,13 @@ import (
 	"syscall"
 	"time"
 
-	osexec "golang.org/x/sys/execabs"
-
 	"github.com/99designs/aws-vault/v6/iso8601"
 	"github.com/99designs/aws-vault/v6/server"
 	"github.com/99designs/aws-vault/v6/vault"
 	"github.com/99designs/keyring"
 	"github.com/alecthomas/kingpin"
 	"github.com/aws/aws-sdk-go-v2/aws"
+	osexec "golang.org/x/sys/execabs"
 )
 
 type ExecCommandInput struct {
@@ -29,6 +28,7 @@ type ExecCommandInput struct {
 	Args             []string
 	StartEc2Server   bool
 	StartEcsServer   bool
+	Lazy             bool
 	CredentialHelper bool
 	Config           vault.Config
 	SessionDuration  time.Duration
@@ -95,6 +95,9 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 
 	cmd.Flag("ecs-server", "Run a ECS credential server in the background for credentials (the SDK or app must support AWS_CONTAINER_CREDENTIALS_FULL_URI)").
 		BoolVar(&input.StartEcsServer)
+
+	cmd.Flag("lazy", "When using --ecs-server, lazily fetch credentials").
+		BoolVar(&input.Lazy)
 
 	cmd.Flag("stdout", "Print the SSO link to the terminal without automatically opening the browser").
 		BoolVar(&input.UseStdout)
@@ -208,13 +211,12 @@ func execEc2Server(input ExecCommandInput, config *vault.Config, credsProvider a
 }
 
 func execEcsServer(input ExecCommandInput, config *vault.Config, credsProvider aws.CredentialsProvider) error {
-
-	ecsServer, err := server.NewEcsServer(credsProvider, config, "", 0)
+	ecsServer, err := server.NewEcsServer(credsProvider, config, "", 0, input.Lazy)
 	if err != nil {
 		return err
 	}
 	go func() {
-		err = ecsServer.Start()
+		err = ecsServer.Serve()
 		if err != http.ErrServerClosed { // ErrServerClosed is a graceful close
 			log.Fatalf("ecs server: %s", err.Error())
 		}

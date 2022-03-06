@@ -8,6 +8,7 @@ import (
 	"github.com/99designs/aws-vault/v6/vault"
 	"github.com/99designs/keyring"
 	"github.com/alecthomas/kingpin"
+	"github.com/aws/aws-sdk-go-v2/aws"
 )
 
 type EcsServerCommandInput struct {
@@ -74,7 +75,8 @@ func EcsRoleServerCommand(input EcsServerCommandInput, f *vault.ConfigFile, keyr
 		return fmt.Errorf("Error getting temporary credentials: %w", err)
 	}
 
-	ecsServer, err := server.NewEcsServer(credsProvider, config, "", input.Port)
+	credsCache := aws.NewCredentialsCache(credsProvider)
+	ecsServer, err := server.NewEcsServer(credsCache, config, "", input.Port, false)
 	if err != nil {
 		return err
 	}
@@ -88,7 +90,7 @@ func EcsRoleServerCommand(input EcsServerCommandInput, f *vault.ConfigFile, keyr
 	fmt.Println("If you wish to use AWS_CONTAINER_CREDENTIALS_RELATIVE_URI=/role-arn/YOUR_ROLE_ARN instead of AWS_CONTAINER_CREDENTIALS_FULL_URI, use a reverse proxy on http://169.254.170.2:80")
 	fmt.Println("")
 
-	err = ecsServer.Start()
+	err = ecsServer.Serve()
 	if err != nil {
 		return err
 	}

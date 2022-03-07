@@ -95,10 +95,7 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 
 	if input.ProfileName == "" {
 		// When no profile is specified, source credentials from the environment
-		credsProvider, err = vault.NewEnvironmentCredentialsProvider()
-		if err != nil {
-			return fmt.Errorf("using credentials from environment: %w", err)
-		}
+		credsProvider = vault.NewEnvironmentCredentialsProvider()
 	} else {
 		// Use a profile from the AWS config file
 		ckr := &vault.CredentialKeyring{Keyring: keyring}

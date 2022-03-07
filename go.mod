@@ -6,6 +6,7 @@ require (
 	github.com/99designs/keyring v1.2.0
 	github.com/alecthomas/kingpin v0.0.0-20200323085623-b6657d9477a6
 	github.com/aws/aws-sdk-go-v2 v1.14.0
+	github.com/aws/aws-sdk-go-v2/config v1.14.0
 	github.com/aws/aws-sdk-go-v2/service/iam v1.17.0
 	github.com/aws/aws-sdk-go-v2/service/sso v1.10.0
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.11.0
@@ -22,8 +23,11 @@ require (
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137 // indirect
+	github.com/aws/aws-sdk-go-v2/credentials v1.9.0 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.11.0 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.5 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.3.0 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/ini v1.3.6 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.8.0 // indirect
 	github.com/aws/smithy-go v1.11.0 // indirect
 	github.com/danieljoos/wincred v1.1.2 // indirect

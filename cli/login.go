@@ -55,7 +55,6 @@ func ConfigureLoginCommand(app *kingpin.Application, a *AwsVault) {
 		BoolVar(&input.UseStdout)
 
 	cmd.Arg("profile", "Name of the profile").
-		Required().
 		HintAction(a.MustGetProfileNames).
 		StringVar(&input.ProfileName)
 
@@ -94,22 +93,34 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 
 	var credsProvider aws.CredentialsProvider
 
-	ckr := &vault.CredentialKeyring{Keyring: keyring}
-	// If AssumeRole or sso.GetRoleCredentials isn't used, GetFederationToken has to be used for IAM credentials
-	if config.HasRole() || config.HasSSOStartURL() {
-		credsProvider, err = vault.NewTempCredentialsProvider(config, ckr)
+	if input.ProfileName == "" {
+		// When no profile is specified, source credentials from the environment
+		credsProvider = vault.NewEnvironmentCredentialsProvider()
 	} else {
-		credsProvider, err = vault.NewFederationTokenCredentialsProvider(input.ProfileName, ckr, config)
-	}
-	if err != nil {
-		return fmt.Errorf("profile %s: %w", input.ProfileName, err)
+		// Use a profile from the AWS config file
+		ckr := &vault.CredentialKeyring{Keyring: keyring}
+		if config.HasRole() || config.HasSSOStartURL() {
+			// If AssumeRole or sso.GetRoleCredentials isn't used, GetFederationToken has to be used for IAM credentials
+			credsProvider, err = vault.NewTempCredentialsProvider(config, ckr)
+		} else {
+			credsProvider, err = vault.NewFederationTokenCredentialsProvider(input.ProfileName, ckr, config)
+		}
+		if err != nil {
+			return fmt.Errorf("profile %s: %w", input.ProfileName, err)
+		}
 	}
 
 	creds, err := credsProvider.Retrieve(context.TODO())
 	if err != nil {
-		return fmt.Errorf("Failed to get credentials for %s: %w", config.ProfileName, err)
+		return fmt.Errorf("Failed to get credentials: %w", err)
 	}
-
+	if creds.SessionToken == "" {
+		// When sourcing credentials from the environment, it's possible a session token wasn't set
+		// Generating a sign-in link requires temporary credentials, so we return an error
+		// NOTE: We deliberately chose to have this logic here rather than in 'EnvironmentVariablesCredentialsProvider'
+		// to make it possible to reuse it for other commands than `aws-vault login` in the future
+		return fmt.Errorf("failed to retrieve a session token. Cannot generate a login URL without it")
+	}
 	jsonBytes, err := json.Marshal(map[string]string{
 		"sessionId":    creds.AccessKeyID,
 		"sessionKey":   creds.SecretAccessKey,

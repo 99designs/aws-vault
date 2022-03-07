@@ -291,6 +291,10 @@ func NewFederationTokenCredentialsProvider(profileName string, k *CredentialKeyr
 	}, nil
 }
 
+func NewEnvironmentCredentialsProvider() aws.CredentialsProvider {
+	return &EnvironmentVariablesCredentialsProvider{}
+}
+
 func FindMasterCredentialsNameFor(profileName string, keyring *CredentialKeyring, config *Config) (string, error) {
 	hasMasterCreds, err := keyring.Has(profileName)
 	if err != nil {

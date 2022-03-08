@@ -54,7 +54,7 @@ func ConfigureLoginCommand(app *kingpin.Application, a *AwsVault) {
 		Short('s').
 		BoolVar(&input.UseStdout)
 
-	cmd.Arg("profile", "Name of the profile").
+	cmd.Arg("profile", "Name of the profile. If none given, credentials will be sourced from env vars").
 		HintAction(a.MustGetProfileNames).
 		StringVar(&input.ProfileName)
 
@@ -114,13 +114,10 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 	if err != nil {
 		return fmt.Errorf("Failed to get credentials: %w", err)
 	}
-	if creds.SessionToken == "" {
-		// When sourcing credentials from the environment, it's possible a session token wasn't set
-		// Generating a sign-in link requires temporary credentials, so we return an error
-		// NOTE: We deliberately chose to have this logic here rather than in 'EnvironmentVariablesCredentialsProvider'
-		// to make it possible to reuse it for other commands than `aws-vault login` in the future
-		return fmt.Errorf("failed to retrieve a session token. Cannot generate a login URL without it")
+	if creds.AccessKeyID == "" && input.ProfileName == "" {
+		return fmt.Errorf("argument 'profile' not provided, nor any AWS env vars found. Try --help")
 	}
+
 	jsonBytes, err := json.Marshal(map[string]string{
 		"sessionId":    creds.AccessKeyID,
 		"sessionKey":   creds.SecretAccessKey,

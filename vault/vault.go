@@ -27,16 +27,16 @@ var UseSessionCache = true
 
 func NewAwsConfig(region, stsRegionalEndpoints string) aws.Config {
 	return aws.Config{
-		Region:           region,
-		EndpointResolver: getSTSEndpointResolver(stsRegionalEndpoints),
+		Region:                      region,
+		EndpointResolverWithOptions: getSTSEndpointResolver(stsRegionalEndpoints),
 	}
 }
 
 func NewAwsConfigWithCredsProvider(credsProvider aws.CredentialsProvider, region, stsRegionalEndpoints string) aws.Config {
 	return aws.Config{
-		Region:           region,
-		Credentials:      credsProvider,
-		EndpointResolver: getSTSEndpointResolver(stsRegionalEndpoints),
+		Region:                      region,
+		Credentials:                 credsProvider,
+		EndpointResolverWithOptions: getSTSEndpointResolver(stsRegionalEndpoints),
 	}
 }
 

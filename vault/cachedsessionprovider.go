@@ -13,7 +13,7 @@ import (
 // retrieves temporary credentials using the CredentialsFunc
 type CachedSessionProvider struct {
 	SessionKey      SessionMetadata
-	CredentialsFunc func() (*ststypes.Credentials, error)
+	CredentialsFunc func(context.Context) (*ststypes.Credentials, error)
 	Keyring         *SessionKeyring
 	ExpiryWindow    time.Duration
 }
@@ -25,7 +25,7 @@ func (p *CachedSessionProvider) Retrieve(ctx context.Context) (aws.Credentials, 
 
 	if err != nil || time.Until(*creds.Expiration) < p.ExpiryWindow {
 		// lookup missed, we need to create a new one.
-		creds, err = p.CredentialsFunc()
+		creds, err = p.CredentialsFunc(ctx)
 		if err != nil {
 			return aws.Credentials{}, err
 		}

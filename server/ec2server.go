@@ -35,7 +35,6 @@ func StartEc2CredentialsServer(credsProvider aws.CredentialsProvider, region str
 }
 
 func startEc2CredentialsServer(credsProvider aws.CredentialsProvider, region string) {
-
 	log.Printf("Starting EC2 Instance Metadata server on %s", ec2CredentialsServerAddr)
 	router := http.NewServeMux()
 

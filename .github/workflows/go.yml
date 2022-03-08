@@ -1,36 +1,35 @@
 name: Continuous Integration
-
 on:
   push:
   pull_request:
     branches:
-    - master
-
+      - master
 jobs:
-
-  build:
-    name: Build
-    runs-on: ${{ matrix.os }}
+  test:
+    name: test
     strategy:
       matrix:
-        os: [ubuntu-latest, macOS-latest]
-
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-
-    - name: Set up Go 1.17
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.17
-      id: go
-
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v3
-
-    - name: Run tests
-      run: go test -race ./...
-
-    - name: Check go vet
-      run: go vet ./...
-
-    - name: Check go fmt
-      run: diff -u <(echo -n) <(gofmt -s -d .)
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.17
+      - uses: actions/checkout@v3
+      - name: Run tests
+        run: go test -race ./...
+  lint:
+    name: lint
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.17
+      - uses: actions/checkout@v3
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.44.2

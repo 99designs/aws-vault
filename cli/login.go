@@ -132,7 +132,7 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 
 	loginURLPrefix, destination := generateLoginURL(config.Region, input.Path)
 
-	req, err := http.NewRequest("GET", loginURLPrefix, nil)
+	req, err := http.NewRequestWithContext(context.TODO(), "GET", loginURLPrefix, nil)
 	if err != nil {
 		return err
 	}
@@ -164,7 +164,7 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 
 	var respParsed map[string]string
 
-	err = json.Unmarshal([]byte(body), &respParsed)
+	err = json.Unmarshal(body, &respParsed)
 	if err != nil {
 		return err
 	}

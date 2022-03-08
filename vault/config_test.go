@@ -59,6 +59,7 @@ output=json
 `)
 
 func newConfigFile(t *testing.T, b []byte) string {
+	t.Helper()
 	f, err := ioutil.TempFile("", "aws-config")
 	if err != nil {
 		t.Fatal(err)
@@ -231,7 +232,6 @@ func TestAddProfileToExistingNestedConfig(t *testing.T) {
 	if !bytes.Equal(expected, b) {
 		t.Fatalf("Expected:\n%q\nGot:\n%q", expected, b)
 	}
-
 }
 
 func TestIncludeProfile(t *testing.T) {
@@ -282,7 +282,6 @@ func TestIniWithHeaderSavesWithHeader(t *testing.T) {
 	if !bytes.Equal(expected, b) {
 		t.Fatalf("Expected:\n%q\nGot:\n%q", expected, b)
 	}
-
 }
 
 func TestIniWithDEFAULTHeader(t *testing.T) {

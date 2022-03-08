@@ -162,7 +162,7 @@ func retry(maxTime time.Duration, sleep time.Duration, f func() error) (err erro
 
 		err = f()
 		if err == nil {
-			return
+			return // nolint
 		}
 
 		elapsed := time.Since(t0)
@@ -184,7 +184,7 @@ func getUsernameIfAssumingRole(awsCfg aws.Config, config *vault.Config) (*string
 		log.Printf("Found IAM username '%s'", n)
 		return &n, nil
 	}
-	return nil, nil
+	return nil, nil //nolint
 }
 
 func getProfilesInChain(profileName string, configLoader *vault.ConfigLoader) (profileNames []string, err error) {

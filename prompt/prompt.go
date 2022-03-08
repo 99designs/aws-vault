@@ -5,9 +5,9 @@ import (
 	"sort"
 )
 
-type PromptFunc func(string) (string, error)
+type Func func(string) (string, error)
 
-var Methods = map[string]PromptFunc{}
+var Methods = map[string]Func{}
 
 func Available() []string {
 	methods := []string{}
@@ -18,7 +18,7 @@ func Available() []string {
 	return methods
 }
 
-func Method(s string) PromptFunc {
+func Method(s string) Func {
 	m, ok := Methods[s]
 	if !ok {
 		panic(fmt.Sprintf("Prompt method %q doesn't exist", s))

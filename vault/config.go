@@ -156,7 +156,7 @@ func (s ProfileSection) IsEmpty() bool {
 
 // ProfileSections returns all the profile sections in the config
 func (c *ConfigFile) ProfileSections() []ProfileSection {
-	var result []ProfileSection
+	result := []ProfileSection{}
 
 	if c.iniFile == nil {
 		return result
@@ -231,7 +231,7 @@ func (c *ConfigFile) Add(profile ProfileSection) error {
 
 // ProfileNames returns a slice of profile names from the AWS config
 func (c *ConfigFile) ProfileNames() []string {
-	var profileNames []string
+	profileNames := []string{}
 	for _, profile := range c.ProfileSections() {
 		profileNames = append(profileNames, profile.Name)
 	}
@@ -642,7 +642,6 @@ func (c *Config) CanUseGetSessionToken() (bool, string) {
 func (c *Config) GetSessionTokenDuration() time.Duration {
 	if c.IsChained() {
 		return c.ChainedGetSessionTokenDuration
-	} else {
-		return c.NonChainedGetSessionTokenDuration
 	}
+	return c.NonChainedGetSessionTokenDuration
 }

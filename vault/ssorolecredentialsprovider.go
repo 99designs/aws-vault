@@ -40,7 +40,7 @@ func millisecondsTimeValue(v int64) time.Time {
 
 // Retrieve generates a new set of temporary credentials using SSO GetRoleCredentials.
 func (p *SSORoleCredentialsProvider) Retrieve(ctx context.Context) (aws.Credentials, error) {
-	creds, err := p.getRoleCredentials()
+	creds, err := p.getRoleCredentials(ctx)
 	if err != nil {
 		return aws.Credentials{}, err
 	}
@@ -54,13 +54,13 @@ func (p *SSORoleCredentialsProvider) Retrieve(ctx context.Context) (aws.Credenti
 	}, nil
 }
 
-func (p *SSORoleCredentialsProvider) getRoleCredentials() (*ssotypes.RoleCredentials, error) {
-	token, err := p.getOIDCToken()
+func (p *SSORoleCredentialsProvider) getRoleCredentials(ctx context.Context) (*ssotypes.RoleCredentials, error) {
+	token, err := p.getOIDCToken(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := p.SSOClient.GetRoleCredentials(context.TODO(), &sso.GetRoleCredentialsInput{
+	resp, err := p.SSOClient.GetRoleCredentials(ctx, &sso.GetRoleCredentialsInput{
 		AccessToken: token.AccessToken,
 		AccountId:   aws.String(p.AccountID),
 		RoleName:    aws.String(p.RoleName),
@@ -74,8 +74,8 @@ func (p *SSORoleCredentialsProvider) getRoleCredentials() (*ssotypes.RoleCredent
 }
 
 // getRoleCredentialsAsStsCredemtials returns getRoleCredentials as sts.Credentials because sessions.Store expects it
-func (p *SSORoleCredentialsProvider) getRoleCredentialsAsStsCredemtials() (*ststypes.Credentials, error) {
-	creds, err := p.getRoleCredentials()
+func (p *SSORoleCredentialsProvider) getRoleCredentialsAsStsCredemtials(ctx context.Context) (*ststypes.Credentials, error) {
+	creds, err := p.getRoleCredentials(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (p *SSORoleCredentialsProvider) getRoleCredentialsAsStsCredemtials() (*stst
 	}, nil
 }
 
-func (p *SSORoleCredentialsProvider) getOIDCToken() (token *ssooidc.CreateTokenOutput, err error) {
+func (p *SSORoleCredentialsProvider) getOIDCToken(ctx context.Context) (token *ssooidc.CreateTokenOutput, err error) {
 	if p.OIDCTokenCache != nil {
 		token, err = p.OIDCTokenCache.Get(p.StartURL)
 		if err != nil && err != keyring.ErrKeyNotFound {
@@ -96,7 +96,7 @@ func (p *SSORoleCredentialsProvider) getOIDCToken() (token *ssooidc.CreateTokenO
 		}
 	}
 	if token == nil {
-		token, err = p.newOIDCToken()
+		token, err = p.newOIDCToken(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -111,8 +111,8 @@ func (p *SSORoleCredentialsProvider) getOIDCToken() (token *ssooidc.CreateTokenO
 	return token, err
 }
 
-func (p *SSORoleCredentialsProvider) newOIDCToken() (*ssooidc.CreateTokenOutput, error) {
-	clientCreds, err := p.OIDCClient.RegisterClient(context.TODO(), &ssooidc.RegisterClientInput{
+func (p *SSORoleCredentialsProvider) newOIDCToken(ctx context.Context) (*ssooidc.CreateTokenOutput, error) {
+	clientCreds, err := p.OIDCClient.RegisterClient(ctx, &ssooidc.RegisterClientInput{
 		ClientName: aws.String("aws-vault"),
 		ClientType: aws.String("public"),
 	})
@@ -121,7 +121,7 @@ func (p *SSORoleCredentialsProvider) newOIDCToken() (*ssooidc.CreateTokenOutput,
 	}
 	log.Printf("Created new OIDC client (expires at: %s)", time.Unix(clientCreds.ClientSecretExpiresAt, 0))
 
-	deviceCreds, err := p.OIDCClient.StartDeviceAuthorization(context.TODO(), &ssooidc.StartDeviceAuthorizationInput{
+	deviceCreds, err := p.OIDCClient.StartDeviceAuthorization(ctx, &ssooidc.StartDeviceAuthorizationInput{
 		ClientId:     clientCreds.ClientId,
 		ClientSecret: clientCreds.ClientSecret,
 		StartUrl:     aws.String(p.StartURL),
@@ -151,7 +151,7 @@ func (p *SSORoleCredentialsProvider) newOIDCToken() (*ssooidc.CreateTokenOutput,
 	}
 
 	for {
-		t, err := p.OIDCClient.CreateToken(context.TODO(), &ssooidc.CreateTokenInput{
+		t, err := p.OIDCClient.CreateToken(ctx, &ssooidc.CreateTokenInput{
 			ClientId:     clientCreds.ClientId,
 			ClientSecret: clientCreds.ClientSecret,
 			DeviceCode:   deviceCreds.DeviceCode,

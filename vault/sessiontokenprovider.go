@@ -19,7 +19,7 @@ type SessionTokenProvider struct {
 
 // Retrieve generates a new set of temporary credentials using STS GetSessionToken
 func (p *SessionTokenProvider) Retrieve(ctx context.Context) (aws.Credentials, error) {
-	creds, err := p.GetSessionToken()
+	creds, err := p.GetSessionToken(ctx)
 	if err != nil {
 		return aws.Credentials{}, err
 	}
@@ -34,7 +34,7 @@ func (p *SessionTokenProvider) Retrieve(ctx context.Context) (aws.Credentials, e
 }
 
 // GetSessionToken generates a new set of temporary credentials using STS GetSessionToken
-func (p *SessionTokenProvider) GetSessionToken() (*ststypes.Credentials, error) {
+func (p *SessionTokenProvider) GetSessionToken(ctx context.Context) (*ststypes.Credentials, error) {
 	var err error
 
 	input := &sts.GetSessionTokenInput{
@@ -49,7 +49,7 @@ func (p *SessionTokenProvider) GetSessionToken() (*ststypes.Credentials, error) 
 		}
 	}
 
-	resp, err := p.StsClient.GetSessionToken(context.TODO(), input)
+	resp, err := p.StsClient.GetSessionToken(ctx, input)
 	if err != nil {
 		return nil, err
 	}

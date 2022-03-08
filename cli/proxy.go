@@ -23,10 +23,9 @@ func ConfigureProxyCommand(app *kingpin.Application, a *AwsVault) {
 		if stop {
 			server.StopProxy()
 			return nil
-		} else {
-			handleSigTerm()
-			return server.StartProxy()
 		}
+		handleSigTerm()
+		return server.StartProxy()
 	})
 }
 

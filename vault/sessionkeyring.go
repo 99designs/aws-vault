@@ -148,7 +148,7 @@ func (sk *SessionKeyring) Set(key SessionMetadata, creds *ststypes.Credentials) 
 
 	key.Expiration = *creds.Expiration
 
-	valJson, err := json.Marshal(creds)
+	valJSON, err := json.Marshal(creds)
 	if err != nil {
 		return err
 	}
@@ -168,7 +168,7 @@ func (sk *SessionKeyring) Set(key SessionMetadata, creds *ststypes.Credentials) 
 
 	return sk.Keyring.Set(keyring.Item{
 		Key:         key.String(),
-		Data:        valJson,
+		Data:        valJSON,
 		Label:       fmt.Sprintf("aws-vault session for %s (expires %s)", key.ProfileName, creds.Expiration.Format(time.RFC3339)),
 		Description: "aws-vault session",
 	})

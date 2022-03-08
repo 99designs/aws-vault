@@ -98,7 +98,7 @@ func NewEcsServer(baseCredsProvider aws.CredentialsProvider, config *vault.Confi
 	return e, nil
 }
 
-func (e *EcsServer) BaseUrl() string {
+func (e *EcsServer) BaseURL() string {
 	return fmt.Sprintf("http://%s", e.listener.Addr().String())
 }
 func (e *EcsServer) AuthToken() string {

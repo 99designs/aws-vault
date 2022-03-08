@@ -53,10 +53,10 @@ func (input ExecCommandInput) validate() error {
 		return fmt.Errorf("Can't use --ecs-server with --no-session")
 	}
 	if input.StartEcsServer && input.Config.MfaPromptMethod == "terminal" {
-		return fmt.Errorf("Can't use --prompt=terminal with --ecs-server. Specifiy a different prompt driver")
+		return fmt.Errorf("Can't use --prompt=terminal with --ecs-server. Specify a different prompt driver")
 	}
 	if input.StartEc2Server && input.Config.MfaPromptMethod == "terminal" {
-		return fmt.Errorf("Can't use --prompt=terminal with --ec2-server. Specifiy a different prompt driver")
+		return fmt.Errorf("Can't use --prompt=terminal with --ec2-server. Specify a different prompt driver")
 	}
 
 	return nil
@@ -172,7 +172,7 @@ func ExecCommand(input ExecCommandInput, f *vault.ConfigFile, keyring keyring.Ke
 	}
 
 	if input.CredentialHelper {
-		return execCredentialHelper(input, config, credsProvider)
+		return execCredentialHelper(input, credsProvider)
 	}
 
 	return execEnvironment(input, config, credsProvider)
@@ -225,14 +225,13 @@ func execEcsServer(input ExecCommandInput, config *vault.Config, credsProvider a
 	log.Println("Setting subprocess env AWS_CONTAINER_CREDENTIALS_FULL_URI, AWS_CONTAINER_AUTHORIZATION_TOKEN")
 	env := environ(os.Environ())
 	env = updateEnvForAwsVault(env, input.ProfileName, config.Region)
-	env.Set("AWS_CONTAINER_CREDENTIALS_FULL_URI", ecsServer.BaseUrl())
+	env.Set("AWS_CONTAINER_CREDENTIALS_FULL_URI", ecsServer.BaseURL())
 	env.Set("AWS_CONTAINER_AUTHORIZATION_TOKEN", ecsServer.AuthToken())
 
 	return execCmd(input.Command, input.Args, env)
 }
 
-func execCredentialHelper(input ExecCommandInput, config *vault.Config, credsProvider aws.CredentialsProvider) error {
-
+func execCredentialHelper(input ExecCommandInput, credsProvider aws.CredentialsProvider) error {
 	// AwsCredentialHelperData is metadata for AWS CLI credential process
 	// See https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
 	type AwsCredentialHelperData struct {

@@ -12,9 +12,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.11.0
 	github.com/aws/aws-sdk-go-v2/service/sts v1.15.0
 	github.com/google/go-cmp v0.5.7
-	github.com/gorilla/handlers v1.5.1
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
-	golang.org/x/crypto v0.0.0-20220131195533-30dcbda58838
 	golang.org/x/sys v0.0.0-20220204135822-1c1b9b1eba6a
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 	gopkg.in/ini.v1 v1.66.4
@@ -33,7 +31,6 @@ require (
 	github.com/aws/smithy-go v1.11.0 // indirect
 	github.com/danieljoos/wincred v1.1.2 // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
-	github.com/felixge/httpsnoop v1.0.2 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect
 	github.com/mtibben/percent v0.2.1 // indirect

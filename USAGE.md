@@ -1,38 +1,41 @@
 # Usage
 
-* [Getting Help](#getting-help)
-* [Config](#config)
-  * [AWS config file](#aws-config-file)
-    * [`include_profile`](#include_profile)
-    * [`session_tags` and `transitive_session_tags`](#session_tags-and-transitive_session_tags)
-  * [Environment variables](#environment-variables)
-* [Backends](#backends)
-  * [Keychain](#keychain)
-* [Managing credentials](#managing-credentials)
-  * [Using multiple profiles](#using-multiple-profiles)
-  * [Listing profiles and credentials](#listing-profiles-and-credentials)
-  * [Removing credentials](#removing-credentials)
-  * [Rotating credentials](#rotating-credentials)
-* [Managing Sessions](#managing-sessions)
-  * [Executing a command](#executing-a-command)
-  * [Logging into AWS console](#logging-into-aws-console)
-  * [Removing stored sessions](#removing-stored-sessions)
-  * [Using --no-session](#using---no-session)
-  * [Session duration](#session-duration)
-  * [Using `--server`](#using---server)
-    * [`--ecs-server`](#--ecs-server)
-  * [Temporary credentials limitations with STS, IAM](#temporary-credentials-limitations-with-sts-iam)
-* [MFA](#mfa)
-  * [Gotchas with MFA config](#gotchas-with-mfa-config)
-* [AWS Single Sign-On (AWS SSO)](#aws-single-sign-on-aws-sso)
-* [Assuming roles with web identities](#assuming-roles-with-web-identities)
-* [Using `credential_process`](#using-credential_process)
-* [Using a Yubikey](#using-a-yubikey)
-  * [Prerequisites](#prerequisites)
-  * [Setup](#setup)
-  * [Usage](#usage)
-* [Shell completion](#shell-completion)
-* [Desktop apps](#desktop-apps)
+- [Usage](#usage)
+  - [Getting Help](#getting-help)
+  - [Config](#config)
+    - [AWS config file](#aws-config-file)
+      - [`include_profile`](#include_profile)
+      - [`session_tags` and `transitive_session_tags`](#session_tags-and-transitive_session_tags)
+      - [`source_identity`](#source_identity)
+    - [Environment variables](#environment-variables)
+  - [Backends](#backends)
+    - [Keychain](#keychain)
+  - [Managing credentials](#managing-credentials)
+    - [Using multiple profiles](#using-multiple-profiles)
+    - [Listing profiles and credentials](#listing-profiles-and-credentials)
+    - [Removing credentials](#removing-credentials)
+    - [Rotating credentials](#rotating-credentials)
+  - [Managing Sessions](#managing-sessions)
+    - [Executing a command](#executing-a-command)
+    - [Logging into AWS console](#logging-into-aws-console)
+    - [Removing stored sessions](#removing-stored-sessions)
+    - [Using --no-session](#using---no-session)
+    - [Session duration](#session-duration)
+    - [Using `--server`](#using---server)
+      - [`--ecs-server`](#--ecs-server)
+    - [Temporary credentials limitations with STS, IAM](#temporary-credentials-limitations-with-sts-iam)
+  - [MFA](#mfa)
+    - [Gotchas with MFA config](#gotchas-with-mfa-config)
+  - [AWS Single Sign-On (AWS SSO)](#aws-single-sign-on-aws-sso)
+  - [Assuming roles with web identities](#assuming-roles-with-web-identities)
+  - [Using `credential_process`](#using-credential_process)
+  - [Using a Yubikey](#using-a-yubikey)
+    - [Prerequisites](#prerequisites)
+    - [Setup](#setup)
+    - [Usage](#usage-1)
+  - [Shell completion](#shell-completion)
+  - [Desktop apps](#desktop-apps)
+  - [Docker](#docker)
 
 
 ## Getting Help
@@ -367,6 +370,8 @@ An ECS credential server can also be used instead of the ec2 metadata server. Th
 
 However, this will only work with the AWS SDKs that support `AWS_CONTAINER_CREDENTIALS_FULL_URI`. The Ruby, .NET and PHP SDKs do not currently support it.
 
+The ECS server also responds to requests on `/role-arn/YOUR_ROLE_ARN` with the role credentials, making it usable with  `AWS_CONTAINER_CREDENTIALS_RELATIVE_URI` when combined with a reverse proxy (see the Docker section below).
+
 ### Temporary credentials limitations with STS, IAM
 
 When using temporary credentials you are restricted from using some STS and IAM APIs (see [here](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_request.html#stsapi_comparison)). You may need to avoid the temporary session by using `--no-session`.
@@ -547,3 +552,36 @@ aws-vault exec --server --prompt=osascript jonsmith -- open -a Lens
 * `--server`: starts the background server so that temporary credentials get refreshed automatically
 * `--prompt=osascript`: pop up a GUI for MFA prompts
 * `open -a Lens`: run the applications
+
+## Docker
+
+It's possible for Docker containers to retrieve credentials from aws-vault running on the host.
+
+![Screen Shot 2022-03-03 at 12 16 15 pm](https://user-images.githubusercontent.com/980499/156477380-423f4eb9-f10e-4568-afa8-7fa525a1f3a3.png)
+
+The ECS server responds to requests on `/role-arn/YOUR_ROLE_ARN` with the role credentials, making it usable with the `AWS_CONTAINER_CREDENTIALS_FULL_URI` or `AWS_CONTAINER_CREDENTIALS_RELATIVE_URI` environment
+variables. These environment variables are used by the AWS SDKs as part of the [default credential provider chain](https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/credentials.html#credentials-default).
+
+In particular, this is designed to allow aws-vault to run on your local host while docker images access role credentials dynamically. This is achieved via a reverse-proxy container (started with `aws-vault exec --ecs-server --lazy PROFILE -- docker-compose up ...`) using the default ECS IP address `169.254.170.2`. Docker containers no longer need AWS keys at all - instead they can  specify the role they want to assume with `AWS_CONTAINER_CREDENTIALS_RELATIVE_URI`.
+
+This use-case is similar to the goal of [amazon-ecs-local-container-endpoints](https://github.com/awslabs/amazon-ecs-local-container-endpoints/blob/mainline/docs/features.md#vend-credentials-to-containers), however the difference here is that the long-lived AWS credentials are getting sourced from your keychain via aws-vault.
+
+To test it out:
+1. Add a base role to your `~/.aws/config` (replacing with valid values)
+   ```ini
+   [profile base-role]
+   source_profile=myprofile
+   role_arn=arn:aws:iam::222222222222:role/aws-vault-test
+   mfa_serial=arn:aws:iam::222222222222:mfa/<your.aws.username>
+   ```
+2. Start a reverse proxy:
+   ```shell
+   $ cd contrib/_aws-vault-proxy
+   $ aws-vault --debug exec --prompt=osascript --ecs-server --lazy base-role -- docker compose up --build aws-vault-proxy
+   ```
+3. In a new terminal, assume a new role
+   ```shell
+   $ export AWS_CONTAINER_CREDENTIALS_RELATIVE_URI=/role-arn/arn:aws:iam::222222222222:role/another-role-that-can-be-assumed-by-base-role
+   $ docker-compose run testapp
+   testapp $ aws sts get-caller-identity
+   ```

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"runtime"
@@ -12,14 +13,13 @@ import (
 	"syscall"
 	"time"
 
-	osexec "golang.org/x/sys/execabs"
-
 	"github.com/99designs/aws-vault/v6/iso8601"
 	"github.com/99designs/aws-vault/v6/server"
 	"github.com/99designs/aws-vault/v6/vault"
 	"github.com/99designs/keyring"
 	"github.com/alecthomas/kingpin"
 	"github.com/aws/aws-sdk-go-v2/aws"
+	osexec "golang.org/x/sys/execabs"
 )
 
 type ExecCommandInput struct {
@@ -28,6 +28,7 @@ type ExecCommandInput struct {
 	Args             []string
 	StartEc2Server   bool
 	StartEcsServer   bool
+	Lazy             bool
 	CredentialHelper bool
 	Config           vault.Config
 	SessionDuration  time.Duration
@@ -50,6 +51,12 @@ func (input ExecCommandInput) validate() error {
 	}
 	if input.StartEcsServer && input.NoSession {
 		return fmt.Errorf("Can't use --ecs-server with --no-session")
+	}
+	if input.StartEcsServer && input.Config.MfaPromptMethod == "terminal" {
+		return fmt.Errorf("Can't use --prompt=terminal with --ecs-server. Specifiy a different prompt driver")
+	}
+	if input.StartEc2Server && input.Config.MfaPromptMethod == "terminal" {
+		return fmt.Errorf("Can't use --prompt=terminal with --ec2-server. Specifiy a different prompt driver")
 	}
 
 	return nil
@@ -88,6 +95,9 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 
 	cmd.Flag("ecs-server", "Run a ECS credential server in the background for credentials (the SDK or app must support AWS_CONTAINER_CREDENTIALS_FULL_URI)").
 		BoolVar(&input.StartEcsServer)
+
+	cmd.Flag("lazy", "When using --ecs-server, lazily fetch credentials").
+		BoolVar(&input.Lazy)
 
 	cmd.Flag("stdout", "Print the SSO link to the terminal without automatically opening the browser").
 		BoolVar(&input.UseStdout)
@@ -201,17 +211,22 @@ func execEc2Server(input ExecCommandInput, config *vault.Config, credsProvider a
 }
 
 func execEcsServer(input ExecCommandInput, config *vault.Config, credsProvider aws.CredentialsProvider) error {
-	uri, token, err := server.StartEcsCredentialServer(credsProvider)
+	ecsServer, err := server.NewEcsServer(credsProvider, config, "", 0, input.Lazy)
 	if err != nil {
-		return fmt.Errorf("Failed to start credential server: %w", err)
+		return err
 	}
-
-	env := environ(os.Environ())
-	env = updateEnvForAwsVault(env, input.ProfileName, config.Region)
+	go func() {
+		err = ecsServer.Serve()
+		if err != http.ErrServerClosed { // ErrServerClosed is a graceful close
+			log.Fatalf("ecs server: %s", err.Error())
+		}
+	}()
 
 	log.Println("Setting subprocess env AWS_CONTAINER_CREDENTIALS_FULL_URI, AWS_CONTAINER_AUTHORIZATION_TOKEN")
-	env.Set("AWS_CONTAINER_CREDENTIALS_FULL_URI", uri)
-	env.Set("AWS_CONTAINER_AUTHORIZATION_TOKEN", token)
+	env := environ(os.Environ())
+	env = updateEnvForAwsVault(env, input.ProfileName, config.Region)
+	env.Set("AWS_CONTAINER_CREDENTIALS_FULL_URI", ecsServer.BaseUrl())
+	env.Set("AWS_CONTAINER_AUTHORIZATION_TOKEN", ecsServer.AuthToken())
 
 	return execCmd(input.Command, input.Args, env)
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/99designs/aws-vault/v6/prompt"
 	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/sso"
 	"github.com/aws/aws-sdk-go-v2/service/ssooidc"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
@@ -277,16 +278,30 @@ func NewFederationTokenCredentialsProvider(ctx context.Context, profileName stri
 	}
 
 	masterCreds := NewMasterCredentialsProvider(k, credentialsName)
-	cfg := NewAwsConfigWithCredsProvider(masterCreds, config.Region, config.STSRegionalEndpoints)
+	awsConfig := NewAwsConfigWithCredsProvider(masterCreds, config.Region, config.STSRegionalEndpoints)
 
 	currentUsername, err := GetUsernameFromSession(ctx, cfg)
+	return newFederationTokenCredentialsProvider(awsConfig, config)
+}
+
+func NewFederationTokenCredentialsProviderFromCredentials(creds *aws.Credentials, config *Config) (aws.CredentialsProvider, error) {
+	credentialsProvider := credentials.NewStaticCredentialsProvider(creds.AccessKeyID, creds.SecretAccessKey, "")
+	awsConfig := NewAwsConfigWithCredsProvider(credentialsProvider, config.Region, config.STSRegionalEndpoints)
+
+	return newFederationTokenCredentialsProvider(awsConfig, config)
+}
+
+// utility function to avoid code duplication
+// in NewFederationTokenCredentialsProvider and NewFederationTokenCredentialsProviderFromCredentials
+func newFederationTokenCredentialsProvider(awsConfig aws.Config, config *Config) (aws.CredentialsProvider, error) {
+	currentUsername, err := GetUsernameFromSession(awsConfig)
 	if err != nil {
 		return nil, err
 	}
 
 	log.Printf("Using GetFederationToken for credentials")
 	return &FederationTokenProvider{
-		StsClient: sts.NewFromConfig(cfg),
+		StsClient: sts.NewFromConfig(awsConfig),
 		Name:      currentUsername,
 		Duration:  config.GetFederationTokenDuration,
 	}, nil

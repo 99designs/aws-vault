@@ -93,13 +93,13 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 	}
 
 	var credsProvider aws.CredentialsProvider
+	var creds aws.Credentials
 
+	// Use a profile from the AWS config file
+	ckr := &vault.CredentialKeyring{Keyring: keyring}
 	if input.ProfileName == "" {
-		// When no profile is specified, source credentials from the environment
-		credsProvider = vault.NewEnvironmentCredentialsProvider()
+		creds, err = retrieveTemporaryCredsFromEnvironment(config)
 	} else {
-		// Use a profile from the AWS config file
-		ckr := &vault.CredentialKeyring{Keyring: keyring}
 		if config.HasRole() || config.HasSSOStartURL() {
 			// If AssumeRole or sso.GetRoleCredentials isn't used, GetFederationToken has to be used for IAM credentials
 			credsProvider, err = vault.NewTempCredentialsProvider(config, ckr)
@@ -109,21 +109,14 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 		if err != nil {
 			return fmt.Errorf("profile %s: %w", input.ProfileName, err)
 		}
+		creds, err = credsProvider.Retrieve(context.TODO())
 	}
 
-	creds, err := credsProvider.Retrieve(context.TODO())
 	if err != nil {
 		return fmt.Errorf("Failed to get credentials: %w", err)
 	}
 	if creds.AccessKeyID == "" && input.ProfileName == "" {
 		return fmt.Errorf("argument 'profile' not provided, nor any AWS env vars found. Try --help")
-	}
-	if creds.SessionToken == "" {
-		// When sourcing credentials from the environment, it's possible a session token wasn't set
-		// Generating a sign-in link requires temporary credentials, so we return an error
-		// NOTE: We deliberately chose to have this logic here rather than in 'EnvironmentVariablesCredentialsProvider'
-		// to make it possible to reuse it for other commands than `aws-vault login` in the future
-		return fmt.Errorf("failed to retrieve a session token. Cannot generate a login URL without it")
 	}
 
 	jsonBytes, err := json.Marshal(map[string]string{
@@ -190,6 +183,39 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 	}
 
 	return nil
+}
+
+// retrieveTemporaryCredsFromEnvironment contains the logic to retrieve the proper credentials
+// from the environment.
+// - Case 1: Temporary credentials are available - these are directly returned
+// - Case 2: Non-temporary credentials are available. A call to sts:GetFederation is made, and the resulting temporary
+//			 credentials returned
+func retrieveTemporaryCredsFromEnvironment(config *vault.Config) (aws.Credentials, error) {
+	// When no profile is specified, source credentials from the environment
+	credsProvider := vault.NewEnvironmentCredentialsProvider()
+	creds, err := credsProvider.Retrieve(context.TODO())
+	if err != nil {
+		return aws.Credentials{}, fmt.Errorf("unable to find credentials in your environment")
+	}
+
+	// If the credentials we found in the environment aren't temporary,
+	// use sts:GetFederationToken to get temporary credentials
+	// allowing to generate a sign-in link.
+	// Non-temporary credentials cannot be used for this purpose
+	if creds.SessionToken == "" {
+		credsProvider, err := vault.NewFederationTokenCredentialsProviderFromCredentials(&creds, config)
+		if err != nil {
+			return aws.Credentials{}, err
+		}
+
+		creds, err = credsProvider.Retrieve(context.TODO())
+		if err != nil {
+			err = fmt.Errorf("non-temporary credentials found in your environment, and calling GetFederationToken resulted in: " + err.Error())
+			return aws.Credentials{}, err
+		}
+	}
+
+	return creds, nil
 }
 
 func generateLoginURL(region string, path string) (string, string) {

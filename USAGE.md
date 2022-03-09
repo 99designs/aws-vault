@@ -307,11 +307,13 @@ You can use the `aws-vault login` command to open a browser window and login to 
 $ aws-vault login work
 ```
 
-If you have temporary STS credentials already available in your environment, you can have aws-vault use these credentials to sign you in.
-This is useful when you had to use something else than aws-vault to retrieve temporary credentials:
+If you have credentials already available in your environment, you can have aws-vault use these credentials to sign you in.
+This is useful when you had to use something else than aws-vault to retrieve credentials:
 
 ```shell
-# AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_SESSION_TOKEN must be set in your environment prior to running the below
+# AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and optionally AWS_SESSION_TOKEN must be set in your environment prior to running the below
+# If AWS_SESSION_TOKEN is not set, a call to sts:GetFederationToken will be issued to retrieve temporary credentials, 
+# require to be able to generate a sign-in link to the AWS console
 $ aws-vault login
 ```
 

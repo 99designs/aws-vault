@@ -118,6 +118,13 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 	if creds.AccessKeyID == "" && input.ProfileName == "" {
 		return fmt.Errorf("argument 'profile' not provided, nor any AWS env vars found. Try --help")
 	}
+	if creds.SessionToken == "" {
+		// When sourcing credentials from the environment, it's possible a session token wasn't set
+		// Generating a sign-in link requires temporary credentials, so we return an error
+		// NOTE: We deliberately chose to have this logic here rather than in 'EnvironmentVariablesCredentialsProvider'
+		// to make it possible to reuse it for other commands than `aws-vault login` in the future
+		return fmt.Errorf("failed to retrieve a session token. Cannot generate a login URL without it")
+	}
 
 	jsonBytes, err := json.Marshal(map[string]string{
 		"sessionId":    creds.AccessKeyID,

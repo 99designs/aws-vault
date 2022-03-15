@@ -63,6 +63,7 @@ func ConfigureLoginCommand(app *kingpin.Application, a *AwsVault) {
 		input.Config.NonChainedGetSessionTokenDuration = input.SessionDuration
 		input.Config.AssumeRoleDuration = input.SessionDuration
 		input.Config.GetFederationTokenDuration = input.SessionDuration
+		input.Config.SSOUseStdout = input.UseStdout
 		keyring, err := a.Keyring()
 		if err != nil {
 			return err

@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/99designs/keyring v1.2.1
 	github.com/alecthomas/kingpin v0.0.0-20200323085623-b6657d9477a6
-	github.com/aws/aws-sdk-go-v2 v1.15.0
+	github.com/aws/aws-sdk-go-v2 v1.16.0
 	github.com/aws/aws-sdk-go-v2/config v1.15.0
 	github.com/aws/aws-sdk-go-v2/service/iam v1.18.0
 	github.com/aws/aws-sdk-go-v2/service/sso v1.11.0

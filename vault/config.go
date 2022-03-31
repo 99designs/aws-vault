@@ -12,6 +12,8 @@ import (
 	ini "gopkg.in/ini.v1"
 )
 
+const Day = 24 * time.Hour
+
 const (
 	// DefaultSessionDuration is the default duration for GetSessionToken or AssumeRole sessions
 	DefaultSessionDuration = time.Hour * 1
@@ -21,6 +23,9 @@ const (
 
 	defaultSectionName          = "default"
 	roleChainingMaximumDuration = 1 * time.Hour
+
+	// DefaultAccessKeyLifetimeWarningAge is the default time in hours until a access key rotation warning is displayed
+	DefaultAccessKeyLifetimeWarningAge = 90 * Day
 )
 
 // UseSession will disable the use of GetSessionToken when set to false
@@ -127,26 +132,27 @@ func (c *ConfigFile) parseFile() error {
 
 // ProfileSection is a profile section of the config file
 type ProfileSection struct {
-	Name                    string `ini:"-"`
-	MfaSerial               string `ini:"mfa_serial,omitempty"`
-	RoleARN                 string `ini:"role_arn,omitempty"`
-	ExternalID              string `ini:"external_id,omitempty"`
-	Region                  string `ini:"region,omitempty"`
-	RoleSessionName         string `ini:"role_session_name,omitempty"`
-	DurationSeconds         uint   `ini:"duration_seconds,omitempty"`
-	SourceProfile           string `ini:"source_profile,omitempty"`
-	ParentProfile           string `ini:"parent_profile,omitempty"` // deprecated
-	IncludeProfile          string `ini:"include_profile,omitempty"`
-	SSOStartURL             string `ini:"sso_start_url,omitempty"`
-	SSORegion               string `ini:"sso_region,omitempty"`
-	SSOAccountID            string `ini:"sso_account_id,omitempty"`
-	SSORoleName             string `ini:"sso_role_name,omitempty"`
-	WebIdentityTokenFile    string `ini:"web_identity_token_file,omitempty"`
-	WebIdentityTokenProcess string `ini:"web_identity_token_process,omitempty"`
-	STSRegionalEndpoints    string `ini:"sts_regional_endpoints,omitempty"`
-	SessionTags             string `ini:"session_tags,omitempty"`
-	TransitiveSessionTags   string `ini:"transitive_session_tags,omitempty"`
-	SourceIdentity          string `ini:"source_identity,omitempty"`
+	Name                        string `ini:"-"`
+	MfaSerial                   string `ini:"mfa_serial,omitempty"`
+	RoleARN                     string `ini:"role_arn,omitempty"`
+	ExternalID                  string `ini:"external_id,omitempty"`
+	Region                      string `ini:"region,omitempty"`
+	RoleSessionName             string `ini:"role_session_name,omitempty"`
+	DurationSeconds             uint   `ini:"duration_seconds,omitempty"`
+	SourceProfile               string `ini:"source_profile,omitempty"`
+	ParentProfile               string `ini:"parent_profile,omitempty"` // deprecated
+	IncludeProfile              string `ini:"include_profile,omitempty"`
+	SSOStartURL                 string `ini:"sso_start_url,omitempty"`
+	SSORegion                   string `ini:"sso_region,omitempty"`
+	SSOAccountID                string `ini:"sso_account_id,omitempty"`
+	SSORoleName                 string `ini:"sso_role_name,omitempty"`
+	WebIdentityTokenFile        string `ini:"web_identity_token_file,omitempty"`
+	WebIdentityTokenProcess     string `ini:"web_identity_token_process,omitempty"`
+	STSRegionalEndpoints        string `ini:"sts_regional_endpoints,omitempty"`
+	SessionTags                 string `ini:"session_tags,omitempty"`
+	TransitiveSessionTags       string `ini:"transitive_session_tags,omitempty"`
+	SourceIdentity              string `ini:"source_identity,omitempty"`
+	AccessKeyLifetimeWarningAge uint   `ini:"access_key_lifetime_warning_age,omitempty"`
 }
 
 func (s ProfileSection) IsEmpty() bool {
@@ -273,6 +279,9 @@ func (cl *ConfigLoader) populateFromDefaults(config *Config) {
 	if config.ChainedGetSessionTokenDuration == 0 {
 		config.ChainedGetSessionTokenDuration = DefaultChainedSessionDuration
 	}
+	if config.SourceProfileName == "" && config.AccessKeyLifetimeWarningAge == 0 {
+		config.AccessKeyLifetimeWarningAge = DefaultAccessKeyLifetimeWarningAge
+	}
 }
 
 func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName string) error {
@@ -331,6 +340,10 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 	if config.SourceIdentity == "" {
 		config.SourceIdentity = psection.SourceIdentity
 	}
+	if config.AccessKeyLifetimeWarningAge == 0 {
+		config.AccessKeyLifetimeWarningAge = time.Duration(psection.AccessKeyLifetimeWarningAge) * time.Hour
+	}
+
 	if sessionTags := psection.SessionTags; sessionTags != "" && config.SessionTags == nil {
 		err := config.SetSessionTags(sessionTags)
 		if err != nil {
@@ -522,6 +535,9 @@ type Config struct {
 
 	// GetSessionTokenDuration specifies the wanted duration for credentials generated with AssumeRole
 	AssumeRoleDuration time.Duration
+
+	// AccessKeyLifetimeWarningAge specifies the duration of a access key until a rotation warning is displayed
+	AccessKeyLifetimeWarningAge time.Duration
 
 	// NonChainedGetSessionTokenDuration specifies the wanted duration for credentials generated with GetSessionToken
 	NonChainedGetSessionTokenDuration time.Duration

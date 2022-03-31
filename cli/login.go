@@ -110,6 +110,8 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 		}
 	}
 
+	vault.CheckAccessKeyAge(config, keyring)
+
 	creds, err := credsProvider.Retrieve(context.TODO())
 	if err != nil {
 		return fmt.Errorf("Failed to get credentials: %w", err)

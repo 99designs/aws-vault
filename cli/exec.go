@@ -145,6 +145,8 @@ func ExecCommand(input ExecCommandInput, f *vault.ConfigFile, keyring keyring.Ke
 		return err
 	}
 
+	vault.CheckAccessKeyAge(&input.Config, keyring)
+
 	vault.UseSession = !input.NoSession
 
 	configLoader := vault.ConfigLoader{

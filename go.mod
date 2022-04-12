@@ -7,7 +7,7 @@ require (
 	github.com/alecthomas/kingpin v0.0.0-20200323085623-b6657d9477a6
 	github.com/aws/aws-sdk-go-v2 v1.16.2
 	github.com/aws/aws-sdk-go-v2/config v1.15.3
-	github.com/aws/aws-sdk-go-v2/service/iam v1.18.0
+	github.com/aws/aws-sdk-go-v2/service/iam v1.18.3
 	github.com/aws/aws-sdk-go-v2/service/sso v1.11.3
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.12.3
 	github.com/aws/aws-sdk-go-v2/service/sts v1.16.3

@@ -81,7 +81,7 @@ func withSecurityChecks(next *http.ServeMux) http.HandlerFunc {
 		// Check that the request is to 169.254.169.254
 		// Without this it's possible for an attacker to mount a DNS rebinding attack
 		// See https://github.com/99designs/aws-vault/issues/578
-		if r.Host != ec2MetadataEndpointIP {
+		if r.Host != ec2MetadataEndpointIP && r.Host != ec2MetadataEndpointAddr {
 			http.Error(w, fmt.Sprintf("Access denied for host '%s'", r.Host), http.StatusUnauthorized)
 			return
 		}

@@ -4,6 +4,9 @@ on:
   pull_request:
     branches:
       - master
+permissions:
+  contents: read
+
 jobs:
   test:
     name: test
@@ -19,6 +22,9 @@ jobs:
       - name: Run tests
         run: go test -race ./...
   lint:
+    permissions:
+      contents: read  # for actions/checkout to fetch code
+      pull-requests: read  # for golangci/golangci-lint-action to fetch pull requests
     name: lint
     strategy:
       matrix:

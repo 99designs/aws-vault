@@ -528,6 +528,7 @@ Further config:
  - `AWS_VAULT_PROMPT=ykman`: to avoid specifying `--prompt` each time
  - `YKMAN_OATH_CREDENTIAL_NAME`: to use an alternative ykman credential
  - `AWS_VAULT_YKMAN_VERSION`: to set the major version of the ykman cli being used. Defaults to "4"
+ - `YKMAN_OATH_DEVICE_SERIAL`: to set the device serial of a specific Yubikey if you have multiple Yubikeys plugged into your computer.
 
 ## Shell completion
 

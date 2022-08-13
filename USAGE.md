@@ -33,6 +33,7 @@
     - [Prerequisites](#prerequisites)
     - [Setup](#setup)
     - [Usage](#usage-1)
+  - [Using 1password](#using-1password)
   - [Shell completion](#shell-completion)
   - [Desktop apps](#desktop-apps)
   - [Docker](#docker)
@@ -528,6 +529,33 @@ Further config:
  - `AWS_VAULT_PROMPT=ykman`: to avoid specifying `--prompt` each time
  - `YKMAN_OATH_CREDENTIAL_NAME`: to use an alternative ykman credential
  - `AWS_VAULT_YKMAN_VERSION`: to set the major version of the ykman cli being used. Defaults to "4"
+
+## Using 1password
+
+1password an be used with AWS Vault to generate MFA codes.
+
+### Prerequisites
+ 1. [1password CLI v2](https://1password.com/downloads/command-line/)
+
+You can check the version of the CLI tool you have by running `op --version`.
+
+### Setup
+ 1. Log into the AWS web console with your IAM user credentials, and navigate to  _My Security Credentials_
+ 2. Under _Multi-factor authentication (MFA)_, click `Manage MFA device` and add a Virtual MFA device
+ 3. Save the MFA token to 1password using the QR code
+ 4. Add the tag "aws-vault" to the 1password item
+ 5. Add the MFA ARN to the URLs for the 1password item
+
+### Usage
+Using the `1password` prompt driver, aws-vault will execute `op` to find a matching entry and then generate a OTP.
+
+```shell
+aws-vault exec --prompt 1password ${AWS_VAULT_PROFILE_USING_MFA} -- aws sts get-caller-identity
+```
+
+Futher config:
+ - `AWS_VAULT_PROMPT=1password`: to avoid specifying `--prompt` each time
+ - `AWS_VAULT_OP_TAG_NAME`: to find items using a tag different from the default `aws-vault`
 
 ## Shell completion
 

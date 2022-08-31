@@ -55,7 +55,6 @@ s3=
 var defaultsOnlyConfigWithHeader = []byte(`[default]
 region=us-west-2
 output=json
-
 `)
 
 func newConfigFile(t *testing.T, b []byte) string {
@@ -224,7 +223,7 @@ func TestAddProfileToExistingNestedConfig(t *testing.T) {
 	}
 
 	expected := append(nestedConfig, []byte(
-		"\n[profile llamas]\nmfa_serial=testserial\nregion=us-east-1\n\n",
+		"\n[profile llamas]\nmfa_serial=testserial\nregion=us-east-1\n",
 	)...)
 
 	b, _ := ioutil.ReadFile(f)

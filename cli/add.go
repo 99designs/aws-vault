@@ -27,7 +27,7 @@ func ConfigureAddCommand(app *kingpin.Application, a *AwsVault) {
 		Required().
 		StringVar(&input.ProfileName)
 
-	cmd.Flag("env", "Read the credentials from the environment (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY & AWS_SESSION_TOKEN)").
+	cmd.Flag("env", "Read the credentials from the environment (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_SESSION_TOKEN)").
 		BoolVar(&input.FromEnv)
 
 	cmd.Flag("add-config", "Add a profile to ~/.aws/config if one doesn't exist").

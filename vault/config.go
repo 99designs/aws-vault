@@ -532,16 +532,16 @@ type Config struct {
 	// GetFederationTokenDuration specifies the wanted duration for credentials generated with GetFederationToken
 	GetFederationTokenDuration time.Duration
 
-	// SSOStartURL specifies the URL for the AWS SSO user portal.
+	// SSOStartURL specifies the URL for the AWS IAM Identity Center user portal.
 	SSOStartURL string
 
-	// SSORegion specifies the region for the AWS SSO user portal.
+	// SSORegion specifies the region for the AWS IAM Identity Center user portal.
 	SSORegion string
 
 	// SSOAccountID specifies the AWS account ID for the profile.
 	SSOAccountID string
 
-	// SSORoleName specifies the AWS SSO Role name to target.
+	// SSORoleName specifies the AWS IAM Role name to target.
 	SSORoleName string
 
 	// SSOUseStdout specifies that the system browser should not be automatically opened

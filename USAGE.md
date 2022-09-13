@@ -26,7 +26,7 @@
     - [Temporary credentials limitations with STS, IAM](#temporary-credentials-limitations-with-sts-iam)
   - [MFA](#mfa)
     - [Gotchas with MFA config](#gotchas-with-mfa-config)
-  - [AWS Single Sign-On (AWS SSO)](#aws-single-sign-on-aws-sso)
+  - [Single sign on with AWS IAM Identity Center (formerly AWS SSO)](#aws-single-sign-on-aws-sso)
   - [Assuming roles with web identities](#assuming-roles-with-web-identities)
   - [Using `credential_process`](#using-credential_process)
   - [Using a Yubikey](#using-a-yubikey)
@@ -424,13 +424,15 @@ include_profile = jon
 
 ## AWS Single Sign-On (AWS SSO)
 
-If your organization uses AWS Single Sign-On ([AWS SSO](https://aws.amazon.com/single-sign-on/)), AWS Vault provides a method for using the credential information defined by [AWS SSO CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html). The configuration options are as follows:
-* `sso_start_url` The URL that points to the organization's AWS SSO user portal.
-* `sso_region` The AWS Region that contains the AWS SSO portal host. This is separate from, and can be a different region than the default CLI region parameter.
+_AWS IAM Identity Center provides single sign on, and was previously known as AWS SSO._
+
+If your organization uses [AWS IAM Identity Center](https://aws.amazon.com/iam/identity-center/) for single sign on, AWS Vault provides a method for using the credential information defined by [`aws sso`](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html) from v2 of the AWS CLI. The configuration options are as follows:
+* `sso_start_url` The URL that points to the organization's AWS IAM Identity Center user portal.
+* `sso_region` The AWS Region that contains the AWS IAM Identity Center user portal host. This is separate from, and can be a different region than the default CLI region parameter.
 * `sso_account_id` The AWS account ID that contains the IAM role that you want to use with this profile.
 * `sso_role_name` The name of the IAM role that defines the user's permissions when using this profile.
 
-Here is an example configuration using AWS SSO.
+Here is an example configuration using AWS IAM Identity Center for single sign on.
 
 ```ini
 [profile Administrator-123456789012]
@@ -528,6 +530,7 @@ Further config:
  - `AWS_VAULT_PROMPT=ykman`: to avoid specifying `--prompt` each time
  - `YKMAN_OATH_CREDENTIAL_NAME`: to use an alternative ykman credential
  - `AWS_VAULT_YKMAN_VERSION`: to set the major version of the ykman cli being used. Defaults to "4"
+ - `YKMAN_OATH_DEVICE_SERIAL`: to set the device serial of a specific Yubikey if you have multiple Yubikeys plugged into your computer.
 
 ## Shell completion
 

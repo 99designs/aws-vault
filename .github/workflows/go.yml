@@ -1,8 +1,8 @@
 name: Continuous Integration
 on:
   push:
-  pull_request:
     branches:
+      - nl/make-updates-here
       - master
 permissions:
   contents: read
@@ -12,7 +12,7 @@ jobs:
     name: test
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/setup-go@v3
@@ -28,7 +28,7 @@ jobs:
     name: lint
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        os: [macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/setup-go@v3
@@ -39,3 +39,25 @@ jobs:
         uses: golangci/golangci-lint-action@v3.2.0
         with:
           version: v1.44.2
+  build:
+    permissions:
+      contents: read  # for actions/checkout to fetch code
+      pull-requests: read  # for golangci/golangci-lint-action to fetch pull requests
+    name: build
+    runs-on: macos-latest
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.17
+      - uses: actions/checkout@v3
+      - name: build
+        run: go build .
+      - name: upload & release
+      - uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Release"
+          files: |
+            bin/aws-vault

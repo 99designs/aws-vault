@@ -19,7 +19,7 @@ require (
 )
 
 // TODO: remove this once the keyring PR is merged upstream
-replace github.com/99designs/keyring => github.com/milesbxf/keyring milesbxf-touchid-support
+replace github.com/99designs/keyring => github.com/milesbxf/keyring v0.0.0-20220916120441-35a1afea02b0
 
 require (
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect

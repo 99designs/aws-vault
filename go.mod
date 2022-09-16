@@ -13,10 +13,13 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.16.15
 	github.com/google/go-cmp v0.5.8
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
-	golang.org/x/sys v0.0.0-20220829200755-d48e67d00261
+	golang.org/x/sys v0.0.0-20220913175220-63ea55921009
 	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035
 	gopkg.in/ini.v1 v1.67.0
 )
+
+// TODO: remove this once the keyring PR is merged upstream
+replace github.com/99designs/keyring => github.com/milesbxf/keyring milesbxf-touchid-support
 
 require (
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
@@ -33,5 +36,7 @@ require (
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect
+	github.com/lox/go-touchid v0.0.0-20170712105233-619cc8e578d0 // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
+	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 // indirect
 )

@@ -262,7 +262,7 @@ Deleted credentials.
 
 ### Rotating credentials
 
-Regularly rotating your access keys is a critical part of credential management. You can do this with the `aws-vault rotate <profile>` command as often as you like.
+Regularly rotating your access keys is a critical part of credential management. You can do this with the `aws-vault rotate <profile>` command as often as you like. [Restrictions on IAM access](#temporary-credentials-limitations-with-sts-iam) using `GetSessionToken` means you will need to have [configured MFA](#mfa) or use the `--no-session` flag. 
 
 The minimal IAM policy required to rotate your own credentials is:
 
@@ -374,12 +374,19 @@ The ECS server also responds to requests on `/role-arn/YOUR_ROLE_ARN` with the r
 
 ### Temporary credentials limitations with STS, IAM
 
-When using temporary credentials you are restricted from using some STS and IAM APIs (see [here](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_request.html#stsapi_comparison)). You may need to avoid the temporary session by using `--no-session`.
+When using temporary credentials you are restricted from using some STS and IAM APIs (see [here](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_request.html#stsapi_comparison)). The restriction is enforced with `InvalidClientTokenId` error response.
+
+```shell
+$ aws-vault exec <iam_user_profile> -- aws iam get-user
+An error occurred (InvalidClientTokenId) when calling the GetUser operation: The security token included in the request is invalid
+```
+
+For restricted IAM operation you can add MFA to the IAM User and update your ~/.aws/config file with [MFA configuration](#mfa). Alternately you may avoid the temporary session entirely by using `--no-session`. 
 
 
 ## MFA
 
-To enable MFA for a profile, specify the `mfa_serial` in `~/.aws/config`. You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username]`. If you have an account with an MFA associated, but you don't provide the IAM, you are unable to call IAM services, even if you have the correct permissions to do so.
+To enable MFA for a profile, specify the `mfa_serial` in `~/.aws/config`. You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username]`. If you have an account with an MFA associated, but you don't provide the ARN, you are unable to call IAM services, even if you have the correct permissions to do so.
 
 AWS Vault will attempt to re-use a `GetSessionToken` between profiles that share a common `mfa_serial`. In the following example, aws-vault will cache and re-use sessions between role1 and role2. This means you don't have to continually enter MFA codes if the user is the same.
 

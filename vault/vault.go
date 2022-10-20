@@ -196,6 +196,28 @@ func NewSSORoleCredentialsProvider(k keyring.Keyring, config *Config) (aws.Crede
 	return ssoRoleCredentialsProvider, nil
 }
 
+// NewCredentialProcessProvider creates a provider to retrieve credentials from an external
+// executable as described in https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
+func NewCredentialProcessProvider(k keyring.Keyring, config *Config) (aws.CredentialsProvider, error) {
+	credentialProcessProvider := &CredentialProcessProvider{
+		CredentialProcess: config.CredentialProcess,
+	}
+
+	if UseSessionCache {
+		return &CachedSessionProvider{
+			SessionKey: SessionMetadata{
+				Type:        "credential_process",
+				ProfileName: config.ProfileName,
+			},
+			Keyring:         &SessionKeyring{Keyring: k},
+			ExpiryWindow:    defaultExpirationWindow,
+			CredentialsFunc: credentialProcessProvider.callCredentialProcess,
+		}, nil
+	}
+
+	return credentialProcessProvider, nil
+}
+
 type tempCredsCreator struct {
 	keyring    *CredentialKeyring
 	chainedMfa string
@@ -205,6 +227,10 @@ func (t *tempCredsCreator) getSourceCreds(config *Config) (sourcecredsProvider a
 	if config.HasSourceProfile() {
 		log.Printf("profile %s: sourcing credentials from profile %s", config.ProfileName, config.SourceProfile.ProfileName)
 		return t.GetProviderForProfile(config.SourceProfile)
+	}
+	if config.HasCredentialProcess() {
+		log.Printf("profile %s: sourcing credentials from credential process", config.ProfileName)
+		return NewCredentialProcessProvider(t.keyring.Keyring, config)
 	}
 
 	hasStoredCredentials, err := t.keyring.Has(config.ProfileName)

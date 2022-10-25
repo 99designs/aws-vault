@@ -31,6 +31,7 @@ type AwsVault struct {
 
 	keyringImpl   keyring.Keyring
 	awsConfigFile *vault.ConfigFile
+	UseBiometrics bool
 }
 
 func (a *AwsVault) Keyring() (keyring.Keyring, error) {
@@ -120,16 +121,31 @@ func ConfigureGlobals(app *kingpin.Application) *AwsVault {
 		Envar("AWS_VAULT_FILE_DIR").
 		StringVar(&a.KeyringConfig.FileDir)
 
+	app.Flag("biometrics", "Use biometric authentication if supported").
+		Envar("AWS_VAULT_BIOMETRICS").
+		BoolVar(&a.UseBiometrics)
+
 	app.PreAction(func(c *kingpin.ParseContext) error {
 		if !a.Debug {
 			log.SetOutput(ioutil.Discard)
 		}
 		keyring.Debug = a.Debug
+
+		if a.UseBiometrics {
+			configureTouchID(&a.KeyringConfig)
+		}
+
 		log.Printf("aws-vault %s", app.Model().Version)
 		return nil
 	})
 
 	return a
+}
+
+func configureTouchID(k *keyring.Config) {
+	k.UseBiometrics = true
+	k.TouchIDAccount = "com.99designs.aws-vault.biometrics"
+	k.TouchIDService = "aws-vault"
 }
 
 func fileKeyringPassphrasePrompt(prompt string) (string, error) {

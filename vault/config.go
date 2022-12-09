@@ -137,6 +137,7 @@ type ProfileSection struct {
 	SourceProfile           string `ini:"source_profile,omitempty"`
 	ParentProfile           string `ini:"parent_profile,omitempty"` // deprecated
 	IncludeProfile          string `ini:"include_profile,omitempty"`
+	SSOSession              string `ini:"sso_session,omitempty"`
 	SSOStartURL             string `ini:"sso_start_url,omitempty"`
 	SSORegion               string `ini:"sso_region,omitempty"`
 	SSOAccountID            string `ini:"sso_account_id,omitempty"`
@@ -149,6 +150,14 @@ type ProfileSection struct {
 	SourceIdentity          string `ini:"source_identity,omitempty"`
 }
 
+// SSOSessionSection is a [sso-session] section of the config file
+type SSOSessionSection struct {
+	Name                  string `ini:"-"`
+	SSOStartURL           string `ini:"sso_start_url,omitempty"`
+	SSORegion             string `ini:"sso_region,omitempty"`
+	SSORegistrationScopes string `ini:"sso_registration_scopes,omitempty"`
+}
+
 func (s ProfileSection) IsEmpty() bool {
 	s.Name = ""
 	return s == ProfileSection{}
@@ -156,26 +165,28 @@ func (s ProfileSection) IsEmpty() bool {
 
 // ProfileSections returns all the profile sections in the config
 func (c *ConfigFile) ProfileSections() []ProfileSection {
-	result := []ProfileSection{}
+	var result []ProfileSection
 
 	if c.iniFile == nil {
 		return result
 	}
-
 	for _, section := range c.iniFile.SectionStrings() {
-		if section != defaultSectionName && !strings.HasPrefix(section, "profile ") {
+		if section == defaultSectionName || strings.HasPrefix(section, "profile ") {
+			profile, _ := c.ProfileSection(strings.TrimPrefix(section, "profile "))
+
+			// ignore the default profile if it's empty
+			if section == defaultSectionName && profile.IsEmpty() {
+				continue
+			}
+
+			result = append(result, profile)
+		} else if strings.HasPrefix(section, "sso-session ") {
+			// Not a profile
+			continue
+		} else {
 			log.Printf("Unrecognised ini file section: %s", section)
 			continue
 		}
-
-		profile, _ := c.ProfileSection(strings.TrimPrefix(section, "profile "))
-
-		// ignore the default profile if it's empty
-		if section == defaultSectionName && profile.IsEmpty() {
-			continue
-		}
-
-		result = append(result, profile)
 	}
 
 	return result
@@ -203,6 +214,30 @@ func (c *ConfigFile) ProfileSection(name string) (ProfileSection, bool) {
 		panic(err)
 	}
 	return profile, true
+}
+
+// SSOSessionSection returns the [sso-session] section with the matching name. If there isn't any,
+// an empty sso-session with the provided name is returned, along with false.
+func (c *ConfigFile) SSOSessionSection(name string) (SSOSessionSection, bool) {
+	ssoSession := SSOSessionSection{
+		Name: name,
+	}
+	if c.iniFile == nil {
+		return ssoSession, false
+	}
+	// default profile name has a slightly different section format
+	sectionName := "sso-session " + name
+	if name == defaultSectionName {
+		sectionName = defaultSectionName
+	}
+	section, err := c.iniFile.GetSection(sectionName)
+	if err != nil {
+		return ssoSession, false
+	}
+	if err = section.MapTo(&ssoSession); err != nil {
+		panic(err)
+	}
+	return ssoSession, true
 }
 
 func (c *ConfigFile) Save() error {
@@ -306,6 +341,19 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 	}
 	if config.SourceProfileName == "" {
 		config.SourceProfileName = psection.SourceProfile
+	}
+	if config.SSOSession == "" {
+		config.SSOSession = psection.SSOSession
+
+		// Populate profile with values from [sso-session].
+		ssoSection, ok := cl.File.SSOSessionSection(psection.SSOSession)
+		if !ok {
+			// ignore missing profiles
+			log.Printf("[sso-session] '%s' missing in config file", psection.SSOSession)
+		}
+		config.SSOStartURL = ssoSection.SSOStartURL
+		config.SSORegion = ssoSection.SSORegion
+		config.SSORegistrationScopes = ssoSection.SSORegistrationScopes
 	}
 	if config.SSOStartURL == "" {
 		config.SSOStartURL = psection.SSOStartURL
@@ -532,11 +580,17 @@ type Config struct {
 	// GetFederationTokenDuration specifies the wanted duration for credentials generated with GetFederationToken
 	GetFederationTokenDuration time.Duration
 
-	// SSOStartURL specifies the URL for the AWS IAM Identity Center user portal.
+	// SSOSession specifies the [sso-session] section name.
+	SSOSession string
+
+	// SSOStartURL specifies the URL for the AWS IAM Identity Center user portal, legacy option.
 	SSOStartURL string
 
-	// SSORegion specifies the region for the AWS IAM Identity Center user portal.
+	// SSORegion specifies the region for the AWS IAM Identity Center user portal, legacy option.
 	SSORegion string
+
+	// SSORegistrationScopes specifies registration scopes for the AWS IAM Identity Center user portal.
+	SSORegistrationScopes string
 
 	// SSOAccountID specifies the AWS account ID for the profile.
 	SSOAccountID string
@@ -594,6 +648,10 @@ func (c *Config) HasMfaSerial() bool {
 
 func (c *Config) HasRole() bool {
 	return c.RoleARN != ""
+}
+
+func (c *Config) HasSSOSession() bool {
+	return c.SSOSession != ""
 }
 
 func (c *Config) HasSSOStartURL() bool {

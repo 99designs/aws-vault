@@ -38,6 +38,16 @@ region=us-east-1
 
 [profile testincludeprofile2]
 include_profile=testincludeprofile1
+
+[profile with-sso-session]
+sso_session = moon-sso
+sso_account_id=123456
+region = moon-1 # Different from sso region
+
+[sso-session moon-sso]
+sso_start_url = https://d-123456789.example.com/start
+sso_region = moon-2  # Different from profile region
+sso_registration_scopes = sso:account:access
 `)
 
 var nestedConfig = []byte(`[default]
@@ -160,6 +170,7 @@ func TestProfilesFromConfig(t *testing.T) {
 		{Name: "withMFA", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2", STSRegionalEndpoints: "legacy"},
 		{Name: "testincludeprofile1", Region: "us-east-1"},
 		{Name: "testincludeprofile2", IncludeProfile: "testincludeprofile1"},
+		{Name: "with-sso-session", SSOSession: "moon-sso", Region: "moon-1", SSOAccountID: "123456"},
 	}
 	actual := cfg.ProfileSections()
 
@@ -194,6 +205,7 @@ func TestAddProfileToExistingConfig(t *testing.T) {
 		{Name: "withMFA", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2", STSRegionalEndpoints: "legacy"},
 		{Name: "testincludeprofile1", Region: "us-east-1"},
 		{Name: "testincludeprofile2", IncludeProfile: "testincludeprofile1"},
+		{Name: "with-sso-session", SSOSession: "moon-sso", Region: "moon-1", SSOAccountID: "123456"},
 		{Name: "llamas", MfaSerial: "testserial", Region: "us-east-1", SourceProfile: "default"},
 	}
 	actual := cfg.ProfileSections()
@@ -250,6 +262,36 @@ func TestIncludeProfile(t *testing.T) {
 	if config.Region != "us-east-1" {
 		t.Fatalf("Expected region %q, got %q", "us-east-1", config.Region)
 	}
+}
+
+func TestIncludeSsoSession(t *testing.T) {
+	f := newConfigFile(t, exampleConfig)
+	defer os.Remove(f)
+
+	configFile, err := vault.LoadConfig(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	configLoader := &vault.ConfigLoader{File: configFile}
+	config, err := configLoader.LoadFromProfile("with-sso-session")
+	if err != nil {
+		t.Fatalf("Should have found a profile: %v", err)
+	}
+
+	if config.Region != "moon-1" { // Test not the same as SSO region
+		t.Fatalf("Expected region %q, got %q", "moon-1", config.Region)
+	}
+
+	ssoStartUrl := "https://d-123456789.example.com/start"
+	if config.SSOStartURL != ssoStartUrl {
+		t.Fatalf("Expected sso_start_url %q, got %q", ssoStartUrl, config.Region)
+	}
+
+	if config.SSORegion != "moon-2" { // Test not the same as profile region
+		t.Fatalf("Expected sso_region %q, got %q", "moon-2", config.Region)
+	}
+	// Not checking sso_registration_scopes as it seems to be unused by aws-cli.
 }
 
 func TestProfileIsEmpty(t *testing.T) {

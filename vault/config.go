@@ -225,11 +225,7 @@ func (c *ConfigFile) SSOSessionSection(name string) (SSOSessionSection, bool) {
 	if c.iniFile == nil {
 		return ssoSession, false
 	}
-	// default profile name has a slightly different section format
 	sectionName := "sso-session " + name
-	if name == defaultSectionName {
-		sectionName = defaultSectionName
-	}
 	section, err := c.iniFile.GetSection(sectionName)
 	if err != nil {
 		return ssoSession, false

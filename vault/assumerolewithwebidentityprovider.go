@@ -3,7 +3,6 @@ package vault
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -77,7 +76,7 @@ func (p *AssumeRoleWithWebIdentityProvider) assumeRole(ctx context.Context) (*st
 func (p *AssumeRoleWithWebIdentityProvider) webIdentityToken() (string, error) {
 	// Read OpenID Connect token from WebIdentityTokenFile
 	if p.WebIdentityTokenFile != "" {
-		b, err := ioutil.ReadFile(p.WebIdentityTokenFile)
+		b, err := os.ReadFile(p.WebIdentityTokenFile)
 		if err != nil {
 			return "", fmt.Errorf("unable to read file at %s: %v", p.WebIdentityTokenFile, err)
 		}

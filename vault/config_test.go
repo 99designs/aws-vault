@@ -59,11 +59,11 @@ output=json
 
 func newConfigFile(t *testing.T, b []byte) string {
 	t.Helper()
-	f, err := ioutil.TempFile("", "aws-config")
+	f, err := os.CreateTemp("", "aws-config")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := ioutil.WriteFile(f.Name(), b, 0600); err != nil {
+	if err := os.WriteFile(f.Name(), b, 0600); err != nil {
 		t.Fatal(err)
 	}
 	return f.Name()
@@ -226,7 +226,7 @@ func TestAddProfileToExistingNestedConfig(t *testing.T) {
 		"\n[profile llamas]\nmfa_serial=testserial\nregion=us-east-1\n",
 	)...)
 
-	b, _ := ioutil.ReadFile(f)
+	b, _ := os.ReadFile(f)
 
 	if !bytes.Equal(expected, b) {
 		t.Fatalf("Expected:\n%q\nGot:\n%q", expected, b)

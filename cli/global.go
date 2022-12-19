@@ -2,7 +2,7 @@ package cli
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 
@@ -122,7 +122,7 @@ func ConfigureGlobals(app *kingpin.Application) *AwsVault {
 
 	app.PreAction(func(c *kingpin.ParseContext) error {
 		if !a.Debug {
-			log.SetOutput(ioutil.Discard)
+			log.SetOutput(io.Discard)
 		}
 		keyring.Debug = a.Debug
 		log.Printf("aws-vault %s", app.Model().Version)

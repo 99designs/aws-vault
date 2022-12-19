@@ -541,16 +541,12 @@ Further config:
 
 ## Shell completion
 
-You can generate shell completions with
-```shell
-# for bash
-eval "$(aws-vault --completion-script-bash)"
+You can generate shell completions for
+ - bash: `eval "$(curl -fs https://raw.githubusercontent.com/99designs/aws-vault/master/contrib/completions/bash/aws-vault.bash)"`
+ - zsh: `eval "$(curl -fs https://raw.githubusercontent.com/99designs/aws-vault/master/contrib/completions/zsh/aws-vault.zsh)"`
+ - fish: `eval "$(curl -fs https://raw.githubusercontent.com/99designs/aws-vault/master/contrib/completions/fish/aws-vault.fish)"`
 
-# for zsh
-eval "$(aws-vault --completion-script-zsh)"
-```
-
-There are more completion scripts at [contrib/completions](contrib/completions).
+Find the completion scripts at [contrib/completions](contrib/completions).
 
 
 ## Desktop apps

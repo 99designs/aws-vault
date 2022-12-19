@@ -26,7 +26,7 @@
     - [Temporary credentials limitations with STS, IAM](#temporary-credentials-limitations-with-sts-iam)
   - [MFA](#mfa)
     - [Gotchas with MFA config](#gotchas-with-mfa-config)
-  - [AWS Single Sign-On (AWS SSO)](#aws-single-sign-on-aws-sso)
+  - [Single sign on with AWS IAM Identity Center (formerly AWS SSO)](#aws-single-sign-on-aws-sso)
   - [Assuming roles with web identities](#assuming-roles-with-web-identities)
   - [Using `credential_process`](#using-credential_process)
   - [Using a Yubikey](#using-a-yubikey)
@@ -262,7 +262,7 @@ Deleted credentials.
 
 ### Rotating credentials
 
-Regularly rotating your access keys is a critical part of credential management. You can do this with the `aws-vault rotate <profile>` command as often as you like.
+Regularly rotating your access keys is a critical part of credential management. You can do this with the `aws-vault rotate <profile>` command as often as you like. [Restrictions on IAM access](#temporary-credentials-limitations-with-sts-iam) using `GetSessionToken` means you will need to have [configured MFA](#mfa) or use the `--no-session` flag. 
 
 The minimal IAM policy required to rotate your own credentials is:
 
@@ -374,12 +374,19 @@ The ECS server also responds to requests on `/role-arn/YOUR_ROLE_ARN` with the r
 
 ### Temporary credentials limitations with STS, IAM
 
-When using temporary credentials you are restricted from using some STS and IAM APIs (see [here](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_request.html#stsapi_comparison)). You may need to avoid the temporary session by using `--no-session`.
+When using temporary credentials you are restricted from using some STS and IAM APIs (see [here](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_request.html#stsapi_comparison)). The restriction is enforced with `InvalidClientTokenId` error response.
+
+```shell
+$ aws-vault exec <iam_user_profile> -- aws iam get-user
+An error occurred (InvalidClientTokenId) when calling the GetUser operation: The security token included in the request is invalid
+```
+
+For restricted IAM operation you can add MFA to the IAM User and update your ~/.aws/config file with [MFA configuration](#mfa). Alternately you may avoid the temporary session entirely by using `--no-session`. 
 
 
 ## MFA
 
-To enable MFA for a profile, specify the `mfa_serial` in `~/.aws/config`. You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username]`. If you have an account with an MFA associated, but you don't provide the IAM, you are unable to call IAM services, even if you have the correct permissions to do so.
+To enable MFA for a profile, specify the `mfa_serial` in `~/.aws/config`. You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username]`. If you have an account with an MFA associated, but you don't provide the ARN, you are unable to call IAM services, even if you have the correct permissions to do so.
 
 AWS Vault will attempt to re-use a `GetSessionToken` between profiles that share a common `mfa_serial`. In the following example, aws-vault will cache and re-use sessions between role1 and role2. This means you don't have to continually enter MFA codes if the user is the same.
 
@@ -424,13 +431,15 @@ include_profile = jon
 
 ## AWS Single Sign-On (AWS SSO)
 
-If your organization uses AWS Single Sign-On ([AWS SSO](https://aws.amazon.com/single-sign-on/)), AWS Vault provides a method for using the credential information defined by [AWS SSO CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html). The configuration options are as follows:
-* `sso_start_url` The URL that points to the organization's AWS SSO user portal.
-* `sso_region` The AWS Region that contains the AWS SSO portal host. This is separate from, and can be a different region than the default CLI region parameter.
+_AWS IAM Identity Center provides single sign on, and was previously known as AWS SSO._
+
+If your organization uses [AWS IAM Identity Center](https://aws.amazon.com/iam/identity-center/) for single sign on, AWS Vault provides a method for using the credential information defined by [`aws sso`](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html) from v2 of the AWS CLI. The configuration options are as follows:
+* `sso_start_url` The URL that points to the organization's AWS IAM Identity Center user portal.
+* `sso_region` The AWS Region that contains the AWS IAM Identity Center user portal host. This is separate from, and can be a different region than the default CLI region parameter.
 * `sso_account_id` The AWS account ID that contains the IAM role that you want to use with this profile.
 * `sso_role_name` The name of the IAM role that defines the user's permissions when using this profile.
 
-Here is an example configuration using AWS SSO.
+Here is an example configuration using AWS IAM Identity Center for single sign on.
 
 ```ini
 [profile Administrator-123456789012]
@@ -528,19 +537,16 @@ Further config:
  - `AWS_VAULT_PROMPT=ykman`: to avoid specifying `--prompt` each time
  - `YKMAN_OATH_CREDENTIAL_NAME`: to use an alternative ykman credential
  - `AWS_VAULT_YKMAN_VERSION`: to set the major version of the ykman cli being used. Defaults to "4"
+ - `YKMAN_OATH_DEVICE_SERIAL`: to set the device serial of a specific Yubikey if you have multiple Yubikeys plugged into your computer.
 
 ## Shell completion
 
-You can generate shell completions with
-```shell
-# for bash
-eval "$(aws-vault --completion-script-bash)"
+You can generate shell completions for
+ - bash: `eval "$(curl -fs https://raw.githubusercontent.com/99designs/aws-vault/master/contrib/completions/bash/aws-vault.bash)"`
+ - zsh: `eval "$(curl -fs https://raw.githubusercontent.com/99designs/aws-vault/master/contrib/completions/zsh/aws-vault.zsh)"`
+ - fish: `eval "$(curl -fs https://raw.githubusercontent.com/99designs/aws-vault/master/contrib/completions/fish/aws-vault.fish)"`
 
-# for zsh
-eval "$(aws-vault --completion-script-zsh)"
-```
-
-There are more completion scripts at [contrib/completions](contrib/completions).
+Find the completion scripts at [contrib/completions](contrib/completions).
 
 
 ## Desktop apps

@@ -16,7 +16,7 @@ import (
 const ec2CredentialsServerAddr = "127.0.0.1:9099"
 
 // StartEc2CredentialsServer starts a EC2 Instance Metadata server and endpoint proxy
-func StartEc2CredentialsServer(credsProvider aws.CredentialsProvider, region string) error {
+func StartEc2CredentialsServer(ctx context.Context, credsProvider aws.CredentialsProvider, region string) error {
 	if !isProxyRunning() {
 		if err := StartEc2EndpointProxyServerProcess(); err != nil {
 			return err
@@ -27,7 +27,7 @@ func StartEc2CredentialsServer(credsProvider aws.CredentialsProvider, region str
 
 	// pre-fetch credentials so that we can respond quickly to the first request
 	// SDKs seem to very aggressively timeout
-	_, _ = credsCache.Retrieve(context.TODO())
+	_, _ = credsCache.Retrieve(ctx)
 
 	go startEc2CredentialsServer(credsCache, region)
 

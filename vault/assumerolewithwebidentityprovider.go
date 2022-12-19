@@ -3,13 +3,11 @@ package vault
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"runtime"
 	"time"
-
-	exec "golang.org/x/sys/execabs"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
@@ -78,7 +76,7 @@ func (p *AssumeRoleWithWebIdentityProvider) assumeRole(ctx context.Context) (*st
 func (p *AssumeRoleWithWebIdentityProvider) webIdentityToken() (string, error) {
 	// Read OpenID Connect token from WebIdentityTokenFile
 	if p.WebIdentityTokenFile != "" {
-		b, err := ioutil.ReadFile(p.WebIdentityTokenFile)
+		b, err := os.ReadFile(p.WebIdentityTokenFile)
 		if err != nil {
 			return "", fmt.Errorf("unable to read file at %s: %v", p.WebIdentityTokenFile, err)
 		}

@@ -1,9 +1,8 @@
 package prompt
 
 import (
+	"os/exec"
 	"strings"
-
-	exec "golang.org/x/sys/execabs"
 )
 
 func KDialogMfaPrompt(mfaSerial string) (string, error) {

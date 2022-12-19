@@ -1,6 +1,7 @@
 package vault
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -269,7 +270,7 @@ func NewTempCredentialsProvider(config *Config, keyring *CredentialKeyring) (aws
 	return t.provider(config)
 }
 
-func NewFederationTokenCredentialsProvider(profileName string, k *CredentialKeyring, config *Config) (aws.CredentialsProvider, error) {
+func NewFederationTokenCredentialsProvider(ctx context.Context, profileName string, k *CredentialKeyring, config *Config) (aws.CredentialsProvider, error) {
 	credentialsName, err := FindMasterCredentialsNameFor(profileName, k, config)
 	if err != nil {
 		return nil, err
@@ -278,7 +279,7 @@ func NewFederationTokenCredentialsProvider(profileName string, k *CredentialKeyr
 	masterCreds := NewMasterCredentialsProvider(k, credentialsName)
 	cfg := NewAwsConfigWithCredsProvider(masterCreds, config.Region, config.STSRegionalEndpoints)
 
-	currentUsername, err := GetUsernameFromSession(cfg)
+	currentUsername, err := GetUsernameFromSession(ctx, cfg)
 	if err != nil {
 		return nil, err
 	}

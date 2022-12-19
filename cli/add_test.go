@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"io/ioutil"
 	"log"
 	"os"
 
@@ -9,7 +8,7 @@ import (
 )
 
 func ExampleAddCommand() {
-	f, err := ioutil.TempFile("", "aws-config")
+	f, err := os.CreateTemp("", "aws-config")
 	if err != nil {
 		log.Fatal(err)
 	}

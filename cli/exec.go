@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	osexec "os/exec"
 	"os/signal"
 	"runtime"
 	"strings"
@@ -19,7 +20,6 @@ import (
 	"github.com/99designs/keyring"
 	"github.com/alecthomas/kingpin"
 	"github.com/aws/aws-sdk-go-v2/aws"
-	osexec "golang.org/x/sys/execabs"
 )
 
 type ExecCommandInput struct {

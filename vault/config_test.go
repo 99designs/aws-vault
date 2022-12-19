@@ -3,7 +3,6 @@ package vault_test
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"testing"
@@ -276,7 +275,7 @@ func TestIniWithHeaderSavesWithHeader(t *testing.T) {
 
 	expected := defaultsOnlyConfigWithHeader
 
-	b, _ := ioutil.ReadFile(f)
+	b, _ := os.ReadFile(f)
 
 	if !bytes.Equal(expected, b) {
 		t.Fatalf("Expected:\n%q\nGot:\n%q", expected, b)

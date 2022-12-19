@@ -200,7 +200,7 @@ func updateEnvForAwsVault(env environ, profileName string, region string) enviro
 }
 
 func execEc2Server(input ExecCommandInput, config *vault.Config, credsProvider aws.CredentialsProvider) error {
-	if err := server.StartEc2CredentialsServer(credsProvider, config.Region); err != nil {
+	if err := server.StartEc2CredentialsServer(context.TODO(), credsProvider, config.Region); err != nil {
 		return fmt.Errorf("Failed to start credential server: %w", err)
 	}
 
@@ -211,7 +211,7 @@ func execEc2Server(input ExecCommandInput, config *vault.Config, credsProvider a
 }
 
 func execEcsServer(input ExecCommandInput, config *vault.Config, credsProvider aws.CredentialsProvider) error {
-	ecsServer, err := server.NewEcsServer(credsProvider, config, "", 0, input.Lazy)
+	ecsServer, err := server.NewEcsServer(context.TODO(), credsProvider, config, "", 0, input.Lazy)
 	if err != nil {
 		return err
 	}

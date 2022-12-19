@@ -101,7 +101,7 @@ func RotateCommand(input RotateCommandInput, f *vault.ConfigFile, keyring keyrin
 	cfg := vault.NewAwsConfigWithCredsProvider(credsProvider, config.Region, config.STSRegionalEndpoints)
 
 	// A username is needed for some IAM calls if the credentials have assumed a role
-	iamUserName, err := getUsernameIfAssumingRole(cfg, config)
+	iamUserName, err := getUsernameIfAssumingRole(context.TODO(), cfg, config)
 	if err != nil {
 		return err
 	}
@@ -175,9 +175,9 @@ func retry(maxTime time.Duration, sleep time.Duration, f func() error) (err erro
 	}
 }
 
-func getUsernameIfAssumingRole(awsCfg aws.Config, config *vault.Config) (*string, error) {
+func getUsernameIfAssumingRole(ctx context.Context, awsCfg aws.Config, config *vault.Config) (*string, error) {
 	if config.RoleARN != "" {
-		n, err := vault.GetUsernameFromSession(awsCfg)
+		n, err := vault.GetUsernameFromSession(ctx, awsCfg)
 		if err != nil {
 			return nil, fmt.Errorf("Error getting IAM username from session: %w", err)
 		}

@@ -62,6 +62,16 @@ func (input ExecCommandInput) validate() error {
 	return nil
 }
 
+func getDefaultShell() string {
+	if os.Getenv("SHELL") != "" {
+		return os.Getenv("SHELL")
+	}
+	if runtime.GOOS == "windows" {
+		return "cmd.exe"
+	}
+	return "/bin/sh"
+}
+
 func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 	input := ExecCommandInput{}
 
@@ -108,7 +118,7 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 		StringVar(&input.ProfileName)
 
 	cmd.Arg("cmd", "Command to execute, defaults to $SHELL").
-		Default(os.Getenv("SHELL")).
+		Default(getDefaultShell()).
 		StringVar(&input.Command)
 
 	cmd.Arg("args", "Command arguments").

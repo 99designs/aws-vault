@@ -280,21 +280,20 @@ func NewFederationTokenCredentialsProvider(ctx context.Context, profileName stri
 	masterCreds := NewMasterCredentialsProvider(k, credentialsName)
 	awsConfig := NewAwsConfigWithCredsProvider(masterCreds, config.Region, config.STSRegionalEndpoints)
 
-	currentUsername, err := GetUsernameFromSession(ctx, cfg)
-	return newFederationTokenCredentialsProvider(awsConfig, config)
+	return newFederationTokenCredentialsProvider(ctx, awsConfig, config)
 }
 
-func NewFederationTokenCredentialsProviderFromCredentials(creds *aws.Credentials, config *Config) (aws.CredentialsProvider, error) {
+func NewFederationTokenCredentialsProviderFromCredentials(ctx context.Context, creds *aws.Credentials, config *Config) (aws.CredentialsProvider, error) {
 	credentialsProvider := credentials.NewStaticCredentialsProvider(creds.AccessKeyID, creds.SecretAccessKey, "")
 	awsConfig := NewAwsConfigWithCredsProvider(credentialsProvider, config.Region, config.STSRegionalEndpoints)
 
-	return newFederationTokenCredentialsProvider(awsConfig, config)
+	return newFederationTokenCredentialsProvider(ctx, awsConfig, config)
 }
 
 // utility function to avoid code duplication
 // in NewFederationTokenCredentialsProvider and NewFederationTokenCredentialsProviderFromCredentials
-func newFederationTokenCredentialsProvider(awsConfig aws.Config, config *Config) (aws.CredentialsProvider, error) {
-	currentUsername, err := GetUsernameFromSession(awsConfig)
+func newFederationTokenCredentialsProvider(ctx context.Context, awsConfig aws.Config, config *Config) (aws.CredentialsProvider, error) {
+	currentUsername, err := GetUsernameFromSession(ctx, awsConfig)
 	if err != nil {
 		return nil, err
 	}

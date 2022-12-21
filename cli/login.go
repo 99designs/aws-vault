@@ -187,9 +187,9 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 
 // retrieveTemporaryCredsFromEnvironment contains the logic to retrieve the proper credentials
 // from the environment.
-// - Case 1: Temporary credentials are available - these are directly returned
-// - Case 2: Non-temporary credentials are available. A call to sts:GetFederation is made, and the resulting temporary
-//			 credentials returned
+//   - Case 1: Temporary credentials are available - these are directly returned
+//   - Case 2: Non-temporary credentials are available. A call to sts:GetFederation is made, and the resulting temporary
+//     credentials returned
 func retrieveTemporaryCredsFromEnvironment(config *vault.Config) (aws.Credentials, error) {
 	// When no profile is specified, source credentials from the environment
 	credsProvider := vault.NewEnvironmentCredentialsProvider()
@@ -203,7 +203,7 @@ func retrieveTemporaryCredsFromEnvironment(config *vault.Config) (aws.Credential
 	// allowing to generate a sign-in link.
 	// Non-temporary credentials cannot be used for this purpose
 	if creds.SessionToken == "" {
-		credsProvider, err := vault.NewFederationTokenCredentialsProviderFromCredentials(&creds, config)
+		credsProvider, err := vault.NewFederationTokenCredentialsProviderFromCredentials(context.TODO(), &creds, config)
 		if err != nil {
 			return aws.Credentials{}, err
 		}

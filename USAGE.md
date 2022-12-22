@@ -522,7 +522,7 @@ You can verify these prerequisites by running `ykman info` and checking `OATH` i
     ykman oath accounts add -t arn:aws:iam::${ACCOUNT_ID}:mfa/${MFA_DEVICE_NAME}
     ```
     replacing `${ACCOUNT_ID}` with your AWS account ID and `${MFA_DEVICE_NAME}` with the name you gave to the MFA device. It will prompt you for a base32 text and you can input the key from step 3. Notice the above command uses `-t` which requires you to touch your YubiKey to generate authentication codes.
- 5. Now you have to enter two consecutive MFA codes into the AWS website to assign your key to your AWS login. Just run `ykman oath accounts code arn:aws:iam::${ACCOUNT_ID}:mfa/${MFA_NAME}` to get an authentication code. The codes are re-generated every 30 seconds, so you have to run this command twice with about 30 seconds in between to get two distinct codes. Enter the two codes in the AWS form and click `Assign MFA`.
+ 5. Now you have to enter two consecutive MFA codes into the AWS website to assign your key to your AWS login. Just run `ykman oath accounts code arn:aws:iam::${ACCOUNT_ID}:mfa/${MFA_DEVICE_NAME}` to get an authentication code. The codes are re-generated every 30 seconds, so you have to run this command twice with about 30 seconds in between to get two distinct codes. Enter the two codes in the AWS form and click `Assign MFA`.
 
 A script can be found at [contrib/scripts/aws-iam-create-yubikey-mfa.sh](contrib/scripts/aws-iam-create-yubikey-mfa.sh) to automate the process. Note that this script requires your `$MFA_DEVICE_NAME` to be your IAM username as the `aws iam enable-mfa-device` command in the CLI does not yet offer specifying the name. When only one MFA device was allowed per IAM user, the `$MFA_DEVICE_NAME` would always be your IAM username.
 

@@ -386,9 +386,9 @@ For restricted IAM operation you can add MFA to the IAM User and update your ~/.
 
 ## MFA
 
-To enable MFA for a profile, specify the `mfa_serial` in `~/.aws/config`. You can retrieve the MFA's serial (ARN) in the web console, or you can usually derive it pretty easily using the format `arn:aws:iam::[account-id]:mfa/[your-iam-username]`. If you have an account with an MFA associated, but you don't provide the ARN, you are unable to call IAM services, even if you have the correct permissions to do so.
+To enable MFA for a profile, specify the `mfa_serial` in `~/.aws/config`. You can retrieve the MFA's serial (ARN) in the web console, under IAM > Users > `<User>` > Security Configuration. If you have an account with an MFA associated, but you don't provide the ARN, you are unable to call IAM services, even if you have the correct permissions to do so.
 
-AWS Vault will attempt to re-use a `GetSessionToken` between profiles that share a common `mfa_serial`. In the following example, aws-vault will cache and re-use sessions between role1 and role2. This means you don't have to continually enter MFA codes if the user is the same.
+AWS Vault will attempt to re-use a `GetSessionToken` between profiles that share a common `mfa_serial`. In the following example, aws-vault will cache and re-use sessions between role1 and role2. This means you don't have to continually enter MFA codes if the MFA method is the same.
 
 ```ini
 [profile tom]
@@ -405,7 +405,7 @@ role_arn = arn:aws:iam::33333333333:role/role2
 mfa_serial = arn:aws:iam::111111111111:mfa/tom
 ```
 
-Be sure to specify the `mfa_serial` for the source profile (in the above example `tom`) so that aws-vault can match the common `mfa_serial`.
+For aws-vault <=v4, be sure to specify the `mfa_serial` for the source profile (in the above example `tom`) so that aws-vault can match the common `mfa_serial`.
 
 You can also set the `mfa_serial` with the environment variable `AWS_MFA_SERIAL`.
 

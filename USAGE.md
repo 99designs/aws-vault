@@ -505,11 +505,11 @@ If you're using `credential_process` in your config you should not use `aws-vaul
 
 ## Using a Yubikey
 
-Yubikeys can be used with AWS Vault via Yubikey's OATH-TOTP support. TOTP is necessary because FIDO-U2F is unsupported on the AWS API.
+Yubikeys can be used with AWS Vault via Yubikey's OATH-TOTP support. TOTP is necessary because FIDO-U2F is unsupported on the AWS CLI and SDKs; even though it's supported on the AWS Console.
 
 ### Prerequisites
  1. [A Yubikey that supports OATH-TOTP](https://support.yubico.com/support/solutions/articles/15000006419-using-your-yubikey-with-authenticator-codes)
- 2. `ykman`, the [YubiKey Manager CLI](https://github.com/Yubico/yubikey-manager) tool
+ 2. `ykman`, the [YubiKey Manager CLI](https://github.com/Yubico/yubikey-manager) tool.
 
 You can verify these prerequisites by running `ykman info` and checking `OATH` is enabled.
 
@@ -519,14 +519,16 @@ You can verify these prerequisites by running `ykman info` and checking `OATH` i
  3. Instead of showing the QR code, click on `Show secret key` and copy the key.
  4. On a command line, run:
     ```shell
-    ykman oath accounts add -t arn:aws:iam::${ACCOUNT_ID}:mfa/${IAM_USERNAME}
+    ykman oath accounts add -t arn:aws:iam::${ACCOUNT_ID}:mfa/${MFA_DEVICE_NAME}
     ```
-    replacing `${ACCOUNT_ID}` with your AWS account ID and `${IAM_USERNAME}` with your IAM username. It will prompt you for a base32 text and you can input the key from step 3. Notice the above command uses `-t` which requires you to touch your YubiKey to generate authentication codes.
- 5. Now you have to enter two consecutive MFA codes into the AWS website to assign your key to your AWS login. Just run `ykman oath accounts code arn:aws:iam::${ACCOUNT_ID}:mfa/${IAM_USERNAME}` to get an authentication code. The codes are re-generated every 30 seconds, so you have to run this command twice with about 30 seconds in between to get two distinct codes. Enter the two codes in the AWS form and click `Assign MFA`
+    replacing `${ACCOUNT_ID}` with your AWS account ID and `${MFA_DEVICE_NAME}` with the name you gave to the MFA device. It will prompt you for a base32 text and you can input the key from step 3. Notice the above command uses `-t` which requires you to touch your YubiKey to generate authentication codes.
+ 5. Now you have to enter two consecutive MFA codes into the AWS website to assign your key to your AWS login. Just run `ykman oath accounts code arn:aws:iam::${ACCOUNT_ID}:mfa/${MFA_NAME}` to get an authentication code. The codes are re-generated every 30 seconds, so you have to run this command twice with about 30 seconds in between to get two distinct codes. Enter the two codes in the AWS form and click `Assign MFA`.
 
-A script can be found at [contrib/scripts/aws-iam-create-yubikey-mfa.sh](contrib/scripts/aws-iam-create-yubikey-mfa.sh) to automate the process.
+A script can be found at [contrib/scripts/aws-iam-create-yubikey-mfa.sh](contrib/scripts/aws-iam-create-yubikey-mfa.sh) to automate the process. Note that this script requires your `$MFA_DEVICE_NAME` to be your IAM username as the `aws iam enable-mfa-device` command in the CLI does not yet offer specifying the name. When only one MFA device was allowed per IAM user, the `$MFA_DEVICE_NAME` would always be your IAM username.
 
-In case of TOTP being out of sync (AWS API doesn't accept MFA codes), yubikey resync script can be found at [contrib/scripts/aws-iam-resync-yubikey-mfa.sh](contrib/scripts/aws-iam-resync-yubikey-mfa.sh) to resync the yubikey with AWS.
+In case of TOTP being out of sync (AWS API doesn't accept MFA codes), a yubikey resync script can be found at [contrib/scripts/aws-iam-resync-yubikey-mfa.sh](contrib/scripts/aws-iam-resync-yubikey-mfa.sh) to resync the yubikey with AWS. As above, this script requires your `$MFA_DEVICE_NAME` to be your IAM username.
+
+Note that each `[profile <name>]` in your `~/.aws/config` only supports one `mfa_serial` entry. If you wish to use multiple Yubikeys, or mix and match MFA devices, you'll need to add a profile for each method.
 
 ### Usage
 Using the `ykman` prompt driver, aws-vault will execute `ykman` to generate tokens for any profile in your `.aws/config` using an `mfa_device`.

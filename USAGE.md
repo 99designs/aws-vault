@@ -405,7 +405,7 @@ role_arn = arn:aws:iam::33333333333:role/role2
 mfa_serial = arn:aws:iam::111111111111:mfa/tom
 ```
 
-For aws-vault <=v4, be sure to specify the `mfa_serial` for the source profile (in the above example `tom`) so that aws-vault can match the common `mfa_serial`.
+Be sure to specify the `mfa_serial` for the source profile (in the above example `tom`) so that aws-vault can match the common `mfa_serial`.
 
 You can also set the `mfa_serial` with the environment variable `AWS_MFA_SERIAL`.
 

@@ -600,25 +600,17 @@ func (c *Config) HasSSOStartURL() bool {
 	return c.SSOStartURL != ""
 }
 
-func (c *Config) HasWebIdentityTokenFile() bool {
-	return c.WebIdentityTokenFile != ""
-}
-
-func (c *Config) HasWebIdentityTokenProcess() bool {
-	return c.WebIdentityTokenProcess != ""
+func (c *Config) HasWebIdentity() bool {
+	return c.WebIdentityTokenFile != "" || c.WebIdentityTokenProcess != ""
 }
 
 // CanUseGetSessionToken determines if GetSessionToken should be used, and if not returns a reason
 func (c *Config) CanUseGetSessionToken() (bool, string) {
 	if !UseSession {
-		return false, "disabled"
+		return false, "sessions are disabled"
 	}
 
-	if c.HasRole() {
-		if c.AssumeRoleDuration > roleChainingMaximumDuration {
-			return false, fmt.Sprintf("duration %s is greater than the AWS maximum %s for chaining MFA", c.AssumeRoleDuration, roleChainingMaximumDuration)
-		}
-	} else if c.IsChained() {
+	if c.IsChained() {
 		if !c.ChainedFromProfile.HasMfaSerial() {
 			return false, fmt.Sprintf("profile '%s' has no MFA serial defined", c.ChainedFromProfile.ProfileName)
 		}

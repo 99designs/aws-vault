@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/99designs/aws-vault/v6/vault"
+	"github.com/99designs/aws-vault/v7/vault"
 	"github.com/99designs/keyring"
 	"github.com/alecthomas/kingpin"
 	"github.com/aws/aws-sdk-go-v2/aws"

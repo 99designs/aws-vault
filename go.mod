@@ -1,4 +1,4 @@
-module github.com/99designs/aws-vault/v6
+module github.com/99designs/aws-vault/v7
 
 go 1.19
 

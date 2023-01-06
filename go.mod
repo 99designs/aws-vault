@@ -6,11 +6,11 @@ require (
 	github.com/99designs/keyring v1.2.2
 	github.com/alecthomas/kingpin v0.0.0-20200323085623-b6657d9477a6
 	github.com/aws/aws-sdk-go-v2 v1.17.3
-	github.com/aws/aws-sdk-go-v2/config v1.18.5
+	github.com/aws/aws-sdk-go-v2/config v1.18.8
 	github.com/aws/aws-sdk-go-v2/service/iam v1.18.25
-	github.com/aws/aws-sdk-go-v2/service/sso v1.11.27
-	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.13.10
-	github.com/aws/aws-sdk-go-v2/service/sts v1.17.7
+	github.com/aws/aws-sdk-go-v2/service/sso v1.12.0
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.14.0
+	github.com/aws/aws-sdk-go-v2/service/sts v1.18.0
 	github.com/google/go-cmp v0.5.9
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	golang.org/x/term v0.3.0
@@ -21,7 +21,7 @@ require (
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137 // indirect
-	github.com/aws/aws-sdk-go-v2/credentials v1.13.5 // indirect
+	github.com/aws/aws-sdk-go-v2/credentials v1.13.8 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.12.21 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.27 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.4.21 // indirect

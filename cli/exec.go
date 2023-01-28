@@ -20,6 +20,7 @@ import (
 	"github.com/99designs/keyring"
 	"github.com/alecthomas/kingpin"
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"golang.org/x/sync/errgroup"
 )
 
 type ExecCommandInput struct {
@@ -28,6 +29,7 @@ type ExecCommandInput struct {
 	Args             []string
 	StartEc2Server   bool
 	StartEcsServer   bool
+	ServerForeground bool
 	Lazy             bool
 	CredentialHelper bool
 	Config           vault.Config
@@ -39,6 +41,9 @@ type ExecCommandInput struct {
 func (input ExecCommandInput) validate() error {
 	if input.StartEc2Server && input.StartEcsServer {
 		return fmt.Errorf("Can't use --server with --ecs-server")
+	}
+	if input.ServerForeground && !input.StartEc2Server && input.StartEcsServer {
+		return fmt.Errorf("--server-foreground is only applicable when --server or --ecs-server are set")
 	}
 	if input.StartEc2Server && input.CredentialHelper {
 		return fmt.Errorf("Can't use --server with --json")
@@ -95,6 +100,9 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 
 	cmd.Flag("ecs-server", "Run a ECS credential server in the background for credentials (the SDK or app must support AWS_CONTAINER_CREDENTIALS_FULL_URI)").
 		BoolVar(&input.StartEcsServer)
+
+	cmd.Flag("server-foreground", "Runs the metadata server in the foreground instead of executing a command").
+		BoolVar(&input.ServerForeground)
 
 	cmd.Flag("lazy", "When using --ecs-server, lazily fetch credentials").
 		BoolVar(&input.Lazy)
@@ -163,12 +171,21 @@ func ExecCommand(input ExecCommandInput, f *vault.ConfigFile, keyring keyring.Ke
 		return fmt.Errorf("Error getting temporary credentials: %w", err)
 	}
 
+	ctx, cancel := context.WithCancel(context.TODO())
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		cancel()
+	}()
+
 	if input.StartEc2Server {
-		return execEc2Server(input, config, credsProvider)
+		return execEc2Server(ctx, input, config, credsProvider)
 	}
 
 	if input.StartEcsServer {
-		return execEcsServer(input, config, credsProvider)
+		return execEcsServer(ctx, input, config, credsProvider)
 	}
 
 	if input.CredentialHelper {
@@ -199,36 +216,59 @@ func updateEnvForAwsVault(env environ, profileName string, region string) enviro
 	return env
 }
 
-func execEc2Server(input ExecCommandInput, config *vault.Config, credsProvider aws.CredentialsProvider) error {
-	if err := server.StartEc2CredentialsServer(context.TODO(), credsProvider, config.Region); err != nil {
-		return fmt.Errorf("Failed to start credential server: %w", err)
+func execEc2Server(ctx context.Context, input ExecCommandInput, config *vault.Config, credsProvider aws.CredentialsProvider) error {
+	group, ctx := errgroup.WithContext(ctx)
+
+	group.Go(func() error {
+		if err := server.StartEc2CredentialsServer(ctx, credsProvider, config.Region); err != nil {
+			return fmt.Errorf("Failed to start credential server: %w", err)
+		}
+
+		return nil
+	})
+
+	if !input.ServerForeground {
+		env := environ(os.Environ())
+		env = updateEnvForAwsVault(env, input.ProfileName, config.Region)
+
+		group.Go(func() error {
+			return execCmd(input.Command, input.Args, env)
+		})
 	}
 
-	env := environ(os.Environ())
-	env = updateEnvForAwsVault(env, input.ProfileName, config.Region)
-
-	return execCmd(input.Command, input.Args, env)
+	return group.Wait()
 }
 
-func execEcsServer(input ExecCommandInput, config *vault.Config, credsProvider aws.CredentialsProvider) error {
-	ecsServer, err := server.NewEcsServer(context.TODO(), credsProvider, config, "", 0, input.Lazy)
+func execEcsServer(ctx context.Context, input ExecCommandInput, config *vault.Config, credsProvider aws.CredentialsProvider) error {
+	ecsServer, err := server.NewEcsServer(ctx, credsProvider, config, "", 0, input.Lazy)
 	if err != nil {
 		return err
 	}
-	go func() {
-		err = ecsServer.Serve()
-		if err != http.ErrServerClosed { // ErrServerClosed is a graceful close
+
+	group, ctx := errgroup.WithContext(ctx)
+
+	group.Go(func() error {
+		err = ecsServer.Serve(ctx)
+		if err != nil && err != http.ErrServerClosed { // ErrServerClosed is a graceful close
 			log.Fatalf("ecs server: %s", err.Error())
 		}
-	}()
 
-	log.Println("Setting subprocess env AWS_CONTAINER_CREDENTIALS_FULL_URI, AWS_CONTAINER_AUTHORIZATION_TOKEN")
-	env := environ(os.Environ())
-	env = updateEnvForAwsVault(env, input.ProfileName, config.Region)
-	env.Set("AWS_CONTAINER_CREDENTIALS_FULL_URI", ecsServer.BaseURL())
-	env.Set("AWS_CONTAINER_AUTHORIZATION_TOKEN", ecsServer.AuthToken())
+		return nil
+	})
 
-	return execCmd(input.Command, input.Args, env)
+	if !input.ServerForeground {
+		log.Println("Setting subprocess env AWS_CONTAINER_CREDENTIALS_FULL_URI, AWS_CONTAINER_AUTHORIZATION_TOKEN")
+		env := environ(os.Environ())
+		env = updateEnvForAwsVault(env, input.ProfileName, config.Region)
+		env.Set("AWS_CONTAINER_CREDENTIALS_FULL_URI", ecsServer.BaseURL())
+		env.Set("AWS_CONTAINER_AUTHORIZATION_TOKEN", ecsServer.AuthToken())
+
+		group.Go(func() error {
+			return execCmd(input.Command, input.Args, env)
+		})
+	}
+
+	return group.Wait()
 }
 
 func execCredentialHelper(input ExecCommandInput, credsProvider aws.CredentialsProvider) error {

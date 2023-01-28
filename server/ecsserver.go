@@ -16,6 +16,7 @@ import (
 	"github.com/99designs/aws-vault/v6/vault"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
+	"golang.org/x/sync/errgroup"
 )
 
 func writeErrorMessage(w http.ResponseWriter, msg string, statusCode int) {
@@ -105,8 +106,20 @@ func (e *EcsServer) AuthToken() string {
 	return e.authToken
 }
 
-func (e *EcsServer) Serve() error {
-	return e.server.Serve(e.listener)
+func (e *EcsServer) Serve(ctx context.Context) error {
+	group, ctx := errgroup.WithContext(ctx)
+	group.Go(func() error {
+		return startProxy(ctx)
+	})
+	group.Go(func() error {
+		return e.server.Serve(e.listener)
+	})
+
+	<-ctx.Done()
+
+	e.server.Shutdown(context.TODO())
+
+	return group.Wait()
 }
 
 func (e *EcsServer) DefaultRoute(w http.ResponseWriter, r *http.Request) {

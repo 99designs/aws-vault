@@ -11,30 +11,34 @@ import (
 
 	"github.com/99designs/aws-vault/v6/iso8601"
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"golang.org/x/sync/errgroup"
 )
 
 const ec2CredentialsServerAddr = "127.0.0.1:9099"
 
 // StartEc2CredentialsServer starts a EC2 Instance Metadata server and endpoint proxy
 func StartEc2CredentialsServer(ctx context.Context, credsProvider aws.CredentialsProvider, region string) error {
-	if !isProxyRunning() {
-		if err := StartEc2EndpointProxyServerProcess(); err != nil {
-			return err
-		}
-	}
-
 	credsCache := aws.NewCredentialsCache(credsProvider)
 
 	// pre-fetch credentials so that we can respond quickly to the first request
 	// SDKs seem to very aggressively timeout
-	_, _ = credsCache.Retrieve(ctx)
+	_, err := credsCache.Retrieve(ctx)
+	if err != nil {
+		return fmt.Errorf("initial credential retrieve: %w", err)
+	}
 
-	go startEc2CredentialsServer(credsCache, region)
+	group, ctx := errgroup.WithContext(ctx)
+	group.Go(func() error {
+		return startProxy(ctx)
+	})
+	group.Go(func() error {
+		return startEc2CredentialsServer(ctx, credsCache, region)
+	})
 
-	return nil
+	return group.Wait()
 }
 
-func startEc2CredentialsServer(credsProvider aws.CredentialsProvider, region string) {
+func startEc2CredentialsServer(ctx context.Context, credsProvider aws.CredentialsProvider, region string) error {
 	log.Printf("Starting EC2 Instance Metadata server on %s", ec2CredentialsServerAddr)
 	router := http.NewServeMux()
 
@@ -59,7 +63,18 @@ func startEc2CredentialsServer(credsProvider aws.CredentialsProvider, region str
 
 	router.HandleFunc("/latest/meta-data/iam/security-credentials/local-credentials", credsHandler(credsProvider))
 
-	log.Fatalln(http.ListenAndServe(ec2CredentialsServerAddr, withLogging(withSecurityChecks(router))))
+	srv := &http.Server{Addr: ec2CredentialsServerAddr, Handler: withLogging(withSecurityChecks(router))}
+
+	go func() {
+		err := srv.ListenAndServe()
+		if err != nil && err != http.ErrServerClosed {
+			log.Printf("Ungraceful termination of server: %+v", err)
+		}
+	}()
+
+	<-ctx.Done()
+
+	return srv.Shutdown(context.TODO())
 }
 
 // withSecurityChecks is middleware to protect the server from attack vectors

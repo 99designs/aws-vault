@@ -166,6 +166,33 @@ func NewAssumeRoleWithWebIdentityProvider(k keyring.Keyring, config *Config) (aw
 	return p, nil
 }
 
+// NewAssumeRoleWithCredentialProcessProvider returns a provider that generates
+// credentials using AssumeRoleWithCredentialProcess
+func NewAssumeRoleWithCredentialProcessProvider(k keyring.Keyring, config *Config) (aws.CredentialsProvider, error) {
+	cfg := NewAwsConfig(config.Region, config.STSRegionalEndpoints)
+
+	p := &CredentialFromProcessProvider{
+		StsClient:                 sts.NewFromConfig(cfg),
+		RoleARN:                   config.RoleARN,
+		AWSVaultCredentialProcess: config.AWSVaultCredentialProcess,
+		Duration:                  config.AssumeRoleDuration,
+	}
+
+	if UseSessionCache {
+		return &CachedSessionProvider{
+			SessionKey: SessionMetadata{
+				Type:        "sts.AssumeRoleWithCredentialProcess",
+				ProfileName: config.ProfileName,
+			},
+			Keyring:         &SessionKeyring{Keyring: k},
+			ExpiryWindow:    defaultExpirationWindow,
+			CredentialsFunc: p.assumeRole,
+		}, nil
+	}
+
+	return p, nil
+}
+
 // NewSSORoleCredentialsProvider creates a provider for SSO credentials
 func NewSSORoleCredentialsProvider(k keyring.Keyring, config *Config) (aws.CredentialsProvider, error) {
 	cfg := NewAwsConfig(config.SSORegion, config.STSRegionalEndpoints)
@@ -223,6 +250,8 @@ func (t *tempCredsCreator) provider(config *Config) (aws.CredentialsProvider, er
 		return NewSSORoleCredentialsProvider(t.keyring.Keyring, config)
 	} else if config.HasRole() && (config.HasWebIdentityTokenFile() || config.HasWebIdentityTokenProcess()) {
 		return NewAssumeRoleWithWebIdentityProvider(t.keyring.Keyring, config)
+	} else if config.HasAWSVaultCredentialProcess() {
+		return NewAssumeRoleWithCredentialProcessProvider(t.keyring.Keyring, config)
 	} else {
 		return nil, fmt.Errorf("profile %s: credentials missing", config.ProfileName)
 	}

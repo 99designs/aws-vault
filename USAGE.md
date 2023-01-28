@@ -26,9 +26,10 @@
     - [Temporary credentials limitations with STS, IAM](#temporary-credentials-limitations-with-sts-iam)
   - [MFA](#mfa)
     - [Gotchas with MFA config](#gotchas-with-mfa-config)
-  - [Single sign on with AWS IAM Identity Center (formerly AWS SSO)](#aws-single-sign-on-aws-sso)
+  - [AWS Single Sign-On (AWS SSO)](#aws-single-sign-on-aws-sso)
   - [Assuming roles with web identities](#assuming-roles-with-web-identities)
   - [Using `credential_process`](#using-credential_process)
+  - [Using `aws_vault_credential_process`](#using-aws_vault_credential_process)
   - [Using a Yubikey](#using-a-yubikey)
     - [Prerequisites](#prerequisites)
     - [Setup](#setup)
@@ -502,6 +503,22 @@ source_profile = jon
 
 If you're using `credential_process` in your config you should not use `aws-vault exec` on the command line to execute commands directly - the AWS SDK executes `aws-vault` for you.
 
+## Using `aws_vault_credential_process`
+
+Using `aws_vault_credential_process` in your config allows you to specify a command that will be executed to generate credentials. This is useful for supporting ad-hoc scenarios such as using as custom implementation of IAM Identity Provider logic that requires calling identity vendor specific APIs. This is not to be confused with `credential_process` which is a supported by AWS CLI. This allows for using the security advantages of aws-vault while using a custom credentials source.
+
+MFA is not supported in the profile section as it is expected to be handled externally. A profile using `aws_vault_credential_process` can be used as source profile for another profile specifying a role. Usage example:
+
+```ini
+[profile jon]
+aws_vault_credential_process=auth-client sts-creds --json
+
+[profile jon-admin]
+role_arn = arn:aws:iam::33333333333:role/role2
+source_profile=jon
+```
+
+In this example, when using jon-admin profile aws-vault gets credentials from jon (running the process if they are not cached) and then assumes the role for jon-admin using credentials for jon.
 
 ## Using a Yubikey
 

@@ -26,7 +26,7 @@
     - [Temporary credentials limitations with STS, IAM](#temporary-credentials-limitations-with-sts-iam)
   - [MFA](#mfa)
     - [Gotchas with MFA config](#gotchas-with-mfa-config)
-  - [AWS Single Sign-On (AWS SSO)](#aws-single-sign-on-aws-sso)
+  - [Single sign on with AWS IAM Identity Center (formerly AWS SSO)](#single-sign-on-with-aws-iam-identity-center-formerly-aws-sso)
   - [Assuming roles with web identities](#assuming-roles-with-web-identities)
   - [Using `credential_process`](#using-credential_process)
   - [Using `aws_vault_credential_process`](#using-aws_vault_credential_process)
@@ -430,9 +430,7 @@ role_arn = arn:aws:iam::33333333333:role/role2
 include_profile = jon
 ```
 
-## AWS Single Sign-On (AWS SSO)
-
-_AWS IAM Identity Center provides single sign on, and was previously known as AWS SSO._
+## Single sign on with AWS IAM Identity Center (formerly AWS SSO)
 
 If your organization uses [AWS IAM Identity Center](https://aws.amazon.com/iam/identity-center/) for single sign on, AWS Vault provides a method for using the credential information defined by [`aws sso`](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html) from v2 of the AWS CLI. The configuration options are as follows:
 * `sso_start_url` The URL that points to the organization's AWS IAM Identity Center user portal.
@@ -505,7 +503,7 @@ If you're using `credential_process` in your config you should not use `aws-vaul
 
 ## Using `aws_vault_credential_process`
 
-Using `aws_vault_credential_process` in your config allows you to specify a command that will be executed to generate credentials. This is useful for supporting ad-hoc scenarios such as using as custom implementation of IAM Identity Provider logic that requires calling identity vendor specific APIs. This is not to be confused with `credential_process` which is a supported by AWS CLI. This allows for using the security advantages of aws-vault while using a custom credentials source.
+Using `aws_vault_credential_process` in your config allows you to specify a command that will be executed to generate credentials. This is useful for supporting ad-hoc scenarios such as using as custom implementation of IAM Identity Provider logic that requires calling identity vendor specific APIs. This allows for using the security advantages of aws-vault while using a custom credentials source. This is not to be confused with `credential_process` which is supported by AWS CLI.
 
 MFA is not supported in the profile section as it is expected to be handled externally. A profile using `aws_vault_credential_process` can be used as source profile for another profile specifying a role. Usage example:
 

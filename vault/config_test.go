@@ -283,9 +283,9 @@ func TestIncludeSsoSession(t *testing.T) {
 		t.Fatalf("Expected region %q, got %q", "moon-1", config.Region)
 	}
 
-	ssoStartUrl := "https://d-123456789.example.com/start"
-	if config.SSOStartURL != ssoStartUrl {
-		t.Fatalf("Expected sso_start_url %q, got %q", ssoStartUrl, config.Region)
+	ssoStartURL := "https://d-123456789.example.com/start"
+	if config.SSOStartURL != ssoStartURL {
+		t.Fatalf("Expected sso_start_url %q, got %q", ssoStartURL, config.Region)
 	}
 
 	if config.SSORegion != "moon-2" { // Test not the same as profile region

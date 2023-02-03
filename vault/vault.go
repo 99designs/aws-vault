@@ -228,10 +228,6 @@ func (t *tempCredsCreator) getSourceCreds(config *Config) (sourcecredsProvider a
 		log.Printf("profile %s: sourcing credentials from profile %s", config.ProfileName, config.SourceProfile.ProfileName)
 		return t.GetProviderForProfile(config.SourceProfile)
 	}
-	if config.HasCredentialProcess() {
-		log.Printf("profile %s: sourcing credentials from credential process", config.ProfileName)
-		return NewCredentialProcessProvider(t.keyring.Keyring, config)
-	}
 
 	hasStoredCredentials, err := t.keyring.Has(config.ProfileName)
 	if err != nil {
@@ -255,6 +251,11 @@ func (t *tempCredsCreator) GetProviderForProfile(config *Config) (aws.Credential
 	if config.HasWebIdentity() {
 		log.Printf("profile %s: using web identity", config.ProfileName)
 		return NewAssumeRoleWithWebIdentityProvider(t.keyring.Keyring, config)
+	}
+
+	if config.HasCredentialProcess() {
+		log.Printf("profile %s: using credential process", config.ProfileName)
+		return NewCredentialProcessProvider(t.keyring.Keyring, config)
 	}
 
 	sourcecredsProvider, err := t.getSourceCreds(config)

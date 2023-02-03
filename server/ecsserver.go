@@ -12,8 +12,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/99designs/aws-vault/v6/iso8601"
-	"github.com/99designs/aws-vault/v6/vault"
+	"github.com/99designs/aws-vault/v7/iso8601"
+	"github.com/99designs/aws-vault/v7/vault"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
 )

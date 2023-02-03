@@ -5,7 +5,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/99designs/aws-vault/v6/server"
+	"github.com/99designs/aws-vault/v7/server"
 	"github.com/alecthomas/kingpin"
 )
 

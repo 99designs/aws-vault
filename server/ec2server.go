@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/99designs/aws-vault/v6/iso8601"
+	"github.com/99designs/aws-vault/v7/iso8601"
 	"github.com/aws/aws-sdk-go-v2/aws"
 )
 

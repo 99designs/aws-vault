@@ -17,5 +17,7 @@ func KDialogMfaPrompt(mfaSerial string) (string, error) {
 }
 
 func init() {
-	Methods["kdialog"] = KDialogMfaPrompt
+	if _, err := exec.LookPath("kdialog"); err == nil {
+		Methods["kdialog"] = KDialogMfaPrompt
+	}
 }

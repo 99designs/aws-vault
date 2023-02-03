@@ -17,5 +17,7 @@ func ZenityMfaPrompt(mfaSerial string) (string, error) {
 }
 
 func init() {
-	Methods["zenity"] = ZenityMfaPrompt
+	if _, err := exec.LookPath("zenity"); err == nil {
+		Methods["zenity"] = ZenityMfaPrompt
+	}
 }

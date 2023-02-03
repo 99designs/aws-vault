@@ -22,5 +22,7 @@ func OSAScriptMfaPrompt(mfaSerial string) (string, error) {
 }
 
 func init() {
-	Methods["osascript"] = OSAScriptMfaPrompt
+	if _, err := exec.LookPath("osascript"); err == nil {
+		Methods["osascript"] = OSAScriptMfaPrompt
+	}
 }

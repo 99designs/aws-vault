@@ -46,5 +46,7 @@ func YkmanMfaProvider(mfaSerial string) (string, error) {
 }
 
 func init() {
-	Methods["ykman"] = YkmanMfaProvider
+	if _, err := exec.LookPath("ykman"); err == nil {
+		Methods["ykman"] = YkmanMfaProvider
+	}
 }

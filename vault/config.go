@@ -149,6 +149,7 @@ type ProfileSection struct {
 	TransitiveSessionTags   string `ini:"transitive_session_tags,omitempty"`
 	SourceIdentity          string `ini:"source_identity,omitempty"`
 	CredentialProcess       string `ini:"credential_process,omitempty"`
+	MfaProcess              string `ini:"mfa_process,omitempty"`
 }
 
 // SSOSessionSection is a [sso-session] section of the config file
@@ -379,6 +380,9 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 	if config.CredentialProcess == "" {
 		config.CredentialProcess = psection.CredentialProcess
 	}
+	if config.MfaProcess == "" {
+		config.MfaProcess = psection.MfaProcess
+	}
 	if sessionTags := psection.SessionTags; sessionTags != "" && config.SessionTags == nil {
 		err := config.SetSessionTags(sessionTags)
 		if err != nil {
@@ -558,6 +562,9 @@ type Config struct {
 	MfaSerial       string
 	MfaToken        string
 	MfaPromptMethod string
+
+	// MfaProcess specifies external command to run to get an MFA token
+	MfaProcess string
 
 	// AssumeRole config
 	RoleARN         string

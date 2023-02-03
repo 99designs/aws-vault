@@ -1,5 +1,6 @@
 #!/bin/sh
-# Adds a Yubikey TOTP device to IAM
+# Adds a Yubikey TOTP device to IAM using your IAM User as the $MFA_DEVICE_NAME
+# Currently, aws iam enable-mfa-device doesn't support specifying your MFA Device Name.
 
 set -eu
 

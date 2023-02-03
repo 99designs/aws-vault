@@ -7,6 +7,7 @@
       - [`include_profile`](#include_profile)
       - [`session_tags` and `transitive_session_tags`](#session_tags-and-transitive_session_tags)
       - [`source_identity`](#source_identity)
+      - [`mfa_process`](#mfa_process)
     - [Environment variables](#environment-variables)
   - [Backends](#backends)
     - [Keychain](#keychain)
@@ -26,9 +27,11 @@
     - [Temporary credentials limitations with STS, IAM](#temporary-credentials-limitations-with-sts-iam)
   - [MFA](#mfa)
     - [Gotchas with MFA config](#gotchas-with-mfa-config)
-  - [Single sign on with AWS IAM Identity Center (formerly AWS SSO)](#aws-single-sign-on-aws-sso)
+  - [Single Sign On (SSO)](#single-sign-on-sso)
   - [Assuming roles with web identities](#assuming-roles-with-web-identities)
   - [Using `credential_process`](#using-credential_process)
+    - [Invoking `aws-vault` via `credential_process`](#invoking-aws-vault-via-credential_process)
+    - [Invoking `credential_process` via `aws-vault`](#invoking-credential_process-via-aws-vault)
   - [Using a Yubikey](#using-a-yubikey)
     - [Prerequisites](#prerequisites)
     - [Setup](#setup)
@@ -135,6 +138,26 @@ role_arn=arn:aws:iam::123456789:role/developers
 source_identity=your_user_name
 ```
 
+#### `mfa_process`
+If you have a method to generate an MFA token, you can use it with `aws-vault` by specifying the `mfa_process` option in a profile of your `~/.aws/config` file. The value of `mfa_process` should be a command that will output the MFA token to stdout.
+
+For example, to use `pass` to retrieve an MFA token from a password store entry, you could use the following:
+
+```ini
+[profile foo]
+mfa_serial=arn:aws:iam::123456789:mfa/johnsmith
+mfa_process=pass otp my_aws_mfa
+```
+
+Or another example using 1Password
+
+```ini
+[profile foo]
+mfa_serial=arn:aws:iam::123456789:mfa/johnsmith
+mfa_process=op item get my_aws_mfa --otp
+```
+
+WARNING: Use of this option runs against security best practices. It is recommended that you use a dedicated MFA device.
 
 ### Environment variables
 
@@ -429,7 +452,7 @@ role_arn = arn:aws:iam::33333333333:role/role2
 include_profile = jon
 ```
 
-## AWS Single Sign-On (AWS SSO)
+## Single Sign On (SSO)
 
 _AWS IAM Identity Center provides single sign on, and was previously known as AWS SSO._
 

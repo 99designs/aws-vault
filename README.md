@@ -81,6 +81,7 @@ AWS Vault then exposes the temporary credentials to the sub-process in one of tw
    AWS_SECRET_ACCESS_KEY=%%%
    AWS_SESSION_TOKEN=%%%
    AWS_SECURITY_TOKEN=%%%
+   AWS_CREDENTIAL_EXPIRATION=2020-04-16T11:16:27Z
    AWS_SESSION_EXPIRATION=2020-04-16T11:16:27Z
    ```
 2. **Local [EC2 Instance Metadata server](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html)** is started. This approach has the advantage that anything that uses Amazon's SDKs will automatically refresh credentials as needed, so session times can be as short as possible. The downside is that only one can run per host and because it binds to `169.254.169.254:80`, your sudo password is required.

@@ -287,7 +287,8 @@ func execEnvironment(input ExecCommandInput, config *vault.Config, credsProvider
 		env.Set("AWS_SECURITY_TOKEN", creds.SessionToken)
 	}
 	if creds.CanExpire {
-		log.Println("Setting subprocess env: AWS_SESSION_EXPIRATION")
+		log.Println("Setting subprocess env: AWS_CREDENTIAL_EXPIRATION, AWS_SESSION_EXPIRATION")
+		env.Set("AWS_CREDENTIAL_EXPIRATION", iso8601.Format(creds.Expires))
 		env.Set("AWS_SESSION_EXPIRATION", iso8601.Format(creds.Expires))
 	}
 

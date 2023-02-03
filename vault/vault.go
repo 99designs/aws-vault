@@ -221,7 +221,7 @@ func (t *tempCredsCreator) getSourceCreds(config *Config) (sourcecredsProvider a
 }
 
 func (t *tempCredsCreator) GetProviderForProfile(config *Config) (aws.CredentialsProvider, error) {
-	if config.HasSSOStartURL() {
+	if config.HasSSOStartURL() || config.HasSSOSession() {
 		log.Printf("profile %s: using SSO role credentials", config.ProfileName)
 		return NewSSORoleCredentialsProvider(t.keyring.Keyring, config)
 	}

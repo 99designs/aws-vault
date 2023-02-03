@@ -434,6 +434,7 @@ include_profile = jon
 _AWS IAM Identity Center provides single sign on, and was previously known as AWS SSO._
 
 If your organization uses [AWS IAM Identity Center](https://aws.amazon.com/iam/identity-center/) for single sign on, AWS Vault provides a method for using the credential information defined by [`aws sso`](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html) from v2 of the AWS CLI. The configuration options are as follows:
+* `sso_session` Name of the `[sso-session]` section in the same file with the common options, or:
 * `sso_start_url` The URL that points to the organization's AWS IAM Identity Center user portal.
 * `sso_region` The AWS Region that contains the AWS IAM Identity Center user portal host. This is separate from, and can be a different region than the default CLI region parameter.
 * `sso_account_id` The AWS account ID that contains the IAM role that you want to use with this profile.

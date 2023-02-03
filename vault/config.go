@@ -148,6 +148,7 @@ type ProfileSection struct {
 	SessionTags             string `ini:"session_tags,omitempty"`
 	TransitiveSessionTags   string `ini:"transitive_session_tags,omitempty"`
 	SourceIdentity          string `ini:"source_identity,omitempty"`
+	CredentialProcess       string `ini:"credential_process,omitempty"`
 }
 
 // SSOSessionSection is a [sso-session] section of the config file
@@ -374,6 +375,9 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 	}
 	if config.SourceIdentity == "" {
 		config.SourceIdentity = psection.SourceIdentity
+	}
+	if config.CredentialProcess == "" {
+		config.CredentialProcess = psection.CredentialProcess
 	}
 	if sessionTags := psection.SessionTags; sessionTags != "" && config.SessionTags == nil {
 		err := config.SetSessionTags(sessionTags)
@@ -605,6 +609,9 @@ type Config struct {
 
 	// SourceIdentity specifies assumed role Source Identity
 	SourceIdentity string
+
+	// CredentialProcess specifies external command to run to get an AWS credential
+	CredentialProcess string
 }
 
 // SetSessionTags parses a comma separated key=vaue string and sets Config.SessionTags map
@@ -656,6 +663,10 @@ func (c *Config) HasSSOStartURL() bool {
 
 func (c *Config) HasWebIdentity() bool {
 	return c.WebIdentityTokenFile != "" || c.WebIdentityTokenProcess != ""
+}
+
+func (c *Config) HasCredentialProcess() bool {
+	return c.CredentialProcess != ""
 }
 
 // CanUseGetSessionToken determines if GetSessionToken should be used, and if not returns a reason

@@ -262,7 +262,7 @@ Deleted credentials.
 
 ### Rotating credentials
 
-Regularly rotating your access keys is a critical part of credential management. You can do this with the `aws-vault rotate <profile>` command as often as you like. [Restrictions on IAM access](#temporary-credentials-limitations-with-sts-iam) using `GetSessionToken` means you will need to have [configured MFA](#mfa) or use the `--no-session` flag. 
+Regularly rotating your access keys is a critical part of credential management. You can do this with the `aws-vault rotate <profile>` command as often as you like. [Restrictions on IAM access](#temporary-credentials-limitations-with-sts-iam) using `GetSessionToken` means you will need to have [configured MFA](#mfa) or use the `--no-session` flag.
 
 The minimal IAM policy required to rotate your own credentials is:
 
@@ -381,7 +381,7 @@ $ aws-vault exec <iam_user_profile> -- aws iam get-user
 An error occurred (InvalidClientTokenId) when calling the GetUser operation: The security token included in the request is invalid
 ```
 
-For restricted IAM operation you can add MFA to the IAM User and update your ~/.aws/config file with [MFA configuration](#mfa). Alternately you may avoid the temporary session entirely by using `--no-session`. 
+For restricted IAM operation you can add MFA to the IAM User and update your ~/.aws/config file with [MFA configuration](#mfa). Alternately you may avoid the temporary session entirely by using `--no-session`.
 
 
 ## MFA
@@ -476,6 +476,8 @@ web_identity_token_process = oidccli raw
 
 The [AWS CLI config](https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes) supports sourcing credentials directly from an external process, using `credential_process`.
 
+### Invoking `aws-vault` via `credential_process`
+
 ```ini
 [profile home]
 credential_process = aws-vault exec home --json
@@ -501,8 +503,11 @@ role_arn = arn:aws:iam::33333333333:role/role2
 source_profile = jon
 ```
 
-If you're using `credential_process` in your config you should not use `aws-vault exec` on the command line to execute commands directly - the AWS SDK executes `aws-vault` for you.
+If you're using `credential_process` in your config to invoke `aws-vault exec` you should not use `aws-vault exec` on the command line to execute commands directly - the AWS SDK executes `aws-vault` for you.
 
+### Invoking `credential_process` via `aws-vault`
+
+When executing a profile via `aws-vault exec` that has `credential_process` set, `aws-vault` will execute the specified command to obtain a credential.  This will allow `aws-vault` to cache credentials obtained via `credential_process`.
 
 ## Using a Yubikey
 

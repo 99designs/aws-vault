@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
-	"runtime"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -85,22 +83,5 @@ func (p *AssumeRoleWithWebIdentityProvider) webIdentityToken() (string, error) {
 	}
 
 	// Exec WebIdentityTokenProcess to retrieve OpenID Connect token
-	var cmdArgs []string
-	if runtime.GOOS == "windows" {
-		cmdArgs = []string{"cmd.exe", "/C", p.WebIdentityTokenProcess}
-	} else {
-		cmdArgs = []string{"/bin/sh", "-c", p.WebIdentityTokenProcess}
-	}
-
-	cmd := exec.Command(cmdArgs[0], cmdArgs[1:]...)
-	cmd.Env = os.Environ()
-	cmd.Stdin = os.Stdin
-	cmd.Stderr = os.Stderr
-
-	b, err := cmd.Output()
-	if err != nil {
-		return "", fmt.Errorf("failed to run command %q: %v", p.WebIdentityTokenProcess, err)
-	}
-
-	return string(b), err
+	return executeProcess(p.WebIdentityTokenProcess)
 }

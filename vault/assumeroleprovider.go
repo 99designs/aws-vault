@@ -21,7 +21,7 @@ type AssumeRoleProvider struct {
 	Tags              map[string]string
 	TransitiveTagKeys []string
 	SourceIdentity    string
-	Mfa
+	*Mfa
 }
 
 // Retrieve generates a new set of temporary credentials using STS AssumeRole
@@ -62,8 +62,8 @@ func (p *AssumeRoleProvider) assumeRole(ctx context.Context) (*ststypes.Credenti
 		input.ExternalId = aws.String(p.ExternalID)
 	}
 
-	if p.MfaSerial != "" {
-		input.SerialNumber = aws.String(p.MfaSerial)
+	if p.GetMfaSerial() != "" {
+		input.SerialNumber = aws.String(p.GetMfaSerial())
 		input.TokenCode, err = p.GetMfaToken()
 		if err != nil {
 			return nil, err

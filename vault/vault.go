@@ -2,13 +2,11 @@ package vault
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"os"
 	"time"
 
-	"github.com/99designs/aws-vault/v7/prompt"
 	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sso"
@@ -45,28 +43,6 @@ func FormatKeyForDisplay(k string) string {
 	return fmt.Sprintf("****************%s", k[len(k)-4:])
 }
 
-// Mfa contains options for an MFA device
-type Mfa struct {
-	MfaToken        string
-	MfaPromptMethod string
-	MfaSerial       string
-}
-
-// GetMfaToken returns the MFA token
-func (m *Mfa) GetMfaToken() (*string, error) {
-	if m.MfaToken != "" {
-		return aws.String(m.MfaToken), nil
-	}
-
-	if m.MfaPromptMethod != "" {
-		promptFunc := prompt.Method(m.MfaPromptMethod)
-		token, err := promptFunc(m.MfaSerial)
-		return aws.String(token), err
-	}
-
-	return nil, errors.New("No prompt found")
-}
-
 // NewMasterCredentialsProvider creates a provider for the master credentials
 func NewMasterCredentialsProvider(k *CredentialKeyring, credentialsName string) *KeyringProvider {
 	return &KeyringProvider{k, credentialsName}
@@ -78,11 +54,7 @@ func NewSessionTokenProvider(credsProvider aws.CredentialsProvider, k keyring.Ke
 	sessionTokenProvider := &SessionTokenProvider{
 		StsClient: sts.NewFromConfig(cfg),
 		Duration:  config.GetSessionTokenDuration(),
-		Mfa: Mfa{
-			MfaToken:        config.MfaToken,
-			MfaPromptMethod: config.MfaPromptMethod,
-			MfaSerial:       config.MfaSerial,
-		},
+		Mfa:       NewMfa(config),
 	}
 
 	if UseSessionCache {
@@ -114,11 +86,7 @@ func NewAssumeRoleProvider(credsProvider aws.CredentialsProvider, k keyring.Keyr
 		Tags:              config.SessionTags,
 		TransitiveTagKeys: config.TransitiveSessionTags,
 		SourceIdentity:    config.SourceIdentity,
-		Mfa: Mfa{
-			MfaSerial:       config.MfaSerial,
-			MfaToken:        config.MfaToken,
-			MfaPromptMethod: config.MfaPromptMethod,
-		},
+		Mfa:               NewMfa(config),
 	}
 
 	if UseSessionCache && config.MfaSerial != "" {

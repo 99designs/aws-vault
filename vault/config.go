@@ -165,7 +165,7 @@ func (s ProfileSection) IsEmpty() bool {
 
 // ProfileSections returns all the profile sections in the config
 func (c *ConfigFile) ProfileSections() []ProfileSection {
-	var result []ProfileSection
+	result := []ProfileSection{}
 
 	if c.iniFile == nil {
 		return result

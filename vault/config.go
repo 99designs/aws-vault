@@ -135,7 +135,6 @@ type ProfileSection struct {
 	RoleSessionName         string `ini:"role_session_name,omitempty"`
 	DurationSeconds         uint   `ini:"duration_seconds,omitempty"`
 	SourceProfile           string `ini:"source_profile,omitempty"`
-	ParentProfile           string `ini:"parent_profile,omitempty"` // deprecated
 	IncludeProfile          string `ini:"include_profile,omitempty"`
 	SSOSession              string `ini:"sso_session,omitempty"`
 	SSOStartURL             string `ini:"sso_start_url,omitempty"`
@@ -393,17 +392,8 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 		config.SetTransitiveSessionTags(transitiveSessionTags)
 	}
 
-	if psection.ParentProfile != "" {
-		fmt.Fprint(os.Stderr, "Warning: parent_profile is deprecated, please use include_profile instead in your AWS config\n")
-	}
-
 	if psection.IncludeProfile != "" {
 		err := cl.populateFromConfigFile(config, psection.IncludeProfile)
-		if err != nil {
-			return err
-		}
-	} else if psection.ParentProfile != "" {
-		err := cl.populateFromConfigFile(config, psection.ParentProfile)
 		if err != nil {
 			return err
 		}

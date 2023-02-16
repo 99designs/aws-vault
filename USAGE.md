@@ -23,6 +23,7 @@
     - [Using --no-session](#using---no-session)
     - [Session duration](#session-duration)
     - [Using `--server`](#using---server)
+      - [`--ec2-server`](#--ec2-server)
       - [`--ecs-server`](#--ecs-server)
     - [Temporary credentials limitations with STS, IAM](#temporary-credentials-limitations-with-sts-iam)
   - [MFA](#mfa)
@@ -378,11 +379,13 @@ For that reason, AWS Vault will not use `GetSessionToken` if `--duration` or the
 
 There may be scenarios where you'd like to assume a role for a long length of time, or perhaps when using a tool where using temporary sessions on demand is preferable. For example, when using a tool like [Terraform](https://www.terraform.io/), you need to have AWS credentials available to the application for the entire duration of the infrastructure change.
 
-AWS Vault can run a background server to imitate the [metadata endpoint](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html) that you would have on an EC2 instance. When your application uses the AWS SDK to locate credentials, it will automatically connect to this server that will issue a new set of temporary credentials (using the same profile as the one the server was started with). This server will continue to generate temporary credentials any time the application requests it.
+AWS Vault can run a background server to imitate the metadata endpoint that you would have on an EC2 or ECS instance. When your application uses the AWS SDK to locate credentials, it will automatically connect to this server that will issue a new set of temporary credentials (using the same profile as the one the server was started with). This server will continue to generate temporary credentials any time the application requests it.
+
+#### `--ec2-server`
 
 This approach has the major security drawback that while this `aws-vault` server runs, any application wanting to connect to AWS will be able to do so, using the profile the server was started with. Thanks to `aws-vault`, the credentials are not exposed, but the ability to use them to connect to AWS is!
 
-To use `--server`, AWS Vault needs root/administrator privileges in order to bind to the privileged port. AWS Vault runs a minimal proxy as the root user, proxying through to the real aws-vault instance.
+To use `--ec2-server`, AWS Vault needs root/administrator privileges in order to bind to the privileged port. AWS Vault runs a minimal proxy as the root user, proxying through to the real aws-vault instance.
 
 #### `--ecs-server`
 

@@ -2,7 +2,6 @@ package cli
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -23,30 +22,30 @@ import (
 )
 
 type ExecCommandInput struct {
-	ProfileName      string
-	Command          string
-	Args             []string
-	StartEc2Server   bool
-	StartEcsServer   bool
-	Lazy             bool
-	CredentialHelper bool
-	Config           vault.Config
-	SessionDuration  time.Duration
-	NoSession        bool
-	UseStdout        bool
+	ProfileName     string
+	Command         string
+	Args            []string
+	StartEc2Server  bool
+	StartEcsServer  bool
+	Lazy            bool
+	JSONDeprecated  bool
+	Config          vault.Config
+	SessionDuration time.Duration
+	NoSession       bool
+	UseStdout       bool
 }
 
 func (input ExecCommandInput) validate() error {
 	if input.StartEc2Server && input.StartEcsServer {
 		return fmt.Errorf("Can't use --server with --ecs-server")
 	}
-	if input.StartEc2Server && input.CredentialHelper {
+	if input.StartEc2Server && input.JSONDeprecated {
 		return fmt.Errorf("Can't use --server with --json")
 	}
 	if input.StartEc2Server && input.NoSession {
 		return fmt.Errorf("Can't use --server with --no-session")
 	}
-	if input.StartEcsServer && input.CredentialHelper {
+	if input.StartEcsServer && input.JSONDeprecated {
 		return fmt.Errorf("Can't use --ecs-server with --json")
 	}
 	if input.StartEcsServer && input.NoSession {
@@ -84,7 +83,8 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 
 	cmd.Flag("json", "Output credentials in JSON that can be used by credential_process").
 		Short('j').
-		BoolVar(&input.CredentialHelper)
+		Hidden().
+		BoolVar(&input.JSONDeprecated)
 
 	cmd.Flag("server", "Alias for --ec2-server. Run a EC2 metadata server in the background for credentials").
 		Short('s').
@@ -129,7 +129,20 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 			return err
 		}
 
-		err = ExecCommand(input, f, keyring)
+		if input.JSONDeprecated {
+			exportCommandInput := ExportCommandInput{
+				ProfileName:     input.ProfileName,
+				Format:          "json",
+				Config:          input.Config,
+				SessionDuration: input.SessionDuration,
+				NoSession:       input.NoSession,
+			}
+
+			err = ExportCommand(exportCommandInput, f, keyring)
+		} else {
+			err = ExecCommand(input, f, keyring)
+		}
+
 		app.FatalIfError(err, "exec")
 		return nil
 	})
@@ -169,10 +182,6 @@ func ExecCommand(input ExecCommandInput, f *vault.ConfigFile, keyring keyring.Ke
 
 	if input.StartEcsServer {
 		return execEcsServer(input, config, credsProvider)
-	}
-
-	if input.CredentialHelper {
-		return execCredentialHelper(input, credsProvider)
 	}
 
 	return execEnvironment(input, config, credsProvider)
@@ -229,43 +238,6 @@ func execEcsServer(input ExecCommandInput, config *vault.Config, credsProvider a
 	env.Set("AWS_CONTAINER_AUTHORIZATION_TOKEN", ecsServer.AuthToken())
 
 	return execCmd(input.Command, input.Args, env)
-}
-
-func execCredentialHelper(input ExecCommandInput, credsProvider aws.CredentialsProvider) error {
-	// AwsCredentialHelperData is metadata for AWS CLI credential process
-	// See https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
-	type AwsCredentialHelperData struct {
-		Version         int    `json:"Version"`
-		AccessKeyID     string `json:"AccessKeyId"`
-		SecretAccessKey string `json:"SecretAccessKey"`
-		SessionToken    string `json:"SessionToken,omitempty"`
-		Expiration      string `json:"Expiration,omitempty"`
-	}
-
-	creds, err := credsProvider.Retrieve(context.TODO())
-	if err != nil {
-		return fmt.Errorf("Failed to get credentials for %s: %w", input.ProfileName, err)
-	}
-
-	credentialData := AwsCredentialHelperData{
-		Version:         1,
-		AccessKeyID:     creds.AccessKeyID,
-		SecretAccessKey: creds.SecretAccessKey,
-		SessionToken:    creds.SessionToken,
-	}
-
-	if creds.CanExpire {
-		credentialData.Expiration = iso8601.Format(creds.Expires)
-	}
-
-	json, err := json.Marshal(&credentialData)
-	if err != nil {
-		return fmt.Errorf("Error creating credential json: %w", err)
-	}
-
-	fmt.Print(string(json))
-
-	return nil
 }
 
 func execEnvironment(input ExecCommandInput, config *vault.Config, credsProvider aws.CredentialsProvider) error {

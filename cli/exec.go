@@ -37,13 +37,13 @@ type ExecCommandInput struct {
 
 func (input ExecCommandInput) validate() error {
 	if input.StartEc2Server && input.StartEcsServer {
-		return fmt.Errorf("Can't use --server with --ecs-server")
+		return fmt.Errorf("Can't use --ec2-server with --ecs-server")
 	}
 	if input.StartEc2Server && input.JSONDeprecated {
-		return fmt.Errorf("Can't use --server with --json")
+		return fmt.Errorf("Can't use --ec2-server with --json")
 	}
 	if input.StartEc2Server && input.NoSession {
-		return fmt.Errorf("Can't use --server with --no-session")
+		return fmt.Errorf("Can't use --ec2-server with --no-session")
 	}
 	if input.StartEcsServer && input.JSONDeprecated {
 		return fmt.Errorf("Can't use --ecs-server with --json")
@@ -86,9 +86,9 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 		Hidden().
 		BoolVar(&input.JSONDeprecated)
 
-	cmd.Flag("server", "Alias for --ec2-server. Run a EC2 metadata server in the background for credentials").
+	cmd.Flag("server", "Alias for --ecs-server").
 		Short('s').
-		BoolVar(&input.StartEc2Server)
+		BoolVar(&input.StartEcsServer)
 
 	cmd.Flag("ec2-server", "Run a EC2 metadata server in the background for credentials").
 		BoolVar(&input.StartEc2Server)

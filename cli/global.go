@@ -27,10 +27,28 @@ type AwsVault struct {
 	Debug          bool
 	KeyringConfig  keyring.Config
 	KeyringBackend string
-	PromptDriver   string
+	promptDriver   string
 
 	keyringImpl   keyring.Keyring
 	awsConfigFile *vault.ConfigFile
+}
+
+func (a *AwsVault) PromptDriver(canUseTerminal bool) string {
+	if a.promptDriver == "" {
+		if canUseTerminal {
+			return "terminal"
+		}
+		for _, driver := range prompt.Available() {
+			a.promptDriver = driver
+			if driver != "terminal" {
+				break
+			}
+		}
+	}
+
+	log.Println("Using prompt driver: " + a.promptDriver)
+
+	return a.promptDriver
 }
 
 func (a *AwsVault) Keyring() (keyring.Keyring, error) {
@@ -89,9 +107,8 @@ func ConfigureGlobals(app *kingpin.Application) *AwsVault {
 		EnumVar(&a.KeyringBackend, backendsAvailable...)
 
 	app.Flag("prompt", fmt.Sprintf("Prompt driver to use %v", promptsAvailable)).
-		Default("terminal").
 		Envar("AWS_VAULT_PROMPT").
-		EnumVar(&a.PromptDriver, promptsAvailable...)
+		EnumVar(&a.promptDriver, promptsAvailable...)
 
 	app.Flag("keychain", "Name of macOS keychain to use, if it doesn't exist it will be created").
 		Default("aws-vault").

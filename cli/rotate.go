@@ -34,7 +34,7 @@ func ConfigureRotateCommand(app *kingpin.Application, a *AwsVault) {
 		StringVar(&input.ProfileName)
 
 	cmd.Action(func(c *kingpin.ParseContext) (err error) {
-		input.Config.MfaPromptMethod = a.PromptDriver
+		input.Config.MfaPromptMethod = a.PromptDriver(true)
 		keyring, err := a.Keyring()
 		if err != nil {
 			return err

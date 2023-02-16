@@ -108,7 +108,6 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 		StringVar(&input.ProfileName)
 
 	cmd.Arg("cmd", "Command to execute, defaults to $SHELL").
-		Default(os.Getenv("SHELL")).
 		StringVar(&input.Command)
 
 	cmd.Arg("args", "Command arguments").
@@ -200,6 +199,7 @@ func updateEnvForAwsVault(env environ, profileName string, region string) enviro
 }
 
 func execEc2Server(input ExecCommandInput, config *vault.Config, credsProvider aws.CredentialsProvider) error {
+	fmt.Fprintf(os.Stderr, "aws-vault: Starting an EC2 credential server.\n")
 	if err := server.StartEc2CredentialsServer(context.TODO(), credsProvider, config.Region); err != nil {
 		return fmt.Errorf("Failed to start credential server: %w", err)
 	}
@@ -207,7 +207,7 @@ func execEc2Server(input ExecCommandInput, config *vault.Config, credsProvider a
 	env := environ(os.Environ())
 	env = updateEnvForAwsVault(env, input.ProfileName, config.Region)
 
-	return execCmd(input.Command, input.Args, env)
+	return doRunCmd(input.Command, input.Args, env)
 }
 
 func execEcsServer(input ExecCommandInput, config *vault.Config, credsProvider aws.CredentialsProvider) error {
@@ -228,7 +228,9 @@ func execEcsServer(input ExecCommandInput, config *vault.Config, credsProvider a
 	env.Set("AWS_CONTAINER_CREDENTIALS_FULL_URI", ecsServer.BaseURL())
 	env.Set("AWS_CONTAINER_AUTHORIZATION_TOKEN", ecsServer.AuthToken())
 
-	return execCmd(input.Command, input.Args, env)
+	fmt.Fprintf(os.Stderr, "aws-vault: Starting an ECS credential server; your app's AWS sdk must support AWS_CONTAINER_CREDENTIALS_FULL_URI.\n")
+
+	return doRunCmd(input.Command, input.Args, env)
 }
 
 func execCredentialHelper(input ExecCommandInput, credsProvider aws.CredentialsProvider) error {
@@ -293,10 +295,10 @@ func execEnvironment(input ExecCommandInput, config *vault.Config, credsProvider
 	}
 
 	if !supportsExecSyscall() {
-		return execCmd(input.Command, input.Args, env)
+		return doRunCmd(input.Command, input.Args, env)
 	}
 
-	return execSyscall(input.Command, input.Args, env)
+	return doExecSyscall(input.Command, input.Args, env)
 }
 
 // environ is a slice of strings representing the environment, in the form "key=value".
@@ -319,8 +321,21 @@ func (e *environ) Set(key, val string) {
 	*e = append(*e, key+"="+val)
 }
 
-func execCmd(command string, args []string, env []string) error {
-	log.Printf("Starting child process: %s %s", command, strings.Join(args, " "))
+func getDefaultShell() string {
+	command := os.Getenv("SHELL")
+	if command == "" {
+		command = "/bin/sh"
+	}
+	return command
+}
+
+func doRunCmd(command string, args []string, env []string) error {
+	if command == "" {
+		command = getDefaultShell()
+		fmt.Fprintf(os.Stderr, "aws-vault: Starting a subshell %s\n", command)
+	}
+
+	log.Printf("Starting subprocess: %s %s", command, strings.Join(args, " "))
 
 	cmd := osexec.Command(command, args...)
 	cmd.Stdin = os.Stdin
@@ -356,7 +371,12 @@ func supportsExecSyscall() bool {
 	return runtime.GOOS == "linux" || runtime.GOOS == "darwin" || runtime.GOOS == "freebsd" || runtime.GOOS == "openbsd"
 }
 
-func execSyscall(command string, args []string, env []string) error {
+func doExecSyscall(command string, args []string, env []string) error {
+	if command == "" {
+		command = getDefaultShell()
+		fmt.Fprintf(os.Stderr, "aws-vault: Starting a subshell %s\n", command)
+	}
+
 	log.Printf("Exec command %s %s", command, strings.Join(args, " "))
 
 	argv0, err := osexec.LookPath(command)

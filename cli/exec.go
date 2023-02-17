@@ -300,7 +300,11 @@ func (e *environ) Set(key, val string) {
 func getDefaultShell() string {
 	command := os.Getenv("SHELL")
 	if command == "" {
-		command = "/bin/sh"
+		if runtime.GOOS == "windows" {
+			command = "cmd.exe"
+		} else {
+			command = "/bin/sh"
+		}
 	}
 	return command
 }

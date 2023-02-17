@@ -139,7 +139,7 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 
 			err = ExportCommand(exportCommandInput, f, keyring)
 		} else {
-			err = ExecCommand(input, a.EntryPoint, a.Shell, f, keyring)
+			err = ExecCommand(input, a.EntryPoint, f, keyring)
 		}
 
 		app.FatalIfError(err, "exec")
@@ -147,7 +147,7 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 	})
 }
 
-func ExecCommand(input ExecCommandInput, entrypoint []string, shell []string, f *vault.ConfigFile, keyring keyring.Keyring) error {
+func ExecCommand(input ExecCommandInput, entrypoint []string, f *vault.ConfigFile, keyring keyring.Keyring) error {
 	if os.Getenv("AWS_VAULT") != "" {
 		return fmt.Errorf("aws-vault sessions should be nested with care, unset AWS_VAULT to force")
 	}
@@ -183,7 +183,7 @@ func ExecCommand(input ExecCommandInput, entrypoint []string, shell []string, f 
 		return execEcsServer(input, entrypoint, config, credsProvider)
 	}
 
-	return execEnvironment(input, entrypoint, shell, config, credsProvider)
+	return execEnvironment(input, entrypoint, config, credsProvider)
 }
 
 func updateEnvForAwsVault(env environ, profileName string, region string) environ {
@@ -242,7 +242,7 @@ func execEcsServer(input ExecCommandInput, entrypoint []string, config *vault.Co
 	return doRunCmd(entrypoint, input.Command, env)
 }
 
-func execEnvironment(input ExecCommandInput, entrypoint []string, shell []string, config *vault.Config, credsProvider aws.CredentialsProvider) error {
+func execEnvironment(input ExecCommandInput, entrypoint []string, config *vault.Config, credsProvider aws.CredentialsProvider) error {
 	creds, err := credsProvider.Retrieve(context.TODO())
 	if err != nil {
 		return fmt.Errorf("Failed to get credentials for %s: %w", input.ProfileName, err)
@@ -270,7 +270,7 @@ func execEnvironment(input ExecCommandInput, entrypoint []string, shell []string
 		return doRunCmd(entrypoint, input.Command, env)
 	}
 
-	return doExecSyscall(shell, input.Command, env)
+	return doExecSyscall(entrypoint, input.Command, env)
 }
 
 // environ is a slice of strings representing the environment, in the form "key=value".
@@ -327,7 +327,7 @@ func doRunCmd(entrypoint []string, command []string, env []string) error {
 
 	if err := cmd.Wait(); err != nil {
 		_ = cmd.Process.Signal(os.Kill)
-		return fmt.Errorf("Failed to wait for entrypoint termination: %v", err)
+		return fmt.Errorf("Failed to wait for command termination: %v", err)
 	}
 
 	waitStatus := cmd.ProcessState.Sys().(syscall.WaitStatus)
@@ -339,16 +339,16 @@ func supportsExecSyscall() bool {
 	return runtime.GOOS == "linux" || runtime.GOOS == "darwin" || runtime.GOOS == "freebsd" || runtime.GOOS == "openbsd"
 }
 
-func doExecSyscall(shell []string, command []string, env []string) error {
-	log.Printf("Exec shell %s %s", shell, command)
+func doExecSyscall(entrypoint []string, command []string, env []string) error {
+	log.Printf("Exec entrypoint %s %s", entrypoint, command)
 
-	args := make([]string, len(shell)-1+len(command))
-	args = append(args, shell[1:]...)
+	args := make([]string, len(entrypoint)-1+len(command))
+	args = append(args, entrypoint[1:]...)
 	args = append(args, command...)
 
-	argv0, err := osexec.LookPath(shell[0])
+	argv0, err := osexec.LookPath(entrypoint[0])
 	if err != nil {
-		return fmt.Errorf("Couldn't find the executable '%s': %w", shell, err)
+		return fmt.Errorf("Couldn't find the executable '%s': %w", entrypoint, err)
 	}
 
 	log.Printf("Found executable %s", argv0)

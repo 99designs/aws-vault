@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"runtime"
 
 	"github.com/99designs/aws-vault/v7/prompt"
 	"github.com/99designs/aws-vault/v7/vault"
@@ -27,6 +28,8 @@ type AwsVault struct {
 	Debug          bool
 	KeyringConfig  keyring.Config
 	KeyringBackend string
+	EntryPoint     []string
+	Shell          []string
 	promptDriver   string
 
 	keyringImpl   keyring.Keyring
@@ -127,6 +130,26 @@ func ConfigureGlobals(app *kingpin.Application) *AwsVault {
 	app.Flag("pass-cmd", "Name of the pass executable").
 		Envar("AWS_VAULT_PASS_CMD").
 		StringVar(&a.KeyringConfig.PassCmd)
+
+	var entrypoint string
+	var shell string
+	if runtime.GOOS == "windows" {
+		entrypoint = "powershell"
+		shell = "powershell"
+	} else {
+		entrypoint = "/bin/sh -c"
+		shell = "/bin/sh"
+	}
+
+	app.Flag("EntryPoint", "Path to the entrypoint used for exec command").
+		Default(entrypoint).
+		Envar("AWS_VAULT_ENTRYPOINT").
+		StringsVar(&a.EntryPoint)
+
+	app.Flag("Shell", "Path to the shell used for entering the interactive shell").
+		Default(shell).
+		Envar("AWS_VAULT_SHELL").
+		StringsVar(&a.Shell)
 
 	app.Flag("pass-prefix", "Prefix to prepend to the item path stored in pass").
 		Envar("AWS_VAULT_PASS_PREFIX").

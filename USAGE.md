@@ -506,7 +506,7 @@ The [AWS CLI config](https://docs.aws.amazon.com/cli/latest/topic/config-vars.ht
 
 ```ini
 [profile home]
-credential_process = aws-vault export --format=json home
+credential_process = aws-vault exec --json home
 ```
 
 If `mfa_serial` is set, please define the prompt driver (for example `osascript` for macOS), else the prompt will not show up.
@@ -514,14 +514,14 @@ If `mfa_serial` is set, please define the prompt driver (for example `osascript`
 ```ini
 [profile work]
 mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
-credential_process = aws-vault --prompt=osascript export --format=json work
+credential_process = aws-vault exec --prompt=osascript --json work
 ```
 
 Note that `credential_process` is designed for retrieving master credentials, while aws-vault outputs STS credentials by default. If a role is present, the AWS CLI/SDK uses the master credentials from the `credential_process` to generate STS credentials itself. So depending on your use-case, it might make sense for aws-vault to output master credentials by using a profile without a role and the `--no-session` argument. For example:
 
 ```ini
 [profile jon]
-credential_process = aws-vault export --no-session --format=json jon
+credential_process = aws-vault exec --no-session --json jon
 
 [profile work]
 mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith

@@ -16,12 +16,12 @@ func main() {
 
 	a := cli.ConfigureGlobals(app)
 	cli.ConfigureAddCommand(app, a)
+	cli.ConfigureRemoveCommand(app, a)
 	cli.ConfigureListCommand(app, a)
 	cli.ConfigureRotateCommand(app, a)
 	cli.ConfigureExecCommand(app, a)
 	cli.ConfigureExportCommand(app, a)
 	cli.ConfigureClearCommand(app, a)
-	cli.ConfigureRemoveCommand(app, a)
 	cli.ConfigureLoginCommand(app, a)
 	cli.ConfigureProxyCommand(app, a)
 

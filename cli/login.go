@@ -30,7 +30,7 @@ type LoginCommandInput struct {
 func ConfigureLoginCommand(app *kingpin.Application, a *AwsVault) {
 	input := LoginCommandInput{}
 
-	cmd := app.Command("login", "Generate a login link for the AWS Console")
+	cmd := app.Command("login", "Generate a login link for the AWS Console.")
 
 	cmd.Flag("duration", "Duration of the assume-role or federated session. Defaults to 1h").
 		Short('d').

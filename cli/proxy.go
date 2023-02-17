@@ -12,7 +12,7 @@ import (
 func ConfigureProxyCommand(app *kingpin.Application, a *AwsVault) {
 	stop := false
 
-	cmd := app.Command("proxy", "Start a proxy for the ec2 instance role server locally").
+	cmd := app.Command("proxy", "Start a proxy for the ec2 instance role server locally.").
 		Alias("server").
 		Hidden()
 

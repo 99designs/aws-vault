@@ -22,7 +22,7 @@ type RotateCommandInput struct {
 func ConfigureRotateCommand(app *kingpin.Application, a *AwsVault) {
 	input := RotateCommandInput{}
 
-	cmd := app.Command("rotate", "Rotates credentials")
+	cmd := app.Command("rotate", "Rotate credentials.")
 
 	cmd.Flag("no-session", "Use master credentials, no session or role used").
 		Short('n').

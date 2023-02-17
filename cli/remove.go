@@ -19,7 +19,7 @@ type RemoveCommandInput struct {
 func ConfigureRemoveCommand(app *kingpin.Application, a *AwsVault) {
 	input := RemoveCommandInput{}
 
-	cmd := app.Command("remove", "Removes credentials from the secure keystore")
+	cmd := app.Command("remove", "Remove credentials from the secure keystore.")
 	cmd.Alias("rm")
 
 	cmd.Arg("profile", "Name of the profile").

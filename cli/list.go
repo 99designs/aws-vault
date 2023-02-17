@@ -21,7 +21,7 @@ type ListCommandInput struct {
 func ConfigureListCommand(app *kingpin.Application, a *AwsVault) {
 	input := ListCommandInput{}
 
-	cmd := app.Command("list", "List profiles, along with their credentials and sessions")
+	cmd := app.Command("list", "List profiles, along with their credentials and sessions.")
 	cmd.Alias("ls")
 
 	cmd.Flag("profiles", "Show only the profile names").

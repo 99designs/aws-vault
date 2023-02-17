@@ -21,7 +21,7 @@ type AddCommandInput struct {
 func ConfigureAddCommand(app *kingpin.Application, a *AwsVault) {
 	input := AddCommandInput{}
 
-	cmd := app.Command("add", "Adds credentials to the secure keystore")
+	cmd := app.Command("add", "Add credentials to the secure keystore.")
 
 	cmd.Arg("profile", "Name of the profile").
 		Required().

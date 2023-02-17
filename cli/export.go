@@ -33,7 +33,7 @@ var (
 func ConfigureExportCommand(app *kingpin.Application, a *AwsVault) {
 	input := ExportCommandInput{}
 
-	cmd := app.Command("export", "Export AWS credentials in env, export-env, json or ini format")
+	cmd := app.Command("export", "Export AWS credentials.")
 
 	cmd.Flag("duration", "Duration of the temporary or assume-role session. Defaults to 1h").
 		Short('d').

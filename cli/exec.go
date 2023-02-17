@@ -68,7 +68,7 @@ func CanExecUseTerminal(input ExecCommandInput) bool {
 func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 	input := ExecCommandInput{}
 
-	cmd := app.Command("exec", "Executes a command with AWS credentials in the environment")
+	cmd := app.Command("exec", "Execute a command with AWS credentials.")
 
 	cmd.Flag("duration", "Duration of the temporary or assume-role session. Defaults to 1h").
 		Short('d').

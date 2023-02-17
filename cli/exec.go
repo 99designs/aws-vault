@@ -175,15 +175,24 @@ func ExecCommand(input ExecCommandInput, entrypoint []string, shell []string, f 
 		return fmt.Errorf("Error getting temporary credentials: %w", err)
 	}
 
+	// if there are no arguments, we probably want to create an interactive shell.
+	// otherwise, we want to execute the command.
+	var exec []string
+	if len(input.Command) > 0 {
+		exec = entrypoint
+	} else {
+		exec = shell
+	}
+
 	if input.StartEc2Server {
-		return execEc2Server(input, entrypoint, config, credsProvider)
+		return execEc2Server(input, exec, config, credsProvider)
 	}
 
 	if input.StartEcsServer {
-		return execEcsServer(input, entrypoint, config, credsProvider)
+		return execEcsServer(input, exec, config, credsProvider)
 	}
 
-	return execEnvironment(input, entrypoint, shell, config, credsProvider)
+	return execEnvironment(input, exec, config, credsProvider)
 }
 
 func updateEnvForAwsVault(env environ, profileName string, region string) environ {
@@ -242,7 +251,7 @@ func execEcsServer(input ExecCommandInput, entrypoint []string, config *vault.Co
 	return doRunCmd(entrypoint, input.Command, env)
 }
 
-func execEnvironment(input ExecCommandInput, entrypoint []string, shell []string, config *vault.Config, credsProvider aws.CredentialsProvider) error {
+func execEnvironment(input ExecCommandInput, entrypoint []string, config *vault.Config, credsProvider aws.CredentialsProvider) error {
 	creds, err := credsProvider.Retrieve(context.TODO())
 	if err != nil {
 		return fmt.Errorf("Failed to get credentials for %s: %w", input.ProfileName, err)
@@ -270,7 +279,7 @@ func execEnvironment(input ExecCommandInput, entrypoint []string, shell []string
 		return doRunCmd(entrypoint, input.Command, env)
 	}
 
-	return doExecSyscall(shell, input.Command, env)
+	return doExecSyscall(entrypoint, input.Command, env)
 }
 
 // environ is a slice of strings representing the environment, in the form "key=value".
@@ -339,16 +348,16 @@ func supportsExecSyscall() bool {
 	return runtime.GOOS == "linux" || runtime.GOOS == "darwin" || runtime.GOOS == "freebsd" || runtime.GOOS == "openbsd"
 }
 
-func doExecSyscall(shell []string, command []string, env []string) error {
-	log.Printf("Exec shell %s %s", shell, command)
+func doExecSyscall(entrypoint []string, command []string, env []string) error {
+	log.Printf("Executing %s %s", entrypoint, command)
 
-	args := make([]string, len(shell)-1+len(command))
-	args = append(args, shell[1:]...)
+	args := make([]string, len(entrypoint)-1+len(command))
+	args = append(args, entrypoint[1:]...)
 	args = append(args, command...)
 
-	argv0, err := osexec.LookPath(shell[0])
+	argv0, err := osexec.LookPath(entrypoint[0])
 	if err != nil {
-		return fmt.Errorf("Couldn't find the executable '%s': %w", shell, err)
+		return fmt.Errorf("Couldn't find the executable '%s': %w", entrypoint, err)
 	}
 
 	log.Printf("Found executable %s", argv0)

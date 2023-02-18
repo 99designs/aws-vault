@@ -84,7 +84,16 @@ AWS Vault then exposes the temporary credentials to the sub-process in one of tw
    AWS_CREDENTIAL_EXPIRATION=2020-04-16T11:16:27Z
    AWS_SESSION_EXPIRATION=2020-04-16T11:16:27Z
    ```
-2. **Local [EC2 Instance Metadata server](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html)** is started. This approach has the advantage that anything that uses Amazon's SDKs will automatically refresh credentials as needed, so session times can be as short as possible. The downside is that only one can run per host and because it binds to `169.254.169.254:80`, your sudo password is required.
+2. **Local metadata server** is started. This approach has the advantage that anything that uses Amazon's SDKs will automatically refresh credentials as needed, so session times can be as short as possible.
+   ```shell
+   $ aws-vault exec --server jonsmith -- env | grep AWS
+   aws-vault: Starting an ECS credential server; your app\'s AWS sdk must support AWS_CONTAINER_CREDENTIALS_FULL_URI.
+   AWS_VAULT=jonsmith
+   AWS_DEFAULT_REGION=us-east-1
+   AWS_REGION=us-east-1
+   AWS_CONTAINER_CREDENTIALS_FULL_URI=%%%
+   AWS_CONTAINER_AUTHORIZATION_TOKEN=%%%
+   ```
 
 The default is to use environment variables, but you can opt-in to the local instance metadata server with the `--server` flag on the `exec` command.
 

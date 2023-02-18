@@ -63,6 +63,13 @@ $ aws-vault list
 Profile                  Credentials              Sessions
 =======                  ===========              ========
 jonsmith                 jonsmith                 -
+
+# Start a subshell with temporary credentials
+$ aws-vault exec jonsmith
+aws-vault: Starting a subshell /bin/zsh, use `exit` to exit the subshell
+$ aws s3 ls
+bucket_1
+bucket_2
 ```
 
 ## How it works
@@ -84,7 +91,6 @@ AWS Vault then exposes the temporary credentials to the sub-process in one of tw
 2. **Local metadata server** is started. This approach has the advantage that anything that uses Amazon's SDKs will automatically refresh credentials as needed, so session times can be as short as possible.
    ```shell
    $ aws-vault exec --server jonsmith -- env | grep AWS
-   aws-vault: Starting an ECS credential server; your app\'s AWS sdk must support AWS_CONTAINER_CREDENTIALS_FULL_URI.
    AWS_VAULT=jonsmith
    AWS_REGION=us-east-1
    AWS_CONTAINER_CREDENTIALS_FULL_URI=%%%

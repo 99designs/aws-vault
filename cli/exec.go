@@ -240,7 +240,12 @@ func execEcsServer(input ExecCommandInput, config *vault.Config, credsProvider a
 	env.Set("AWS_CONTAINER_CREDENTIALS_FULL_URI", ecsServer.BaseURL())
 	env.Set("AWS_CONTAINER_AUTHORIZATION_TOKEN", ecsServer.AuthToken())
 
-	fmt.Fprintf(os.Stderr, "aws-vault: Starting an ECS credential server; your app's AWS sdk must support AWS_CONTAINER_CREDENTIALS_FULL_URI.\n")
+	helpMsg := "Started an ECS credential server; your app's AWS sdk must support AWS_CONTAINER_CREDENTIALS_FULL_URI."
+	if input.Command == "" {
+		fmt.Fprintf(os.Stderr, "aws-vault: %s\n", helpMsg)
+	} else {
+		log.Println(helpMsg)
+	}
 
 	return doRunCmd(input.Command, input.Args, env)
 }
@@ -309,7 +314,7 @@ func getDefaultShell() string {
 func doRunCmd(command string, args []string, env []string) error {
 	if command == "" {
 		command = getDefaultShell()
-		fmt.Fprintf(os.Stderr, "aws-vault: Starting a subshell %s\n", command)
+		fmt.Fprintf(os.Stderr, "aws-vault: Starting a subshell %s, use `exit` to exit the subshell\n", command)
 	}
 
 	log.Printf("Starting subprocess: %s %s", command, strings.Join(args, " "))

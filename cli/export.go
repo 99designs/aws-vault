@@ -160,7 +160,7 @@ func printINI(input ExportCommandInput, credsProvider aws.CredentialsProvider) e
 		return fmt.Errorf("Failed to get credentials for %s: %w", input.ProfileName, err)
 	}
 
-	fmt.Printf("[%s]\n", input.ProfileName)
+	fmt.Printf("[profile %s]\n", input.ProfileName)
 	fmt.Printf("aws_access_key_id=%s\n", creds.AccessKeyID)
 	fmt.Printf("aws_secret_access_key=%s\n", creds.SecretAccessKey)
 

@@ -389,12 +389,12 @@ To use `--ec2-server`, AWS Vault needs root/administrator privileges in order to
 
 #### `--ecs-server`
 
-The ECS Credential provider binds to a random, ephemeral port and requires an authorization token, which offers the following advantages over the EC2 Metadata provider:
+An ECS credential server can also be used instead of the ec2 metadata server. The ECS Credential provider binds to a random, ephemeral port and requires an authorization token, which offer the following advantages over the EC2 Metadata provider:
  1. Does not require root/administrator privileges
  2. Allows multiple providers simultaneously for discrete processes
  3. Mitigates the security issues that accompany the EC2 Metadata Service because the address is not well-known and the authorization token is only exposed to the subprocess via environment variables
 
-However, this will only work with the AWS SDKs [that support `AWS_CONTAINER_CREDENTIALS_FULL_URI`](https://docs.aws.amazon.com/sdkref/latest/guide/feature-container-credentials.html). The C++ and PHP SDKs do not currently support it.
+However, this will only work with the AWS SDKs that support `AWS_CONTAINER_CREDENTIALS_FULL_URI`. The Ruby, .NET and PHP SDKs do not currently support it.
 
 The ECS server also responds to requests on `/role-arn/YOUR_ROLE_ARN` with the role credentials, making it usable with  `AWS_CONTAINER_CREDENTIALS_RELATIVE_URI` when combined with a reverse proxy (see the Docker section below).
 

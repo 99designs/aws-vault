@@ -203,8 +203,7 @@ func updateEnvForAwsVault(env environ, profileName string, region string) enviro
 	env.Set("AWS_VAULT", profileName)
 
 	if region != "" {
-		log.Printf("Setting subprocess env: AWS_DEFAULT_REGION=%s, AWS_REGION=%s", region, region)
-		env.Set("AWS_DEFAULT_REGION", region)
+		log.Printf("Setting subprocess env: AWS_REGION=%s", region)
 		env.Set("AWS_REGION", region)
 	}
 
@@ -260,14 +259,12 @@ func execEnvironment(input ExecCommandInput, config *vault.Config, credsProvider
 	env.Set("AWS_SECRET_ACCESS_KEY", creds.SecretAccessKey)
 
 	if creds.SessionToken != "" {
-		log.Println("Setting subprocess env: AWS_SESSION_TOKEN, AWS_SECURITY_TOKEN")
+		log.Println("Setting subprocess env: AWS_SESSION_TOKEN")
 		env.Set("AWS_SESSION_TOKEN", creds.SessionToken)
-		env.Set("AWS_SECURITY_TOKEN", creds.SessionToken)
 	}
 	if creds.CanExpire {
-		log.Println("Setting subprocess env: AWS_CREDENTIAL_EXPIRATION, AWS_SESSION_EXPIRATION")
+		log.Println("Setting subprocess env: AWS_CREDENTIAL_EXPIRATION")
 		env.Set("AWS_CREDENTIAL_EXPIRATION", iso8601.Format(creds.Expires))
-		env.Set("AWS_SESSION_EXPIRATION", iso8601.Format(creds.Expires))
 	}
 
 	if !supportsExecSyscall() {

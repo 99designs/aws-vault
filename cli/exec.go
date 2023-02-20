@@ -203,8 +203,11 @@ func updateEnvForAwsVault(env environ, profileName string, region string) enviro
 	env.Set("AWS_VAULT", profileName)
 
 	if region != "" {
-		log.Printf("Setting subprocess env: AWS_REGION=%s", region)
+		// AWS_REGION is used by most SDKs. But boto3 (Python SDK) uses AWS_DEFAULT_REGION
+		// See https://docs.aws.amazon.com/sdkref/latest/guide/feature-region.html
+		log.Printf("Setting subprocess env: AWS_REGION=%s, AWS_DEFAULT_REGION=%s", region, region)
 		env.Set("AWS_REGION", region)
+		env.Set("AWS_DEFAULT_REGION", region)
 	}
 
 	return env

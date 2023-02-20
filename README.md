@@ -82,6 +82,7 @@ AWS Vault then exposes the temporary credentials to the sub-process in one of tw
    ```shell
    $ aws-vault exec jonsmith -- env | grep AWS
    AWS_VAULT=jonsmith
+   AWS_DEFAULT_REGION=us-east-1
    AWS_REGION=us-east-1
    AWS_ACCESS_KEY_ID=%%%
    AWS_SECRET_ACCESS_KEY=%%%
@@ -92,6 +93,7 @@ AWS Vault then exposes the temporary credentials to the sub-process in one of tw
    ```shell
    $ aws-vault exec --server jonsmith -- env | grep AWS
    AWS_VAULT=jonsmith
+   AWS_DEFAULT_REGION=us-east-1
    AWS_REGION=us-east-1
    AWS_CONTAINER_CREDENTIALS_FULL_URI=%%%
    AWS_CONTAINER_AUTHORIZATION_TOKEN=%%%

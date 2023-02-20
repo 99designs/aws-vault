@@ -113,9 +113,9 @@ func ExportCommand(input ExportCommandInput, f *vault.ConfigFile, keyring keyrin
 	} else if input.Format == FormatTypeExportINI {
 		return printINI(credsProvider, input.ProfileName, config.Region)
 	} else if input.Format == FormatTypeExportEnv {
-		return printEnv(input, credsProvider, "export ")
+		return printEnv(input, credsProvider, config.Region, "export ")
 	} else {
-		return printEnv(input, credsProvider, "")
+		return printEnv(input, credsProvider, config.Region, "")
 	}
 }
 
@@ -157,9 +157,11 @@ func printJSON(input ExportCommandInput, credsProvider aws.CredentialsProvider) 
 }
 
 func mustNewKey(s *ini.Section, name, val string) {
-	_, err := s.NewKey(name, val)
-	if err != nil {
-		log.Fatalln("Failed to create ini key:", err.Error())
+	if val != "" {
+		_, err := s.NewKey(name, val)
+		if err != nil {
+			log.Fatalln("Failed to create ini key:", err.Error())
+		}
 	}
 }
 
@@ -177,12 +179,11 @@ func printINI(credsProvider aws.CredentialsProvider, profilename, region string)
 
 	mustNewKey(s, "aws_access_key_id", creds.AccessKeyID)
 	mustNewKey(s, "aws_secret_access_key", creds.SecretAccessKey)
-	if creds.SessionToken != "" {
-		mustNewKey(s, "aws_session_token", creds.SessionToken)
-	}
+	mustNewKey(s, "aws_session_token", creds.SessionToken)
 	if creds.CanExpire {
 		mustNewKey(s, "aws_credential_expiration", iso8601.Format(creds.Expires))
 	}
+	mustNewKey(s, "region", region)
 
 	_, err = f.WriteTo(os.Stdout)
 	if err != nil {
@@ -192,7 +193,7 @@ func printINI(credsProvider aws.CredentialsProvider, profilename, region string)
 	return nil
 }
 
-func printEnv(input ExportCommandInput, credsProvider aws.CredentialsProvider, prefix string) error {
+func printEnv(input ExportCommandInput, credsProvider aws.CredentialsProvider, region, prefix string) error {
 	creds, err := credsProvider.Retrieve(context.TODO())
 	if err != nil {
 		return fmt.Errorf("Failed to get credentials for %s: %w", input.ProfileName, err)
@@ -207,5 +208,9 @@ func printEnv(input ExportCommandInput, credsProvider aws.CredentialsProvider, p
 	if creds.CanExpire {
 		fmt.Printf("%sAWS_CREDENTIAL_EXPIRATION=%s\n", prefix, iso8601.Format(creds.Expires))
 	}
+	if region != "" {
+		fmt.Printf("%sAWS_REGION=%s\n", prefix, region)
+	}
+
 	return nil
 }

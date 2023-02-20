@@ -210,6 +210,7 @@ func printEnv(input ExportCommandInput, credsProvider aws.CredentialsProvider, r
 	}
 	if region != "" {
 		fmt.Printf("%sAWS_REGION=%s\n", prefix, region)
+		fmt.Printf("%sAWS_DEFAULT_REGION=%s\n", prefix, region)
 	}
 
 	return nil

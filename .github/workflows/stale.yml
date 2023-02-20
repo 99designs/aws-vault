@@ -1,0 +1,17 @@
+# See https://github.com/actions/stale
+name: Mark and close stale issues
+on:
+  schedule:
+    - cron: '15 10 * * *'
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/stale@v7
+        with:
+          days-before-stale: 180
+          days-before-close: 7
+          stale-issue-message: 'This issue has been automatically marked as stale because it has not had recent activity. It will be closed if no further activity occurs.'
+          exempt-issue-labels: pinned,security,feature

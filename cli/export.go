@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/99designs/keyring"
 	"github.com/alecthomas/kingpin"
 	"github.com/aws/aws-sdk-go-v2/aws"
+	ini "gopkg.in/ini.v1"
 )
 
 type ExportCommandInput struct {
@@ -109,7 +111,7 @@ func ExportCommand(input ExportCommandInput, f *vault.ConfigFile, keyring keyrin
 	if input.Format == FormatTypeExportJSON {
 		return printJSON(input, credsProvider)
 	} else if input.Format == FormatTypeExportINI {
-		return printINI(input, credsProvider)
+		return printINI(credsProvider, input.ProfileName, config.Region)
 	} else if input.Format == FormatTypeExportEnv {
 		return printEnv(input, credsProvider, "export ")
 	} else {
@@ -154,22 +156,39 @@ func printJSON(input ExportCommandInput, credsProvider aws.CredentialsProvider) 
 	return nil
 }
 
-func printINI(input ExportCommandInput, credsProvider aws.CredentialsProvider) error {
+func mustNewKey(s *ini.Section, name, val string) {
+	_, err := s.NewKey(name, val)
+	if err != nil {
+		log.Fatalln("Failed to create ini key:", err.Error())
+	}
+}
+
+func printINI(credsProvider aws.CredentialsProvider, profilename, region string) error {
 	creds, err := credsProvider.Retrieve(context.TODO())
 	if err != nil {
-		return fmt.Errorf("Failed to get credentials for %s: %w", input.ProfileName, err)
+		return fmt.Errorf("Failed to get credentials for %s: %w", profilename, err)
 	}
 
-	fmt.Printf("[profile %s]\n", input.ProfileName)
-	fmt.Printf("aws_access_key_id=%s\n", creds.AccessKeyID)
-	fmt.Printf("aws_secret_access_key=%s\n", creds.SecretAccessKey)
+	f := ini.Empty()
+	s, err := f.NewSection("profile " + profilename)
+	if err != nil {
+		return fmt.Errorf("Failed to create ini section: %w", err)
+	}
 
+	mustNewKey(s, "aws_access_key_id", creds.AccessKeyID)
+	mustNewKey(s, "aws_secret_access_key", creds.SecretAccessKey)
 	if creds.SessionToken != "" {
-		fmt.Printf("aws_session_token=%s\n", creds.SessionToken)
+		mustNewKey(s, "aws_session_token", creds.SessionToken)
 	}
 	if creds.CanExpire {
-		fmt.Printf(";aws_credential_expiration=%s\n", iso8601.Format(creds.Expires))
+		mustNewKey(s, "aws_credential_expiration", iso8601.Format(creds.Expires))
 	}
+
+	_, err = f.WriteTo(os.Stdout)
+	if err != nil {
+		return fmt.Errorf("Failed to output ini: %w", err)
+	}
+
 	return nil
 }
 

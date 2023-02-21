@@ -10,6 +10,7 @@ import (
 	"github.com/99designs/aws-vault/v7/vault"
 	"github.com/99designs/keyring"
 	"github.com/alecthomas/kingpin"
+	isatty "github.com/mattn/go-isatty"
 	"golang.org/x/term"
 )
 
@@ -33,15 +34,20 @@ type AwsVault struct {
 	awsConfigFile *vault.ConfigFile
 }
 
-func (a *AwsVault) PromptDriver(canUseTerminal bool) string {
+func isATerminal() bool {
+	return isatty.IsTerminal(os.Stdout.Fd()) || isatty.IsCygwinTerminal(os.Stdout.Fd())
+}
+
+func (a *AwsVault) PromptDriver(avoidTerminalPrompt bool) string {
 	if a.promptDriver == "" {
-		if canUseTerminal {
-			return "terminal"
-		}
-		for _, driver := range prompt.Available() {
-			a.promptDriver = driver
-			if driver != "terminal" {
-				break
+		a.promptDriver = "terminal"
+
+		if !isATerminal() || avoidTerminalPrompt {
+			for _, driver := range prompt.Available() {
+				a.promptDriver = driver
+				if driver != "terminal" {
+					break
+				}
 			}
 		}
 	}

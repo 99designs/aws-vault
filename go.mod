@@ -12,6 +12,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.14.2
 	github.com/aws/aws-sdk-go-v2/service/sts v1.18.3
 	github.com/google/go-cmp v0.5.9
+	github.com/mattn/go-isatty v0.0.17
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966
 	golang.org/x/term v0.5.0
 	gopkg.in/ini.v1 v1.67.0

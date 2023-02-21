@@ -61,8 +61,8 @@ func (input ExecCommandInput) validate() error {
 	return nil
 }
 
-func CanExecUseTerminal(input ExecCommandInput) bool {
-	return !input.StartEcsServer && !input.StartEc2Server
+func hasBackgroundServer(input ExecCommandInput) bool {
+	return input.StartEcsServer || input.StartEc2Server
 }
 
 func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
@@ -118,7 +118,7 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 		StringsVar(&input.Args)
 
 	cmd.Action(func(c *kingpin.ParseContext) (err error) {
-		input.Config.MfaPromptMethod = a.PromptDriver(CanExecUseTerminal(input))
+		input.Config.MfaPromptMethod = a.PromptDriver(hasBackgroundServer(input))
 		input.Config.NonChainedGetSessionTokenDuration = input.SessionDuration
 		input.Config.AssumeRoleDuration = input.SessionDuration
 		input.Config.SSOUseStdout = input.UseStdout

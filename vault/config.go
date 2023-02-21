@@ -341,16 +341,18 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 	}
 	if config.SSOSession == "" {
 		config.SSOSession = psection.SSOSession
-
-		// Populate profile with values from [sso-session].
-		ssoSection, ok := cl.File.SSOSessionSection(psection.SSOSession)
-		if !ok {
-			// ignore missing profiles
-			log.Printf("[sso-session] '%s' missing in config file", psection.SSOSession)
+		if psection.SSOSession != "" {
+			// Populate profile with values from [sso-session].
+			ssoSection, ok := cl.File.SSOSessionSection(psection.SSOSession)
+			if ok {
+				config.SSOStartURL = ssoSection.SSOStartURL
+				config.SSORegion = ssoSection.SSORegion
+				config.SSORegistrationScopes = ssoSection.SSORegistrationScopes
+			} else {
+				// ignore missing profiles
+				log.Printf("[sso-session] '%s' missing in config file", psection.SSOSession)
+			}
 		}
-		config.SSOStartURL = ssoSection.SSOStartURL
-		config.SSORegion = ssoSection.SSORegion
-		config.SSORegistrationScopes = ssoSection.SSORegistrationScopes
 	}
 	if config.SSOStartURL == "" {
 		config.SSOStartURL = psection.SSOStartURL

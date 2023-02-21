@@ -15,6 +15,8 @@ import (
 	"github.com/99designs/keyring"
 	"github.com/alecthomas/kingpin"
 	"github.com/aws/aws-sdk-go-v2/aws"
+	awsconfig "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/skratchdot/open-golang/open"
 )
 
@@ -95,7 +97,17 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 
 	if input.ProfileName == "" {
 		// When no profile is specified, source credentials from the environment
-		credsProvider = vault.NewEnvironmentCredentialsProvider()
+		configFromEnv, err := awsconfig.NewEnvConfig()
+		if err != nil {
+			return fmt.Errorf("unable to authenticate to AWS through your environment variables: %w", err)
+		}
+		credsProvider = credentials.StaticCredentialsProvider{Value: configFromEnv.Credentials}
+		if !configFromEnv.Credentials.CanExpire {
+			credsProvider, err = vault.NewFederationTokenProvider(context.TODO(), credsProvider, config)
+			if err != nil {
+				return err
+			}
+		}
 	} else {
 		// Use a profile from the AWS config file
 		ckr := &vault.CredentialKeyring{Keyring: keyring}

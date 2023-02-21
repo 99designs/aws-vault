@@ -274,9 +274,13 @@ func NewFederationTokenCredentialsProvider(ctx context.Context, profileName stri
 	if err != nil {
 		return nil, err
 	}
-
 	masterCreds := NewMasterCredentialsProvider(k, credentialsName)
-	cfg := NewAwsConfigWithCredsProvider(masterCreds, config.Region, config.STSRegionalEndpoints)
+
+	return NewFederationTokenProvider(ctx, masterCreds, config)
+}
+
+func NewFederationTokenProvider(ctx context.Context, credsProvider aws.CredentialsProvider, config *Config) (*FederationTokenProvider, error) {
+	cfg := NewAwsConfigWithCredsProvider(credsProvider, config.Region, config.STSRegionalEndpoints)
 
 	currentUsername, err := GetUsernameFromSession(ctx, cfg)
 	if err != nil {
@@ -289,10 +293,6 @@ func NewFederationTokenCredentialsProvider(ctx context.Context, profileName stri
 		Name:      currentUsername,
 		Duration:  config.GetFederationTokenDuration,
 	}, nil
-}
-
-func NewEnvironmentCredentialsProvider() aws.CredentialsProvider {
-	return &EnvironmentVariablesCredentialsProvider{}
 }
 
 func FindMasterCredentialsNameFor(profileName string, keyring *CredentialKeyring, config *Config) (string, error) {

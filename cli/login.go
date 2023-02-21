@@ -102,7 +102,7 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 			return fmt.Errorf("unable to authenticate to AWS through your environment variables: %w", err)
 		}
 		credsProvider = credentials.StaticCredentialsProvider{Value: configFromEnv.Credentials}
-		if !configFromEnv.Credentials.CanExpire {
+		if configFromEnv.Credentials.SessionToken == "" {
 			credsProvider, err = vault.NewFederationTokenProvider(context.TODO(), credsProvider, config)
 			if err != nil {
 				return err

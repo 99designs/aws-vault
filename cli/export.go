@@ -87,7 +87,7 @@ func ConfigureExportCommand(app *kingpin.Application, a *AwsVault) {
 
 func ExportCommand(input ExportCommandInput, f *vault.ConfigFile, keyring keyring.Keyring) error {
 	if os.Getenv("AWS_VAULT") != "" {
-		return fmt.Errorf("aws-vault sessions should be nested with care, unset AWS_VAULT to force")
+		return fmt.Errorf("in an existing aws-vault subshell; 'exit' from the subshell or unset AWS_VAULT to force")
 	}
 
 	vault.UseSession = !input.NoSession

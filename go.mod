@@ -6,12 +6,12 @@ require (
 	github.com/99designs/keyring v1.2.2
 	github.com/alecthomas/kingpin v0.0.0-20200323085623-b6657d9477a6
 	github.com/aws/aws-sdk-go-v2 v1.17.5
-	github.com/aws/aws-sdk-go-v2/config v1.18.14
-	github.com/aws/aws-sdk-go-v2/credentials v1.13.14
+	github.com/aws/aws-sdk-go-v2/config v1.18.15
+	github.com/aws/aws-sdk-go-v2/credentials v1.13.15
 	github.com/aws/aws-sdk-go-v2/service/iam v1.19.3
-	github.com/aws/aws-sdk-go-v2/service/sso v1.12.3
-	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.14.3
-	github.com/aws/aws-sdk-go-v2/service/sts v1.18.4
+	github.com/aws/aws-sdk-go-v2/service/sso v1.12.4
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.14.4
+	github.com/aws/aws-sdk-go-v2/service/sts v1.18.5
 	github.com/google/go-cmp v0.5.9
 	github.com/mattn/go-isatty v0.0.17
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966

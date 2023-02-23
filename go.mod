@@ -10,7 +10,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.13.14
 	github.com/aws/aws-sdk-go-v2/service/iam v1.19.3
 	github.com/aws/aws-sdk-go-v2/service/sso v1.12.3
-	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.14.3
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.14.4
 	github.com/aws/aws-sdk-go-v2/service/sts v1.18.4
 	github.com/google/go-cmp v0.5.9
 	github.com/mattn/go-isatty v0.0.17

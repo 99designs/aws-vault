@@ -35,7 +35,8 @@ type AwsVault struct {
 }
 
 func isATerminal() bool {
-	return isatty.IsTerminal(os.Stdout.Fd()) || isatty.IsCygwinTerminal(os.Stdout.Fd())
+	fd := os.Stdout.Fd()
+	return isatty.IsTerminal(fd) || isatty.IsCygwinTerminal(fd)
 }
 
 func (a *AwsVault) PromptDriver(avoidTerminalPrompt bool) string {

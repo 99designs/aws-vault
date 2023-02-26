@@ -278,6 +278,14 @@ type ConfigLoader struct {
 	visitedProfiles []string
 }
 
+func NewConfigLoader(baseConfig Config, file *ConfigFile, activeProfile string) *ConfigLoader {
+	return &ConfigLoader{
+		BaseConfig:    baseConfig,
+		File:          file,
+		ActiveProfile: activeProfile,
+	}
+}
+
 func (cl *ConfigLoader) visitProfile(name string) bool {
 	for _, p := range cl.visitedProfiles {
 		if p == name {

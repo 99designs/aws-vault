@@ -55,11 +55,7 @@ func RotateCommand(input RotateCommandInput, f *vault.ConfigFile, keyring keyrin
 	vault.UseSession = !input.NoSession
 	vault.UseSessionCache = false
 
-	configLoader := &vault.ConfigLoader{
-		File:          f,
-		BaseConfig:    input.Config,
-		ActiveProfile: input.ProfileName,
-	}
+	configLoader := vault.NewConfigLoader(input.Config, f, input.ProfileName)
 	config, err := configLoader.LoadFromProfile(input.ProfileName)
 	if err != nil {
 		return fmt.Errorf("Error loading config: %w", err)

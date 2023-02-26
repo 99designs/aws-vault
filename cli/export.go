@@ -92,12 +92,7 @@ func ExportCommand(input ExportCommandInput, f *vault.ConfigFile, keyring keyrin
 
 	vault.UseSession = !input.NoSession
 
-	configLoader := vault.ConfigLoader{
-		File:          f,
-		BaseConfig:    input.Config,
-		ActiveProfile: input.ProfileName,
-	}
-	config, err := configLoader.LoadFromProfile(input.ProfileName)
+	config, err := vault.NewConfigLoader(input.Config, f, input.ProfileName).LoadFromProfile(input.ProfileName)
 	if err != nil {
 		return fmt.Errorf("Error loading config: %w", err)
 	}

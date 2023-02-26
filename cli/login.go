@@ -83,12 +83,7 @@ func ConfigureLoginCommand(app *kingpin.Application, a *AwsVault) {
 func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.Keyring) error {
 	vault.UseSession = !input.NoSession
 
-	configLoader := vault.ConfigLoader{
-		File:          f,
-		BaseConfig:    input.Config,
-		ActiveProfile: input.ProfileName,
-	}
-	config, err := configLoader.LoadFromProfile(input.ProfileName)
+	config, err := vault.NewConfigLoader(input.Config, f, input.ProfileName).LoadFromProfile(input.ProfileName)
 	if err != nil {
 		return fmt.Errorf("Error loading config: %w", err)
 	}

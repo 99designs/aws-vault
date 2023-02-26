@@ -66,7 +66,7 @@ jonsmith                 jonsmith                 -
 
 # Start a subshell with temporary credentials
 $ aws-vault exec jonsmith
-aws-vault: Starting a subshell /bin/zsh, use `exit` to exit the subshell
+Starting subshell /bin/zsh, use `exit` to exit the subshell
 $ aws s3 ls
 bucket_1
 bucket_2

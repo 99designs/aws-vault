@@ -17,12 +17,6 @@ const ec2CredentialsServerAddr = "127.0.0.1:9099"
 
 // StartEc2CredentialsServer starts a EC2 Instance Metadata server and endpoint proxy
 func StartEc2CredentialsServer(ctx context.Context, credsProvider aws.CredentialsProvider, region string) error {
-	if !isProxyRunning() {
-		if err := StartEc2EndpointProxyServerProcess(); err != nil {
-			return err
-		}
-	}
-
 	credsCache := aws.NewCredentialsCache(credsProvider)
 
 	// pre-fetch credentials so that we can respond quickly to the first request

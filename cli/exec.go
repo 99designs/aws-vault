@@ -134,6 +134,7 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 			return err
 		}
 
+		exitcode := 0
 		if input.JSONDeprecated {
 			exportCommandInput := ExportCommandInput{
 				ProfileName:     input.ProfileName,
@@ -145,33 +146,37 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 
 			err = ExportCommand(exportCommandInput, f, keyring)
 		} else {
-			err = ExecCommand(input, f, keyring)
+			exitcode, err = ExecCommand(input, f, keyring)
 		}
 
 		app.FatalIfError(err, "exec")
+
+		// override exit code if not err
+		os.Exit(exitcode)
+
 		return nil
 	})
 }
 
-func ExecCommand(input ExecCommandInput, f *vault.ConfigFile, keyring keyring.Keyring) error {
+func ExecCommand(input ExecCommandInput, f *vault.ConfigFile, keyring keyring.Keyring) (exitcode int, err error) {
 	if os.Getenv("AWS_VAULT") != "" {
-		return fmt.Errorf("running in an existing aws-vault subshell; 'exit' from the subshell or unset AWS_VAULT to force")
+		return 0, fmt.Errorf("running in an existing aws-vault subshell; 'exit' from the subshell or unset AWS_VAULT to force")
 	}
 
 	if err := input.validate(); err != nil {
-		return err
+		return 0, err
 	}
 
 	vault.UseSession = !input.NoSession
 
 	config, err := vault.NewConfigLoader(input.Config, f, input.ProfileName).LoadFromProfile(input.ProfileName)
 	if err != nil {
-		return fmt.Errorf("Error loading config: %w", err)
+		return 0, fmt.Errorf("Error loading config: %w", err)
 	}
 
 	credsProvider, err := vault.NewTempCredentialsProvider(config, &vault.CredentialKeyring{Keyring: keyring})
 	if err != nil {
-		return fmt.Errorf("Error getting temporary credentials: %w", err)
+		return 0, fmt.Errorf("Error getting temporary credentials: %w", err)
 	}
 
 	subshellHelp := ""
@@ -183,20 +188,29 @@ func ExecCommand(input ExecCommandInput, f *vault.ConfigFile, keyring keyring.Ke
 	cmdEnv := createEnv(input.ProfileName, config.Region)
 
 	if input.StartEc2Server {
-		printHelpMessage("Starting an EC2 credential server on 169.254.169.254:80", input.ShowHelpMessages)
+		if server.IsProxyRunning() {
+			return 0, fmt.Errorf("Another process is already bound to 169.254.169.254:80")
+		}
+
+		printHelpMessage("Warning: Starting an EC2 credential server on 169.254.169.254:80; AWS credentials will be accessible to any process while it is running", input.ShowHelpMessages)
+		if err := server.StartEc2EndpointProxyServerProcess(); err != nil {
+			return 0, err
+		}
+		defer server.StopProxy()
+
 		if err = server.StartEc2CredentialsServer(context.TODO(), credsProvider, config.Region); err != nil {
-			return fmt.Errorf("Failed to start credential server: %w", err)
+			return 0, fmt.Errorf("Failed to start credential server: %w", err)
 		}
 		printHelpMessage(subshellHelp, input.ShowHelpMessages)
 	} else if input.StartEcsServer {
 		printHelpMessage("Starting an ECS credential server; your app's AWS sdk must support AWS_CONTAINER_CREDENTIALS_FULL_URI.", input.ShowHelpMessages)
 		if err = startEcsServerAndSetEnv(credsProvider, config, input.Lazy, &cmdEnv); err != nil {
-			return err
+			return 0, err
 		}
 		printHelpMessage(subshellHelp, input.ShowHelpMessages)
 	} else {
 		if err = addCredsToEnv(credsProvider, input.ProfileName, &cmdEnv); err != nil {
-			return err
+			return 0, err
 		}
 		printHelpMessage(subshellHelp, input.ShowHelpMessages)
 
@@ -207,7 +221,7 @@ func ExecCommand(input ExecCommandInput, f *vault.ConfigFile, keyring keyring.Ke
 		}
 	}
 
-	return runSubProcess(input.Command, input.Args, cmdEnv) // will only return once subprocess ends
+	return runSubProcess(input.Command, input.Args, cmdEnv)
 }
 
 func printHelpMessage(helpMsg string, showHelpMessages bool) {
@@ -321,7 +335,7 @@ func getDefaultShell() string {
 	return command
 }
 
-func runSubProcess(command string, args []string, env []string) error {
+func runSubProcess(command string, args []string, env []string) (int, error) {
 	log.Printf("Starting a subprocess: %s %s", command, strings.Join(args, " "))
 
 	cmd := osexec.Command(command, args...)
@@ -334,7 +348,7 @@ func runSubProcess(command string, args []string, env []string) error {
 	signal.Notify(sigChan)
 
 	if err := cmd.Start(); err != nil {
-		return err
+		return 0, err
 	}
 
 	// proxy signals to process
@@ -347,12 +361,12 @@ func runSubProcess(command string, args []string, env []string) error {
 
 	if err := cmd.Wait(); err != nil {
 		_ = cmd.Process.Signal(os.Kill)
-		return fmt.Errorf("Failed to wait for command termination: %v", err)
+		return 0, fmt.Errorf("Failed to wait for command termination: %v", err)
 	}
 
 	waitStatus := cmd.ProcessState.Sys().(syscall.WaitStatus)
-	os.Exit(waitStatus.ExitStatus())
-	return nil
+
+	return waitStatus.ExitStatus(), nil
 }
 
 func doExecSyscall(command string, args []string, env []string) error {

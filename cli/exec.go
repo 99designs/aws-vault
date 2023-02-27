@@ -123,7 +123,7 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 		input.Config.NonChainedGetSessionTokenDuration = input.SessionDuration
 		input.Config.AssumeRoleDuration = input.SessionDuration
 		input.Config.SSOUseStdout = input.UseStdout
-		input.ShowHelpMessages = input.Command == "" && isATerminal() && os.Getenv("AWS_VAULT_DISABLE_HELP_MESSAGE") != "1"
+		input.ShowHelpMessages = !a.Debug && input.Command == "" && isATerminal() && os.Getenv("AWS_VAULT_DISABLE_HELP_MESSAGE") != "1"
 
 		f, err := a.AwsConfigFile()
 		if err != nil {
@@ -200,12 +200,14 @@ func ExecCommand(input ExecCommandInput, f *vault.ConfigFile, keyring keyring.Ke
 		}
 		printHelpMessage(subshellHelp, input.ShowHelpMessages)
 
-		if osSupportsExecSyscall() {
-			return doExecSyscall(input.Command, input.Args, cmdEnv)
+		err = doExecSyscall(input.Command, input.Args, cmdEnv) // will not return if exec syscall succeeds
+		if err != nil {
+			log.Println("Error doing execve syscall:", err.Error())
+			log.Println("Falling back to running a subprocess")
 		}
 	}
 
-	return runChildProcess(input.Command, input.Args, cmdEnv)
+	return runSubProcess(input.Command, input.Args, cmdEnv) // will only return once subprocess ends
 }
 
 func printHelpMessage(helpMsg string, showHelpMessages bool) {
@@ -319,8 +321,8 @@ func getDefaultShell() string {
 	return command
 }
 
-func runChildProcess(command string, args []string, env []string) error {
-	log.Printf("Starting subprocess: %s %s", command, strings.Join(args, " "))
+func runSubProcess(command string, args []string, env []string) error {
+	log.Printf("Starting a subprocess: %s %s", command, strings.Join(args, " "))
 
 	cmd := osexec.Command(command, args...)
 	cmd.Stdin = os.Stdin
@@ -351,10 +353,6 @@ func runChildProcess(command string, args []string, env []string) error {
 	waitStatus := cmd.ProcessState.Sys().(syscall.WaitStatus)
 	os.Exit(waitStatus.ExitStatus())
 	return nil
-}
-
-func osSupportsExecSyscall() bool {
-	return runtime.GOOS == "linux" || runtime.GOOS == "darwin" || runtime.GOOS == "freebsd" || runtime.GOOS == "openbsd"
 }
 
 func doExecSyscall(command string, args []string, env []string) error {

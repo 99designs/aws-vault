@@ -45,7 +45,7 @@ func StartProxy() error {
 	return http.Serve(l, handler)
 }
 
-func isProxyRunning() bool {
+func IsProxyRunning() bool {
 	_, err := net.DialTimeout("tcp", ec2MetadataEndpointAddr, time.Millisecond*10)
 	return err == nil
 }

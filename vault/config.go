@@ -660,6 +660,10 @@ func (c *Config) HasRole() bool {
 	return c.RoleARN != ""
 }
 
+func (c *Config) HasSSOSession() bool {
+	return c.SSOSession != ""
+}
+
 func (c *Config) HasSSOStartURL() bool {
 	return c.SSOStartURL != ""
 }
@@ -707,6 +711,10 @@ func (c *Config) GetSessionTokenDuration() time.Duration {
 }
 
 func (c *Config) Validate() error {
+	if c.HasSSOSession() && !c.HasSSOStartURL() {
+		return fmt.Errorf("profile '%s' has sso_session but no sso_start_url", c.ProfileName)
+	}
+
 	n := 0
 	if c.HasSSOStartURL() {
 		n++
@@ -718,6 +726,9 @@ func (c *Config) Validate() error {
 		n++
 	}
 	if c.HasRole() {
+		n++
+	}
+	if c.HasSourceProfile() {
 		n++
 	}
 

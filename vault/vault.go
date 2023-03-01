@@ -9,6 +9,7 @@ import (
 
 	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/sso"
 	"github.com/aws/aws-sdk-go-v2/service/ssooidc"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
@@ -269,17 +270,8 @@ func NewTempCredentialsProvider(config *Config, keyring *CredentialKeyring) (aws
 	return t.GetProviderForProfile(config)
 }
 
-func NewFederationTokenCredentialsProvider(ctx context.Context, profileName string, k *CredentialKeyring, config *Config) (aws.CredentialsProvider, error) {
-	credentialsName, err := FindMasterCredentialsNameFor(profileName, k, config)
-	if err != nil {
-		return nil, err
-	}
-	masterCreds := NewMasterCredentialsProvider(k, credentialsName)
-
-	return NewFederationTokenProvider(ctx, masterCreds, config)
-}
-
-func NewFederationTokenProvider(ctx context.Context, credsProvider aws.CredentialsProvider, config *Config) (*FederationTokenProvider, error) {
+func NewFederationTokenProvider(ctx context.Context, creds aws.Credentials, config *Config) (*FederationTokenProvider, error) {
+	var credsProvider aws.CredentialsProvider = credentials.StaticCredentialsProvider{Value: creds}
 	cfg := NewAwsConfigWithCredsProvider(credsProvider, config.Region, config.STSRegionalEndpoints)
 
 	currentUsername, err := GetUsernameFromSession(ctx, cfg)

@@ -660,10 +660,6 @@ func (c *Config) HasRole() bool {
 	return c.RoleARN != ""
 }
 
-func (c *Config) HasSSOSession() bool {
-	return c.SSOSession != ""
-}
-
 func (c *Config) HasSSOStartURL() bool {
 	return c.SSOStartURL != ""
 }
@@ -708,4 +704,26 @@ func (c *Config) GetSessionTokenDuration() time.Duration {
 		return c.ChainedGetSessionTokenDuration
 	}
 	return c.NonChainedGetSessionTokenDuration
+}
+
+func (c *Config) Validate() error {
+	n := 0
+	if c.HasSSOStartURL() {
+		n++
+	}
+	if c.HasWebIdentity() {
+		n++
+	}
+	if c.HasCredentialProcess() {
+		n++
+	}
+	if c.HasRole() {
+		n++
+	}
+
+	if n > 1 {
+		return fmt.Errorf("profile '%s' has more than one source of credentials", c.ProfileName)
+	}
+
+	return nil
 }

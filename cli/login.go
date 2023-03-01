@@ -96,24 +96,28 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 		if err != nil {
 			return fmt.Errorf("unable to authenticate to AWS through your environment variables: %w", err)
 		}
-		credsProvider = credentials.StaticCredentialsProvider{Value: configFromEnv.Credentials}
-		if configFromEnv.Credentials.SessionToken == "" {
-			credsProvider, err = vault.NewFederationTokenProvider(context.TODO(), credsProvider, config)
-			if err != nil {
-				return err
-			}
+		envCredsProvider := credentials.StaticCredentialsProvider{Value: configFromEnv.Credentials}
+		credsProvider, err = vault.NewFederationTokenProvider(context.TODO(), envCredsProvider, config)
+		if err != nil {
+			return err
 		}
 	} else {
 		// Use a profile from the AWS config file
 		ckr := &vault.CredentialKeyring{Keyring: keyring}
-		if config.HasRole() || config.HasSSOStartURL() {
-			// If AssumeRole or sso.GetRoleCredentials isn't used, GetFederationToken has to be used for IAM credentials
-			credsProvider, err = vault.NewTempCredentialsProvider(config, ckr)
-		} else {
-			credsProvider, err = vault.NewFederationTokenCredentialsProvider(context.TODO(), input.ProfileName, ckr, config)
-		}
+		credsProvider, err = vault.NewConfigCredentialsProvider(config, ckr)
 		if err != nil {
 			return fmt.Errorf("profile %s: %w", input.ProfileName, err)
+		}
+
+		_, isSSORoleCredentialsProvider := credsProvider.(*vault.SSORoleCredentialsProvider)
+		_, isAssumeRoleProvider := credsProvider.(*vault.AssumeRoleProvider)
+
+		// If AssumeRole or sso.GetRoleCredentials isn't used, GetFederationToken has to be used for IAM credentials
+		if !isAssumeRoleProvider && !isSSORoleCredentialsProvider {
+			credsProvider, err = vault.NewFederationTokenProvider(context.TODO(), credsProvider, config)
+			if err != nil {
+				return fmt.Errorf("profile %s: %w", input.ProfileName, err)
+			}
 		}
 	}
 

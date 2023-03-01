@@ -186,12 +186,12 @@ func NewCredentialProcessProvider(k keyring.Keyring, config *Config) (aws.Creden
 	return credentialProcessProvider, nil
 }
 
-type tempCredsCreator struct {
+type configCredsCreator struct {
 	keyring    *CredentialKeyring
 	chainedMfa string
 }
 
-func (t *tempCredsCreator) getSourceCreds(config *Config) (sourcecredsProvider aws.CredentialsProvider, err error) {
+func (t *configCredsCreator) getSourceCreds(config *Config) (sourcecredsProvider aws.CredentialsProvider, err error) {
 	if config.HasSourceProfile() {
 		log.Printf("profile %s: sourcing credentials from profile %s", config.ProfileName, config.SourceProfile.ProfileName)
 		return t.GetProviderForProfile(config.SourceProfile)
@@ -210,7 +210,7 @@ func (t *tempCredsCreator) getSourceCreds(config *Config) (sourcecredsProvider a
 	return nil, fmt.Errorf("profile %s: credentials missing", config.ProfileName)
 }
 
-func (t *tempCredsCreator) GetProviderForProfile(config *Config) (aws.CredentialsProvider, error) {
+func (t *configCredsCreator) GetProviderForProfile(config *Config) (aws.CredentialsProvider, error) {
 	if config.HasSSOStartURL() || config.HasSSOSession() {
 		log.Printf("profile %s: using SSO role credentials", config.ProfileName)
 		return NewSSORoleCredentialsProvider(t.keyring.Keyring, config)
@@ -261,22 +261,12 @@ func mfaDetails(mfaChained bool, config *Config) string {
 	return ""
 }
 
-// NewTempCredentialsProvider creates a credential provider for the given config
-func NewTempCredentialsProvider(config *Config, keyring *CredentialKeyring) (aws.CredentialsProvider, error) {
-	t := tempCredsCreator{
+// NewConfigCredentialsProvider creates a credential provider for the given config
+func NewConfigCredentialsProvider(config *Config, keyring *CredentialKeyring) (aws.CredentialsProvider, error) {
+	t := configCredsCreator{
 		keyring: keyring,
 	}
 	return t.GetProviderForProfile(config)
-}
-
-func NewFederationTokenCredentialsProvider(ctx context.Context, profileName string, k *CredentialKeyring, config *Config) (aws.CredentialsProvider, error) {
-	credentialsName, err := FindMasterCredentialsNameFor(profileName, k, config)
-	if err != nil {
-		return nil, err
-	}
-	masterCreds := NewMasterCredentialsProvider(k, credentialsName)
-
-	return NewFederationTokenProvider(ctx, masterCreds, config)
 }
 
 func NewFederationTokenProvider(ctx context.Context, credsProvider aws.CredentialsProvider, config *Config) (*FederationTokenProvider, error) {

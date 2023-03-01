@@ -98,7 +98,7 @@ func ExportCommand(input ExportCommandInput, f *vault.ConfigFile, keyring keyrin
 	}
 
 	ckr := &vault.CredentialKeyring{Keyring: keyring}
-	credsProvider, err := vault.NewTempCredentialsProvider(config, ckr)
+	credsProvider, err := vault.NewConfigCredentialsProvider(config, ckr)
 	if err != nil {
 		return fmt.Errorf("Error getting temporary credentials: %w", err)
 	}

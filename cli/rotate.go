@@ -88,7 +88,7 @@ func RotateCommand(input RotateCommandInput, f *vault.ConfigFile, keyring keyrin
 	if input.NoSession {
 		credsProvider = vault.NewMasterCredentialsProvider(ckr, config.ProfileName)
 	} else {
-		credsProvider, err = vault.NewTempCredentialsProvider(config, ckr)
+		credsProvider, err = vault.NewConfigCredentialsProvider(config, ckr)
 		if err != nil {
 			return fmt.Errorf("Error getting temporary credentials: %w", err)
 		}

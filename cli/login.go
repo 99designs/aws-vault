@@ -106,7 +106,7 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 	} else {
 		// Use a profile from the AWS config file
 		ckr := &vault.CredentialKeyring{Keyring: keyring}
-		if config.HasRole() || config.HasSSOStartURL() {
+		if config.HasRole() || config.HasSSOStartURL() || config.HasCredentialProcess() {
 			// If AssumeRole or sso.GetRoleCredentials isn't used, GetFederationToken has to be used for IAM credentials
 			credsProvider, err = vault.NewTempCredentialsProvider(config, ckr)
 		} else {

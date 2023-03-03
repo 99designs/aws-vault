@@ -725,10 +725,9 @@ func (c *Config) Validate() error {
 	if c.HasCredentialProcess() {
 		n++
 	}
-	if c.HasRole() {
-		n++
-	}
 	if c.HasSourceProfile() {
+		n++
+	} else if c.HasRole() {
 		n++
 	}
 

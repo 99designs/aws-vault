@@ -616,3 +616,39 @@ source_profile = interim
 		t.Fatalf("Expected transitive_session_tags to be empty, got %+v", baseConfig.TransitiveSessionTags)
 	}
 }
+
+func TestValidConfigValidation(t *testing.T) {
+	f := newConfigFile(t, []byte(`
+[profile foo]
+region         = eu-west-1
+mfa_serial     = arn:aws:iam::9999999999999:mfa/david
+
+[profile foo:staging]
+role_arn       = arn:aws:iam::1111111111111:role/admin
+source_profile = foo
+region         = eu-west-2
+mfa_serial     = arn:aws:iam::9999999999999:mfa/david
+
+[profile foo:production]
+role_arn       = arn:aws:iam::1111111111111:role/admin
+source_profile = foo
+region         = eu-west-2
+mfa_serial     = arn:aws:iam::9999999999999:mfa/david
+credential_process = true
+`))
+	defer os.Remove(f)
+	configFile, _ := vault.LoadConfig(f)
+	configLoader := &vault.ConfigLoader{File: configFile}
+
+	config, _ := configLoader.LoadFromProfile("foo:staging")
+	err := config.Validate()
+	if err != nil {
+		t.Fatalf("Should have validated: %v", err)
+	}
+
+	config, _ = configLoader.LoadFromProfile("foo:production")
+	err = config.Validate()
+	if err == nil {
+		t.Fatalf("Should have failed validation: %v", err)
+	}
+}

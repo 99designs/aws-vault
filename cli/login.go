@@ -184,8 +184,7 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 	if input.UseStdout {
 		fmt.Println(loginURL)
 	} else if err = open.Run(loginURL); err != nil {
-		log.Println(err)
-		fmt.Println(loginURL)
+		return fmt.Errorf("Failed to open %s: %w", loginURL, err)
 	}
 
 	return nil

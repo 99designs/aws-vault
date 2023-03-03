@@ -23,9 +23,6 @@ const (
 	roleChainingMaximumDuration = 1 * time.Hour
 )
 
-// UseSession will disable the use of GetSessionToken when set to false
-var UseSession = true
-
 func init() {
 	ini.PrettyFormat = false
 }
@@ -674,33 +671,6 @@ func (c *Config) HasWebIdentity() bool {
 
 func (c *Config) HasCredentialProcess() bool {
 	return c.CredentialProcess != ""
-}
-
-// CanUseGetSessionToken determines if GetSessionToken should be used, and if not returns a reason
-func (c *Config) CanUseGetSessionToken() (bool, string) {
-	if !UseSession {
-		return false, "sessions are disabled"
-	}
-
-	if c.IsChained() {
-		if !c.ChainedFromProfile.HasMfaSerial() {
-			return false, fmt.Sprintf("profile '%s' has no MFA serial defined", c.ChainedFromProfile.ProfileName)
-		}
-
-		if !c.HasMfaSerial() && c.ChainedFromProfile.HasMfaSerial() {
-			return false, fmt.Sprintf("profile '%s' has no MFA serial defined", c.ProfileName)
-		}
-
-		if c.ChainedFromProfile.MfaSerial != c.MfaSerial {
-			return false, fmt.Sprintf("MFA serial doesn't match profile '%s'", c.ChainedFromProfile.ProfileName)
-		}
-
-		if c.ChainedFromProfile.AssumeRoleDuration > roleChainingMaximumDuration {
-			return false, fmt.Sprintf("duration %s in profile '%s' is greater than the AWS maximum %s for chaining MFA", c.ChainedFromProfile.AssumeRoleDuration, c.ChainedFromProfile.ProfileName, roleChainingMaximumDuration)
-		}
-	}
-
-	return true, ""
 }
 
 func (c *Config) GetSessionTokenDuration() time.Duration {

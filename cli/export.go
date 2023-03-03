@@ -90,15 +90,13 @@ func ExportCommand(input ExportCommandInput, f *vault.ConfigFile, keyring keyrin
 		return fmt.Errorf("in an existing aws-vault subshell; 'exit' from the subshell or unset AWS_VAULT to force")
 	}
 
-	vault.UseSession = !input.NoSession
-
 	config, err := vault.NewConfigLoader(input.Config, f, input.ProfileName).LoadFromProfile(input.ProfileName)
 	if err != nil {
 		return fmt.Errorf("Error loading config: %w", err)
 	}
 
 	ckr := &vault.CredentialKeyring{Keyring: keyring}
-	credsProvider, err := vault.NewTempCredentialsProvider(config, ckr)
+	credsProvider, err := vault.NewTempCredentialsProvider(config, ckr, !input.NoSession)
 	if err != nil {
 		return fmt.Errorf("Error getting temporary credentials: %w", err)
 	}

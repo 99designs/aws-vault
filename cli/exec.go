@@ -172,7 +172,7 @@ func ExecCommand(input ExecCommandInput, f *vault.ConfigFile, keyring keyring.Ke
 		return 0, fmt.Errorf("Error loading config: %w", err)
 	}
 
-	credsProvider, err := vault.NewTempCredentialsProvider(config, &vault.CredentialKeyring{Keyring: keyring}, !input.NoSession)
+	credsProvider, err := vault.NewTempCredentialsProvider(config, &vault.CredentialKeyring{Keyring: keyring}, input.NoSession)
 	if err != nil {
 		return 0, fmt.Errorf("Error getting temporary credentials: %w", err)
 	}

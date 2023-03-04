@@ -51,7 +51,6 @@ func ConfigureRotateCommand(app *kingpin.Application, a *AwsVault) {
 }
 
 func RotateCommand(input RotateCommandInput, f *vault.ConfigFile, keyring keyring.Keyring) error {
-	// Can't disable sessions completely, might need to use session for MFA-Protected API Access
 	vault.UseSessionCache = false
 
 	configLoader := vault.NewConfigLoader(input.Config, f, input.ProfileName)
@@ -87,7 +86,8 @@ func RotateCommand(input RotateCommandInput, f *vault.ConfigFile, keyring keyrin
 	if input.NoSession {
 		credsProvider = vault.NewMasterCredentialsProvider(ckr, config.ProfileName)
 	} else {
-		credsProvider, err = vault.NewTempCredentialsProvider(config, ckr, !input.NoSession)
+		// Can't always disable sessions completely, might need to use session for MFA-Protected API Access
+		credsProvider, err = vault.NewTempCredentialsProvider(config, ckr, input.NoSession)
 		if err != nil {
 			return fmt.Errorf("Error getting temporary credentials: %w", err)
 		}

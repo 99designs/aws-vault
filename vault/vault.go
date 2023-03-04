@@ -230,9 +230,9 @@ func FindMasterCredentialsNameFor(profileName string, keyring *CredentialKeyring
 }
 
 type tempCredsCreator struct {
-	// UseSession will disable the use of GetSessionToken when set to false
-	UseSession bool
-	Keyring    *CredentialKeyring
+	// DisableSessions will disable the use of GetSessionToken when set to true
+	DisableSessions bool
+	Keyring         *CredentialKeyring
 
 	chainedMfa string
 }
@@ -303,7 +303,7 @@ func (t *tempCredsCreator) GetProviderForProfile(config *ProfileConfig) (aws.Cre
 
 // canUseGetSessionToken determines if GetSessionToken should be used, and if not returns a reason
 func (t *tempCredsCreator) canUseGetSessionToken(c *ProfileConfig) (bool, string) {
-	if !t.UseSession {
+	if t.DisableSessions {
 		return false, "sessions are disabled"
 	}
 
@@ -339,10 +339,10 @@ func mfaDetails(mfaChained bool, config *ProfileConfig) string {
 }
 
 // NewTempCredentialsProvider creates a credential provider for the given config
-func NewTempCredentialsProvider(config *ProfileConfig, keyring *CredentialKeyring, useSession bool) (aws.CredentialsProvider, error) {
+func NewTempCredentialsProvider(config *ProfileConfig, keyring *CredentialKeyring, disableSessions bool) (aws.CredentialsProvider, error) {
 	t := tempCredsCreator{
-		Keyring:    keyring,
-		UseSession: useSession,
+		Keyring:         keyring,
+		DisableSessions: disableSessions,
 	}
 	return t.GetProviderForProfile(config)
 }

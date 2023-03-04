@@ -19,7 +19,7 @@ import (
 type ExportCommandInput struct {
 	ProfileName     string
 	Format          string
-	Config          vault.Config
+	Config          vault.ProfileConfig
 	SessionDuration time.Duration
 	NoSession       bool
 	UseStdout       bool
@@ -90,7 +90,7 @@ func ExportCommand(input ExportCommandInput, f *vault.ConfigFile, keyring keyrin
 		return fmt.Errorf("in an existing aws-vault subshell; 'exit' from the subshell or unset AWS_VAULT to force")
 	}
 
-	config, err := vault.NewConfigLoader(input.Config, f, input.ProfileName).LoadFromProfile(input.ProfileName)
+	config, err := vault.NewConfigLoader(input.Config, f, input.ProfileName).GetProfileConfig(input.ProfileName)
 	if err != nil {
 		return fmt.Errorf("Error loading config: %w", err)
 	}

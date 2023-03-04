@@ -63,10 +63,10 @@ type EcsServer struct {
 	server            http.Server
 	cache             sync.Map
 	baseCredsProvider aws.CredentialsProvider
-	config            *vault.Config
+	config            *vault.ProfileConfig
 }
 
-func NewEcsServer(ctx context.Context, baseCredsProvider aws.CredentialsProvider, config *vault.Config, authToken string, port int, lazyLoadBaseCreds bool) (*EcsServer, error) {
+func NewEcsServer(ctx context.Context, baseCredsProvider aws.CredentialsProvider, config *vault.ProfileConfig, authToken string, port int, lazyLoadBaseCreds bool) (*EcsServer, error) {
 	listener, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
 	if err != nil {
 		return nil, err

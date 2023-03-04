@@ -48,7 +48,7 @@ func NewMasterCredentialsProvider(k *CredentialKeyring, credentialsName string) 
 	return &KeyringProvider{k, credentialsName}
 }
 
-func NewSessionTokenProvider(credsProvider aws.CredentialsProvider, k keyring.Keyring, config *Config) (aws.CredentialsProvider, error) {
+func NewSessionTokenProvider(credsProvider aws.CredentialsProvider, k keyring.Keyring, config *ProfileConfig) (aws.CredentialsProvider, error) {
 	cfg := NewAwsConfigWithCredsProvider(credsProvider, config.Region, config.STSRegionalEndpoints)
 
 	sessionTokenProvider := &SessionTokenProvider{
@@ -74,7 +74,7 @@ func NewSessionTokenProvider(credsProvider aws.CredentialsProvider, k keyring.Ke
 }
 
 // NewAssumeRoleProvider returns a provider that generates credentials using AssumeRole
-func NewAssumeRoleProvider(credsProvider aws.CredentialsProvider, k keyring.Keyring, config *Config) (aws.CredentialsProvider, error) {
+func NewAssumeRoleProvider(credsProvider aws.CredentialsProvider, k keyring.Keyring, config *ProfileConfig) (aws.CredentialsProvider, error) {
 	cfg := NewAwsConfigWithCredsProvider(credsProvider, config.Region, config.STSRegionalEndpoints)
 
 	p := &AssumeRoleProvider{
@@ -107,7 +107,7 @@ func NewAssumeRoleProvider(credsProvider aws.CredentialsProvider, k keyring.Keyr
 
 // NewAssumeRoleWithWebIdentityProvider returns a provider that generates
 // credentials using AssumeRoleWithWebIdentity
-func NewAssumeRoleWithWebIdentityProvider(k keyring.Keyring, config *Config) (aws.CredentialsProvider, error) {
+func NewAssumeRoleWithWebIdentityProvider(k keyring.Keyring, config *ProfileConfig) (aws.CredentialsProvider, error) {
 	cfg := NewAwsConfig(config.Region, config.STSRegionalEndpoints)
 
 	p := &AssumeRoleWithWebIdentityProvider{
@@ -135,7 +135,7 @@ func NewAssumeRoleWithWebIdentityProvider(k keyring.Keyring, config *Config) (aw
 }
 
 // NewSSORoleCredentialsProvider creates a provider for SSO credentials
-func NewSSORoleCredentialsProvider(k keyring.Keyring, config *Config) (aws.CredentialsProvider, error) {
+func NewSSORoleCredentialsProvider(k keyring.Keyring, config *ProfileConfig) (aws.CredentialsProvider, error) {
 	cfg := NewAwsConfig(config.SSORegion, config.STSRegionalEndpoints)
 
 	ssoRoleCredentialsProvider := &SSORoleCredentialsProvider{
@@ -166,7 +166,7 @@ func NewSSORoleCredentialsProvider(k keyring.Keyring, config *Config) (aws.Crede
 
 // NewCredentialProcessProvider creates a provider to retrieve credentials from an external
 // executable as described in https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
-func NewCredentialProcessProvider(k keyring.Keyring, config *Config) (aws.CredentialsProvider, error) {
+func NewCredentialProcessProvider(k keyring.Keyring, config *ProfileConfig) (aws.CredentialsProvider, error) {
 	credentialProcessProvider := &CredentialProcessProvider{
 		CredentialProcess: config.CredentialProcess,
 	}
@@ -186,6 +186,49 @@ func NewCredentialProcessProvider(k keyring.Keyring, config *Config) (aws.Creden
 	return credentialProcessProvider, nil
 }
 
+func NewFederationTokenCredentialsProvider(ctx context.Context, profileName string, k *CredentialKeyring, config *ProfileConfig) (aws.CredentialsProvider, error) {
+	credentialsName, err := FindMasterCredentialsNameFor(profileName, k, config)
+	if err != nil {
+		return nil, err
+	}
+	masterCreds := NewMasterCredentialsProvider(k, credentialsName)
+
+	return NewFederationTokenProvider(ctx, masterCreds, config)
+}
+
+func NewFederationTokenProvider(ctx context.Context, credsProvider aws.CredentialsProvider, config *ProfileConfig) (*FederationTokenProvider, error) {
+	cfg := NewAwsConfigWithCredsProvider(credsProvider, config.Region, config.STSRegionalEndpoints)
+
+	currentUsername, err := GetUsernameFromSession(ctx, cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("Using GetFederationToken for credentials")
+	return &FederationTokenProvider{
+		StsClient: sts.NewFromConfig(cfg),
+		Name:      currentUsername,
+		Duration:  config.GetFederationTokenDuration,
+	}, nil
+}
+
+func FindMasterCredentialsNameFor(profileName string, keyring *CredentialKeyring, config *ProfileConfig) (string, error) {
+	hasMasterCreds, err := keyring.Has(profileName)
+	if err != nil {
+		return "", err
+	}
+
+	if hasMasterCreds {
+		return profileName, nil
+	}
+
+	if profileName == config.SourceProfileName {
+		return "", fmt.Errorf("No master credentials found")
+	}
+
+	return FindMasterCredentialsNameFor(config.SourceProfileName, keyring, config)
+}
+
 type tempCredsCreator struct {
 	// UseSession will disable the use of GetSessionToken when set to false
 	UseSession bool
@@ -194,7 +237,7 @@ type tempCredsCreator struct {
 	chainedMfa string
 }
 
-func (t *tempCredsCreator) getSourceCreds(config *Config) (sourcecredsProvider aws.CredentialsProvider, err error) {
+func (t *tempCredsCreator) getSourceCreds(config *ProfileConfig) (sourcecredsProvider aws.CredentialsProvider, err error) {
 	if config.HasSourceProfile() {
 		log.Printf("profile %s: sourcing credentials from profile %s", config.ProfileName, config.SourceProfile.ProfileName)
 		return t.GetProviderForProfile(config.SourceProfile)
@@ -213,7 +256,7 @@ func (t *tempCredsCreator) getSourceCreds(config *Config) (sourcecredsProvider a
 	return nil, fmt.Errorf("profile %s: credentials missing", config.ProfileName)
 }
 
-func (t *tempCredsCreator) GetProviderForProfile(config *Config) (aws.CredentialsProvider, error) {
+func (t *tempCredsCreator) GetProviderForProfile(config *ProfileConfig) (aws.CredentialsProvider, error) {
 	if err := config.Validate(); err != nil {
 		return nil, err
 	}
@@ -259,7 +302,7 @@ func (t *tempCredsCreator) GetProviderForProfile(config *Config) (aws.Credential
 }
 
 // canUseGetSessionToken determines if GetSessionToken should be used, and if not returns a reason
-func (t *tempCredsCreator) canUseGetSessionToken(c *Config) (bool, string) {
+func (t *tempCredsCreator) canUseGetSessionToken(c *ProfileConfig) (bool, string) {
 	if !t.UseSession {
 		return false, "sessions are disabled"
 	}
@@ -285,7 +328,7 @@ func (t *tempCredsCreator) canUseGetSessionToken(c *Config) (bool, string) {
 	return true, ""
 }
 
-func mfaDetails(mfaChained bool, config *Config) string {
+func mfaDetails(mfaChained bool, config *ProfileConfig) string {
 	if mfaChained {
 		return "(chained MFA)"
 	}
@@ -296,53 +339,10 @@ func mfaDetails(mfaChained bool, config *Config) string {
 }
 
 // NewTempCredentialsProvider creates a credential provider for the given config
-func NewTempCredentialsProvider(config *Config, keyring *CredentialKeyring, useSession bool) (aws.CredentialsProvider, error) {
+func NewTempCredentialsProvider(config *ProfileConfig, keyring *CredentialKeyring, useSession bool) (aws.CredentialsProvider, error) {
 	t := tempCredsCreator{
 		Keyring:    keyring,
 		UseSession: useSession,
 	}
 	return t.GetProviderForProfile(config)
-}
-
-func NewFederationTokenCredentialsProvider(ctx context.Context, profileName string, k *CredentialKeyring, config *Config) (aws.CredentialsProvider, error) {
-	credentialsName, err := FindMasterCredentialsNameFor(profileName, k, config)
-	if err != nil {
-		return nil, err
-	}
-	masterCreds := NewMasterCredentialsProvider(k, credentialsName)
-
-	return NewFederationTokenProvider(ctx, masterCreds, config)
-}
-
-func NewFederationTokenProvider(ctx context.Context, credsProvider aws.CredentialsProvider, config *Config) (*FederationTokenProvider, error) {
-	cfg := NewAwsConfigWithCredsProvider(credsProvider, config.Region, config.STSRegionalEndpoints)
-
-	currentUsername, err := GetUsernameFromSession(ctx, cfg)
-	if err != nil {
-		return nil, err
-	}
-
-	log.Printf("Using GetFederationToken for credentials")
-	return &FederationTokenProvider{
-		StsClient: sts.NewFromConfig(cfg),
-		Name:      currentUsername,
-		Duration:  config.GetFederationTokenDuration,
-	}, nil
-}
-
-func FindMasterCredentialsNameFor(profileName string, keyring *CredentialKeyring, config *Config) (string, error) {
-	hasMasterCreds, err := keyring.Has(profileName)
-	if err != nil {
-		return "", err
-	}
-
-	if hasMasterCreds {
-		return profileName, nil
-	}
-
-	if profileName == config.SourceProfileName {
-		return "", fmt.Errorf("No master credentials found")
-	}
-
-	return FindMasterCredentialsNameFor(config.SourceProfileName, keyring, config)
 }

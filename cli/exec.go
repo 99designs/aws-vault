@@ -29,7 +29,7 @@ type ExecCommandInput struct {
 	StartEcsServer   bool
 	Lazy             bool
 	JSONDeprecated   bool
-	Config           vault.Config
+	Config           vault.ProfileConfig
 	SessionDuration  time.Duration
 	NoSession        bool
 	UseStdout        bool
@@ -167,7 +167,7 @@ func ExecCommand(input ExecCommandInput, f *vault.ConfigFile, keyring keyring.Ke
 		return 0, err
 	}
 
-	config, err := vault.NewConfigLoader(input.Config, f, input.ProfileName).LoadFromProfile(input.ProfileName)
+	config, err := vault.NewConfigLoader(input.Config, f, input.ProfileName).GetProfileConfig(input.ProfileName)
 	if err != nil {
 		return 0, fmt.Errorf("Error loading config: %w", err)
 	}
@@ -260,7 +260,7 @@ func createEnv(profileName string, region string) environ {
 	return env
 }
 
-func startEcsServerAndSetEnv(credsProvider aws.CredentialsProvider, config *vault.Config, lazy bool, cmdEnv *environ) error {
+func startEcsServerAndSetEnv(credsProvider aws.CredentialsProvider, config *vault.ProfileConfig, lazy bool, cmdEnv *environ) error {
 	ecsServer, err := server.NewEcsServer(context.TODO(), credsProvider, config, "", 0, lazy)
 	if err != nil {
 		return err

@@ -269,13 +269,14 @@ func (c *ConfigFile) ProfileNames() []string {
 
 // ConfigLoader loads config from configfile and environment variables
 type ConfigLoader struct {
-	BaseConfig      Config
-	File            *ConfigFile
-	ActiveProfile   string
+	BaseConfig    ProfileConfig
+	File          *ConfigFile
+	ActiveProfile string
+
 	visitedProfiles []string
 }
 
-func NewConfigLoader(baseConfig Config, file *ConfigFile, activeProfile string) *ConfigLoader {
+func NewConfigLoader(baseConfig ProfileConfig, file *ConfigFile, activeProfile string) *ConfigLoader {
 	return &ConfigLoader{
 		BaseConfig:    baseConfig,
 		File:          file,
@@ -297,7 +298,7 @@ func (cl *ConfigLoader) resetLoopDetection() {
 	cl.visitedProfiles = []string{}
 }
 
-func (cl *ConfigLoader) populateFromDefaults(config *Config) {
+func (cl *ConfigLoader) populateFromDefaults(config *ProfileConfig) {
 	if config.AssumeRoleDuration == 0 {
 		config.AssumeRoleDuration = DefaultSessionDuration
 	}
@@ -312,7 +313,7 @@ func (cl *ConfigLoader) populateFromDefaults(config *Config) {
 	}
 }
 
-func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName string) error {
+func (cl *ConfigLoader) populateFromConfigFile(config *ProfileConfig, profileName string) error {
 	if !cl.visitProfile(profileName) {
 		return fmt.Errorf("Loop detected in config file for profile '%s'", profileName)
 	}
@@ -419,7 +420,7 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 	return nil
 }
 
-func (cl *ConfigLoader) populateFromEnv(profile *Config) {
+func (cl *ConfigLoader) populateFromEnv(profile *ProfileConfig) {
 	if region := os.Getenv("AWS_REGION"); region != "" && profile.Region == "" {
 		log.Printf("Using region %q from AWS_REGION", region)
 		profile.Region = region
@@ -501,9 +502,9 @@ func (cl *ConfigLoader) populateFromEnv(profile *Config) {
 	}
 }
 
-func (cl *ConfigLoader) hydrateSourceConfig(config *Config) error {
+func (cl *ConfigLoader) hydrateSourceConfig(config *ProfileConfig) error {
 	if config.SourceProfileName != "" {
-		sc, err := cl.LoadFromProfile(config.SourceProfileName)
+		sc, err := cl.GetProfileConfig(config.SourceProfileName)
 		if err != nil {
 			return err
 		}
@@ -513,8 +514,8 @@ func (cl *ConfigLoader) hydrateSourceConfig(config *Config) error {
 	return nil
 }
 
-// LoadFromProfile loads the profile from the config file and environment variables into config
-func (cl *ConfigLoader) LoadFromProfile(profileName string) (*Config, error) {
+// GetProfileConfig loads the profile from the config file and environment variables into config
+func (cl *ConfigLoader) GetProfileConfig(profileName string) (*ProfileConfig, error) {
 	config := cl.BaseConfig
 	config.ProfileName = profileName
 	cl.populateFromEnv(&config)
@@ -535,8 +536,8 @@ func (cl *ConfigLoader) LoadFromProfile(profileName string) (*Config, error) {
 	return &config, nil
 }
 
-// Config is a collection of configuration options for creating temporary credentials
-type Config struct {
+// ProfileConfig is a collection of configuration options for creating temporary credentials
+type ProfileConfig struct {
 	// ProfileName specifies the name of the profile config
 	ProfileName string
 
@@ -544,10 +545,10 @@ type Config struct {
 	SourceProfileName string
 
 	// SourceProfile is the profile where credentials come from
-	SourceProfile *Config
+	SourceProfile *ProfileConfig
 
-	// ChainedFromProfile is the profile that used this profile as it's source profile
-	ChainedFromProfile *Config
+	// ChainedFromProfile is the profile that used this profile as its source profile
+	ChainedFromProfile *ProfileConfig
 
 	// Region is the AWS region
 	Region string
@@ -619,7 +620,7 @@ type Config struct {
 }
 
 // SetSessionTags parses a comma separated key=vaue string and sets Config.SessionTags map
-func (c *Config) SetSessionTags(s string) error {
+func (c *ProfileConfig) SetSessionTags(s string) error {
 	c.SessionTags = make(map[string]string)
 	for _, tag := range strings.Split(s, ",") {
 		kvPair := strings.SplitN(tag, "=", 2)
@@ -633,7 +634,7 @@ func (c *Config) SetSessionTags(s string) error {
 }
 
 // SetTransitiveSessionTags parses a comma separated string and sets Config.TransitiveSessionTags
-func (c *Config) SetTransitiveSessionTags(s string) {
+func (c *ProfileConfig) SetTransitiveSessionTags(s string) {
 	for _, tag := range strings.Split(s, ",") {
 		if tag = strings.TrimSpace(tag); tag != "" {
 			c.TransitiveSessionTags = append(c.TransitiveSessionTags, tag)
@@ -641,46 +642,46 @@ func (c *Config) SetTransitiveSessionTags(s string) {
 	}
 }
 
-func (c *Config) IsChained() bool {
+func (c *ProfileConfig) IsChained() bool {
 	return c.ChainedFromProfile != nil
 }
 
-func (c *Config) HasSourceProfile() bool {
+func (c *ProfileConfig) HasSourceProfile() bool {
 	return c.SourceProfile != nil
 }
 
-func (c *Config) HasMfaSerial() bool {
+func (c *ProfileConfig) HasMfaSerial() bool {
 	return c.MfaSerial != ""
 }
 
-func (c *Config) HasRole() bool {
+func (c *ProfileConfig) HasRole() bool {
 	return c.RoleARN != ""
 }
 
-func (c *Config) HasSSOSession() bool {
+func (c *ProfileConfig) HasSSOSession() bool {
 	return c.SSOSession != ""
 }
 
-func (c *Config) HasSSOStartURL() bool {
+func (c *ProfileConfig) HasSSOStartURL() bool {
 	return c.SSOStartURL != ""
 }
 
-func (c *Config) HasWebIdentity() bool {
+func (c *ProfileConfig) HasWebIdentity() bool {
 	return c.WebIdentityTokenFile != "" || c.WebIdentityTokenProcess != ""
 }
 
-func (c *Config) HasCredentialProcess() bool {
+func (c *ProfileConfig) HasCredentialProcess() bool {
 	return c.CredentialProcess != ""
 }
 
-func (c *Config) GetSessionTokenDuration() time.Duration {
+func (c *ProfileConfig) GetSessionTokenDuration() time.Duration {
 	if c.IsChained() {
 		return c.ChainedGetSessionTokenDuration
 	}
 	return c.NonChainedGetSessionTokenDuration
 }
 
-func (c *Config) Validate() error {
+func (c *ProfileConfig) Validate() error {
 	if c.HasSSOSession() && !c.HasSSOStartURL() {
 		return fmt.Errorf("profile '%s' has sso_session but no sso_start_url", c.ProfileName)
 	}
@@ -700,7 +701,6 @@ func (c *Config) Validate() error {
 	} else if c.HasRole() {
 		n++
 	}
-
 	if n > 1 {
 		return fmt.Errorf("profile '%s' has more than one source of credentials", c.ProfileName)
 	}

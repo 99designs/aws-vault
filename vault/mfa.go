@@ -33,7 +33,7 @@ func (m *Mfa) GetMfaSerial() string {
 	return m.mfaSerial
 }
 
-func NewMfa(config *Config) *Mfa {
+func NewMfa(config *ProfileConfig) *Mfa {
 	m := Mfa{
 		mfaSerial: config.MfaSerial,
 	}

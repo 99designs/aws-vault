@@ -254,7 +254,7 @@ func TestIncludeProfile(t *testing.T) {
 	}
 
 	configLoader := &vault.ConfigLoader{File: configFile}
-	config, err := configLoader.LoadFromProfile("testincludeprofile2")
+	config, err := configLoader.GetProfileConfig("testincludeprofile2")
 	if err != nil {
 		t.Fatalf("Should have found a profile: %v", err)
 	}
@@ -274,7 +274,7 @@ func TestIncludeSsoSession(t *testing.T) {
 	}
 
 	configLoader := &vault.ConfigLoader{File: configFile}
-	config, err := configLoader.LoadFromProfile("with-sso-session")
+	config, err := configLoader.GetProfileConfig("with-sso-session")
 	if err != nil {
 		t.Fatalf("Should have found a profile: %v", err)
 	}
@@ -369,7 +369,7 @@ source_profile=foo
 	}
 
 	configLoader := &vault.ConfigLoader{File: configFile}
-	config, err := configLoader.LoadFromProfile("foo")
+	config, err := configLoader.GetProfileConfig("foo")
 	if err != nil {
 		t.Fatalf("Should have found a profile: %v", err)
 	}
@@ -406,7 +406,7 @@ source_profile=root
 	}
 
 	configLoader := &vault.ConfigLoader{File: configFile}
-	config, err := configLoader.LoadFromProfile("foo")
+	config, err := configLoader.GetProfileConfig("foo")
 	if err != nil {
 		t.Fatalf("Should have found a profile: %v", err)
 	}
@@ -441,7 +441,7 @@ func TestSetSessionTags(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		config := vault.Config{}
+		config := vault.ProfileConfig{}
 		err := config.SetSessionTags(tc.stringValue)
 		if tc.ok {
 			if err != nil {
@@ -473,7 +473,7 @@ func TestSetTransitiveSessionTags(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		config := vault.Config{}
+		config := vault.ProfileConfig{}
 		config.SetTransitiveSessionTags(tc.stringValue)
 		if !reflect.DeepEqual(tc.expected, config.TransitiveSessionTags) {
 			t.Fatalf("Expected TransitiveSessionTags: %+v, got %+v", tc.expected, config.TransitiveSessionTags)
@@ -496,7 +496,7 @@ transitive_session_tags = tagOne ,tagTwo,tagThree
 		t.Fatal(err)
 	}
 	configLoader := &vault.ConfigLoader{File: configFile, ActiveProfile: "tagged"}
-	config, err := configLoader.LoadFromProfile("tagged")
+	config, err := configLoader.GetProfileConfig("tagged")
 	if err != nil {
 		t.Fatalf("Should have found a profile: %v", err)
 	}
@@ -533,7 +533,7 @@ transitive_session_tags = tagOne ,tagTwo,tagThree
 		t.Fatal(err)
 	}
 	configLoader := &vault.ConfigLoader{File: configFile, ActiveProfile: "tagged"}
-	config, err := configLoader.LoadFromProfile("tagged")
+	config, err := configLoader.GetProfileConfig("tagged")
 	if err != nil {
 		t.Fatalf("Should have found a profile: %v", err)
 	}
@@ -578,7 +578,7 @@ source_profile = interim
 		t.Fatal(err)
 	}
 	configLoader := &vault.ConfigLoader{File: configFile, ActiveProfile: "target"}
-	config, err := configLoader.LoadFromProfile("target")
+	config, err := configLoader.GetProfileConfig("target")
 	if err != nil {
 		t.Fatalf("Should have found a profile: %v", err)
 	}
@@ -640,13 +640,13 @@ credential_process = true
 	configFile, _ := vault.LoadConfig(f)
 	configLoader := &vault.ConfigLoader{File: configFile}
 
-	config, _ := configLoader.LoadFromProfile("foo:staging")
+	config, _ := configLoader.GetProfileConfig("foo:staging")
 	err := config.Validate()
 	if err != nil {
 		t.Fatalf("Should have validated: %v", err)
 	}
 
-	config, _ = configLoader.LoadFromProfile("foo:production")
+	config, _ = configLoader.GetProfileConfig("foo:production")
 	err = config.Validate()
 	if err == nil {
 		t.Fatalf("Should have failed validation: %v", err)

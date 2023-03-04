@@ -24,7 +24,7 @@ type LoginCommandInput struct {
 	ProfileName     string
 	UseStdout       bool
 	Path            string
-	Config          vault.Config
+	Config          vault.ProfileConfig
 	SessionDuration time.Duration
 	NoSession       bool
 }
@@ -81,7 +81,7 @@ func ConfigureLoginCommand(app *kingpin.Application, a *AwsVault) {
 }
 
 func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.Keyring) error {
-	config, err := vault.NewConfigLoader(input.Config, f, input.ProfileName).LoadFromProfile(input.ProfileName)
+	config, err := vault.NewConfigLoader(input.Config, f, input.ProfileName).GetProfileConfig(input.ProfileName)
 	if err != nil {
 		return fmt.Errorf("Error loading config: %w", err)
 	}

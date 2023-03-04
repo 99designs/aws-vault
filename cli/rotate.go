@@ -16,7 +16,7 @@ import (
 type RotateCommandInput struct {
 	NoSession   bool
 	ProfileName string
-	Config      vault.Config
+	Config      vault.ProfileConfig
 }
 
 func ConfigureRotateCommand(app *kingpin.Application, a *AwsVault) {
@@ -55,7 +55,7 @@ func RotateCommand(input RotateCommandInput, f *vault.ConfigFile, keyring keyrin
 	vault.UseSessionCache = false
 
 	configLoader := vault.NewConfigLoader(input.Config, f, input.ProfileName)
-	config, err := configLoader.LoadFromProfile(input.ProfileName)
+	config, err := configLoader.GetProfileConfig(input.ProfileName)
 	if err != nil {
 		return fmt.Errorf("Error loading config: %w", err)
 	}
@@ -170,7 +170,7 @@ func retry(maxTime time.Duration, sleep time.Duration, f func() error) (err erro
 	}
 }
 
-func getUsernameIfAssumingRole(ctx context.Context, awsCfg aws.Config, config *vault.Config) (*string, error) {
+func getUsernameIfAssumingRole(ctx context.Context, awsCfg aws.Config, config *vault.ProfileConfig) (*string, error) {
 	if config.RoleARN != "" {
 		n, err := vault.GetUsernameFromSession(ctx, awsCfg)
 		if err != nil {
@@ -185,7 +185,7 @@ func getUsernameIfAssumingRole(ctx context.Context, awsCfg aws.Config, config *v
 func getProfilesInChain(profileName string, configLoader *vault.ConfigLoader) (profileNames []string, err error) {
 	profileNames = append(profileNames, profileName)
 
-	config, err := configLoader.LoadFromProfile(profileName)
+	config, err := configLoader.GetProfileConfig(profileName)
 	if err != nil {
 		return profileNames, err
 	}

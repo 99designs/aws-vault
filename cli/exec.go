@@ -190,7 +190,7 @@ func ExecCommand(input ExecCommandInput, f *vault.ConfigFile, keyring keyring.Ke
 			return 0, fmt.Errorf("Another process is already bound to 169.254.169.254:80")
 		}
 
-		printHelpMessage("Warning: Starting an EC2 credential server on 169.254.169.254:80; AWS credentials will be accessible to any process while it is running", input.ShowHelpMessages)
+		printHelpMessage("Warning: Starting a local EC2 credential server on 169.254.169.254:80; AWS credentials will be accessible to any process while it is running", input.ShowHelpMessages)
 		if err := server.StartEc2EndpointProxyServerProcess(); err != nil {
 			return 0, err
 		}
@@ -201,7 +201,7 @@ func ExecCommand(input ExecCommandInput, f *vault.ConfigFile, keyring keyring.Ke
 		}
 		printHelpMessage(subshellHelp, input.ShowHelpMessages)
 	} else if input.StartEcsServer {
-		printHelpMessage("Starting an ECS credential server; your app's AWS sdk must support AWS_CONTAINER_CREDENTIALS_FULL_URI.", input.ShowHelpMessages)
+		printHelpMessage("Starting a local ECS credential server; your app's AWS sdk must support AWS_CONTAINER_CREDENTIALS_FULL_URI.", input.ShowHelpMessages)
 		if err = startEcsServerAndSetEnv(credsProvider, config, input.Lazy, &cmdEnv); err != nil {
 			return 0, err
 		}

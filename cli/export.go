@@ -52,7 +52,7 @@ func ConfigureExportCommand(app *kingpin.Application, a *AwsVault) {
 		Short('t').
 		StringVar(&input.Config.MfaToken)
 
-	cmd.Flag("format", fmt.Sprintf("Format to output credentials. Valid values are %s, %s and %s", FormatTypeEnv, FormatTypeExportEnv, FormatTypeExportJSON)).
+	cmd.Flag("format", fmt.Sprintf("Format to output credentials. Valid formats: %s, %s, %s, %s", FormatTypeEnv, FormatTypeExportEnv, FormatTypeExportJSON, FormatTypeExportINI)).
 		Default(FormatTypeEnv).
 		EnumVar(&input.Format, FormatTypeEnv, FormatTypeExportEnv, FormatTypeExportJSON, FormatTypeExportINI)
 

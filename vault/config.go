@@ -698,7 +698,12 @@ func (c *ProfileConfig) Validate() error {
 	}
 	if c.HasSourceProfile() {
 		n++
-	} else if c.HasRole() {
+	}
+	if c.HasRole() &&
+		// these cases require the role to be set in addition, so it's part of
+		// their credential.
+		!c.HasSourceProfile() &&
+		!c.HasWebIdentity() {
 		n++
 	}
 	if n > 1 {

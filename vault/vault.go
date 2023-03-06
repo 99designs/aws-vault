@@ -228,17 +228,19 @@ func FindMasterCredentialsNameFor(profileName string, keyring *CredentialKeyring
 }
 
 type tempCredsCreator struct {
-	// DisableSessions will disable the use of GetSessionToken when set to true
+	Keyring *CredentialKeyring
+	// DisableSessions will disable the use of GetSessionToken
 	DisableSessions bool
-	Keyring         *CredentialKeyring
+	// DisableCache will disable the use of the session cache
+	DisableCache bool
 
 	chainedMfa string
 }
 
-func (t *tempCredsCreator) getSourceCreds(config *ProfileConfig, useSessionCache bool) (sourcecredsProvider aws.CredentialsProvider, err error) {
+func (t *tempCredsCreator) getSourceCreds(config *ProfileConfig) (sourcecredsProvider aws.CredentialsProvider, err error) {
 	if config.HasSourceProfile() {
 		log.Printf("profile %s: sourcing credentials from profile %s", config.ProfileName, config.SourceProfile.ProfileName)
-		return t.GetProviderForProfile(config.SourceProfile, useSessionCache)
+		return t.GetProviderForProfile(config.SourceProfile)
 	}
 
 	hasStoredCredentials, err := t.Keyring.Has(config.ProfileName)
@@ -254,27 +256,27 @@ func (t *tempCredsCreator) getSourceCreds(config *ProfileConfig, useSessionCache
 	return nil, fmt.Errorf("profile %s: credentials missing", config.ProfileName)
 }
 
-func (t *tempCredsCreator) GetProviderForProfile(config *ProfileConfig, useSessionCache bool) (aws.CredentialsProvider, error) {
+func (t *tempCredsCreator) GetProviderForProfile(config *ProfileConfig) (aws.CredentialsProvider, error) {
 	if err := config.Validate(); err != nil {
 		return nil, err
 	}
 
 	if config.HasSSOStartURL() {
 		log.Printf("profile %s: using SSO role credentials", config.ProfileName)
-		return NewSSORoleCredentialsProvider(t.Keyring.Keyring, config, useSessionCache)
+		return NewSSORoleCredentialsProvider(t.Keyring.Keyring, config, !t.DisableCache)
 	}
 
 	if config.HasWebIdentity() {
 		log.Printf("profile %s: using web identity", config.ProfileName)
-		return NewAssumeRoleWithWebIdentityProvider(t.Keyring.Keyring, config, useSessionCache)
+		return NewAssumeRoleWithWebIdentityProvider(t.Keyring.Keyring, config, !t.DisableCache)
 	}
 
 	if config.HasCredentialProcess() {
 		log.Printf("profile %s: using credential process", config.ProfileName)
-		return NewCredentialProcessProvider(t.Keyring.Keyring, config, useSessionCache)
+		return NewCredentialProcessProvider(t.Keyring.Keyring, config, !t.DisableCache)
 	}
 
-	sourcecredsProvider, err := t.getSourceCreds(config, useSessionCache)
+	sourcecredsProvider, err := t.getSourceCreds(config)
 	if err != nil {
 		return nil, err
 	}
@@ -285,14 +287,14 @@ func (t *tempCredsCreator) GetProviderForProfile(config *ProfileConfig, useSessi
 			config.MfaSerial = ""
 		}
 		log.Printf("profile %s: using AssumeRole %s", config.ProfileName, mfaDetails(isMfaChained, config))
-		return NewAssumeRoleProvider(sourcecredsProvider, t.Keyring.Keyring, config, useSessionCache)
+		return NewAssumeRoleProvider(sourcecredsProvider, t.Keyring.Keyring, config, !t.DisableCache)
 	}
 
 	canUseGetSessionToken, reason := t.canUseGetSessionToken(config)
 	if canUseGetSessionToken {
 		t.chainedMfa = config.MfaSerial
 		log.Printf("profile %s: using GetSessionToken %s", config.ProfileName, mfaDetails(false, config))
-		return NewSessionTokenProvider(sourcecredsProvider, t.Keyring.Keyring, config, useSessionCache)
+		return NewSessionTokenProvider(sourcecredsProvider, t.Keyring.Keyring, config, !t.DisableCache)
 	}
 
 	log.Printf("profile %s: skipping GetSessionToken because %s", config.ProfileName, reason)
@@ -337,10 +339,11 @@ func mfaDetails(mfaChained bool, config *ProfileConfig) string {
 }
 
 // NewTempCredentialsProvider creates a credential provider for the given config
-func NewTempCredentialsProvider(config *ProfileConfig, keyring *CredentialKeyring, disableSessions bool, useSessionCache bool) (aws.CredentialsProvider, error) {
+func NewTempCredentialsProvider(config *ProfileConfig, keyring *CredentialKeyring, disableSessions bool, disableCache bool) (aws.CredentialsProvider, error) {
 	t := tempCredsCreator{
 		Keyring:         keyring,
 		DisableSessions: disableSessions,
+		DisableCache:    disableCache,
 	}
-	return t.GetProviderForProfile(config, useSessionCache)
+	return t.GetProviderForProfile(config)
 }

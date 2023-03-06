@@ -106,7 +106,7 @@ func LoginCommand(input LoginCommandInput, f *vault.ConfigFile, keyring keyring.
 		ckr := &vault.CredentialKeyring{Keyring: keyring}
 		if config.HasRole() || config.HasSSOStartURL() || config.HasCredentialProcess() || config.HasWebIdentity() {
 			// If AssumeRole or sso.GetRoleCredentials isn't used, GetFederationToken has to be used for IAM credentials
-			credsProvider, err = vault.NewTempCredentialsProvider(config, ckr, input.NoSession, true)
+			credsProvider, err = vault.NewTempCredentialsProvider(config, ckr, input.NoSession, false)
 		} else {
 			credsProvider, err = vault.NewFederationTokenCredentialsProvider(context.TODO(), input.ProfileName, ckr, config)
 		}

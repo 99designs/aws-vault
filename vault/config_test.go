@@ -635,6 +635,10 @@ source_profile = foo
 region         = eu-west-2
 mfa_serial     = arn:aws:iam::9999999999999:mfa/david
 credential_process = true
+
+[profile withwebidentity]
+role_arn = arn:aws:iam::123457890:role/foo
+web_identity_token_process = oidccli -issuer=https://example.com -client-id=aws -client-secret=localonly raw
 `))
 	defer os.Remove(f)
 	configFile, _ := vault.LoadConfig(f)
@@ -650,5 +654,11 @@ credential_process = true
 	err = config.Validate()
 	if err == nil {
 		t.Fatalf("Should have failed validation: %v", err)
+	}
+
+	config, _ = configLoader.GetProfileConfig("withwebidentity")
+	err = config.Validate()
+	if err != nil {
+		t.Fatalf("Should have validated withwebidentity: %v", err)
 	}
 }

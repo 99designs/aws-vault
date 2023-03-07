@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/alecthomas/kingpin"
+	"github.com/alecthomas/kingpin/v2"
 )
 
 func ExampleAddCommand() {

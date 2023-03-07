@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/99designs/keyring v1.2.2
-	github.com/alecthomas/kingpin v0.0.0-20200323085623-b6657d9477a6
+	github.com/alecthomas/kingpin/v2 v2.3.1
 	github.com/aws/aws-sdk-go-v2 v1.17.5
 	github.com/aws/aws-sdk-go-v2/config v1.18.15
 	github.com/aws/aws-sdk-go-v2/credentials v1.13.15
@@ -21,7 +21,6 @@ require (
 
 require (
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
-	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/alecthomas/units v0.0.0-20211218093645-b94a6e3cc137 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.12.23 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.29 // indirect
@@ -34,5 +33,6 @@ require (
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
+	github.com/xhit/go-str2duration v1.2.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 )

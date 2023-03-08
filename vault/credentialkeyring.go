@@ -18,11 +18,23 @@ func (ck *CredentialKeyring) Keys() (credentialsNames []string, err error) {
 		return credentialsNames, err
 	}
 	for _, keyName := range allKeys {
-		if !IsSessionKey(keyName) && !IsOIDCTokenKey(keyName) {
+		if IsStoredCredential(keyName) {
 			credentialsNames = append(credentialsNames, keyName)
 		}
 	}
 	return credentialsNames, nil
+}
+
+func IsStoredCredential(keyName string) bool {
+	return !IsSessionKey(keyName) && !IsOIDCTokenKey(keyName)
+}
+
+func (ck *CredentialKeyring) HasStoredCredential(credentialsName string) bool {
+	_, err := ck.Has(credentialsName)
+	if err == nil {
+		return IsStoredCredential(credentialsName)
+	}
+	return false
 }
 
 func (ck *CredentialKeyring) Has(credentialsName string) (bool, error) {

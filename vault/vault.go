@@ -271,7 +271,8 @@ func (t *tempCredsCreator) GetProviderForProfile(config *ProfileConfig) (aws.Cre
 		return NewAssumeRoleWithWebIdentityProvider(t.Keyring.Keyring, config, !t.DisableCache)
 	}
 
-	if config.HasCredentialProcess() {
+	storedCredentialForProfile := t.Keyring.HasStoredCredential(config.ProfileName)
+	if !storedCredentialForProfile && config.HasCredentialProcess() {
 		log.Printf("profile %s: using credential process", config.ProfileName)
 		return NewCredentialProcessProvider(t.Keyring.Keyring, config, !t.DisableCache)
 	}

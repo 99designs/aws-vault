@@ -1,19 +1,22 @@
 package prompt
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"strings"
 
-	"golang.org/x/term"
+	"github.com/mattn/go-tty"
 )
 
 func TerminalPrompt(message string) (string, error) {
-	fmt.Fprint(os.Stderr, message)
+	tty, err := tty.Open()
+	if err != nil {
+		return "", err
+	}
+	defer tty.Close()
 
-	reader := bufio.NewReader(os.Stdin)
-	text, err := reader.ReadString('\n')
+	fmt.Fprint(tty.Output(), message)
+
+	text, err := tty.ReadString()
 	if err != nil {
 		return "", err
 	}
@@ -22,14 +25,18 @@ func TerminalPrompt(message string) (string, error) {
 }
 
 func TerminalSecretPrompt(message string) (string, error) {
-	fmt.Fprint(os.Stderr, message)
-
-	text, err := term.ReadPassword(int(os.Stdin.Fd()))
+	tty, err := tty.Open()
 	if err != nil {
 		return "", err
 	}
+	defer tty.Close()
 
-	fmt.Println()
+	fmt.Fprint(tty.Output(), message)
+
+	text, err := tty.ReadPassword()
+	if err != nil {
+		return "", err
+	}
 
 	return strings.TrimSpace(string(text)), nil
 }

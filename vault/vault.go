@@ -257,24 +257,21 @@ func (t *tempCredsCreator) getSourceCreds(config *ProfileConfig) (sourcecredsPro
 }
 
 func (t *tempCredsCreator) GetProviderForProfile(config *ProfileConfig) (aws.CredentialsProvider, error) {
-	if err := config.Validate(); err != nil {
-		return nil, err
-	}
+	if !t.Keyring.HasStoredCredential(config.ProfileName) {
+		if config.HasSSOStartURL() {
+			log.Printf("profile %s: using SSO role credentials", config.ProfileName)
+			return NewSSORoleCredentialsProvider(t.Keyring.Keyring, config, !t.DisableCache)
+		}
 
-	if config.HasSSOStartURL() {
-		log.Printf("profile %s: using SSO role credentials", config.ProfileName)
-		return NewSSORoleCredentialsProvider(t.Keyring.Keyring, config, !t.DisableCache)
-	}
+		if config.HasWebIdentity() {
+			log.Printf("profile %s: using web identity", config.ProfileName)
+			return NewAssumeRoleWithWebIdentityProvider(t.Keyring.Keyring, config, !t.DisableCache)
+		}
 
-	if config.HasWebIdentity() {
-		log.Printf("profile %s: using web identity", config.ProfileName)
-		return NewAssumeRoleWithWebIdentityProvider(t.Keyring.Keyring, config, !t.DisableCache)
-	}
-
-	storedCredentialForProfile := t.Keyring.HasStoredCredential(config.ProfileName)
-	if !storedCredentialForProfile && config.HasCredentialProcess() {
-		log.Printf("profile %s: using credential process", config.ProfileName)
-		return NewCredentialProcessProvider(t.Keyring.Keyring, config, !t.DisableCache)
+		if config.HasCredentialProcess() {
+			log.Printf("profile %s: using credential process", config.ProfileName)
+			return NewCredentialProcessProvider(t.Keyring.Keyring, config, !t.DisableCache)
+		}
 	}
 
 	sourcecredsProvider, err := t.getSourceCreds(config)

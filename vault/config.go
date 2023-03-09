@@ -680,35 +680,3 @@ func (c *ProfileConfig) GetSessionTokenDuration() time.Duration {
 	}
 	return c.NonChainedGetSessionTokenDuration
 }
-
-func (c *ProfileConfig) Validate() error {
-	if c.HasSSOSession() && !c.HasSSOStartURL() {
-		return fmt.Errorf("profile '%s' has sso_session but no sso_start_url", c.ProfileName)
-	}
-
-	n := 0
-	if c.HasSSOStartURL() {
-		n++
-	}
-	if c.HasWebIdentity() {
-		n++
-	}
-	if c.HasCredentialProcess() {
-		n++
-	}
-	if c.HasSourceProfile() {
-		n++
-	}
-	if c.HasRole() &&
-		// these cases require the role to be set in addition, so it's part of
-		// their credential.
-		!c.HasSourceProfile() &&
-		!c.HasWebIdentity() {
-		n++
-	}
-	if n > 1 {
-		return fmt.Errorf("profile '%s' has more than one source of credentials", c.ProfileName)
-	}
-
-	return nil
-}

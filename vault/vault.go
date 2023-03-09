@@ -237,46 +237,44 @@ type tempCredsCreator struct {
 	chainedMfa string
 }
 
-func (t *tempCredsCreator) getSourceCreds(config *ProfileConfig) (sourcecredsProvider aws.CredentialsProvider, err error) {
-	if config.HasSourceProfile() {
-		log.Printf("profile %s: sourcing credentials from profile %s", config.ProfileName, config.SourceProfile.ProfileName)
-		return t.GetProviderForProfile(config.SourceProfile)
-	}
-
-	hasStoredCredentials, err := t.Keyring.Has(config.ProfileName)
-	if err != nil {
-		return nil, err
-	}
-
+func (t *tempCredsCreator) getSourceCreds(config *ProfileConfig, hasStoredCredentials bool) (sourcecredsProvider aws.CredentialsProvider, err error) {
 	if hasStoredCredentials {
 		log.Printf("profile %s: using stored credentials", config.ProfileName)
 		return NewMasterCredentialsProvider(t.Keyring, config.ProfileName), nil
+	}
+
+	if config.HasSourceProfile() {
+		log.Printf("profile %s: sourcing credentials from profile %s", config.ProfileName, config.SourceProfile.ProfileName)
+		return t.GetProviderForProfile(config.SourceProfile)
 	}
 
 	return nil, fmt.Errorf("profile %s: credentials missing", config.ProfileName)
 }
 
 func (t *tempCredsCreator) GetProviderForProfile(config *ProfileConfig) (aws.CredentialsProvider, error) {
-	if err := config.Validate(); err != nil {
+	hasStoredCredentials, err := t.Keyring.Has(config.ProfileName)
+	if err != nil {
 		return nil, err
 	}
 
-	if config.HasSSOStartURL() {
-		log.Printf("profile %s: using SSO role credentials", config.ProfileName)
-		return NewSSORoleCredentialsProvider(t.Keyring.Keyring, config, !t.DisableCache)
+	if !hasStoredCredentials {
+		if config.HasSSOStartURL() {
+			log.Printf("profile %s: using SSO role credentials", config.ProfileName)
+			return NewSSORoleCredentialsProvider(t.Keyring.Keyring, config, !t.DisableCache)
+		}
+
+		if config.HasWebIdentity() {
+			log.Printf("profile %s: using web identity", config.ProfileName)
+			return NewAssumeRoleWithWebIdentityProvider(t.Keyring.Keyring, config, !t.DisableCache)
+		}
+
+		if config.HasCredentialProcess() {
+			log.Printf("profile %s: using credential process", config.ProfileName)
+			return NewCredentialProcessProvider(t.Keyring.Keyring, config, !t.DisableCache)
+		}
 	}
 
-	if config.HasWebIdentity() {
-		log.Printf("profile %s: using web identity", config.ProfileName)
-		return NewAssumeRoleWithWebIdentityProvider(t.Keyring.Keyring, config, !t.DisableCache)
-	}
-
-	if config.HasCredentialProcess() {
-		log.Printf("profile %s: using credential process", config.ProfileName)
-		return NewCredentialProcessProvider(t.Keyring.Keyring, config, !t.DisableCache)
-	}
-
-	sourcecredsProvider, err := t.getSourceCreds(config)
+	sourcecredsProvider, err := t.getSourceCreds(config, hasStoredCredentials)
 	if err != nil {
 		return nil, err
 	}

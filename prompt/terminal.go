@@ -38,7 +38,7 @@ func TerminalSecretPrompt(message string) (string, error) {
 		return "", err
 	}
 
-	return strings.TrimSpace(string(text)), nil
+	return strings.TrimSpace(text), nil
 }
 
 func TerminalMfaPrompt(mfaSerial string) (string, error) {

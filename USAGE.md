@@ -71,8 +71,8 @@ There are a few different ways aws-vault can be used
 Use aws-vault exclusively as a command executor, where aws-vault provides the environment and runs a command.
 
 ```ini
+; master creds added with 'aws-vault add my_profile_master'
 [profile my_profile_master]
-# master credentials stored in aws-vault
 
 [profile my_profile_role]
 source_profile=my_profile_master
@@ -97,6 +97,7 @@ This is a very unix-y and 12-factor approach. It's the original and the primary 
 aws-vault can be used in `credential_process` in the AWS config to provide master creds. This is more in-line with the AWS SDK way of approaching the problem via `credential_process` and `AWS_PROFILE`
 
 ```ini
+; master creds added with 'aws-vault add my_profile_master'
 [profile my_profile_master]
 credential_process = aws-vault export --format=json --no-session my_profile_master
 
@@ -118,6 +119,7 @@ AWS_PROFILE==my_profile_role ./my-command       # success (SDK role)
 Very similar to Use-case 2, aws-vault can be used to cache STS MFA credentials between profiles. This means you are not forced to re-authenticate with MFA every time you switch profiles
 
 ```ini
+; master creds added with 'aws-vault add my_profile_master'
 [profile my_profile_master]
 mfa_serial=mmm
 credential_process = aws-vault export --format=json my_profile_master
@@ -134,8 +136,8 @@ role_arn=xxx2
 ```
 
 ```bash
-aws-vault exec my_profile_master ./my-command   # Not expected to be functional
-aws-vault exec my_profile_role ./my-command     # Not expected to be functional
+aws-vault exec my_profile_master ./my-command   # success (STS session)
+aws-vault exec my_profile_role ./my-command     # success (role)
 
 AWS_PROFILE=my_profile_master ./my-command      # success (uses credential_process to get aws-vault session)
 AWS_PROFILE=my_profile_role ./my-command        # success (uses aws-vault session + SDK role)

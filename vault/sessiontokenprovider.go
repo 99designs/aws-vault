@@ -14,7 +14,7 @@ import (
 type SessionTokenProvider struct {
 	StsClient *sts.Client
 	Duration  time.Duration
-	*Mfa
+	Mfa
 }
 
 // Retrieve generates a new set of temporary credentials using STS GetSessionToken
@@ -41,8 +41,8 @@ func (p *SessionTokenProvider) GetSessionToken(ctx context.Context) (*ststypes.C
 		DurationSeconds: aws.Int32(int32(p.Duration.Seconds())),
 	}
 
-	if p.GetMfaSerial() != "" {
-		input.SerialNumber = aws.String(p.GetMfaSerial())
+	if p.MfaSerial != "" {
+		input.SerialNumber = aws.String(p.MfaSerial)
 		input.TokenCode, err = p.GetMfaToken()
 		if err != nil {
 			return nil, err

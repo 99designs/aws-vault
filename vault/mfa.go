@@ -14,28 +14,23 @@ import (
 
 // Mfa contains options for an MFA device
 type Mfa struct {
-	mfaSerial     string
+	MfaSerial     string
 	mfaPromptFunc prompt.Func
 }
 
 // GetMfaToken returns the MFA token
-func (m *Mfa) GetMfaToken() (*string, error) {
+func (m Mfa) GetMfaToken() (*string, error) {
 	if m.mfaPromptFunc != nil {
-		token, err := m.mfaPromptFunc(m.mfaSerial)
+		token, err := m.mfaPromptFunc(m.MfaSerial)
 		return aws.String(token), err
 	}
 
 	return nil, errors.New("No prompt found")
 }
 
-// GetMfaSerial returns the MFA serial
-func (m *Mfa) GetMfaSerial() string {
-	return m.mfaSerial
-}
-
-func NewMfa(config *ProfileConfig) *Mfa {
+func NewMfa(config *ProfileConfig) Mfa {
 	m := Mfa{
-		mfaSerial: config.MfaSerial,
+		MfaSerial: config.MfaSerial,
 	}
 	if config.MfaToken != "" {
 		m.mfaPromptFunc = func(_ string) (string, error) { return config.MfaToken, nil }
@@ -48,7 +43,7 @@ func NewMfa(config *ProfileConfig) *Mfa {
 		m.mfaPromptFunc = prompt.Method(config.MfaPromptMethod)
 	}
 
-	return &m
+	return m
 }
 
 func ProcessMfaProvider(processCmd string) (string, error) {

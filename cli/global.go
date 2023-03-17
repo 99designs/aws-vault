@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/99designs/aws-vault/v7/prompt"
 	"github.com/99designs/aws-vault/v7/vault"
@@ -115,7 +116,24 @@ func ConfigureGlobals(app *kingpin.Application) *AwsVault {
 
 	app.Flag("prompt", fmt.Sprintf("Prompt driver to use %v", promptsAvailable)).
 		Envar("AWS_VAULT_PROMPT").
-		EnumVar(&a.promptDriver, promptsAvailable...)
+		StringVar(&a.promptDriver)
+
+	app.Validate(func(app *kingpin.Application) error {
+		if a.promptDriver == "" {
+			return nil
+		}
+		if a.promptDriver == "pass" {
+			kingpin.Fatalf("--prompt=pass (or AWS_VAULT_PROMPT=pass) has been removed from aws-vault as using TOTPs without " +
+				"a dedicated device goes against security best practices. If you wish to continue using pass, " +
+				"add `mfa_process = pass otp <your mfa_serial>` to profiles in your ~/.aws/config file.")
+		}
+		for _, v := range promptsAvailable {
+			if v == a.promptDriver {
+				return nil
+			}
+		}
+		return fmt.Errorf("--prompt value must be one of %s, got '%s'", strings.Join(promptsAvailable, ","), a.promptDriver)
+	})
 
 	app.Flag("keychain", "Name of macOS keychain to use, if it doesn't exist it will be created").
 		Default("aws-vault").

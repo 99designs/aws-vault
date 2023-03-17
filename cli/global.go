@@ -117,20 +117,18 @@ func ConfigureGlobals(app *kingpin.Application) *AwsVault {
 	app.Flag("prompt", fmt.Sprintf("Prompt driver to use %v", promptsAvailable)).
 		Envar("AWS_VAULT_PROMPT").
 		StringVar(&a.promptDriver)
-	app.PreAction(func(c *kingpin.ParseContext) error {
-		value := a.promptDriver
-		if value == "" {
+
+	app.Validate(func(app *kingpin.Application) error {
+		if a.promptDriver == "" {
 			return nil
 		}
-		if value == "pass" {
-			kingpin.Fatalf(
-				"--prompt=pass / AWS_VAULT_PROMPT=pass has been removed in v7.0.0 for security reasons." +
-					"\nSee https://github.com/99designs/aws-vault/pull/1006#issuecomment-1233508808 for details." +
-					"\nIf you wish to continue using it, " +
-					"add `mfa_process = pass otp <your mfa_serial>` to profiles in your ~/.aws/config file.")
+		if a.promptDriver == "pass" {
+			kingpin.Fatalf("--prompt=pass (or AWS_VAULT_PROMPT=pass) has been removed from aws-vault as using TOTPs without " +
+				"a dedicated device goes against security best practices. If you wish to continue using pass, " +
+				"add `mfa_process = pass otp <your mfa_serial>` to profiles in your ~/.aws/config file.")
 		}
 		for _, v := range promptsAvailable {
-			if v == value {
+			if v == a.promptDriver {
 				return nil
 			}
 		}

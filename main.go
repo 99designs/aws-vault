@@ -23,7 +23,7 @@ func main() {
 	cli.ConfigureExportCommand(app, a)
 	cli.ConfigureClearCommand(app, a)
 	cli.ConfigureLoginCommand(app, a)
-	cli.ConfigureProxyCommand(app, a)
+	cli.ConfigureProxyCommand(app)
 
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 }

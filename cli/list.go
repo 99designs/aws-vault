@@ -184,9 +184,5 @@ func ListCommand(input ListCommandInput, awsConfigFile *vault.ConfigFile, keyrin
 		fmt.Fprintf(w, "-\t-\t%s\t\n", s)
 	}
 
-	if err = w.Flush(); err != nil {
-		return err
-	}
-
-	return nil
+	return w.Flush()
 }

@@ -13,11 +13,11 @@ import (
 	ststypes "github.com/aws/aws-sdk-go-v2/service/sts/types"
 )
 
-func executeFail(process string) (string, error) {
+func executeFail(_ string) (string, error) {
 	return "", errors.New("executing process failed")
 }
 
-func executeGetBadJSON(process string) (string, error) {
+func executeGetBadJSON(_ string) (string, error) {
 	return "Junk", nil
 }
 

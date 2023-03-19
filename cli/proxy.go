@@ -9,7 +9,7 @@ import (
 	"github.com/alecthomas/kingpin/v2"
 )
 
-func ConfigureProxyCommand(app *kingpin.Application, a *AwsVault) {
+func ConfigureProxyCommand(app *kingpin.Application) {
 	stop := false
 
 	cmd := app.Command("proxy", "Start a proxy for the ec2 instance role server locally.").

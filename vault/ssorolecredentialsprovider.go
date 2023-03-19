@@ -93,6 +93,10 @@ func (p *SSORoleCredentialsProvider) getRoleCredentials(ctx context.Context) (*s
 	return resp.RoleCredentials, nil
 }
 
+func (p *SSORoleCredentialsProvider) RetrieveStsCredentials(ctx context.Context) (*ststypes.Credentials, error) {
+	return p.getRoleCredentialsAsStsCredemtials(ctx)
+}
+
 // getRoleCredentialsAsStsCredemtials returns getRoleCredentials as sts.Credentials because sessions.Store expects it
 func (p *SSORoleCredentialsProvider) getRoleCredentialsAsStsCredemtials(ctx context.Context) (*ststypes.Credentials, error) {
 	creds, err := p.getRoleCredentials(ctx)

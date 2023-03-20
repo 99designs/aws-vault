@@ -55,7 +55,7 @@ func (p *CredentialProcessProvider) retrieveWith(ctx context.Context, fn func(st
 	}, nil
 }
 
-func (p *CredentialProcessProvider) callCredentialProcess(ctx context.Context) (*ststypes.Credentials, error) {
+func (p *CredentialProcessProvider) RetrieveStsCredentials(ctx context.Context) (*ststypes.Credentials, error) {
 	return p.callCredentialProcessWith(ctx, executeProcess)
 }
 

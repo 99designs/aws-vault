@@ -25,7 +25,7 @@ type AssumeRoleWithWebIdentityProvider struct {
 
 // Retrieve generates a new set of temporary credentials using STS AssumeRoleWithWebIdentity
 func (p *AssumeRoleWithWebIdentityProvider) Retrieve(ctx context.Context) (aws.Credentials, error) {
-	creds, err := p.assumeRole(ctx)
+	creds, err := p.RetrieveStsCredentials(ctx)
 	if err != nil {
 		return aws.Credentials{}, err
 	}
@@ -48,7 +48,7 @@ func (p *AssumeRoleWithWebIdentityProvider) roleSessionName() string {
 	return p.RoleSessionName
 }
 
-func (p *AssumeRoleWithWebIdentityProvider) assumeRole(ctx context.Context) (*ststypes.Credentials, error) {
+func (p *AssumeRoleWithWebIdentityProvider) RetrieveStsCredentials(ctx context.Context) (*ststypes.Credentials, error) {
 	var err error
 
 	webIdentityToken, err := p.webIdentityToken()

@@ -41,6 +41,11 @@ func FormatKeyForDisplay(k string) string {
 	return fmt.Sprintf("****************%s", k[len(k)-4:])
 }
 
+func isMasterCredentialsProvider(credsProvider aws.CredentialsProvider) bool {
+	_, ok := credsProvider.(*KeyringProvider)
+	return ok
+}
+
 // NewMasterCredentialsProvider creates a provider for the master credentials
 func NewMasterCredentialsProvider(k *CredentialKeyring, credentialsName string) *KeyringProvider {
 	return &KeyringProvider{k, credentialsName}
@@ -243,30 +248,8 @@ func (t *TempCredentialsCreator) getSourceCreds(config *ProfileConfig, hasStored
 	return nil, fmt.Errorf("profile %s: credentials missing", config.ProfileName)
 }
 
-func (t *TempCredentialsCreator) GetProviderForProfile(config *ProfileConfig) (aws.CredentialsProvider, error) {
-	hasStoredCredentials, err := t.Keyring.Has(config.ProfileName)
-	if err != nil {
-		return nil, err
-	}
-
-	if !hasStoredCredentials {
-		if config.HasSSOStartURL() {
-			log.Printf("profile %s: using SSO role credentials", config.ProfileName)
-			return NewSSORoleCredentialsProvider(t.Keyring.Keyring, config, !t.DisableCache)
-		}
-
-		if config.HasWebIdentity() {
-			log.Printf("profile %s: using web identity", config.ProfileName)
-			return NewAssumeRoleWithWebIdentityProvider(t.Keyring.Keyring, config, !t.DisableCache)
-		}
-
-		if config.HasCredentialProcess() {
-			log.Printf("profile %s: using credential process", config.ProfileName)
-			return NewCredentialProcessProvider(t.Keyring.Keyring, config, !t.DisableCache)
-		}
-	}
-
-	sourcecredsProvider, err := t.getSourceCreds(config, hasStoredCredentials)
+func (t *TempCredentialsCreator) getSourceCredWithSession(config *ProfileConfig, hasStoredCredentials bool) (sourcecredsProvider aws.CredentialsProvider, err error) {
+	sourcecredsProvider, err = t.getSourceCreds(config, hasStoredCredentials)
 	if err != nil {
 		return nil, err
 	}
@@ -280,15 +263,45 @@ func (t *TempCredentialsCreator) GetProviderForProfile(config *ProfileConfig) (a
 		return NewAssumeRoleProvider(sourcecredsProvider, t.Keyring.Keyring, config, !t.DisableCache)
 	}
 
-	canUseGetSessionToken, reason := t.canUseGetSessionToken(config)
-	if canUseGetSessionToken {
-		t.chainedMfa = config.MfaSerial
-		log.Printf("profile %s: using GetSessionToken %s", config.ProfileName, mfaDetails(false, config))
-		return NewSessionTokenProvider(sourcecredsProvider, t.Keyring.Keyring, config, !t.DisableCache)
+	if isMasterCredentialsProvider(sourcecredsProvider) {
+		canUseGetSessionToken, reason := t.canUseGetSessionToken(config)
+		if canUseGetSessionToken {
+			t.chainedMfa = config.MfaSerial
+			log.Printf("profile %s: using GetSessionToken %s", config.ProfileName, mfaDetails(false, config))
+			return NewSessionTokenProvider(sourcecredsProvider, t.Keyring.Keyring, config, !t.DisableCache)
+		}
+		log.Printf("profile %s: skipping GetSessionToken because %s", config.ProfileName, reason)
 	}
 
-	log.Printf("profile %s: skipping GetSessionToken because %s", config.ProfileName, reason)
 	return sourcecredsProvider, nil
+}
+
+func (t *TempCredentialsCreator) GetProviderForProfile(config *ProfileConfig) (aws.CredentialsProvider, error) {
+	hasStoredCredentials, err := t.Keyring.Has(config.ProfileName)
+	if err != nil {
+		return nil, err
+	}
+
+	if hasStoredCredentials || config.HasSourceProfile() {
+		return t.getSourceCredWithSession(config, hasStoredCredentials)
+	}
+
+	if config.HasSSOStartURL() {
+		log.Printf("profile %s: using SSO role credentials", config.ProfileName)
+		return NewSSORoleCredentialsProvider(t.Keyring.Keyring, config, !t.DisableCache)
+	}
+
+	if config.HasWebIdentity() {
+		log.Printf("profile %s: using web identity", config.ProfileName)
+		return NewAssumeRoleWithWebIdentityProvider(t.Keyring.Keyring, config, !t.DisableCache)
+	}
+
+	if config.HasCredentialProcess() {
+		log.Printf("profile %s: using credential process", config.ProfileName)
+		return NewCredentialProcessProvider(t.Keyring.Keyring, config, !t.DisableCache)
+	}
+
+	return nil, fmt.Errorf("profile %s: credentials missing", config.ProfileName)
 }
 
 // canUseGetSessionToken determines if GetSessionToken should be used, and if not returns a reason

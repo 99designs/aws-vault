@@ -165,7 +165,7 @@ func printINI(credsProvider aws.CredentialsProvider, profilename, region string)
 	}
 
 	f := ini.Empty()
-	s, err := f.NewSection("profile " + profilename)
+	s, err := f.NewSection(profilename)
 	if err != nil {
 		return fmt.Errorf("Failed to create ini section: %w", err)
 	}

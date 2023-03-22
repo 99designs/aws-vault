@@ -22,18 +22,19 @@ import (
 )
 
 type ExecCommandInput struct {
-	ProfileName      string
-	Command          string
-	Args             []string
-	StartEc2Server   bool
-	StartEcsServer   bool
-	Lazy             bool
-	JSONDeprecated   bool
-	Config           vault.ProfileConfig
-	SessionDuration  time.Duration
-	NoSession        bool
-	UseStdout        bool
-	ShowHelpMessages bool
+	ProfileName      	string
+	Command          	string
+	Args             	[]string
+	StartEc2Server  	bool
+	StartEcsServer   	bool
+	ServerListenAddress string
+	Lazy             	bool
+	JSONDeprecated   	bool
+	Config           	vault.ProfileConfig
+	SessionDuration  	time.Duration
+	NoSession        	bool
+	UseStdout        	bool
+	ShowHelpMessages 	bool
 }
 
 func (input ExecCommandInput) validate() error {
@@ -100,6 +101,10 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 
 	cmd.Flag("ecs-server", "Run a ECS credential server in the background for credentials (the SDK or app must support AWS_CONTAINER_CREDENTIALS_FULL_URI)").
 		BoolVar(&input.StartEcsServer)
+	
+	cmd.Flag("listen-address", "Define which host the server should run listen. Defaults to 127.0.0.1").
+		Default("127.0.0.1").
+		StringVar(&input.ServerListenAddress)
 
 	cmd.Flag("lazy", "When using --ecs-server, lazily fetch credentials").
 		BoolVar(&input.Lazy)
@@ -202,7 +207,7 @@ func ExecCommand(input ExecCommandInput, f *vault.ConfigFile, keyring keyring.Ke
 		printHelpMessage(subshellHelp, input.ShowHelpMessages)
 	} else if input.StartEcsServer {
 		printHelpMessage("Starting a local ECS credential server; your app's AWS sdk must support AWS_CONTAINER_CREDENTIALS_FULL_URI.", input.ShowHelpMessages)
-		if err = startEcsServerAndSetEnv(credsProvider, config, input.Lazy, &cmdEnv); err != nil {
+		if err = startEcsServerAndSetEnv(credsProvider, config, input.Lazy, input.ServerListenAddress, &cmdEnv); err != nil {
 			return 0, err
 		}
 		printHelpMessage(subshellHelp, input.ShowHelpMessages)
@@ -260,8 +265,8 @@ func createEnv(profileName string, region string) environ {
 	return env
 }
 
-func startEcsServerAndSetEnv(credsProvider aws.CredentialsProvider, config *vault.ProfileConfig, lazy bool, cmdEnv *environ) error {
-	ecsServer, err := server.NewEcsServer(context.TODO(), credsProvider, config, "", 0, lazy)
+func startEcsServerAndSetEnv(credsProvider aws.CredentialsProvider, config *vault.ProfileConfig, lazy bool, listenAddress string, cmdEnv *environ) error {
+	ecsServer, err := server.NewEcsServer(context.TODO(), credsProvider, config, "", 0, lazy, listenAddress)
 	if err != nil {
 		return err
 	}

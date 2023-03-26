@@ -19,8 +19,8 @@ const (
 
 // StartProxy starts a http proxy server that listens on the standard EC2 Instance Metadata endpoint http://169.254.169.254:80/
 // and forwards requests through to the running `aws-vault exec` command
-func StartProxy() error {
-	var localServerURL, err = url.Parse(fmt.Sprintf("http://%s/", ec2CredentialsServerAddr))
+func StartProxy(serverAddress string) error {
+	var localServerURL, err = url.Parse(fmt.Sprintf("http://%s/", serverAddress))
 	if err != nil {
 		return err
 	}

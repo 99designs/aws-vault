@@ -5,6 +5,7 @@ package server
 
 import (
 	"fmt"
+	"net"
 	"os/exec"
 	"strings"
 )
@@ -39,6 +40,35 @@ func runAndWrapAdminErrors(name string, arg ...string) ([]byte, error) {
 	}
 
 	return out, err
+}
+
+func GetWslAddressAndNetwork() (net.IP, *net.IPNet, error) {
+	out, err := runAndWrapAdminErrors("netsh", "interface", "ipv4", "show", "addresses", "vEthernet (WSL)")
+	if err != nil {
+		return net.IP{}, nil, err
+	}
+	ip := net.IP{}
+	nt := &net.IPNet{}
+
+	lines := strings.Split(string(out), "\n")
+	for _, line := range lines {
+		if strings.Contains(line, "IP Address:") {
+			sip := strings.Trim(strings.Split(line, ":")[1], " \n\r\t")
+			if ip = net.ParseIP(sip); ip == nil {
+				return net.IP{}, nil, fmt.Errorf("Unable to parse IP address from WSL interface: %s", sip)
+			}
+		}
+		if strings.Contains(line, "Subnet Prefix:") {
+			snt := strings.Split(strings.Trim(strings.Split(line, ":")[1], " \n\r\t"), " ")[0]
+			if _, nt, err = net.ParseCIDR(snt); err != nil {
+				return net.IP{}, nil, fmt.Errorf("Unable to parse network from WSL interface: %s, %v", snt, err)
+			}
+		}
+	}
+	if (ip == nil) || (nt == nil) {
+		return net.IP{}, nil, fmt.Errorf("Unable to find IP address and network from WSL interface")
+	}
+	return ip, nt, nil
 }
 
 func installEc2EndpointNetworkAlias() ([]byte, error) {

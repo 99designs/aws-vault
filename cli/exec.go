@@ -27,6 +27,8 @@ type ExecCommandInput struct {
 	Args             []string
 	StartEc2Server   bool
 	StartEcsServer   bool
+	DontStartProxy   bool
+	IsWsl            bool
 	Lazy             bool
 	JSONDeprecated   bool
 	Config           vault.ProfileConfig
@@ -97,6 +99,15 @@ func ConfigureExecCommand(app *kingpin.Application, a *AwsVault) {
 
 	cmd.Flag("ec2-server", "Run a EC2 metadata server in the background for credentials").
 		BoolVar(&input.StartEc2Server)
+
+	cmd.Flag("no-proxy", "If set will not start local proxy").
+		BoolVar(&input.DontStartProxy)
+
+	//goland:noinspection GoBoolExpressions
+	if runtime.GOOS == "windows" {
+		cmd.Flag("wsl", "If set will bind to wsl interface and allow requests from wsl").
+			BoolVar(&input.IsWsl)
+	}
 
 	cmd.Flag("ecs-server", "Run a ECS credential server in the background for credentials (the SDK or app must support AWS_CONTAINER_CREDENTIALS_FULL_URI)").
 		BoolVar(&input.StartEcsServer)
@@ -186,17 +197,33 @@ func ExecCommand(input ExecCommandInput, f *vault.ConfigFile, keyring keyring.Ke
 	cmdEnv := createEnv(input.ProfileName, config.Region)
 
 	if input.StartEc2Server {
-		if server.IsProxyRunning() {
-			return 0, fmt.Errorf("Another process is already bound to 169.254.169.254:80")
+		if !input.DontStartProxy {
+			if server.IsProxyRunning() {
+				return 0, fmt.Errorf("Another process is already bound to 169.254.169.254:80")
+			}
+
+			printHelpMessage("Warning: Starting a local EC2 credential server on 169.254.169.254:80; AWS credentials will be accessible to any process while it is running", input.ShowHelpMessages)
+			if err := server.StartEc2EndpointProxyServerProcess(); err != nil {
+				return 0, err
+			}
+			defer server.StopProxy()
 		}
 
-		printHelpMessage("Warning: Starting a local EC2 credential server on 169.254.169.254:80; AWS credentials will be accessible to any process while it is running", input.ShowHelpMessages)
-		if err := server.StartEc2EndpointProxyServerProcess(); err != nil {
-			return 0, err
+		extraParams := make([]server.Ec2ServerParameter, 0)
+		if input.IsWsl {
+			ip, net, err := server.GetWslAddressAndNetwork()
+			if err != nil {
+				return 1, err
+			}
+			extraParams = append(extraParams,
+				server.WithEc2ServerAddress(ip.String()+":"+server.DefaultEc2CredentialsServerPort),
+				server.WithEc2ServerAllowedNetwork(*net),
+			)
 		}
-		defer server.StopProxy()
 
-		if err = server.StartEc2CredentialsServer(context.TODO(), credsProvider, config.Region); err != nil {
+		serverParams := server.NewEc2ServerParameters(config.Region, extraParams...)
+
+		if err = server.StartEc2CredentialsServer(context.TODO(), credsProvider, serverParams); err != nil {
 			return 0, fmt.Errorf("Failed to start credential server: %w", err)
 		}
 		printHelpMessage(subshellHelp, input.ShowHelpMessages)

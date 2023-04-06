@@ -162,6 +162,10 @@ func ConfigureGlobals(app *kingpin.Application) *AwsVault {
 		Envar("AWS_VAULT_FILE_DIR").
 		StringVar(&a.KeyringConfig.FileDir)
 
+	app.Flag("keyctl-scope", "Scope to use when using keyctl backend").
+		Envar("AWS_VAULT_KEYCTL_SCOPE").
+		StringVar(&a.KeyringConfig.KeyCtlScope)
+
 	app.PreAction(func(c *kingpin.ParseContext) error {
 		if !a.Debug {
 			log.SetOutput(io.Discard)

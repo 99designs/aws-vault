@@ -111,7 +111,7 @@ aws-vault exec my_profile_master ./my-command   # success (uses master creds)
 aws-vault exec my_profile_role ./my-command     # success (aws-vault role)
 
 AWS_PROFILE=my_profile_master ./my-command      # success (uses credential_process to get aws-vault master creds)
-AWS_PROFILE==my_profile_role ./my-command       # success (SDK role)
+AWS_PROFILE=my_profile_role ./my-command       # success (SDK role)
 ```
 
 ### Use-case 3: aws-vault is a "MFA session cache" for AWS SDK

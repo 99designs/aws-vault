@@ -13,23 +13,71 @@ import (
 	"github.com/aws/aws-sdk-go-v2/aws"
 )
 
-const ec2CredentialsServerAddr = "127.0.0.1:9099"
+const DefaultEc2CredentialsServerIp = "127.0.0.1"
+const DefaultEc2CredentialsServerPort = "9099"
+const DefaultEc2CredentialsServerAddr = DefaultEc2CredentialsServerIp + ":" + DefaultEc2CredentialsServerPort
+
+type Ec2ServerParameters struct {
+	region          string
+	serverAddress   string
+	allowedNetworks []net.IPNet
+}
+
+type Ec2ServerParameter interface {
+	apply(*Ec2ServerParameters)
+}
+
+type ec2ServerAddress struct {
+	serverAddress string
+}
+
+func (p *ec2ServerAddress) apply(params *Ec2ServerParameters) {
+	params.serverAddress = p.serverAddress
+}
+
+func WithEc2ServerAddress(addr string) Ec2ServerParameter {
+	return &ec2ServerAddress{serverAddress: addr}
+}
+
+type ec2ServerAllowedAddress struct {
+	net net.IPNet
+}
+
+func (p *ec2ServerAllowedAddress) apply(params *Ec2ServerParameters) {
+	params.allowedNetworks = append(params.allowedNetworks, p.net)
+}
+
+func WithEc2ServerAllowedNetwork(net net.IPNet) Ec2ServerParameter {
+	return &ec2ServerAllowedAddress{net: net}
+}
+
+func NewEc2ServerParameters(region string, params ...Ec2ServerParameter) *Ec2ServerParameters {
+	result := &Ec2ServerParameters{
+		region:          region,
+		serverAddress:   DefaultEc2CredentialsServerAddr,
+		allowedNetworks: make([]net.IPNet, 0),
+	}
+	for _, p := range params {
+		p.apply(result)
+	}
+	return result
+}
 
 // StartEc2CredentialsServer starts a EC2 Instance Metadata server and endpoint proxy
-func StartEc2CredentialsServer(ctx context.Context, credsProvider aws.CredentialsProvider, region string) error {
+func StartEc2CredentialsServer(ctx context.Context, credsProvider aws.CredentialsProvider, params *Ec2ServerParameters) error {
 	credsCache := aws.NewCredentialsCache(credsProvider)
 
 	// pre-fetch credentials so that we can respond quickly to the first request
 	// SDKs seem to very aggressively timeout
 	_, _ = credsCache.Retrieve(ctx)
 
-	go startEc2CredentialsServer(credsCache, region)
+	go startEc2CredentialsServer(credsCache, params)
 
 	return nil
 }
 
-func startEc2CredentialsServer(credsProvider aws.CredentialsProvider, region string) {
-	log.Printf("Starting EC2 Instance Metadata server on %s", ec2CredentialsServerAddr)
+func startEc2CredentialsServer(credsProvider aws.CredentialsProvider, params *Ec2ServerParameters) {
+	log.Printf("Starting EC2 Instance Metadata server on %s", params.serverAddress)
 	router := http.NewServeMux()
 
 	router.HandleFunc("/latest/meta-data/iam/security-credentials/", func(w http.ResponseWriter, r *http.Request) {
@@ -48,40 +96,59 @@ func startEc2CredentialsServer(credsProvider aws.CredentialsProvider, region str
 
 	// used by AWS SDK to determine region
 	router.HandleFunc("/latest/meta-data/dynamic/instance-identity/document", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, `{"region": "`+region+`"}`)
+		fmt.Fprintf(w, `{"region": "`+params.region+`"}`)
 	})
 
 	router.HandleFunc("/latest/meta-data/iam/security-credentials/local-credentials", credsHandler(credsProvider))
 
-	log.Fatalln(http.ListenAndServe(ec2CredentialsServerAddr, withLogging(withSecurityChecks(router))))
+	log.Fatalln(http.ListenAndServe(params.serverAddress, withLogging(&withSecurityChecks{params, router})))
+}
+
+type withSecurityChecks struct {
+	*Ec2ServerParameters
+	next *http.ServeMux
 }
 
 // withSecurityChecks is middleware to protect the server from attack vectors
-func withSecurityChecks(next *http.ServeMux) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		// Check the remote ip is from the loopback, otherwise clients on the same network segment could
-		// potentially route traffic via 169.254.169.254:80
-		// See https://developer.apple.com/library/content/qa/qa1357/_index.html
-		ip, _, err := net.SplitHostPort(r.RemoteAddr)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		if !net.ParseIP(ip).IsLoopback() {
-			http.Error(w, "Access denied from non-localhost address", http.StatusUnauthorized)
-			return
-		}
-
-		// Check that the request is to 169.254.169.254
-		// Without this it's possible for an attacker to mount a DNS rebinding attack
-		// See https://github.com/99designs/aws-vault/issues/578
-		if r.Host != ec2MetadataEndpointIP && r.Host != ec2MetadataEndpointAddr {
-			http.Error(w, fmt.Sprintf("Access denied for host '%s'", r.Host), http.StatusUnauthorized)
-			return
-		}
-
-		next.ServeHTTP(w, r)
+func (sc *withSecurityChecks) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// Check the remote ip is from the loopback, otherwise clients on the same network segment could
+	// potentially route traffic via 169.254.169.254:80
+	// See https://developer.apple.com/library/content/qa/qa1357/_index.html
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
+
+	checkIp := func() bool {
+		remoteIp := net.ParseIP(ip)
+		if remoteIp == nil {
+			return false
+		}
+
+		for _, allowedNetwork := range sc.allowedNetworks {
+			if allowedNetwork.Contains(remoteIp) {
+				return true
+			}
+		}
+
+		return remoteIp.IsLoopback()
+	}
+
+	if !checkIp() {
+		http.Error(w, "Access denied from not allowed address", http.StatusUnauthorized)
+		return
+	}
+
+	// Check that the request is to 169.254.169.254
+	// Without this it's possible for an attacker to mount a DNS rebinding attack
+	// See https://github.com/99designs/aws-vault/issues/578
+	if r.Host != ec2MetadataEndpointIP && r.Host != ec2MetadataEndpointAddr {
+		http.Error(w, fmt.Sprintf("Access denied for host '%s'", r.Host), http.StatusUnauthorized)
+		return
+	}
+
+	sc.next.ServeHTTP(w, r)
 }
 
 func credsHandler(credsProvider aws.CredentialsProvider) http.HandlerFunc {

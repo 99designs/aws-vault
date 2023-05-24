@@ -675,6 +675,17 @@ Using the `ykman` prompt driver, aws-vault will execute `ykman` to generate toke
 ```shell
 aws-vault exec --prompt ykman ${AWS_VAULT_PROFILE_USING_MFA} -- aws s3 ls
 ```
+
+An alternative to manually supplying the prompt driver as a CLI argument to `aws-vault` is setting the [`mfa_process`](#mfa_process) parameter in your `.aws/config` for the profiles that should use a YubiKey to generate tokens. Example:
+
+(Note: Remember to swap out the name of the OATH account used in `mfa_process` below with the name you gave it during [YubiKey setup](#setup))
+
+```ini
+[profile jon]
+mfa_serial = arn:aws:iam::123456789012:mfa/jonsmith
+mfa_process = ykman oath accounts code --single arn:aws:iam::123456789012:mfa/jonsmith
+```
+
 Further config:
  - `AWS_VAULT_PROMPT=ykman`: to avoid specifying `--prompt` each time
  - `YKMAN_OATH_CREDENTIAL_NAME`: to use an alternative ykman credential

@@ -694,12 +694,10 @@ Further config:
 
 ## Shell completion
 
-You can generate shell completions for
- - bash: `eval "$(curl -fs https://raw.githubusercontent.com/99designs/aws-vault/master/contrib/completions/bash/aws-vault.bash)"`
- - zsh: `eval "$(curl -fs https://raw.githubusercontent.com/99designs/aws-vault/master/contrib/completions/zsh/aws-vault.zsh)"`
- - fish: `eval "$(curl -fs https://raw.githubusercontent.com/99designs/aws-vault/master/contrib/completions/fish/aws-vault.fish)"`
-
-Find the completion scripts at [contrib/completions](contrib/completions).
+You can generate shell completions for `bash`, `zsh` and `fish`:
+  - bash: `eval "$(aws-vault completion bash)"`
+  - zsh: `eval "$(aws-vault completion zsh)"`
+  - fish: `eval "$(aws-vault completion fish)"`
 
 
 ## Desktop apps

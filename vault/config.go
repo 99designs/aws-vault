@@ -170,7 +170,9 @@ func (c *ConfigFile) ProfileSections() []ProfileSection {
 	}
 	for _, section := range c.iniFile.SectionStrings() {
 		if section == defaultSectionName || strings.HasPrefix(section, "profile ") {
-			profile, _ := c.ProfileSection(strings.TrimPrefix(section, "profile "))
+			profileName := strings.TrimPrefix(section, "profile ")
+			profileName = strings.TrimSpace(profileName)
+			profile, _ := c.ProfileSection(profileName)
 
 			// ignore the default profile if it's empty
 			if section == defaultSectionName && profile.IsEmpty() {
@@ -199,6 +201,10 @@ func (c *ConfigFile) ProfileSection(name string) (ProfileSection, bool) {
 	if c.iniFile == nil {
 		return profile, false
 	}
+
+	// Trim whitespace from the profile name
+	name = strings.TrimSpace(name)
+
 	// default profile name has a slightly different section format
 	sectionName := "profile " + name
 	if name == defaultSectionName {

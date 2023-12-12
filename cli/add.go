@@ -5,10 +5,10 @@ import (
 	"log"
 	"os"
 
-	"github.com/99designs/aws-vault/v6/prompt"
-	"github.com/99designs/aws-vault/v6/vault"
+	"github.com/99designs/aws-vault/v7/prompt"
+	"github.com/99designs/aws-vault/v7/vault"
 	"github.com/99designs/keyring"
-	"github.com/alecthomas/kingpin"
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/aws/aws-sdk-go-v2/aws"
 )
 
@@ -21,7 +21,7 @@ type AddCommandInput struct {
 func ConfigureAddCommand(app *kingpin.Application, a *AwsVault) {
 	input := AddCommandInput{}
 
-	cmd := app.Command("add", "Adds credentials to the secure keystore")
+	cmd := app.Command("add", "Add credentials to the secure keystore.")
 
 	cmd.Arg("profile", "Name of the profile").
 		Required().

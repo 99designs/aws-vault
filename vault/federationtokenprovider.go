@@ -28,7 +28,7 @@ func (f *FederationTokenProvider) name() string {
 
 // Retrieve generates a new set of temporary credentials using STS GetFederationToken
 func (f *FederationTokenProvider) Retrieve(ctx context.Context) (creds aws.Credentials, err error) {
-	resp, err := f.StsClient.GetFederationToken(context.TODO(), &sts.GetFederationTokenInput{
+	resp, err := f.StsClient.GetFederationToken(ctx, &sts.GetFederationTokenInput{
 		Name:            aws.String(f.name()),
 		DurationSeconds: aws.Int32(int32(f.Duration.Seconds())),
 		Policy:          aws.String(allowAllIAMPolicy),

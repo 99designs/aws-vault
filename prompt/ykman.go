@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"strings"
-
-	exec "golang.org/x/sys/execabs"
 )
 
 // YkmanProvider runs ykman to generate a OATH-TOTP token from the Yubikey device
@@ -47,5 +46,7 @@ func YkmanMfaProvider(mfaSerial string) (string, error) {
 }
 
 func init() {
-	Methods["ykman"] = YkmanMfaProvider
+	if _, err := exec.LookPath("ykman"); err == nil {
+		Methods["ykman"] = YkmanMfaProvider
+	}
 }

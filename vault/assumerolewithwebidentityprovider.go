@@ -3,13 +3,9 @@ package vault
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
-	"runtime"
 	"time"
-
-	exec "golang.org/x/sys/execabs"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sts"
@@ -29,7 +25,7 @@ type AssumeRoleWithWebIdentityProvider struct {
 
 // Retrieve generates a new set of temporary credentials using STS AssumeRoleWithWebIdentity
 func (p *AssumeRoleWithWebIdentityProvider) Retrieve(ctx context.Context) (aws.Credentials, error) {
-	creds, err := p.assumeRole()
+	creds, err := p.RetrieveStsCredentials(ctx)
 	if err != nil {
 		return aws.Credentials{}, err
 	}
@@ -52,7 +48,7 @@ func (p *AssumeRoleWithWebIdentityProvider) roleSessionName() string {
 	return p.RoleSessionName
 }
 
-func (p *AssumeRoleWithWebIdentityProvider) assumeRole() (*ststypes.Credentials, error) {
+func (p *AssumeRoleWithWebIdentityProvider) RetrieveStsCredentials(ctx context.Context) (*ststypes.Credentials, error) {
 	var err error
 
 	webIdentityToken, err := p.webIdentityToken()
@@ -60,7 +56,7 @@ func (p *AssumeRoleWithWebIdentityProvider) assumeRole() (*ststypes.Credentials,
 		return nil, err
 	}
 
-	resp, err := p.StsClient.AssumeRoleWithWebIdentity(context.TODO(), &sts.AssumeRoleWithWebIdentityInput{
+	resp, err := p.StsClient.AssumeRoleWithWebIdentity(ctx, &sts.AssumeRoleWithWebIdentityInput{
 		RoleArn:          aws.String(p.RoleARN),
 		RoleSessionName:  aws.String(p.roleSessionName()),
 		DurationSeconds:  aws.Int32(int32(p.Duration.Seconds())),
@@ -78,7 +74,7 @@ func (p *AssumeRoleWithWebIdentityProvider) assumeRole() (*ststypes.Credentials,
 func (p *AssumeRoleWithWebIdentityProvider) webIdentityToken() (string, error) {
 	// Read OpenID Connect token from WebIdentityTokenFile
 	if p.WebIdentityTokenFile != "" {
-		b, err := ioutil.ReadFile(p.WebIdentityTokenFile)
+		b, err := os.ReadFile(p.WebIdentityTokenFile)
 		if err != nil {
 			return "", fmt.Errorf("unable to read file at %s: %v", p.WebIdentityTokenFile, err)
 		}
@@ -87,22 +83,5 @@ func (p *AssumeRoleWithWebIdentityProvider) webIdentityToken() (string, error) {
 	}
 
 	// Exec WebIdentityTokenProcess to retrieve OpenID Connect token
-	var cmdArgs []string
-	if runtime.GOOS == "windows" {
-		cmdArgs = []string{"cmd.exe", "/C", p.WebIdentityTokenProcess}
-	} else {
-		cmdArgs = []string{"/bin/sh", "-c", p.WebIdentityTokenProcess}
-	}
-
-	cmd := exec.Command(cmdArgs[0], cmdArgs[1:]...)
-	cmd.Env = os.Environ()
-	cmd.Stdin = os.Stdin
-	cmd.Stderr = os.Stderr
-
-	b, err := cmd.Output()
-	if err != nil {
-		return "", fmt.Errorf("failed to run command %q: %v", p.WebIdentityTokenProcess, err)
-	}
-
-	return string(b), err
+	return executeProcess(p.WebIdentityTokenProcess)
 }

@@ -1,13 +1,12 @@
 package vault
 
 import (
-	"errors"
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"time"
 
-	"github.com/99designs/aws-vault/v6/prompt"
 	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/sso"
@@ -23,20 +22,18 @@ func init() {
 	}
 }
 
-var UseSessionCache = true
-
 func NewAwsConfig(region, stsRegionalEndpoints string) aws.Config {
 	return aws.Config{
-		Region:           region,
-		EndpointResolver: getSTSEndpointResolver(stsRegionalEndpoints),
+		Region:                      region,
+		EndpointResolverWithOptions: getSTSEndpointResolver(stsRegionalEndpoints),
 	}
 }
 
 func NewAwsConfigWithCredsProvider(credsProvider aws.CredentialsProvider, region, stsRegionalEndpoints string) aws.Config {
 	return aws.Config{
-		Region:           region,
-		Credentials:      credsProvider,
-		EndpointResolver: getSTSEndpointResolver(stsRegionalEndpoints),
+		Region:                      region,
+		Credentials:                 credsProvider,
+		EndpointResolverWithOptions: getSTSEndpointResolver(stsRegionalEndpoints),
 	}
 }
 
@@ -44,26 +41,9 @@ func FormatKeyForDisplay(k string) string {
 	return fmt.Sprintf("****************%s", k[len(k)-4:])
 }
 
-// Mfa contains options for an MFA device
-type Mfa struct {
-	MfaToken        string
-	MfaPromptMethod string
-	MfaSerial       string
-}
-
-// GetMfaToken returns the MFA token
-func (m *Mfa) GetMfaToken() (*string, error) {
-	if m.MfaToken != "" {
-		return aws.String(m.MfaToken), nil
-	}
-
-	if m.MfaPromptMethod != "" {
-		promptFunc := prompt.Method(m.MfaPromptMethod)
-		token, err := promptFunc(m.MfaSerial)
-		return aws.String(token), err
-	}
-
-	return nil, errors.New("No prompt found")
+func isMasterCredentialsProvider(credsProvider aws.CredentialsProvider) bool {
+	_, ok := credsProvider.(*KeyringProvider)
+	return ok
 }
 
 // NewMasterCredentialsProvider creates a provider for the master credentials
@@ -71,20 +51,16 @@ func NewMasterCredentialsProvider(k *CredentialKeyring, credentialsName string) 
 	return &KeyringProvider{k, credentialsName}
 }
 
-func NewSessionTokenProvider(credsProvider aws.CredentialsProvider, k keyring.Keyring, config *Config) (aws.CredentialsProvider, error) {
+func NewSessionTokenProvider(credsProvider aws.CredentialsProvider, k keyring.Keyring, config *ProfileConfig, useSessionCache bool) (aws.CredentialsProvider, error) {
 	cfg := NewAwsConfigWithCredsProvider(credsProvider, config.Region, config.STSRegionalEndpoints)
 
 	sessionTokenProvider := &SessionTokenProvider{
 		StsClient: sts.NewFromConfig(cfg),
 		Duration:  config.GetSessionTokenDuration(),
-		Mfa: Mfa{
-			MfaToken:        config.MfaToken,
-			MfaPromptMethod: config.MfaPromptMethod,
-			MfaSerial:       config.MfaSerial,
-		},
+		Mfa:       NewMfa(config),
 	}
 
-	if UseSessionCache {
+	if useSessionCache {
 		return &CachedSessionProvider{
 			SessionKey: SessionMetadata{
 				Type:        "sts.GetSessionToken",
@@ -93,7 +69,7 @@ func NewSessionTokenProvider(credsProvider aws.CredentialsProvider, k keyring.Ke
 			},
 			Keyring:         &SessionKeyring{Keyring: k},
 			ExpiryWindow:    defaultExpirationWindow,
-			CredentialsFunc: sessionTokenProvider.GetSessionToken,
+			SessionProvider: sessionTokenProvider,
 		}, nil
 	}
 
@@ -101,7 +77,7 @@ func NewSessionTokenProvider(credsProvider aws.CredentialsProvider, k keyring.Ke
 }
 
 // NewAssumeRoleProvider returns a provider that generates credentials using AssumeRole
-func NewAssumeRoleProvider(credsProvider aws.CredentialsProvider, k keyring.Keyring, config *Config) (aws.CredentialsProvider, error) {
+func NewAssumeRoleProvider(credsProvider aws.CredentialsProvider, k keyring.Keyring, config *ProfileConfig, useSessionCache bool) (aws.CredentialsProvider, error) {
 	cfg := NewAwsConfigWithCredsProvider(credsProvider, config.Region, config.STSRegionalEndpoints)
 
 	p := &AssumeRoleProvider{
@@ -113,14 +89,10 @@ func NewAssumeRoleProvider(credsProvider aws.CredentialsProvider, k keyring.Keyr
 		Tags:              config.SessionTags,
 		TransitiveTagKeys: config.TransitiveSessionTags,
 		SourceIdentity:    config.SourceIdentity,
-		Mfa: Mfa{
-			MfaSerial:       config.MfaSerial,
-			MfaToken:        config.MfaToken,
-			MfaPromptMethod: config.MfaPromptMethod,
-		},
+		Mfa:               NewMfa(config),
 	}
 
-	if UseSessionCache && config.MfaSerial != "" {
+	if useSessionCache && config.MfaSerial != "" {
 		return &CachedSessionProvider{
 			SessionKey: SessionMetadata{
 				Type:        "sts.AssumeRole",
@@ -129,7 +101,7 @@ func NewAssumeRoleProvider(credsProvider aws.CredentialsProvider, k keyring.Keyr
 			},
 			Keyring:         &SessionKeyring{Keyring: k},
 			ExpiryWindow:    defaultExpirationWindow,
-			CredentialsFunc: p.assumeRole,
+			SessionProvider: p,
 		}, nil
 	}
 
@@ -138,7 +110,7 @@ func NewAssumeRoleProvider(credsProvider aws.CredentialsProvider, k keyring.Keyr
 
 // NewAssumeRoleWithWebIdentityProvider returns a provider that generates
 // credentials using AssumeRoleWithWebIdentity
-func NewAssumeRoleWithWebIdentityProvider(k keyring.Keyring, config *Config) (aws.CredentialsProvider, error) {
+func NewAssumeRoleWithWebIdentityProvider(k keyring.Keyring, config *ProfileConfig, useSessionCache bool) (aws.CredentialsProvider, error) {
 	cfg := NewAwsConfig(config.Region, config.STSRegionalEndpoints)
 
 	p := &AssumeRoleWithWebIdentityProvider{
@@ -150,7 +122,7 @@ func NewAssumeRoleWithWebIdentityProvider(k keyring.Keyring, config *Config) (aw
 		Duration:                config.AssumeRoleDuration,
 	}
 
-	if UseSessionCache {
+	if useSessionCache {
 		return &CachedSessionProvider{
 			SessionKey: SessionMetadata{
 				Type:        "sts.AssumeRoleWithWebIdentity",
@@ -158,7 +130,7 @@ func NewAssumeRoleWithWebIdentityProvider(k keyring.Keyring, config *Config) (aw
 			},
 			Keyring:         &SessionKeyring{Keyring: k},
 			ExpiryWindow:    defaultExpirationWindow,
-			CredentialsFunc: p.assumeRole,
+			SessionProvider: p,
 		}, nil
 	}
 
@@ -166,7 +138,7 @@ func NewAssumeRoleWithWebIdentityProvider(k keyring.Keyring, config *Config) (aw
 }
 
 // NewSSORoleCredentialsProvider creates a provider for SSO credentials
-func NewSSORoleCredentialsProvider(k keyring.Keyring, config *Config) (aws.CredentialsProvider, error) {
+func NewSSORoleCredentialsProvider(k keyring.Keyring, config *ProfileConfig, useSessionCache bool) (aws.CredentialsProvider, error) {
 	cfg := NewAwsConfig(config.SSORegion, config.STSRegionalEndpoints)
 
 	ssoRoleCredentialsProvider := &SSORoleCredentialsProvider{
@@ -178,7 +150,7 @@ func NewSSORoleCredentialsProvider(k keyring.Keyring, config *Config) (aws.Crede
 		UseStdout:  config.SSOUseStdout,
 	}
 
-	if UseSessionCache {
+	if useSessionCache {
 		ssoRoleCredentialsProvider.OIDCTokenCache = OIDCTokenKeyring{Keyring: k}
 		return &CachedSessionProvider{
 			SessionKey: SessionMetadata{
@@ -188,97 +160,39 @@ func NewSSORoleCredentialsProvider(k keyring.Keyring, config *Config) (aws.Crede
 			},
 			Keyring:         &SessionKeyring{Keyring: k},
 			ExpiryWindow:    defaultExpirationWindow,
-			CredentialsFunc: ssoRoleCredentialsProvider.getRoleCredentialsAsStsCredemtials,
+			SessionProvider: ssoRoleCredentialsProvider,
 		}, nil
 	}
 
 	return ssoRoleCredentialsProvider, nil
 }
 
-type tempCredsCreator struct {
-	keyring    *CredentialKeyring
-	chainedMfa string
+// NewCredentialProcessProvider creates a provider to retrieve credentials from an external
+// executable as described in https://docs.aws.amazon.com/cli/latest/topic/config-vars.html#sourcing-credentials-from-external-processes
+func NewCredentialProcessProvider(k keyring.Keyring, config *ProfileConfig, useSessionCache bool) (aws.CredentialsProvider, error) {
+	credentialProcessProvider := &CredentialProcessProvider{
+		CredentialProcess: config.CredentialProcess,
+	}
+
+	if useSessionCache {
+		return &CachedSessionProvider{
+			SessionKey: SessionMetadata{
+				Type:        "credential_process",
+				ProfileName: config.ProfileName,
+			},
+			Keyring:         &SessionKeyring{Keyring: k},
+			ExpiryWindow:    defaultExpirationWindow,
+			SessionProvider: credentialProcessProvider,
+		}, nil
+	}
+
+	return credentialProcessProvider, nil
 }
 
-func (t *tempCredsCreator) provider(config *Config) (aws.CredentialsProvider, error) {
-	var sourcecredsProvider aws.CredentialsProvider
+func NewFederationTokenProvider(ctx context.Context, credsProvider aws.CredentialsProvider, config *ProfileConfig) (*FederationTokenProvider, error) {
+	cfg := NewAwsConfigWithCredsProvider(credsProvider, config.Region, config.STSRegionalEndpoints)
 
-	hasStoredCredentials, err := t.keyring.Has(config.ProfileName)
-	if err != nil {
-		return nil, err
-	}
-
-	if hasStoredCredentials && config.HasSourceProfile() {
-		return nil, fmt.Errorf("profile %s: have stored credentials but source_profile is defined", config.ProfileName)
-	} else if hasStoredCredentials {
-		log.Printf("profile %s: using stored credentials", config.ProfileName)
-		sourcecredsProvider = NewMasterCredentialsProvider(t.keyring, config.ProfileName)
-	} else if config.HasSourceProfile() {
-		sourcecredsProvider, err = t.provider(config.SourceProfile)
-		if err != nil {
-			return nil, err
-		}
-	} else if config.HasSSOStartURL() {
-		return NewSSORoleCredentialsProvider(t.keyring.Keyring, config)
-	} else if config.HasRole() && (config.HasWebIdentityTokenFile() || config.HasWebIdentityTokenProcess()) {
-		return NewAssumeRoleWithWebIdentityProvider(t.keyring.Keyring, config)
-	} else {
-		return nil, fmt.Errorf("profile %s: credentials missing", config.ProfileName)
-	}
-
-	if hasStoredCredentials || !config.HasRole() {
-		if canUseGetSessionToken, reason := config.CanUseGetSessionToken(); !canUseGetSessionToken {
-			log.Printf("profile %s: skipping GetSessionToken because %s", config.ProfileName, reason)
-			if !config.HasRole() {
-				return sourcecredsProvider, nil
-			}
-		}
-
-		t.chainedMfa = config.MfaSerial
-		log.Printf("profile %s: using GetSessionToken %s", config.ProfileName, mfaDetails(false, config))
-		sourcecredsProvider, err = NewSessionTokenProvider(sourcecredsProvider, t.keyring.Keyring, config)
-		if !config.HasRole() || err != nil {
-			return sourcecredsProvider, err
-		}
-	}
-
-	isMfaChained := config.MfaSerial != "" && config.MfaSerial == t.chainedMfa
-	if isMfaChained {
-		config.MfaSerial = ""
-	}
-
-	log.Printf("profile %s: using AssumeRole %s", config.ProfileName, mfaDetails(isMfaChained, config))
-	return NewAssumeRoleProvider(sourcecredsProvider, t.keyring.Keyring, config)
-}
-
-func mfaDetails(mfaChained bool, config *Config) string {
-	if mfaChained {
-		return "(chained MFA)"
-	}
-	if config.HasMfaSerial() {
-		return "(with MFA)"
-	}
-	return ""
-}
-
-// NewTempCredentialsProvider creates a credential provider for the given config
-func NewTempCredentialsProvider(config *Config, keyring *CredentialKeyring) (aws.CredentialsProvider, error) {
-	t := tempCredsCreator{
-		keyring: keyring,
-	}
-	return t.provider(config)
-}
-
-func NewFederationTokenCredentialsProvider(profileName string, k *CredentialKeyring, config *Config) (aws.CredentialsProvider, error) {
-	credentialsName, err := FindMasterCredentialsNameFor(profileName, k, config)
-	if err != nil {
-		return nil, err
-	}
-
-	masterCreds := NewMasterCredentialsProvider(k, credentialsName)
-	cfg := NewAwsConfigWithCredsProvider(masterCreds, config.Region, config.STSRegionalEndpoints)
-
-	currentUsername, err := GetUsernameFromSession(cfg)
+	name, err := GetUsernameFromSession(ctx, cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -286,12 +200,12 @@ func NewFederationTokenCredentialsProvider(profileName string, k *CredentialKeyr
 	log.Printf("Using GetFederationToken for credentials")
 	return &FederationTokenProvider{
 		StsClient: sts.NewFromConfig(cfg),
-		Name:      currentUsername,
+		Name:      name,
 		Duration:  config.GetFederationTokenDuration,
 	}, nil
 }
 
-func FindMasterCredentialsNameFor(profileName string, keyring *CredentialKeyring, config *Config) (string, error) {
+func FindMasterCredentialsNameFor(profileName string, keyring *CredentialKeyring, config *ProfileConfig) (string, error) {
 	hasMasterCreds, err := keyring.Has(profileName)
 	if err != nil {
 		return "", err
@@ -306,4 +220,136 @@ func FindMasterCredentialsNameFor(profileName string, keyring *CredentialKeyring
 	}
 
 	return FindMasterCredentialsNameFor(config.SourceProfileName, keyring, config)
+}
+
+type TempCredentialsCreator struct {
+	Keyring *CredentialKeyring
+	// DisableSessions will disable the use of GetSessionToken
+	DisableSessions bool
+	// DisableCache will disable the use of the session cache
+	DisableCache bool
+	// DisableSessionsForProfile is a profile for which sessions should not be used
+	DisableSessionsForProfile string
+
+	chainedMfa string
+}
+
+func (t *TempCredentialsCreator) getSourceCreds(config *ProfileConfig, hasStoredCredentials bool) (sourcecredsProvider aws.CredentialsProvider, err error) {
+	if hasStoredCredentials {
+		log.Printf("profile %s: using stored credentials", config.ProfileName)
+		return NewMasterCredentialsProvider(t.Keyring, config.ProfileName), nil
+	}
+
+	if config.HasSourceProfile() {
+		log.Printf("profile %s: sourcing credentials from profile %s", config.ProfileName, config.SourceProfile.ProfileName)
+		return t.GetProviderForProfile(config.SourceProfile)
+	}
+
+	return nil, fmt.Errorf("profile %s: credentials missing", config.ProfileName)
+}
+
+func (t *TempCredentialsCreator) getSourceCredWithSession(config *ProfileConfig, hasStoredCredentials bool) (sourcecredsProvider aws.CredentialsProvider, err error) {
+	sourcecredsProvider, err = t.getSourceCreds(config, hasStoredCredentials)
+	if err != nil {
+		return nil, err
+	}
+
+	if config.HasRole() {
+		isMfaChained := config.MfaSerial != "" && config.MfaSerial == t.chainedMfa
+		if isMfaChained {
+			config.MfaSerial = ""
+		}
+		log.Printf("profile %s: using AssumeRole %s", config.ProfileName, mfaDetails(isMfaChained, config))
+		return NewAssumeRoleProvider(sourcecredsProvider, t.Keyring.Keyring, config, !t.DisableCache)
+	}
+
+	if isMasterCredentialsProvider(sourcecredsProvider) {
+		canUseGetSessionToken, reason := t.canUseGetSessionToken(config)
+		if canUseGetSessionToken {
+			t.chainedMfa = config.MfaSerial
+			log.Printf("profile %s: using GetSessionToken %s", config.ProfileName, mfaDetails(false, config))
+			return NewSessionTokenProvider(sourcecredsProvider, t.Keyring.Keyring, config, !t.DisableCache)
+		}
+		log.Printf("profile %s: skipping GetSessionToken because %s", config.ProfileName, reason)
+	}
+
+	return sourcecredsProvider, nil
+}
+
+func (t *TempCredentialsCreator) GetProviderForProfile(config *ProfileConfig) (aws.CredentialsProvider, error) {
+	hasStoredCredentials, err := t.Keyring.Has(config.ProfileName)
+	if err != nil {
+		return nil, err
+	}
+
+	if hasStoredCredentials || config.HasSourceProfile() {
+		return t.getSourceCredWithSession(config, hasStoredCredentials)
+	}
+
+	if config.HasSSOStartURL() {
+		log.Printf("profile %s: using SSO role credentials", config.ProfileName)
+		return NewSSORoleCredentialsProvider(t.Keyring.Keyring, config, !t.DisableCache)
+	}
+
+	if config.HasWebIdentity() {
+		log.Printf("profile %s: using web identity", config.ProfileName)
+		return NewAssumeRoleWithWebIdentityProvider(t.Keyring.Keyring, config, !t.DisableCache)
+	}
+
+	if config.HasCredentialProcess() {
+		log.Printf("profile %s: using credential process", config.ProfileName)
+		return NewCredentialProcessProvider(t.Keyring.Keyring, config, !t.DisableCache)
+	}
+
+	return nil, fmt.Errorf("profile %s: credentials missing", config.ProfileName)
+}
+
+// canUseGetSessionToken determines if GetSessionToken should be used, and if not returns a reason
+func (t *TempCredentialsCreator) canUseGetSessionToken(c *ProfileConfig) (bool, string) {
+	if t.DisableSessions {
+		return false, "sessions are disabled"
+	}
+	if t.DisableSessionsForProfile == c.ProfileName {
+		return false, "sessions are disabled for this profile"
+	}
+
+	if c.IsChained() {
+		if !c.ChainedFromProfile.HasMfaSerial() {
+			return false, fmt.Sprintf("profile '%s' has no MFA serial defined", c.ChainedFromProfile.ProfileName)
+		}
+
+		if !c.HasMfaSerial() && c.ChainedFromProfile.HasMfaSerial() {
+			return false, fmt.Sprintf("profile '%s' has no MFA serial defined", c.ProfileName)
+		}
+
+		if c.ChainedFromProfile.MfaSerial != c.MfaSerial {
+			return false, fmt.Sprintf("MFA serial doesn't match profile '%s'", c.ChainedFromProfile.ProfileName)
+		}
+
+		if c.ChainedFromProfile.AssumeRoleDuration > roleChainingMaximumDuration {
+			return false, fmt.Sprintf("duration %s in profile '%s' is greater than the AWS maximum %s for chaining MFA", c.ChainedFromProfile.AssumeRoleDuration, c.ChainedFromProfile.ProfileName, roleChainingMaximumDuration)
+		}
+	}
+
+	return true, ""
+}
+
+func mfaDetails(mfaChained bool, config *ProfileConfig) string {
+	if mfaChained {
+		return "(chained MFA)"
+	}
+	if config.HasMfaSerial() {
+		return "(with MFA)"
+	}
+	return ""
+}
+
+// NewTempCredentialsProvider creates a credential provider for the given config
+func NewTempCredentialsProvider(config *ProfileConfig, keyring *CredentialKeyring, disableSessions bool, disableCache bool) (aws.CredentialsProvider, error) {
+	t := TempCredentialsCreator{
+		Keyring:         keyring,
+		DisableSessions: disableSessions,
+		DisableCache:    disableCache,
+	}
+	return t.GetProviderForProfile(config)
 }

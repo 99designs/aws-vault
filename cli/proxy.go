@@ -5,14 +5,14 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/99designs/aws-vault/v6/server"
-	"github.com/alecthomas/kingpin"
+	"github.com/99designs/aws-vault/v7/server"
+	"github.com/alecthomas/kingpin/v2"
 )
 
-func ConfigureProxyCommand(app *kingpin.Application, a *AwsVault) {
+func ConfigureProxyCommand(app *kingpin.Application) {
 	stop := false
 
-	cmd := app.Command("proxy", "Start a proxy for the ec2 instance role server locally").
+	cmd := app.Command("proxy", "Start a proxy for the ec2 instance role server locally.").
 		Alias("server").
 		Hidden()
 
@@ -23,10 +23,9 @@ func ConfigureProxyCommand(app *kingpin.Application, a *AwsVault) {
 		if stop {
 			server.StopProxy()
 			return nil
-		} else {
-			handleSigTerm()
-			return server.StartProxy()
 		}
+		handleSigTerm()
+		return server.StartProxy()
 	})
 }
 

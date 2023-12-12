@@ -6,9 +6,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/99designs/aws-vault/v6/vault"
+	"github.com/99designs/aws-vault/v7/vault"
 	"github.com/99designs/keyring"
-	"github.com/alecthomas/kingpin"
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/iam"
 )
@@ -16,13 +16,13 @@ import (
 type RotateCommandInput struct {
 	NoSession   bool
 	ProfileName string
-	Config      vault.Config
+	Config      vault.ProfileConfig
 }
 
 func ConfigureRotateCommand(app *kingpin.Application, a *AwsVault) {
 	input := RotateCommandInput{}
 
-	cmd := app.Command("rotate", "Rotates credentials")
+	cmd := app.Command("rotate", "Rotate credentials.")
 
 	cmd.Flag("no-session", "Use master credentials, no session or role used").
 		Short('n').
@@ -34,7 +34,7 @@ func ConfigureRotateCommand(app *kingpin.Application, a *AwsVault) {
 		StringVar(&input.ProfileName)
 
 	cmd.Action(func(c *kingpin.ParseContext) (err error) {
-		input.Config.MfaPromptMethod = a.PromptDriver
+		input.Config.MfaPromptMethod = a.PromptDriver(false)
 		keyring, err := a.Keyring()
 		if err != nil {
 			return err
@@ -51,16 +51,8 @@ func ConfigureRotateCommand(app *kingpin.Application, a *AwsVault) {
 }
 
 func RotateCommand(input RotateCommandInput, f *vault.ConfigFile, keyring keyring.Keyring) error {
-	// Can't disable sessions completely, might need to use session for MFA-Protected API Access
-	vault.UseSession = !input.NoSession
-	vault.UseSessionCache = false
-
-	configLoader := &vault.ConfigLoader{
-		File:          f,
-		BaseConfig:    input.Config,
-		ActiveProfile: input.ProfileName,
-	}
-	config, err := configLoader.LoadFromProfile(input.ProfileName)
+	configLoader := vault.NewConfigLoader(input.Config, f, input.ProfileName)
+	config, err := configLoader.GetProfileConfig(input.ProfileName)
 	if err != nil {
 		return fmt.Errorf("Error loading config: %w", err)
 	}
@@ -92,7 +84,8 @@ func RotateCommand(input RotateCommandInput, f *vault.ConfigFile, keyring keyrin
 	if input.NoSession {
 		credsProvider = vault.NewMasterCredentialsProvider(ckr, config.ProfileName)
 	} else {
-		credsProvider, err = vault.NewTempCredentialsProvider(config, ckr)
+		// Can't always disable sessions completely, might need to use session for MFA-Protected API Access
+		credsProvider, err = vault.NewTempCredentialsProvider(config, ckr, input.NoSession, true)
 		if err != nil {
 			return fmt.Errorf("Error getting temporary credentials: %w", err)
 		}
@@ -101,7 +94,7 @@ func RotateCommand(input RotateCommandInput, f *vault.ConfigFile, keyring keyrin
 	cfg := vault.NewAwsConfigWithCredsProvider(credsProvider, config.Region, config.STSRegionalEndpoints)
 
 	// A username is needed for some IAM calls if the credentials have assumed a role
-	iamUserName, err := getUsernameIfAssumingRole(cfg, config)
+	iamUserName, err := getUsernameIfAssumingRole(context.TODO(), cfg, config)
 	if err != nil {
 		return err
 	}
@@ -162,7 +155,7 @@ func retry(maxTime time.Duration, sleep time.Duration, f func() error) (err erro
 
 		err = f()
 		if err == nil {
-			return
+			return // nolint
 		}
 
 		elapsed := time.Since(t0)
@@ -175,22 +168,22 @@ func retry(maxTime time.Duration, sleep time.Duration, f func() error) (err erro
 	}
 }
 
-func getUsernameIfAssumingRole(awsCfg aws.Config, config *vault.Config) (*string, error) {
+func getUsernameIfAssumingRole(ctx context.Context, awsCfg aws.Config, config *vault.ProfileConfig) (*string, error) {
 	if config.RoleARN != "" {
-		n, err := vault.GetUsernameFromSession(awsCfg)
+		n, err := vault.GetUsernameFromSession(ctx, awsCfg)
 		if err != nil {
 			return nil, fmt.Errorf("Error getting IAM username from session: %w", err)
 		}
 		log.Printf("Found IAM username '%s'", n)
 		return &n, nil
 	}
-	return nil, nil
+	return nil, nil //nolint
 }
 
 func getProfilesInChain(profileName string, configLoader *vault.ConfigLoader) (profileNames []string, err error) {
 	profileNames = append(profileNames, profileName)
 
-	config, err := configLoader.LoadFromProfile(profileName)
+	config, err := configLoader.GetProfileConfig(profileName)
 	if err != nil {
 		return profileNames, err
 	}

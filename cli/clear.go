@@ -3,9 +3,9 @@ package cli
 import (
 	"fmt"
 
-	"github.com/99designs/aws-vault/v6/vault"
+	"github.com/99designs/aws-vault/v7/vault"
 	"github.com/99designs/keyring"
-	"github.com/alecthomas/kingpin"
+	"github.com/alecthomas/kingpin/v2"
 )
 
 type ClearCommandInput struct {
@@ -15,7 +15,7 @@ type ClearCommandInput struct {
 func ConfigureClearCommand(app *kingpin.Application, a *AwsVault) {
 	input := ClearCommandInput{}
 
-	cmd := app.Command("clear", "Clear temporary credentials from the secure keystore")
+	cmd := app.Command("clear", "Clear temporary credentials from the secure keystore.")
 
 	cmd.Arg("profile", "Name of the profile").
 		HintAction(a.MustGetProfileNames).

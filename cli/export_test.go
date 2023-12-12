@@ -6,17 +6,20 @@ import (
 	"github.com/99designs/keyring"
 )
 
-func ExampleListCommand() {
+func ExampleExportCommand() {
 	app := kingpin.New("aws-vault", "")
 	awsVault := ConfigureGlobals(app)
 	awsVault.keyringImpl = keyring.NewArrayKeyring([]keyring.Item{
 		{Key: "llamas", Data: []byte(`{"AccessKeyID":"ABC","SecretAccessKey":"XYZ"}`)},
 	})
-	ConfigureListCommand(app, awsVault)
+	ConfigureExportCommand(app, awsVault)
 	kingpin.MustParse(app.Parse([]string{
-		"list", "--credentials",
+		"export", "--format=ini", "--no-session", "llamas",
 	}))
 
 	// Output:
-	// llamas
+	// [llamas]
+	// aws_access_key_id=ABC
+	// aws_secret_access_key=XYZ
+	// region=us-east-1
 }

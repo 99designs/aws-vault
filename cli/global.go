@@ -2,15 +2,17 @@ package cli
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
+	"strings"
 
-	"github.com/99designs/aws-vault/v6/prompt"
-	"github.com/99designs/aws-vault/v6/vault"
+	"github.com/99designs/aws-vault/v7/prompt"
+	"github.com/99designs/aws-vault/v7/vault"
 	"github.com/99designs/keyring"
-	"github.com/alecthomas/kingpin"
-	"golang.org/x/crypto/ssh/terminal"
+	"github.com/alecthomas/kingpin/v2"
+	isatty "github.com/mattn/go-isatty"
+	"golang.org/x/term"
 )
 
 var keyringConfigDefaults = keyring.Config{
@@ -27,10 +29,34 @@ type AwsVault struct {
 	Debug          bool
 	KeyringConfig  keyring.Config
 	KeyringBackend string
-	PromptDriver   string
+	promptDriver   string
 
 	keyringImpl   keyring.Keyring
 	awsConfigFile *vault.ConfigFile
+}
+
+func isATerminal() bool {
+	fd := os.Stdout.Fd()
+	return isatty.IsTerminal(fd) || isatty.IsCygwinTerminal(fd)
+}
+
+func (a *AwsVault) PromptDriver(avoidTerminalPrompt bool) string {
+	if a.promptDriver == "" {
+		a.promptDriver = "terminal"
+
+		if !isATerminal() || avoidTerminalPrompt {
+			for _, driver := range prompt.Available() {
+				a.promptDriver = driver
+				if driver != "terminal" {
+					break
+				}
+			}
+		}
+	}
+
+	log.Println("Using prompt driver: " + a.promptDriver)
+
+	return a.promptDriver
 }
 
 func (a *AwsVault) Keyring() (keyring.Keyring, error) {
@@ -89,9 +115,25 @@ func ConfigureGlobals(app *kingpin.Application) *AwsVault {
 		EnumVar(&a.KeyringBackend, backendsAvailable...)
 
 	app.Flag("prompt", fmt.Sprintf("Prompt driver to use %v", promptsAvailable)).
-		Default("terminal").
 		Envar("AWS_VAULT_PROMPT").
-		EnumVar(&a.PromptDriver, promptsAvailable...)
+		StringVar(&a.promptDriver)
+
+	app.Validate(func(app *kingpin.Application) error {
+		if a.promptDriver == "" {
+			return nil
+		}
+		if a.promptDriver == "pass" {
+			kingpin.Fatalf("--prompt=pass (or AWS_VAULT_PROMPT=pass) has been removed from aws-vault as using TOTPs without " +
+				"a dedicated device goes against security best practices. If you wish to continue using pass, " +
+				"add `mfa_process = pass otp <your mfa_serial>` to profiles in your ~/.aws/config file.")
+		}
+		for _, v := range promptsAvailable {
+			if v == a.promptDriver {
+				return nil
+			}
+		}
+		return fmt.Errorf("--prompt value must be one of %s, got '%s'", strings.Join(promptsAvailable, ","), a.promptDriver)
+	})
 
 	app.Flag("keychain", "Name of macOS keychain to use, if it doesn't exist it will be created").
 		Default("aws-vault").
@@ -122,7 +164,7 @@ func ConfigureGlobals(app *kingpin.Application) *AwsVault {
 
 	app.PreAction(func(c *kingpin.ParseContext) error {
 		if !a.Debug {
-			log.SetOutput(ioutil.Discard)
+			log.SetOutput(io.Discard)
 		}
 		keyring.Debug = a.Debug
 		log.Printf("aws-vault %s", app.Model().Version)
@@ -138,7 +180,7 @@ func fileKeyringPassphrasePrompt(prompt string) (string, error) {
 	}
 
 	fmt.Fprintf(os.Stderr, "%s: ", prompt)
-	b, err := terminal.ReadPassword(int(os.Stdin.Fd()))
+	b, err := term.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
 		return "", err
 	}

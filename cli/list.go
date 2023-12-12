@@ -7,9 +7,9 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/99designs/aws-vault/v6/vault"
+	"github.com/99designs/aws-vault/v7/vault"
 	"github.com/99designs/keyring"
-	"github.com/alecthomas/kingpin"
+	"github.com/alecthomas/kingpin/v2"
 )
 
 type ListCommandInput struct {
@@ -21,7 +21,7 @@ type ListCommandInput struct {
 func ConfigureListCommand(app *kingpin.Application, a *AwsVault) {
 	input := ListCommandInput{}
 
-	cmd := app.Command("list", "List profiles, along with their credentials and sessions")
+	cmd := app.Command("list", "List profiles, along with their credentials and sessions.")
 	cmd.Alias("ls")
 
 	cmd.Flag("profiles", "Show only the profile names").
@@ -184,9 +184,5 @@ func ListCommand(input ListCommandInput, awsConfigFile *vault.ConfigFile, keyrin
 		fmt.Fprintf(w, "-\t-\t%s\t\n", s)
 	}
 
-	if err = w.Flush(); err != nil {
-		return err
-	}
-
-	return nil
+	return w.Flush()
 }

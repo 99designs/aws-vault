@@ -13,9 +13,9 @@ import (
 var getUserErrorRegexp = regexp.MustCompile(`^AccessDenied: User: arn:aws:iam::(\d+):user/(.+) is not`)
 
 // GetUsernameFromSession returns the IAM username (or root) associated with the current aws session
-func GetUsernameFromSession(cfg aws.Config) (string, error) {
+func GetUsernameFromSession(ctx context.Context, cfg aws.Config) (string, error) {
 	iamClient := iam.NewFromConfig(cfg)
-	resp, err := iamClient.GetUser(context.TODO(), &iam.GetUserInput{})
+	resp, err := iamClient.GetUser(ctx, &iam.GetUserInput{})
 	if err != nil {
 		// Even if GetUser fails, the current user is included in the error. This happens when you have o IAM permissions
 		// on the master credentials, but have permission to use assumeRole later

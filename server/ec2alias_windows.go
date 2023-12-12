@@ -5,9 +5,8 @@ package server
 
 import (
 	"fmt"
+	"os/exec"
 	"strings"
-
-	exec "golang.org/x/sys/execabs"
 )
 
 var alreadyRegisteredLocalised = []string{

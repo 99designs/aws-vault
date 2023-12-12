@@ -1,15 +1,14 @@
 package cli
 
 import (
-	"io/ioutil"
 	"log"
 	"os"
 
-	"github.com/alecthomas/kingpin"
+	"github.com/alecthomas/kingpin/v2"
 )
 
 func ExampleAddCommand() {
-	f, err := ioutil.TempFile("", "aws-config")
+	f, err := os.CreateTemp("", "aws-config")
 	if err != nil {
 		log.Fatal(err)
 	}

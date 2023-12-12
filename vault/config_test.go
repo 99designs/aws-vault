@@ -3,12 +3,11 @@ package vault_test
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"testing"
 
-	"github.com/99designs/aws-vault/v6/vault"
+	"github.com/99designs/aws-vault/v7/vault"
 	"github.com/google/go-cmp/cmp"
 )
 
@@ -39,6 +38,16 @@ region=us-east-1
 
 [profile testincludeprofile2]
 include_profile=testincludeprofile1
+
+[profile with-sso-session]
+sso_session = moon-sso
+sso_account_id=123456
+region = moon-1 # Different from sso region
+
+[sso-session moon-sso]
+sso_start_url = https://d-123456789.example.com/start
+sso_region = moon-2  # Different from profile region
+sso_registration_scopes = sso:account:access
 `)
 
 var nestedConfig = []byte(`[default]
@@ -55,15 +64,15 @@ s3=
 var defaultsOnlyConfigWithHeader = []byte(`[default]
 region=us-west-2
 output=json
-
 `)
 
 func newConfigFile(t *testing.T, b []byte) string {
-	f, err := ioutil.TempFile("", "aws-config")
+	t.Helper()
+	f, err := os.CreateTemp("", "aws-config")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := ioutil.WriteFile(f.Name(), b, 0600); err != nil {
+	if err := os.WriteFile(f.Name(), b, 0600); err != nil {
 		t.Fatal(err)
 	}
 	return f.Name()
@@ -161,6 +170,7 @@ func TestProfilesFromConfig(t *testing.T) {
 		{Name: "withMFA", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2", STSRegionalEndpoints: "legacy"},
 		{Name: "testincludeprofile1", Region: "us-east-1"},
 		{Name: "testincludeprofile2", IncludeProfile: "testincludeprofile1"},
+		{Name: "with-sso-session", SSOSession: "moon-sso", Region: "moon-1", SSOAccountID: "123456"},
 	}
 	actual := cfg.ProfileSections()
 
@@ -195,6 +205,7 @@ func TestAddProfileToExistingConfig(t *testing.T) {
 		{Name: "withMFA", MfaSerial: "arn:aws:iam::1234513441:mfa/blah", RoleARN: "arn:aws:iam::4451234513441615400570:role/aws_admin", Region: "us-east-1", DurationSeconds: 1200, SourceProfile: "user2", STSRegionalEndpoints: "legacy"},
 		{Name: "testincludeprofile1", Region: "us-east-1"},
 		{Name: "testincludeprofile2", IncludeProfile: "testincludeprofile1"},
+		{Name: "with-sso-session", SSOSession: "moon-sso", Region: "moon-1", SSOAccountID: "123456"},
 		{Name: "llamas", MfaSerial: "testserial", Region: "us-east-1", SourceProfile: "default"},
 	}
 	actual := cfg.ProfileSections()
@@ -223,15 +234,14 @@ func TestAddProfileToExistingNestedConfig(t *testing.T) {
 	}
 
 	expected := append(nestedConfig, []byte(
-		"\n[profile llamas]\nmfa_serial=testserial\nregion=us-east-1\n\n",
+		"\n[profile llamas]\nmfa_serial=testserial\nregion=us-east-1\n",
 	)...)
 
-	b, _ := ioutil.ReadFile(f)
+	b, _ := os.ReadFile(f)
 
 	if !bytes.Equal(expected, b) {
 		t.Fatalf("Expected:\n%q\nGot:\n%q", expected, b)
 	}
-
 }
 
 func TestIncludeProfile(t *testing.T) {
@@ -244,7 +254,7 @@ func TestIncludeProfile(t *testing.T) {
 	}
 
 	configLoader := &vault.ConfigLoader{File: configFile}
-	config, err := configLoader.LoadFromProfile("testincludeprofile2")
+	config, err := configLoader.GetProfileConfig("testincludeprofile2")
 	if err != nil {
 		t.Fatalf("Should have found a profile: %v", err)
 	}
@@ -252,6 +262,36 @@ func TestIncludeProfile(t *testing.T) {
 	if config.Region != "us-east-1" {
 		t.Fatalf("Expected region %q, got %q", "us-east-1", config.Region)
 	}
+}
+
+func TestIncludeSsoSession(t *testing.T) {
+	f := newConfigFile(t, exampleConfig)
+	defer os.Remove(f)
+
+	configFile, err := vault.LoadConfig(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	configLoader := &vault.ConfigLoader{File: configFile}
+	config, err := configLoader.GetProfileConfig("with-sso-session")
+	if err != nil {
+		t.Fatalf("Should have found a profile: %v", err)
+	}
+
+	if config.Region != "moon-1" { // Test not the same as SSO region
+		t.Fatalf("Expected region %q, got %q", "moon-1", config.Region)
+	}
+
+	ssoStartURL := "https://d-123456789.example.com/start"
+	if config.SSOStartURL != ssoStartURL {
+		t.Fatalf("Expected sso_start_url %q, got %q", ssoStartURL, config.Region)
+	}
+
+	if config.SSORegion != "moon-2" { // Test not the same as profile region
+		t.Fatalf("Expected sso_region %q, got %q", "moon-2", config.Region)
+	}
+	// Not checking sso_registration_scopes as it seems to be unused by aws-cli.
 }
 
 func TestProfileIsEmpty(t *testing.T) {
@@ -277,12 +317,11 @@ func TestIniWithHeaderSavesWithHeader(t *testing.T) {
 
 	expected := defaultsOnlyConfigWithHeader
 
-	b, _ := ioutil.ReadFile(f)
+	b, _ := os.ReadFile(f)
 
 	if !bytes.Equal(expected, b) {
 		t.Fatalf("Expected:\n%q\nGot:\n%q", expected, b)
 	}
-
 }
 
 func TestIniWithDEFAULTHeader(t *testing.T) {
@@ -330,7 +369,7 @@ source_profile=foo
 	}
 
 	configLoader := &vault.ConfigLoader{File: configFile}
-	config, err := configLoader.LoadFromProfile("foo")
+	config, err := configLoader.GetProfileConfig("foo")
 	if err != nil {
 		t.Fatalf("Should have found a profile: %v", err)
 	}
@@ -367,7 +406,7 @@ source_profile=root
 	}
 
 	configLoader := &vault.ConfigLoader{File: configFile}
-	config, err := configLoader.LoadFromProfile("foo")
+	config, err := configLoader.GetProfileConfig("foo")
 	if err != nil {
 		t.Fatalf("Should have found a profile: %v", err)
 	}
@@ -402,7 +441,7 @@ func TestSetSessionTags(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		config := vault.Config{}
+		config := vault.ProfileConfig{}
 		err := config.SetSessionTags(tc.stringValue)
 		if tc.ok {
 			if err != nil {
@@ -434,7 +473,7 @@ func TestSetTransitiveSessionTags(t *testing.T) {
 	}
 
 	for _, tc := range testCases {
-		config := vault.Config{}
+		config := vault.ProfileConfig{}
 		config.SetTransitiveSessionTags(tc.stringValue)
 		if !reflect.DeepEqual(tc.expected, config.TransitiveSessionTags) {
 			t.Fatalf("Expected TransitiveSessionTags: %+v, got %+v", tc.expected, config.TransitiveSessionTags)
@@ -457,7 +496,7 @@ transitive_session_tags = tagOne ,tagTwo,tagThree
 		t.Fatal(err)
 	}
 	configLoader := &vault.ConfigLoader{File: configFile, ActiveProfile: "tagged"}
-	config, err := configLoader.LoadFromProfile("tagged")
+	config, err := configLoader.GetProfileConfig("tagged")
 	if err != nil {
 		t.Fatalf("Should have found a profile: %v", err)
 	}
@@ -494,7 +533,7 @@ transitive_session_tags = tagOne ,tagTwo,tagThree
 		t.Fatal(err)
 	}
 	configLoader := &vault.ConfigLoader{File: configFile, ActiveProfile: "tagged"}
-	config, err := configLoader.LoadFromProfile("tagged")
+	config, err := configLoader.GetProfileConfig("tagged")
 	if err != nil {
 		t.Fatalf("Should have found a profile: %v", err)
 	}
@@ -539,7 +578,7 @@ source_profile = interim
 		t.Fatal(err)
 	}
 	configLoader := &vault.ConfigLoader{File: configFile, ActiveProfile: "target"}
-	config, err := configLoader.LoadFromProfile("target")
+	config, err := configLoader.GetProfileConfig("target")
 	if err != nil {
 		t.Fatalf("Should have found a profile: %v", err)
 	}

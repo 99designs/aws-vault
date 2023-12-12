@@ -9,8 +9,8 @@ import (
 
 // getEndpointResolver resolves endpoints in accordance with
 // https://docs.aws.amazon.com/credref/latest/refdocs/setting-global-sts_regional_endpoints.html
-func getSTSEndpointResolver(stsRegionalEndpoints string) aws.EndpointResolverFunc {
-	return func(service, region string) (aws.Endpoint, error) {
+func getSTSEndpointResolver(stsRegionalEndpoints string) aws.EndpointResolverWithOptionsFunc {
+	return func(service, region string, options ...interface{}) (aws.Endpoint, error) {
 		if stsRegionalEndpoints == "legacy" && service == sts.ServiceID {
 			if region == "ap-northeast-1" ||
 				region == "ap-south-1" ||
@@ -28,7 +28,6 @@ func getSTSEndpointResolver(stsRegionalEndpoints string) aws.EndpointResolverFun
 				region == "us-east-2" ||
 				region == "us-west-1" ||
 				region == "us-west-2" {
-
 				log.Println("Using legacy STS endpoint sts.amazonaws.com")
 
 				return aws.Endpoint{

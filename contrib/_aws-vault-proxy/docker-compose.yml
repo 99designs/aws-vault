@@ -1,0 +1,28 @@
+version: "2.4"
+networks:
+  aws-vault:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "169.254.170.0/24"
+          gateway: "169.254.170.1"
+services:
+  aws-vault-proxy:
+    build: .
+    environment:
+     - AWS_CONTAINER_CREDENTIALS_FULL_URI
+     - AWS_CONTAINER_AUTHORIZATION_TOKEN
+    networks:
+      aws-vault:
+        ipv4_address: "169.254.170.2" # This special IP address is recognized by the AWS SDKs and AWS CLI
+    healthcheck:
+      test: pgrep aws-vault-proxy
+  testapp:
+    image: amazon/aws-cli
+    entrypoint: ""
+    command: /bin/bash
+    environment:
+      - AWS_CONTAINER_CREDENTIALS_RELATIVE_URI
+    networks:
+      aws-vault: {}
+      default: {}

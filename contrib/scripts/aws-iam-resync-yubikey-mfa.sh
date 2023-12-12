@@ -1,5 +1,6 @@
 #!/bin/sh
-# Resync a Yubikey TOTP device to IAM
+# Resync a Yubikey TOTP device to IAM using your IAM User as the $MFA_DEVICE_NAME
+# Currently, aws iam resync-mfa-device doesn't support specifying your MFA Device Name.
 
 set -eu
 

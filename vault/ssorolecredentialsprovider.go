@@ -5,11 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"time"
 
 	"github.com/99designs/keyring"
 	"github.com/aws/aws-sdk-go-v2/aws"
+	awshttp "github.com/aws/aws-sdk-go-v2/aws/transport/http"
 	"github.com/aws/aws-sdk-go-v2/service/sso"
 	ssotypes "github.com/aws/aws-sdk-go-v2/service/sso/types"
 	"github.com/aws/aws-sdk-go-v2/service/ssooidc"
@@ -21,6 +23,7 @@ import (
 type OIDCTokenCacher interface {
 	Get(string) (*ssooidc.CreateTokenOutput, error)
 	Set(string, *ssooidc.CreateTokenOutput) error
+	Remove(string) error
 }
 
 // SSORoleCredentialsProvider creates temporary credentials for an SSO Role.
@@ -40,7 +43,7 @@ func millisecondsTimeValue(v int64) time.Time {
 
 // Retrieve generates a new set of temporary credentials using SSO GetRoleCredentials.
 func (p *SSORoleCredentialsProvider) Retrieve(ctx context.Context) (aws.Credentials, error) {
-	creds, err := p.getRoleCredentials()
+	creds, err := p.getRoleCredentials(ctx)
 	if err != nil {
 		return aws.Credentials{}, err
 	}
@@ -54,18 +57,35 @@ func (p *SSORoleCredentialsProvider) Retrieve(ctx context.Context) (aws.Credenti
 	}, nil
 }
 
-func (p *SSORoleCredentialsProvider) getRoleCredentials() (*ssotypes.RoleCredentials, error) {
-	token, err := p.getOIDCToken()
+func (p *SSORoleCredentialsProvider) getRoleCredentials(ctx context.Context) (*ssotypes.RoleCredentials, error) {
+	token, cached, err := p.getOIDCToken(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := p.SSOClient.GetRoleCredentials(context.TODO(), &sso.GetRoleCredentialsInput{
+	resp, err := p.SSOClient.GetRoleCredentials(ctx, &sso.GetRoleCredentialsInput{
 		AccessToken: token.AccessToken,
 		AccountId:   aws.String(p.AccountID),
 		RoleName:    aws.String(p.RoleName),
 	})
 	if err != nil {
+		if cached && p.OIDCTokenCache != nil {
+			var rspError *awshttp.ResponseError
+			if !errors.As(err, &rspError) {
+				return nil, err
+			}
+
+			// If the error is a 401, remove the cached oidc token and try
+			// again. This is a recursive call but it should only happen once
+			// due to the cache being cleared before retrying.
+			if rspError.HTTPStatusCode() == http.StatusUnauthorized {
+				err = p.OIDCTokenCache.Remove(p.StartURL)
+				if err != nil {
+					return nil, err
+				}
+				return p.getRoleCredentials(ctx)
+			}
+		}
 		return nil, err
 	}
 	log.Printf("Got credentials %s for SSO role %s (account: %s), expires in %s", FormatKeyForDisplay(*resp.RoleCredentials.AccessKeyId), p.RoleName, p.AccountID, time.Until(millisecondsTimeValue(resp.RoleCredentials.Expiration)).String())
@@ -73,9 +93,13 @@ func (p *SSORoleCredentialsProvider) getRoleCredentials() (*ssotypes.RoleCredent
 	return resp.RoleCredentials, nil
 }
 
+func (p *SSORoleCredentialsProvider) RetrieveStsCredentials(ctx context.Context) (*ststypes.Credentials, error) {
+	return p.getRoleCredentialsAsStsCredemtials(ctx)
+}
+
 // getRoleCredentialsAsStsCredemtials returns getRoleCredentials as sts.Credentials because sessions.Store expects it
-func (p *SSORoleCredentialsProvider) getRoleCredentialsAsStsCredemtials() (*ststypes.Credentials, error) {
-	creds, err := p.getRoleCredentials()
+func (p *SSORoleCredentialsProvider) getRoleCredentialsAsStsCredemtials(ctx context.Context) (*ststypes.Credentials, error) {
+	creds, err := p.getRoleCredentials(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -88,31 +112,32 @@ func (p *SSORoleCredentialsProvider) getRoleCredentialsAsStsCredemtials() (*stst
 	}, nil
 }
 
-func (p *SSORoleCredentialsProvider) getOIDCToken() (token *ssooidc.CreateTokenOutput, err error) {
+func (p *SSORoleCredentialsProvider) getOIDCToken(ctx context.Context) (token *ssooidc.CreateTokenOutput, cached bool, err error) {
 	if p.OIDCTokenCache != nil {
 		token, err = p.OIDCTokenCache.Get(p.StartURL)
 		if err != nil && err != keyring.ErrKeyNotFound {
-			return nil, err
+			return nil, false, err
+		}
+		if token != nil {
+			return token, true, nil
 		}
 	}
-	if token == nil {
-		token, err = p.newOIDCToken()
-		if err != nil {
-			return nil, err
-		}
+	token, err = p.newOIDCToken(ctx)
+	if err != nil {
+		return nil, false, err
+	}
 
-		if p.OIDCTokenCache != nil {
-			err = p.OIDCTokenCache.Set(p.StartURL, token)
-			if err != nil {
-				return nil, err
-			}
+	if p.OIDCTokenCache != nil {
+		err = p.OIDCTokenCache.Set(p.StartURL, token)
+		if err != nil {
+			return nil, false, err
 		}
 	}
-	return token, err
+	return token, false, err
 }
 
-func (p *SSORoleCredentialsProvider) newOIDCToken() (*ssooidc.CreateTokenOutput, error) {
-	clientCreds, err := p.OIDCClient.RegisterClient(context.TODO(), &ssooidc.RegisterClientInput{
+func (p *SSORoleCredentialsProvider) newOIDCToken(ctx context.Context) (*ssooidc.CreateTokenOutput, error) {
+	clientCreds, err := p.OIDCClient.RegisterClient(ctx, &ssooidc.RegisterClientInput{
 		ClientName: aws.String("aws-vault"),
 		ClientType: aws.String("public"),
 	})
@@ -121,7 +146,7 @@ func (p *SSORoleCredentialsProvider) newOIDCToken() (*ssooidc.CreateTokenOutput,
 	}
 	log.Printf("Created new OIDC client (expires at: %s)", time.Unix(clientCreds.ClientSecretExpiresAt, 0))
 
-	deviceCreds, err := p.OIDCClient.StartDeviceAuthorization(context.TODO(), &ssooidc.StartDeviceAuthorizationInput{
+	deviceCreds, err := p.OIDCClient.StartDeviceAuthorization(ctx, &ssooidc.StartDeviceAuthorizationInput{
 		ClientId:     clientCreds.ClientId,
 		ClientSecret: clientCreds.ClientSecret,
 		StartUrl:     aws.String(p.StartURL),
@@ -151,7 +176,7 @@ func (p *SSORoleCredentialsProvider) newOIDCToken() (*ssooidc.CreateTokenOutput,
 	}
 
 	for {
-		t, err := p.OIDCClient.CreateToken(context.TODO(), &ssooidc.CreateTokenInput{
+		t, err := p.OIDCClient.CreateToken(ctx, &ssooidc.CreateTokenInput{
 			ClientId:     clientCreds.ClientId,
 			ClientSecret: clientCreds.ClientSecret,
 			DeviceCode:   deviceCreds.DeviceCode,

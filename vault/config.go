@@ -23,9 +23,6 @@ const (
 	roleChainingMaximumDuration = 1 * time.Hour
 )
 
-// UseSession will disable the use of GetSessionToken when set to false
-var UseSession = true
-
 func init() {
 	ini.PrettyFormat = false
 }
@@ -135,8 +132,8 @@ type ProfileSection struct {
 	RoleSessionName         string `ini:"role_session_name,omitempty"`
 	DurationSeconds         uint   `ini:"duration_seconds,omitempty"`
 	SourceProfile           string `ini:"source_profile,omitempty"`
-	ParentProfile           string `ini:"parent_profile,omitempty"` // deprecated
 	IncludeProfile          string `ini:"include_profile,omitempty"`
+	SSOSession              string `ini:"sso_session,omitempty"`
 	SSOStartURL             string `ini:"sso_start_url,omitempty"`
 	SSORegion               string `ini:"sso_region,omitempty"`
 	SSOAccountID            string `ini:"sso_account_id,omitempty"`
@@ -147,6 +144,16 @@ type ProfileSection struct {
 	SessionTags             string `ini:"session_tags,omitempty"`
 	TransitiveSessionTags   string `ini:"transitive_session_tags,omitempty"`
 	SourceIdentity          string `ini:"source_identity,omitempty"`
+	CredentialProcess       string `ini:"credential_process,omitempty"`
+	MfaProcess              string `ini:"mfa_process,omitempty"`
+}
+
+// SSOSessionSection is a [sso-session] section of the config file
+type SSOSessionSection struct {
+	Name                  string `ini:"-"`
+	SSOStartURL           string `ini:"sso_start_url,omitempty"`
+	SSORegion             string `ini:"sso_region,omitempty"`
+	SSORegistrationScopes string `ini:"sso_registration_scopes,omitempty"`
 }
 
 func (s ProfileSection) IsEmpty() bool {
@@ -156,26 +163,28 @@ func (s ProfileSection) IsEmpty() bool {
 
 // ProfileSections returns all the profile sections in the config
 func (c *ConfigFile) ProfileSections() []ProfileSection {
-	var result []ProfileSection
+	result := []ProfileSection{}
 
 	if c.iniFile == nil {
 		return result
 	}
-
 	for _, section := range c.iniFile.SectionStrings() {
-		if section != defaultSectionName && !strings.HasPrefix(section, "profile ") {
+		if section == defaultSectionName || strings.HasPrefix(section, "profile ") {
+			profile, _ := c.ProfileSection(strings.TrimPrefix(section, "profile "))
+
+			// ignore the default profile if it's empty
+			if section == defaultSectionName && profile.IsEmpty() {
+				continue
+			}
+
+			result = append(result, profile)
+		} else if strings.HasPrefix(section, "sso-session ") {
+			// Not a profile
+			continue
+		} else {
 			log.Printf("Unrecognised ini file section: %s", section)
 			continue
 		}
-
-		profile, _ := c.ProfileSection(strings.TrimPrefix(section, "profile "))
-
-		// ignore the default profile if it's empty
-		if section == defaultSectionName && profile.IsEmpty() {
-			continue
-		}
-
-		result = append(result, profile)
 	}
 
 	return result
@@ -205,6 +214,26 @@ func (c *ConfigFile) ProfileSection(name string) (ProfileSection, bool) {
 	return profile, true
 }
 
+// SSOSessionSection returns the [sso-session] section with the matching name. If there isn't any,
+// an empty sso-session with the provided name is returned, along with false.
+func (c *ConfigFile) SSOSessionSection(name string) (SSOSessionSection, bool) {
+	ssoSession := SSOSessionSection{
+		Name: name,
+	}
+	if c.iniFile == nil {
+		return ssoSession, false
+	}
+	sectionName := "sso-session " + name
+	section, err := c.iniFile.GetSection(sectionName)
+	if err != nil {
+		return ssoSession, false
+	}
+	if err = section.MapTo(&ssoSession); err != nil {
+		panic(err)
+	}
+	return ssoSession, true
+}
+
 func (c *ConfigFile) Save() error {
 	return c.iniFile.SaveTo(c.Path)
 }
@@ -231,7 +260,7 @@ func (c *ConfigFile) Add(profile ProfileSection) error {
 
 // ProfileNames returns a slice of profile names from the AWS config
 func (c *ConfigFile) ProfileNames() []string {
-	var profileNames []string
+	profileNames := []string{}
 	for _, profile := range c.ProfileSections() {
 		profileNames = append(profileNames, profile.Name)
 	}
@@ -240,10 +269,19 @@ func (c *ConfigFile) ProfileNames() []string {
 
 // ConfigLoader loads config from configfile and environment variables
 type ConfigLoader struct {
-	BaseConfig      Config
-	File            *ConfigFile
-	ActiveProfile   string
+	BaseConfig    ProfileConfig
+	File          *ConfigFile
+	ActiveProfile string
+
 	visitedProfiles []string
+}
+
+func NewConfigLoader(baseConfig ProfileConfig, file *ConfigFile, activeProfile string) *ConfigLoader {
+	return &ConfigLoader{
+		BaseConfig:    baseConfig,
+		File:          file,
+		ActiveProfile: activeProfile,
+	}
 }
 
 func (cl *ConfigLoader) visitProfile(name string) bool {
@@ -260,7 +298,7 @@ func (cl *ConfigLoader) resetLoopDetection() {
 	cl.visitedProfiles = []string{}
 }
 
-func (cl *ConfigLoader) populateFromDefaults(config *Config) {
+func (cl *ConfigLoader) populateFromDefaults(config *ProfileConfig) {
 	if config.AssumeRoleDuration == 0 {
 		config.AssumeRoleDuration = DefaultSessionDuration
 	}
@@ -275,7 +313,7 @@ func (cl *ConfigLoader) populateFromDefaults(config *Config) {
 	}
 }
 
-func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName string) error {
+func (cl *ConfigLoader) populateFromConfigFile(config *ProfileConfig, profileName string) error {
 	if !cl.visitProfile(profileName) {
 		return fmt.Errorf("Loop detected in config file for profile '%s'", profileName)
 	}
@@ -307,6 +345,21 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 	if config.SourceProfileName == "" {
 		config.SourceProfileName = psection.SourceProfile
 	}
+	if config.SSOSession == "" {
+		config.SSOSession = psection.SSOSession
+		if psection.SSOSession != "" {
+			// Populate profile with values from [sso-session].
+			ssoSection, ok := cl.File.SSOSessionSection(psection.SSOSession)
+			if ok {
+				config.SSOStartURL = ssoSection.SSOStartURL
+				config.SSORegion = ssoSection.SSORegion
+				config.SSORegistrationScopes = ssoSection.SSORegistrationScopes
+			} else {
+				// ignore missing profiles
+				log.Printf("[sso-session] '%s' missing in config file", psection.SSOSession)
+			}
+		}
+	}
 	if config.SSOStartURL == "" {
 		config.SSOStartURL = psection.SSOStartURL
 	}
@@ -331,6 +384,12 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 	if config.SourceIdentity == "" {
 		config.SourceIdentity = psection.SourceIdentity
 	}
+	if config.CredentialProcess == "" {
+		config.CredentialProcess = psection.CredentialProcess
+	}
+	if config.MfaProcess == "" {
+		config.MfaProcess = psection.MfaProcess
+	}
 	if sessionTags := psection.SessionTags; sessionTags != "" && config.SessionTags == nil {
 		err := config.SetSessionTags(sessionTags)
 		if err != nil {
@@ -341,17 +400,8 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 		config.SetTransitiveSessionTags(transitiveSessionTags)
 	}
 
-	if psection.ParentProfile != "" {
-		fmt.Fprint(os.Stderr, "Warning: parent_profile is deprecated, please use include_profile instead in your AWS config\n")
-	}
-
 	if psection.IncludeProfile != "" {
 		err := cl.populateFromConfigFile(config, psection.IncludeProfile)
-		if err != nil {
-			return err
-		}
-	} else if psection.ParentProfile != "" {
-		err := cl.populateFromConfigFile(config, psection.ParentProfile)
 		if err != nil {
 			return err
 		}
@@ -370,7 +420,7 @@ func (cl *ConfigLoader) populateFromConfigFile(config *Config, profileName strin
 	return nil
 }
 
-func (cl *ConfigLoader) populateFromEnv(profile *Config) {
+func (cl *ConfigLoader) populateFromEnv(profile *ProfileConfig) {
 	if region := os.Getenv("AWS_REGION"); region != "" && profile.Region == "" {
 		log.Printf("Using region %q from AWS_REGION", region)
 		profile.Region = region
@@ -452,9 +502,9 @@ func (cl *ConfigLoader) populateFromEnv(profile *Config) {
 	}
 }
 
-func (cl *ConfigLoader) hydrateSourceConfig(config *Config) error {
+func (cl *ConfigLoader) hydrateSourceConfig(config *ProfileConfig) error {
 	if config.SourceProfileName != "" {
-		sc, err := cl.LoadFromProfile(config.SourceProfileName)
+		sc, err := cl.GetProfileConfig(config.SourceProfileName)
 		if err != nil {
 			return err
 		}
@@ -464,8 +514,8 @@ func (cl *ConfigLoader) hydrateSourceConfig(config *Config) error {
 	return nil
 }
 
-// LoadFromProfile loads the profile from the config file and environment variables into config
-func (cl *ConfigLoader) LoadFromProfile(profileName string) (*Config, error) {
+// GetProfileConfig loads the profile from the config file and environment variables into config
+func (cl *ConfigLoader) GetProfileConfig(profileName string) (*ProfileConfig, error) {
 	config := cl.BaseConfig
 	config.ProfileName = profileName
 	cl.populateFromEnv(&config)
@@ -486,8 +536,8 @@ func (cl *ConfigLoader) LoadFromProfile(profileName string) (*Config, error) {
 	return &config, nil
 }
 
-// Config is a collection of configuration options for creating temporary credentials
-type Config struct {
+// ProfileConfig is a collection of configuration options for creating temporary credentials
+type ProfileConfig struct {
 	// ProfileName specifies the name of the profile config
 	ProfileName string
 
@@ -495,10 +545,10 @@ type Config struct {
 	SourceProfileName string
 
 	// SourceProfile is the profile where credentials come from
-	SourceProfile *Config
+	SourceProfile *ProfileConfig
 
-	// ChainedFromProfile is the profile that used this profile as it's source profile
-	ChainedFromProfile *Config
+	// ChainedFromProfile is the profile that used this profile as its source profile
+	ChainedFromProfile *ProfileConfig
 
 	// Region is the AWS region
 	Region string
@@ -510,6 +560,9 @@ type Config struct {
 	MfaSerial       string
 	MfaToken        string
 	MfaPromptMethod string
+
+	// MfaProcess specifies external command to run to get an MFA token
+	MfaProcess string
 
 	// AssumeRole config
 	RoleARN         string
@@ -532,16 +585,22 @@ type Config struct {
 	// GetFederationTokenDuration specifies the wanted duration for credentials generated with GetFederationToken
 	GetFederationTokenDuration time.Duration
 
-	// SSOStartURL specifies the URL for the AWS SSO user portal.
+	// SSOSession specifies the [sso-session] section name.
+	SSOSession string
+
+	// SSOStartURL specifies the URL for the AWS IAM Identity Center user portal, legacy option.
 	SSOStartURL string
 
-	// SSORegion specifies the region for the AWS SSO user portal.
+	// SSORegion specifies the region for the AWS IAM Identity Center user portal, legacy option.
 	SSORegion string
+
+	// SSORegistrationScopes specifies registration scopes for the AWS IAM Identity Center user portal.
+	SSORegistrationScopes string
 
 	// SSOAccountID specifies the AWS account ID for the profile.
 	SSOAccountID string
 
-	// SSORoleName specifies the AWS SSO Role name to target.
+	// SSORoleName specifies the AWS IAM Role name to target.
 	SSORoleName string
 
 	// SSOUseStdout specifies that the system browser should not be automatically opened
@@ -555,10 +614,13 @@ type Config struct {
 
 	// SourceIdentity specifies assumed role Source Identity
 	SourceIdentity string
+
+	// CredentialProcess specifies external command to run to get an AWS credential
+	CredentialProcess string
 }
 
 // SetSessionTags parses a comma separated key=vaue string and sets Config.SessionTags map
-func (c *Config) SetSessionTags(s string) error {
+func (c *ProfileConfig) SetSessionTags(s string) error {
 	c.SessionTags = make(map[string]string)
 	for _, tag := range strings.Split(s, ",") {
 		kvPair := strings.SplitN(tag, "=", 2)
@@ -572,7 +634,7 @@ func (c *Config) SetSessionTags(s string) error {
 }
 
 // SetTransitiveSessionTags parses a comma separated string and sets Config.TransitiveSessionTags
-func (c *Config) SetTransitiveSessionTags(s string) {
+func (c *ProfileConfig) SetTransitiveSessionTags(s string) {
 	for _, tag := range strings.Split(s, ",") {
 		if tag = strings.TrimSpace(tag); tag != "" {
 			c.TransitiveSessionTags = append(c.TransitiveSessionTags, tag)
@@ -580,69 +642,41 @@ func (c *Config) SetTransitiveSessionTags(s string) {
 	}
 }
 
-func (c *Config) IsChained() bool {
+func (c *ProfileConfig) IsChained() bool {
 	return c.ChainedFromProfile != nil
 }
 
-func (c *Config) HasSourceProfile() bool {
+func (c *ProfileConfig) HasSourceProfile() bool {
 	return c.SourceProfile != nil
 }
 
-func (c *Config) HasMfaSerial() bool {
+func (c *ProfileConfig) HasMfaSerial() bool {
 	return c.MfaSerial != ""
 }
 
-func (c *Config) HasRole() bool {
+func (c *ProfileConfig) HasRole() bool {
 	return c.RoleARN != ""
 }
 
-func (c *Config) HasSSOStartURL() bool {
+func (c *ProfileConfig) HasSSOSession() bool {
+	return c.SSOSession != ""
+}
+
+func (c *ProfileConfig) HasSSOStartURL() bool {
 	return c.SSOStartURL != ""
 }
 
-func (c *Config) HasWebIdentityTokenFile() bool {
-	return c.WebIdentityTokenFile != ""
+func (c *ProfileConfig) HasWebIdentity() bool {
+	return c.WebIdentityTokenFile != "" || c.WebIdentityTokenProcess != ""
 }
 
-func (c *Config) HasWebIdentityTokenProcess() bool {
-	return c.WebIdentityTokenProcess != ""
+func (c *ProfileConfig) HasCredentialProcess() bool {
+	return c.CredentialProcess != ""
 }
 
-// CanUseGetSessionToken determines if GetSessionToken should be used, and if not returns a reason
-func (c *Config) CanUseGetSessionToken() (bool, string) {
-	if !UseSession {
-		return false, "disabled"
-	}
-
-	if c.HasRole() {
-		if c.AssumeRoleDuration > roleChainingMaximumDuration {
-			return false, fmt.Sprintf("duration %s is greater than the AWS maximum %s for chaining MFA", c.AssumeRoleDuration, roleChainingMaximumDuration)
-		}
-	} else if c.IsChained() {
-		if !c.ChainedFromProfile.HasMfaSerial() {
-			return false, fmt.Sprintf("profile '%s' has no MFA serial defined", c.ChainedFromProfile.ProfileName)
-		}
-
-		if !c.HasMfaSerial() && c.ChainedFromProfile.HasMfaSerial() {
-			return false, fmt.Sprintf("profile '%s' has no MFA serial defined", c.ProfileName)
-		}
-
-		if c.ChainedFromProfile.MfaSerial != c.MfaSerial {
-			return false, fmt.Sprintf("MFA serial doesn't match profile '%s'", c.ChainedFromProfile.ProfileName)
-		}
-
-		if c.ChainedFromProfile.AssumeRoleDuration > roleChainingMaximumDuration {
-			return false, fmt.Sprintf("duration %s in profile '%s' is greater than the AWS maximum %s for chaining MFA", c.ChainedFromProfile.AssumeRoleDuration, c.ChainedFromProfile.ProfileName, roleChainingMaximumDuration)
-		}
-	}
-
-	return true, ""
-}
-
-func (c *Config) GetSessionTokenDuration() time.Duration {
+func (c *ProfileConfig) GetSessionTokenDuration() time.Duration {
 	if c.IsChained() {
 		return c.ChainedGetSessionTokenDuration
-	} else {
-		return c.NonChainedGetSessionTokenDuration
 	}
+	return c.NonChainedGetSessionTokenDuration
 }

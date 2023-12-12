@@ -5,10 +5,10 @@ import (
 	"log"
 	"os"
 
-	"github.com/99designs/aws-vault/v6/prompt"
-	"github.com/99designs/aws-vault/v6/vault"
+	"github.com/99designs/aws-vault/v7/prompt"
+	"github.com/99designs/aws-vault/v7/vault"
 	"github.com/99designs/keyring"
-	"github.com/alecthomas/kingpin"
+	"github.com/alecthomas/kingpin/v2"
 	"github.com/aws/aws-sdk-go-v2/aws"
 )
 
@@ -21,7 +21,7 @@ type AddCommandInput struct {
 func ConfigureAddCommand(app *kingpin.Application, a *AwsVault) {
 	input := AddCommandInput{}
 
-	cmd := app.Command("add", "Adds credentials to the secure keystore")
+	cmd := app.Command("add", "Add credentials to the secure keystore.")
 
 	cmd.Arg("profile", "Name of the profile").
 		Required().
@@ -50,7 +50,7 @@ func ConfigureAddCommand(app *kingpin.Application, a *AwsVault) {
 }
 
 func AddCommand(input AddCommandInput, keyring keyring.Keyring, awsConfigFile *vault.ConfigFile) error {
-	var accessKeyId, secretKey, sessionToken string
+	var accessKeyID, secretKey, sessionToken string
 
 	p, _ := awsConfigFile.ProfileSection(input.ProfileName)
 	if p.SourceProfile != "" {
@@ -59,7 +59,7 @@ func AddCommand(input AddCommandInput, keyring keyring.Keyring, awsConfigFile *v
 	}
 
 	if input.FromEnv {
-		if accessKeyId = os.Getenv("AWS_ACCESS_KEY_ID"); accessKeyId == "" {
+		if accessKeyID = os.Getenv("AWS_ACCESS_KEY_ID"); accessKeyID == "" {
 			return fmt.Errorf("Missing value for AWS_ACCESS_KEY_ID")
 		}
 		if secretKey = os.Getenv("AWS_SECRET_ACCESS_KEY"); secretKey == "" {
@@ -70,7 +70,7 @@ func AddCommand(input AddCommandInput, keyring keyring.Keyring, awsConfigFile *v
 		}
 	} else {
 		var err error
-		if accessKeyId, err = prompt.TerminalPrompt("Enter Access Key ID: "); err != nil {
+		if accessKeyID, err = prompt.TerminalPrompt("Enter Access Key ID: "); err != nil {
 			return err
 		}
 		if secretKey, err = prompt.TerminalSecretPrompt("Enter Secret Access Key: "); err != nil {
@@ -78,7 +78,7 @@ func AddCommand(input AddCommandInput, keyring keyring.Keyring, awsConfigFile *v
 		}
 	}
 
-	creds := aws.Credentials{AccessKeyID: accessKeyId, SecretAccessKey: secretKey, SessionToken: sessionToken}
+	creds := aws.Credentials{AccessKeyID: accessKeyID, SecretAccessKey: secretKey, SessionToken: sessionToken}
 
 	ckr := &vault.CredentialKeyring{Keyring: keyring}
 	if err := ckr.Set(input.ProfileName, creds); err != nil {

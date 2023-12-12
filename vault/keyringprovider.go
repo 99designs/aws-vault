@@ -13,7 +13,7 @@ type KeyringProvider struct {
 	CredentialsName string
 }
 
-func (p *KeyringProvider) Retrieve(ctx context.Context) (aws.Credentials, error) {
+func (p *KeyringProvider) Retrieve(_ context.Context) (aws.Credentials, error) {
 	log.Printf("Looking up keyring for '%s'", p.CredentialsName)
 	return p.Keyring.Get(p.CredentialsName)
 }

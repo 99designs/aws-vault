@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/99designs/aws-vault/v6/cli"
-	"github.com/alecthomas/kingpin"
+	"github.com/99designs/aws-vault/v7/cli"
+	"github.com/alecthomas/kingpin/v2"
 )
 
 // Version is provided at compile time
@@ -16,13 +16,14 @@ func main() {
 
 	a := cli.ConfigureGlobals(app)
 	cli.ConfigureAddCommand(app, a)
+	cli.ConfigureRemoveCommand(app, a)
 	cli.ConfigureListCommand(app, a)
 	cli.ConfigureRotateCommand(app, a)
 	cli.ConfigureExecCommand(app, a)
+	cli.ConfigureExportCommand(app, a)
 	cli.ConfigureClearCommand(app, a)
-	cli.ConfigureRemoveCommand(app, a)
 	cli.ConfigureLoginCommand(app, a)
-	cli.ConfigureProxyCommand(app, a)
+	cli.ConfigureProxyCommand(app)
 
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 }

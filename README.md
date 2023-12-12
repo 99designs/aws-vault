@@ -19,9 +19,10 @@ You can install AWS Vault:
 - on Windows with [Scoop](https://scoop.sh/): `scoop install aws-vault`
 - on Linux with [Homebrew on Linux](https://formulae.brew.sh/formula/aws-vault): `brew install aws-vault`
 - on [Arch Linux](https://www.archlinux.org/packages/community/x86_64/aws-vault/): `pacman -S aws-vault`
+- on [Gentoo Linux](https://github.com/gentoo/guru/tree/master/app-admin/aws-vault): `emerge --ask app-admin/aws-vault` ([enable Guru first](https://wiki.gentoo.org/wiki/Project:GURU/Information_for_End_Users))
 - on [FreeBSD](https://www.freshports.org/security/aws-vault/): `pkg install aws-vault`
 - on [OpenSUSE](https://software.opensuse.org/package/aws-vault): enable devel:languages:go repo then `zypper install aws-vault`
-- with [Nix](https://nixos.org/nixos/packages.html?attr=aws-vault): `nix-env -i aws-vault`
+- with [Nix](https://search.nixos.org/packages?show=aws-vault&query=aws-vault): `nix-env -i aws-vault`
 - with [asdf-vm](https://github.com/karancode/asdf-aws-vault): `asdf plugin-add aws-vault https://github.com/karancode/asdf-aws-vault.git && asdf install aws-vault <version>`
 
 ## Documentation
@@ -62,6 +63,13 @@ $ aws-vault list
 Profile                  Credentials              Sessions
 =======                  ===========              ========
 jonsmith                 jonsmith                 -
+
+# Start a subshell with temporary credentials
+$ aws-vault exec jonsmith
+Starting subshell /bin/zsh, use `exit` to exit the subshell
+$ aws s3 ls
+bucket_1
+bucket_2
 ```
 
 ## How it works
@@ -79,10 +87,17 @@ AWS Vault then exposes the temporary credentials to the sub-process in one of tw
    AWS_ACCESS_KEY_ID=%%%
    AWS_SECRET_ACCESS_KEY=%%%
    AWS_SESSION_TOKEN=%%%
-   AWS_SECURITY_TOKEN=%%%
-   AWS_SESSION_EXPIRATION=2020-04-16T11:16:27Z
+   AWS_CREDENTIAL_EXPIRATION=2020-04-16T11:16:27Z
    ```
-2. **Local [EC2 Instance Metadata server](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-metadata.html)** is started. This approach has the advantage that anything that uses Amazon's SDKs will automatically refresh credentials as needed, so session times can be as short as possible. The downside is that only one can run per host and because it binds to `169.254.169.254:80`, your sudo password is required.
+2. **Local metadata server** is started. This approach has the advantage that anything that uses Amazon's SDKs will automatically refresh credentials as needed, so session times can be as short as possible.
+   ```shell
+   $ aws-vault exec --server jonsmith -- env | grep AWS
+   AWS_VAULT=jonsmith
+   AWS_DEFAULT_REGION=us-east-1
+   AWS_REGION=us-east-1
+   AWS_CONTAINER_CREDENTIALS_FULL_URI=%%%
+   AWS_CONTAINER_AUTHORIZATION_TOKEN=%%%
+   ```
 
 The default is to use environment variables, but you can opt-in to the local instance metadata server with the `--server` flag on the `exec` command.
 

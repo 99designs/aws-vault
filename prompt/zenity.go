@@ -1,9 +1,8 @@
 package prompt
 
 import (
+	"os/exec"
 	"strings"
-
-	exec "golang.org/x/sys/execabs"
 )
 
 func ZenityMfaPrompt(mfaSerial string) (string, error) {
@@ -18,5 +17,7 @@ func ZenityMfaPrompt(mfaSerial string) (string, error) {
 }
 
 func init() {
-	Methods["zenity"] = ZenityMfaPrompt
+	if _, err := exec.LookPath("zenity"); err == nil {
+		Methods["zenity"] = ZenityMfaPrompt
+	}
 }

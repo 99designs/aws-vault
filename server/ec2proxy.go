@@ -45,7 +45,7 @@ func StartProxy() error {
 	return http.Serve(l, handler)
 }
 
-func isProxyRunning() bool {
+func IsProxyRunning() bool {
 	_, err := net.DialTimeout("tcp", ec2MetadataEndpointAddr, time.Millisecond*10)
 	return err == nil
 }
@@ -60,7 +60,7 @@ func Shutdown() {
 
 // StopProxy stops the http proxy server on the standard EC2 Instance Metadata endpoint
 func StopProxy() {
-	_, _ = http.Get(fmt.Sprintf("http://%s/stop", ec2MetadataEndpointAddr))
+	_, _ = http.Get(fmt.Sprintf("http://%s/stop", ec2MetadataEndpointAddr)) //nolint
 }
 
 func awsVaultExecutable() string {

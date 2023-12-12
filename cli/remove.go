@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/99designs/aws-vault/v6/prompt"
-	"github.com/99designs/aws-vault/v6/vault"
+	"github.com/99designs/aws-vault/v7/prompt"
+	"github.com/99designs/aws-vault/v7/vault"
 	"github.com/99designs/keyring"
-	"github.com/alecthomas/kingpin"
+	"github.com/alecthomas/kingpin/v2"
 )
 
 type RemoveCommandInput struct {
@@ -19,7 +19,7 @@ type RemoveCommandInput struct {
 func ConfigureRemoveCommand(app *kingpin.Application, a *AwsVault) {
 	input := RemoveCommandInput{}
 
-	cmd := app.Command("remove", "Removes credentials from the secure keystore")
+	cmd := app.Command("remove", "Remove credentials from the secure keystore.")
 	cmd.Alias("rm")
 
 	cmd.Arg("profile", "Name of the profile").

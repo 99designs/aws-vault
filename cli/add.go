@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/99designs/aws-vault/v7/prompt"
 	"github.com/99designs/aws-vault/v7/vault"
@@ -50,7 +51,8 @@ func ConfigureAddCommand(app *kingpin.Application, a *AwsVault) {
 }
 
 func AddCommand(input AddCommandInput, keyring keyring.Keyring, awsConfigFile *vault.ConfigFile) error {
-	var accessKeyId, secretKey, sessionToken string
+	var accessKeyId, secretKey, sessionToken, expiration string
+	var expires time.Time
 
 	p, _ := awsConfigFile.ProfileSection(input.ProfileName)
 	if p.SourceProfile != "" {
@@ -68,6 +70,15 @@ func AddCommand(input AddCommandInput, keyring keyring.Keyring, awsConfigFile *v
 		if sessionToken = os.Getenv("AWS_SESSION_TOKEN"); sessionToken == "" {
 			return fmt.Errorf("Missing value for AWS_SESSION_TOKEN")
 		}
+		if expiration = os.Getenv("EXPIRATION"); expiration == "" {
+			return fmt.Errorf("Missing value for EXPIRATION")
+		}
+
+		var err error
+		expires, err = time.Parse(time.RFC3339, expiration)
+		if err != nil {
+			return fmt.Errorf("Error parsing EXPIRATION: %w", err)
+		}
 	} else {
 		var err error
 		if accessKeyId, err = prompt.TerminalPrompt("Enter Access Key ID: "); err != nil {
@@ -78,7 +89,7 @@ func AddCommand(input AddCommandInput, keyring keyring.Keyring, awsConfigFile *v
 		}
 	}
 
-	creds := aws.Credentials{AccessKeyID: accessKeyId, SecretAccessKey: secretKey, SessionToken: sessionToken}
+	creds := aws.Credentials{AccessKeyID: accessKeyId, SecretAccessKey: secretKey, SessionToken: sessionToken, Expires: expires}
 
 	ckr := &vault.CredentialKeyring{Keyring: keyring}
 	if err := ckr.Set(input.ProfileName, creds); err != nil {

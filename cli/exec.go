@@ -43,9 +43,6 @@ func (input ExecCommandInput) validate() error {
 	if input.StartEc2Server && input.JSONDeprecated {
 		return fmt.Errorf("Can't use --ec2-server with --json")
 	}
-	if input.StartEc2Server && input.NoSession {
-		return fmt.Errorf("Can't use --ec2-server with --no-session")
-	}
 	if input.StartEcsServer && input.JSONDeprecated {
 		return fmt.Errorf("Can't use --ecs-server with --json")
 	}

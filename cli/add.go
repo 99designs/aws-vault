@@ -50,7 +50,7 @@ func ConfigureAddCommand(app *kingpin.Application, a *AwsVault) {
 }
 
 func AddCommand(input AddCommandInput, keyring keyring.Keyring, awsConfigFile *vault.ConfigFile) error {
-	var accessKeyID, secretKey string
+	var accessKeyID, secretKey, mfaSerial string
 
 	p, _ := awsConfigFile.ProfileSection(input.ProfileName)
 	if p.SourceProfile != "" {
@@ -73,6 +73,9 @@ func AddCommand(input AddCommandInput, keyring keyring.Keyring, awsConfigFile *v
 		if secretKey, err = prompt.TerminalSecretPrompt("Enter Secret Access Key: "); err != nil {
 			return err
 		}
+		if mfaSerial, err = prompt.TerminalPrompt("Enter MFA Device ARN (If MFA is not enabled, leave this blank): "); err != nil {
+			return err
+		}
 	}
 
 	creds := aws.Credentials{AccessKeyID: accessKeyID, SecretAccessKey: secretKey}
@@ -92,7 +95,8 @@ func AddCommand(input AddCommandInput, keyring keyring.Keyring, awsConfigFile *v
 	if _, hasProfile := awsConfigFile.ProfileSection(input.ProfileName); !hasProfile {
 		if input.AddConfig {
 			newProfileSection := vault.ProfileSection{
-				Name: input.ProfileName,
+				Name:      input.ProfileName,
+				MfaSerial: mfaSerial,
 			}
 			log.Printf("Adding profile %s to config at %s", input.ProfileName, awsConfigFile.Path)
 			if err := awsConfigFile.Add(newProfileSection); err != nil {

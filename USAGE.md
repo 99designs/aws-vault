@@ -572,7 +572,7 @@ If your organization uses [AWS IAM Identity Center](https://aws.amazon.com/iam/i
 * `sso_start_url` The URL that points to the organization's AWS IAM Identity Center user portal.
 * `sso_region` The AWS Region that contains the AWS IAM Identity Center user portal host. This is separate from, and can be a different region than the default CLI region parameter.
 * `sso_account_id` The AWS account ID that contains the IAM role that you want to use with this profile.
-* `sso_role_name` The name of the IAM role that defines the user's permissions when using this profile.
+* `sso_role_name` The name of the Identity Center Permission Group that defines the user's permissions when using this profile.
 
 Here is an example configuration using AWS IAM Identity Center for single sign on.
 

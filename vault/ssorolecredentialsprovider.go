@@ -35,10 +35,59 @@ type SSORoleCredentialsProvider struct {
 	AccountID      string
 	RoleName       string
 	UseStdout      bool
+	ssoTokenLock   SSOTokenLock
+	ssoLockWait    time.Duration
+	ssoLockLog     time.Duration
+	ssoNow         func() time.Time
+	ssoSleep       func(context.Context, time.Duration) error
+	ssoLogf        func(string, ...any)
+	newOIDCTokenFn func(context.Context) (*ssooidc.CreateTokenOutput, error)
 }
 
 func millisecondsTimeValue(v int64) time.Time {
 	return time.Unix(0, v*int64(time.Millisecond))
+}
+
+const (
+	defaultSSOLockWaitDelay = 100 * time.Millisecond
+	defaultSSOLockLogEvery  = 15 * time.Second
+	defaultSSOLockWarnAfter = 5 * time.Second
+)
+
+func defaultSSOSleep(ctx context.Context, d time.Duration) error {
+	timer := time.NewTimer(d)
+	defer timer.Stop()
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-timer.C:
+		return nil
+	}
+}
+
+func (p *SSORoleCredentialsProvider) ensureSSODependencies() {
+	if p.ssoTokenLock == nil && !p.UseStdout {
+		p.ssoTokenLock = NewDefaultSSOTokenLock()
+	}
+	if p.ssoLockWait == 0 {
+		p.ssoLockWait = defaultSSOLockWaitDelay
+	}
+	if p.ssoLockLog == 0 {
+		p.ssoLockLog = defaultSSOLockLogEvery
+	}
+	if p.ssoNow == nil {
+		p.ssoNow = time.Now
+	}
+	if p.ssoSleep == nil {
+		p.ssoSleep = defaultSSOSleep
+	}
+	if p.ssoLogf == nil {
+		p.ssoLogf = log.Printf
+	}
+	if p.newOIDCTokenFn == nil {
+		p.newOIDCTokenFn = p.newOIDCToken
+	}
 }
 
 // Retrieve generates a new set of temporary credentials using SSO GetRoleCredentials.
@@ -113,27 +162,122 @@ func (p *SSORoleCredentialsProvider) getRoleCredentialsAsStsCredemtials(ctx cont
 }
 
 func (p *SSORoleCredentialsProvider) getOIDCToken(ctx context.Context) (token *ssooidc.CreateTokenOutput, cached bool, err error) {
-	if p.OIDCTokenCache != nil {
-		token, err = p.OIDCTokenCache.Get(p.StartURL)
-		if err != nil && err != keyring.ErrKeyNotFound {
-			return nil, false, err
-		}
-		if token != nil {
-			return token, true, nil
-		}
+	p.ensureSSODependencies()
+
+	token, cached, err = p.getCachedOIDCToken()
+	if err != nil || token != nil {
+		return token, cached, err
 	}
-	token, err = p.newOIDCToken(ctx)
+
+	if p.UseStdout {
+		return p.createAndCacheOIDCToken(ctx)
+	}
+
+	return p.getOIDCTokenWithLock(ctx)
+}
+
+func (p *SSORoleCredentialsProvider) getCachedOIDCToken() (token *ssooidc.CreateTokenOutput, cached bool, err error) {
+	if p.OIDCTokenCache == nil {
+		return nil, false, nil
+	}
+
+	token, err = p.OIDCTokenCache.Get(p.StartURL)
+	if err != nil && err != keyring.ErrKeyNotFound {
+		return nil, false, err
+	}
+	if token != nil {
+		return token, true, nil
+	}
+
+	return nil, false, nil
+}
+
+func (p *SSORoleCredentialsProvider) createAndCacheOIDCToken(ctx context.Context) (token *ssooidc.CreateTokenOutput, cached bool, err error) {
+	token, err = p.newOIDCTokenFn(ctx)
 	if err != nil {
 		return nil, false, err
 	}
 
 	if p.OIDCTokenCache != nil {
-		err = p.OIDCTokenCache.Set(p.StartURL, token)
-		if err != nil {
+		if err = p.OIDCTokenCache.Set(p.StartURL, token); err != nil {
 			return nil, false, err
 		}
 	}
-	return token, false, err
+
+	return token, false, nil
+}
+
+func (p *SSORoleCredentialsProvider) getOIDCTokenWithLock(ctx context.Context) (token *ssooidc.CreateTokenOutput, cached bool, err error) {
+	var lastLog time.Time
+	var waitStart time.Time
+	warned := false
+
+	for {
+		token, cached, err = p.getCachedOIDCToken()
+		if err != nil || token != nil {
+			return token, cached, err
+		}
+		if ctx.Err() != nil {
+			return nil, false, ctx.Err()
+		}
+
+		locked, err := p.ssoTokenLock.TryLock()
+		if err != nil {
+			return nil, false, err
+		}
+		if locked {
+			token, cached, err = p.getCachedOIDCToken()
+			if err != nil || token != nil {
+				unlockErr := p.ssoTokenLock.Unlock()
+				if unlockErr != nil {
+					return nil, false, unlockErr
+				}
+				return token, cached, err
+			}
+
+			token, err = p.newOIDCTokenFn(ctx)
+			if err != nil {
+				unlockErr := p.ssoTokenLock.Unlock()
+				if unlockErr != nil {
+					return nil, false, unlockErr
+				}
+				return nil, false, err
+			}
+
+			if p.OIDCTokenCache != nil {
+				if err = p.OIDCTokenCache.Set(p.StartURL, token); err != nil {
+					unlockErr := p.ssoTokenLock.Unlock()
+					if unlockErr != nil {
+						return nil, false, unlockErr
+					}
+					return nil, false, err
+				}
+			}
+
+			if err = p.ssoTokenLock.Unlock(); err != nil {
+				return nil, false, err
+			}
+
+			return token, false, nil
+		}
+
+		now := p.ssoNow()
+		if waitStart.IsZero() {
+			waitStart = now
+		}
+		if !warned && now.Sub(waitStart) >= defaultSSOLockWarnAfter {
+			fmt.Fprintf(os.Stderr, "Waiting for SSO lock at %s\n", p.ssoTokenLock.Path())
+			warned = true
+		}
+		if lastLog.IsZero() || now.Sub(lastLog) >= p.ssoLockLog {
+			p.ssoLogf("Waiting for SSO lock at %s", p.ssoTokenLock.Path())
+			lastLog = now
+		}
+
+		if err = p.ssoSleep(ctx, p.ssoLockWait); err != nil {
+			return nil, false, err
+		}
+	}
 }
 
 func (p *SSORoleCredentialsProvider) newOIDCToken(ctx context.Context) (*ssooidc.CreateTokenOutput, error) {

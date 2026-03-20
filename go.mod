@@ -15,6 +15,7 @@ require (
 	github.com/byteness/keyring v1.9.0
 	github.com/charmbracelet/huh v1.0.0
 	github.com/charmbracelet/lipgloss v1.1.0
+	github.com/gofrs/flock v0.8.1
 	github.com/google/go-cmp v0.7.0
 	github.com/mattn/go-isatty v0.0.20
 	github.com/mattn/go-tty v0.0.7

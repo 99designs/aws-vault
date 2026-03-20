@@ -5,8 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -53,6 +56,13 @@ const (
 	defaultSSOLockWaitDelay = 100 * time.Millisecond
 	defaultSSOLockLogEvery  = 15 * time.Second
 	defaultSSOLockWarnAfter = 5 * time.Second
+	// ssoRetryTimeout is a pathological safety net: if GetRoleCredentials is still
+	// returning 429s after this duration, give up and surface the error to the user.
+	ssoRetryTimeout        = 5 * time.Minute
+	ssoRetryBase           = 200 * time.Millisecond
+	ssoRetryMax            = 5 * time.Second
+	ssoRetryAfterJitterMin = 1.1
+	ssoRetryAfterJitterMax = 1.3
 )
 
 func defaultSSOSleep(ctx context.Context, d time.Duration) error {
@@ -115,34 +125,67 @@ func (p *SSORoleCredentialsProvider) getRoleCredentials(ctx context.Context) (*s
 		return nil, err
 	}
 
-	resp, err := p.SSOClient.GetRoleCredentials(ctx, &sso.GetRoleCredentialsInput{
-		AccessToken: token.AccessToken,
-		AccountId:   aws.String(p.AccountID),
-		RoleName:    aws.String(p.RoleName),
-	})
-	if err != nil {
+	baseDelay, maxDelay := ssoRetryBase, ssoRetryMax
+	deadline := p.ssoNow().Add(ssoRetryTimeout)
+	attempt := 0
+	rateLimitCount := 0
+	var maxRetryAfterSeen time.Duration
+	for {
+		attempt++
+		resp, err := p.SSOClient.GetRoleCredentials(ctx, &sso.GetRoleCredentialsInput{
+			AccessToken: token.AccessToken,
+			AccountId:   aws.String(p.AccountID),
+			RoleName:    aws.String(p.RoleName),
+		})
+		if err == nil {
+			log.Printf("Got credentials %s for SSO role %s (account: %s), expires in %s", FormatKeyForDisplay(*resp.RoleCredentials.AccessKeyId), p.RoleName, p.AccountID, time.Until(millisecondsTimeValue(resp.RoleCredentials.Expiration)).String())
+			return resp.RoleCredentials, nil
+		}
+
 		if cached && p.OIDCTokenCache != nil {
 			var rspError *awshttp.ResponseError
-			if !errors.As(err, &rspError) {
-				return nil, err
-			}
-
-			// If the error is a 401, remove the cached oidc token and try
-			// again. This is a recursive call but it should only happen once
-			// due to the cache being cleared before retrying.
-			if rspError.HTTPStatusCode() == http.StatusUnauthorized {
-				err = p.OIDCTokenCache.Remove(p.StartURL)
+			if errors.As(err, &rspError) && rspError.HTTPStatusCode() == http.StatusUnauthorized {
+				// Cached token rejected: drop it and retry with a fresh access token.
+				// This should only happen once because the cache is cleared before retrying.
+				if err = p.OIDCTokenCache.Remove(p.StartURL); err != nil {
+					return nil, err
+				}
+				token, cached, err = p.getOIDCToken(ctx)
 				if err != nil {
 					return nil, err
 				}
-				return p.getRoleCredentials(ctx)
+				attempt = 0
+				continue
 			}
 		}
+
+		if isSSORateLimitError(err) {
+			rateLimitCount++
+			remaining := time.Until(deadline)
+			if 0 < remaining {
+				var delay time.Duration
+				if retryAfter, ok := retryAfterFromError(err); ok {
+					if maxRetryAfterSeen < retryAfter {
+						maxRetryAfterSeen = retryAfter
+					}
+					delay = jitterRetryAfter(retryAfter)
+				} else {
+					delay = jitteredBackoff(baseDelay, maxDelay, attempt)
+				}
+				if remaining < delay {
+					delay = remaining
+				}
+				log.Printf("SSO rate limited for role %s (account: %s); backing off %s, attempt %d (%d 429s, max retry-after %s)", p.RoleName, p.AccountID, delay, attempt, rateLimitCount, maxRetryAfterSeen)
+				if err = p.ssoSleep(ctx, delay); err != nil {
+					return nil, err
+				}
+				continue
+			}
+			return nil, fmt.Errorf("SSO rate limited for role %s (account: %s) persistently for %s (%d 429s, max retry-after %s); giving up — try again later: %w", p.RoleName, p.AccountID, ssoRetryTimeout, rateLimitCount, maxRetryAfterSeen, err)
+		}
+
 		return nil, err
 	}
-	log.Printf("Got credentials %s for SSO role %s (account: %s), expires in %s", FormatKeyForDisplay(*resp.RoleCredentials.AccessKeyId), p.RoleName, p.AccountID, time.Until(millisecondsTimeValue(resp.RoleCredentials.Expiration)).String())
-
-	return resp.RoleCredentials, nil
 }
 
 func (p *SSORoleCredentialsProvider) RetrieveStsCredentials(ctx context.Context) (*ststypes.Credentials, error) {
@@ -343,4 +386,83 @@ func (p *SSORoleCredentialsProvider) newOIDCToken(ctx context.Context) (*ssooidc
 		log.Printf("Created new OIDC access token for %s (expires in: %ds)", p.StartURL, t.ExpiresIn)
 		return t, nil
 	}
+}
+
+func retryAfterFromError(err error) (time.Duration, bool) {
+	var rspError *awshttp.ResponseError
+	if errors.As(err, &rspError) {
+		if rspError.Response != nil {
+			if d, ok := parseRetryAfter(rspError.Response.Header.Get("Retry-After")); ok {
+				return d, true
+			}
+		}
+	}
+	return 0, false
+}
+
+func parseRetryAfter(value string) (time.Duration, bool) {
+	trimmed := strings.TrimSpace(value)
+	if trimmed == "" {
+		return 0, false
+	}
+	if secs, err := strconv.Atoi(trimmed); err == nil {
+		if secs < 0 {
+			return 0, false
+		}
+		return time.Duration(secs) * time.Second, true
+	}
+	if t, err := http.ParseTime(trimmed); err == nil {
+		d := time.Until(t)
+		if d < 0 {
+			d = 0
+		}
+		return d, true
+	}
+	return 0, false
+}
+
+func isSSORateLimitError(err error) bool {
+	var tooMany *ssotypes.TooManyRequestsException
+	if errors.As(err, &tooMany) {
+		return true
+	}
+	var rspError *awshttp.ResponseError
+	if errors.As(err, &rspError) && rspError.HTTPStatusCode() == http.StatusTooManyRequests {
+		return true
+	}
+	return false
+}
+
+func jitterRetryAfter(base time.Duration) time.Duration {
+	if base <= 0 {
+		return 0
+	}
+	return jitterDelay(base)
+}
+
+func jitteredBackoff(base, max time.Duration, attempt int) time.Duration {
+	if attempt < 1 {
+		attempt = 1
+	}
+	capDelay := base << uint(attempt-1)
+	if capDelay > max {
+		capDelay = max
+	}
+	if capDelay < base {
+		capDelay = base
+	}
+	return jitterDelay(capDelay)
+}
+
+func jitterDelay(base time.Duration) time.Duration {
+	if base <= 0 {
+		return 0
+	}
+	min := ssoRetryAfterJitterMin
+	max := ssoRetryAfterJitterMax
+	if max < min {
+		max = min
+	}
+	factor := min + rand.Float64()*(max-min)
+	return time.Duration(float64(base) * factor)
 }

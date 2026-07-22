@@ -648,7 +648,7 @@ When executing a profile via `aws-vault exec` that has `credential_process` set,
 Yubikeys can be used with AWS Vault via Yubikey's OATH-TOTP support. TOTP is necessary because FIDO-U2F is unsupported on the AWS CLI and SDKs; even though it's supported on the AWS Console.
 
 ### Prerequisites
- 1. [A Yubikey that supports OATH-TOTP](https://support.yubico.com/support/solutions/articles/15000006419-using-your-yubikey-with-authenticator-codes)
+ 1. [A Yubikey that supports OATH-TOTP](https://web.archive.org/web/20201028023800/https://support.yubico.com/hc/en-us/articles/360013789259-Using-Your-YubiKey-with-Authenticator-Codes)
  2. `ykman`, the [YubiKey Manager CLI](https://github.com/Yubico/yubikey-manager) tool.
 
 You can verify these prerequisites by running `ykman info` and checking `OATH` is enabled.

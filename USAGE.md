@@ -278,6 +278,7 @@ To configure the default flag values of `aws-vault` and its subcommands:
 * `AWS_VAULT_PASS_PREFIX`: Prefix to prepend to the item path stored in pass (see the flag `--pass-prefix`)
 * `AWS_VAULT_FILE_DIR`: Directory for the "file" password store (see the flag `--file-dir`)
 * `AWS_VAULT_FILE_PASSPHRASE`: Password for the "file" password store
+* `AWS_VAULT_DURATION`: Duration of the temporary or assume-role session (see the flag `--duration`)
 * `AWS_CONFIG_FILE`: The location of the AWS config file
 
 To override the AWS config file (used in the `exec`, `login` and `rotate` subcommands):

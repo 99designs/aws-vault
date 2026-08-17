@@ -37,6 +37,7 @@ func ConfigureLoginCommand(app *kingpin.Application, a *AwsVault) {
 
 	cmd.Flag("duration", "Duration of the assume-role or federated session. Defaults to 1h").
 		Short('d').
+		Envar("AWS_VAULT_DURATION").
 		DurationVar(&input.SessionDuration)
 
 	cmd.Flag("no-session", "Skip creating STS session with GetSessionToken").
